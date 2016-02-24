@@ -1,0 +1,9 @@
+<div id="find-collections-wrapper" class="row">
+    <h2>Featured Collections</h2>
+    <div class="featured-collection-wrapper col-lg-4" *ngFor="#item of items | async">
+        <h3>{{item.collection_name}}</h3>
+        <img src="{{item.collection_image_path}}" />
+        <p class="feat-col-desc">{{item.collection_desc}}</p>
+        <a href="/collections#{{item.collection_name}}">Explore {{item.collection_name}}<span class="oe-more glyphicon glyphicon-menu-right"></span></a>
+    </div>    
+</div>

@@ -1,0 +1,24 @@
+<div id="main_content" class="container-fluid">
+    <div class="navbar row">
+        <div class="crt-logo col-lg-2"> <a [routerLink]="['/Home']"><img src="../../assets/img/crt_logo_2016.svg" /></a></div>
+        <div class="col-lg-8">
+            <nav class="nav-link">
+                <a class="a-nav" [routerLink]="['/Explore']">Explore</a>
+                <a class="a-nav" [routerLink]="['/Collections']">Collections</a>
+                <a class="a-nav" [routerLink]="['/About']">About</a>
+                <a class="a-nav" [routerLink]="['/My Pins']">My Pins</a>
+            </nav>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <router-outlet></router-outlet>
+</div>
+
+<div class="footer row">
+    <div class="col-lg-6">
+        <a href="mailto:virtualoregon.support@oregonstate.edu?subject=CommunitiesReporterTool">Contact Us</a>
+    </div>
+    <div class="col-lg-6">
+        <span class="glyphicon glyphicon-copyright-mark"></span> 2016 Oregon Community Foundation and the OSU Rural Studies Program
+    </div>
+</div>

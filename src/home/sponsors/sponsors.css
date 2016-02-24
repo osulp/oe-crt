@@ -1,0 +1,35 @@
+#sponsors-wrapper hr{    
+    border: 1px solid #D1CDC7;
+    
+}
+
+.sponsors-header {
+    text-align: center;    
+    color: #BBB2A4;
+    line-height: 26px;
+    margin-top:5px;
+}
+.sponsors{
+    text-align:center;
+    margin:10px auto;
+}
+
+@media (min-width:1200px) {
+    #sponsors-wrapper {
+        margin: 63px auto;
+        width:1170px;
+        padding-top:15px;       
+    }  
+    .sponsor-row div{
+        width:20%;
+        vertical-align:middle;
+        float:left;        
+        display:inline-block;
+        height:100%;
+    }  
+    .sponsor-row img{
+        margin:auto;
+    }
+}
+
+

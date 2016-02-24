@@ -1,0 +1,30 @@
+<div id="search-wrapper" class="row">
+    <div class="col-md-12">
+        <div class="search">
+            <span class="fa fa-search"></span>
+            <input [(ngModel)]="searchTerms" #searchInput type="text" [(ngFormControl)]="term" placeholder="Type in location or indicator here" (click)="inputSearchClickHandler($event);" (blur)="blurHandler($event);" (keypress)="inputKeypressHandler($event);" />
+            <div id="explore-btn">
+                Explore
+            </div>
+            <div *ngIf="searchTerms" class="list-group">
+                <a *ngFor="#item of items | async" href="#" class="list-group-item" [attr.data-search-item]="item | json" (keypress)="eventHandler($event)">
+                    <div class="search-result-wrapper">
+                        <div [ngClass]="{isPlace: item.Type == 'Place', isIndicator: item.Type == 'Indicator'}" class="search-result-type">
+                            {{item.Type}}
+                        </div>
+                        <div class="search-result-content">
+                            <div class="search-result-name">
+                                <span>{{item.Name}}</span>
+                                <span *ngIf="item.TypeCategory" class="typeCategory">({{item.TypeCategory}})</span>
+                            </div>
+                            <div *ngIf="item.Desc" class="search-result-desc">
+                                {{item.Desc}}
+                            </div>
+                        </div>
+
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>    
+</div>

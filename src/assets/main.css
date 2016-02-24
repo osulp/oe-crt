@@ -1,59 +1,91 @@
-/* Reset */
-html, body, div {
-  border: 0;
-  margin: 0;
-  padding: 0;
+
+/*#region app */
+/*@font-face {
+	font-family: avenir;
+	src: url('avenir.woff');
+}*/
+
+
+@import url(https://fonts.googleapis.com/css?family=Lato);
+
+@font-face {
+    font-family: AvenirLTCom-Book;   
+    src: url('fonts/AvenirLTCom-Book.ttf') format('truetype'),url('fonts/AvenirLTCom-Book.eot');
 }
 
-/* Box-sizing border-box */
-* { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box; }
-
-/* Set up a default font and some padding to provide breathing room */
-body {
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-  font-size: 16px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@font-face {
+    font-family: AvenirLTStd-Light;   
+    src: url('fonts/AvenirLTStd-Light.eot'), 
+    url('fonts/AvenirLTStd-Light.otf');
 }
 
-p {
-  font-weight: 400;
-  letter-spacing: 0.010em;
-  line-height: 20px;
-  margin-bottom: 1em;
-  margin-top: 1em;
+
+body, html {
+    height: 100%;
+    background-color: #EEECE5 !important;
+    background-color: #E9E9E6;
+    font-family: 'Lato', AvenirLTStd-Light, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    /* Body Avenir Light 14: */
+    /*font-family: Avenir-Light;*/
+    font-size: 14px !important;
+    color: #292E31;
+    line-height: 19px;
 }
 
-ul {
-  margin: 10px 0 0 0;
-  padding: 0 0 0 20px;
+
+
+h1 {
+    font-family: 'Lato', AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-weight: 900;
+    /*font-size:1.85em !important;*/
+    /* H1 Avenir Heavy 26: */
+    /*font-family: Avenir-Heavy;*/
+    font-size: 26px !important;
+    color: #292E31;
+    line-height: 36px;
 }
 
-li {
-  font-weight: 400;
-  margin-top: 4px;
+h2 {
+    font-family: 'Lato', AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-weight: 900;
+    /*font-size:1.33em !important;*/
+    /* H2 Avenir Heavy 22: */
+    /*font-family: Avenir-Heavy;*/
+    font-size: 22px !important;
+    color: #292E31;
+    line-height: 30px;
+} 
+
+h2.h2-light{
+    font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    color:#ffffff;
+    line-height:20px;
+
 }
 
-input {
-  border: 1px solid #106CC8;
-  font-size: 14px;
-  height: 40px;
-  outline: none;
-  padding: 8px;
+h3 {
+    /* H3 Avenir Heavy 20: */
+    /*font-family: Avenir-Heavy;*/
+    font-family: 'Lato', AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 20px;
+    color: #C34500;
+    line-height: 27px;
 }
 
-button {
-  background-color: #106CC8;
-  border-style: none;
-  color: rgba(255,255,255,0.87);
-  cursor: pointer;
-  display: inline-block;
-  font-size: 14px;
-  height: 40px;
-  padding: 8px 18px;
-  text-decoration: none;
+a {
+    /* Link Avenir Light 14: */
+    font-family: 'Lato', AvenirLTStd-Light, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 14px !important;
+    color: #C34500 !important;
+    line-height: 19px;
 }
 
-button:hover {
-  background-color: #28739E;
-}
+    a:hover {
+        /* Link Hover Avenir Li: */
+        font-family: 'Lato', AvenirLTStd-Light, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        font-size: 14px;
+        color: #C34500;
+        line-height: 19px;
+    }
+
+/*#endregion */

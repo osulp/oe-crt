@@ -1,0 +1,13 @@
+<div id="topics-wrapper">
+    <header class="find_header">
+        <div class="title"><h2 class="h2-light">Topics</h2></div>
+        <div class="explore-more">
+            <div>Explore more topics </div>
+            <div class="glyphicon glyphicon-menu-right" aria-hidden="true"></div>
+            <div class="clearfix"></div>
+        </div>
+    </header>
+    <ul>
+        <li *ngFor="#item of items | async">{{item.topic}}</li>
+    </ul>
+</div>

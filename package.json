@@ -1,9 +1,9 @@
 {
-  "name": "angular2-seed",
+  "name": "oe-ng2-seed-crt",
   "version": "0.0.0",
-  "description": "Seed for Angular 2 apps",
+  "description": "Communities Reporter Tool",
   "repository": {
-    "url": "https://github.com/mgechev/angular2-seed"
+    "url": "https://github.com/osulp/oe-ng2-seed/tree/crt"
   },
   "scripts": {
     "build.dev": "gulp build.dev",
@@ -30,7 +30,7 @@
     "webdriver-start": "webdriver-manager start",
     "webdriver-update": "webdriver-manager update"
   },
-  "author": "Minko Gechev <mgechev>",
+  "author": "Marc G. Rempel <marcgr>",
   "license": "MIT",
   "devDependencies": {
     "async": "^1.4.2",
@@ -95,6 +95,10 @@
   },
   "dependencies": {
     "angular2": "2.0.0-beta.7",
+    "bootstrap": "^3.3.5",
+    "highcharts": "^4.2.1",
+    "jquery": "^2.1.4",
+    "ng2-highcharts": "^0.2.4",
     "es6-module-loader": "^0.17.8",
     "es6-shim": "^0.33.3",
     "reflect-metadata": "0.1.2",

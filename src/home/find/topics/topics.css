@@ -1,0 +1,45 @@
+#topics-wrapper{
+    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;    
+    border-radius: 4px;
+    width:570px;
+    height:330px;
+    background-color:white;
+}
+
+.find_header{
+    height:60px;
+    width:570px;
+    background-color:#244068 !important;
+    color:white;
+    border-radius: 4px 4px 0 0;
+
+}
+.find_header .title{
+    padding-left:20px;
+    float:left;
+    color:white !important;
+}
+.find_header .explore-more{
+    float:right;
+    padding:22px 15px 0 0;      
+    height:60px;
+}
+
+.find_header .explore-more div{
+    display:inline-block;
+}
+
+.find_header .explore-more div:first-child {
+    font-size:1em;
+    font-weight:100;
+    position:relative;
+    top:-3px;
+    padding-right:3px;
+    color:rgb(221, 232, 250);
+}
+
+ul {
+  columns: 2;
+  -webkit-columns: 2;
+  -moz-columns: 2;
+}

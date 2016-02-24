@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="118px" height="100px" viewBox="0 0 118 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.5.2 (25235) - http://www.bohemiancoding.com/sketch -->
+    <title>:: graph-small</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.21 0" in="shadowBlurOuter1" type="matrix" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-2">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2.5" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.21 0" in="shadowBlurOuter1" type="matrix" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="home-rural" sketch:type="MSArtboardGroup" transform="translate(-372.000000, -963.000000)">
+            <g id="//-CONTENT-//" sketch:type="MSLayerGroup" transform="translate(0.000000, 80.000000)">
+                <g id="::-feat-collection" transform="translate(135.000000, 760.000000)" sketch:type="MSShapeGroup">
+                    <g id="::-graph-small" transform="translate(242.000000, 126.000000)">
+                        <rect id="Rectangle-46" fill="#FFFFFF" filter="url(#filter-1)" x="10" y="10" width="97.5" height="80" rx="4"></rect>
+                        <rect id="Rectangle-46" fill="#FFFFFF" filter="url(#filter-2)" x="0" y="0" width="97.5" height="80" rx="4"></rect>
+                        <g id="::-data" transform="translate(9.412281, 10.384559)">
+                            <path d="M0.556576727,1.8125 L78.7077144,1.8125" id="Line" stroke="#E7E7EC" stroke-width="1.25" stroke-linecap="square"></path>
+                            <path d="M0.556576727,29.3125 L78.7077144,29.3125" id="Line" stroke="#E7E7EC" stroke-width="1.25" stroke-linecap="square"></path>
+                            <path d="M0.556576727,58.3125 L78.7077144,58.3125" id="Line" stroke="#E7E7EC" stroke-width="1.25" stroke-linecap="square"></path>
+                            <path d="M4.83601902,37.5297398 L29.1609147,20.0575159 L53.5564704,11.3351675 L74.8465094,6.37130032" id="Path-145" stroke="#AEB2BD" stroke-width="3" stroke-linecap="round"></path>
+                            <path d="M4.79824561,51.8187466 L29.1231413,44.0744639 L55.0593998,37.6349723 L74.8162357,19.8048946" id="Path-145" stroke="#AEB2BD" stroke-width="3" stroke-linecap="round"></path>
+                            <ellipse id="Oval-9" fill="#C34500" cx="4.47368421" cy="37.2632353" rx="3.24561404" ry="3.24264706"></ellipse>
+                            <ellipse id="Oval-9" fill="#244068" cx="4.47368421" cy="51.5308824" rx="3.24561404" ry="3.24264706"></ellipse>
+                            <ellipse id="Oval-9" fill="#C34500" cx="28.4736842" cy="20.0772059" rx="3.24561404" ry="3.24264706"></ellipse>
+                            <ellipse id="Oval-9" fill="#244068" cx="28.4736842" cy="44.0727941" rx="3.24561404" ry="3.24264706"></ellipse>
+                            <ellipse id="Oval-9" fill="#C34500" cx="53.245614" cy="11.2426471" rx="3.24561404" ry="3.24264706"></ellipse>
+                            <ellipse id="Oval-9" fill="#244068" cx="55.1491228" cy="37.3176471" rx="3.24561404" ry="3.24264706"></ellipse>
+                            <ellipse id="Oval-9" fill="#C34500" cx="74.4298246" cy="6.16102941" rx="3.24561404" ry="3.24264706"></ellipse>
+                            <ellipse id="Oval-9" fill="#244068" cx="74.245614" cy="20.2426471" rx="3.24561404" ry="3.24264706"></ellipse>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

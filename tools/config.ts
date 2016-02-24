@@ -24,7 +24,7 @@ export const HOT_LOADER_PORT      = 5578;
 
 export const BOOTSTRAP_MODULE     = ENABLE_HOT_LOADING ? 'hot_loader_main' : 'main';
 
-export const APP_TITLE            = 'Angular 2 Seed';
+export const APP_TITLE            = 'Communities Reporter Tool';
 
 export const APP_SRC              = 'src';
 export const ASSETS_SRC           = `${APP_SRC}/assets`;
@@ -71,7 +71,13 @@ export const DEV_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencie
   { src: 'rxjs/bundles/Rx.js', inject: 'libs', dest: JS_DEST },
   { src: 'angular2/bundles/angular2.js', inject: 'libs', dest: JS_DEST },
   { src: 'angular2/bundles/router.js', inject: 'libs', dest: JS_DEST },
-  { src: 'angular2/bundles/http.js', inject: 'libs', dest: JS_DEST }
+  { src: 'angular2/bundles/http.js', inject: 'libs', dest: JS_DEST },
+  { src: 'jquery/dist/jquery.js', inject: 'libs', dest: JS_DEST },
+  { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs', dest: JS_DEST },
+  { src: 'highcharts/highcharts', inject: 'libs', dest: JS_DEST },
+  { src: 'highcharts/modules/map', inject: 'libs', dest: JS_DEST },
+  { src: 'highcharts/modules/data', inject: 'libs', dest: JS_DEST },
+  { src: 'bootstrap/dist/css/bootstrap.css', inject: true, dest: CSS_DEST }
 ]);
 
 export const PROD_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencies([
@@ -79,12 +85,22 @@ export const PROD_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependenci
   { src: 'reflect-metadata/Reflect.js', inject: 'shims' },
   { src: 'es6-shim/es6-shim.min.js', inject: 'shims' },
   { src: 'systemjs/dist/system.js', inject: 'shims' },
-  { src: 'angular2/bundles/angular2-polyfills.min.js', inject: 'libs' }
+  { src: 'angular2/bundles/angular2-polyfills.min.js', inject: 'libs' },
+  { src: 'jquery/dist/jquery.js', inject: 'libs', dest: JS_DEST },
+  { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs', dest: JS_DEST },
+  { src: 'highcharts/highcharts', inject: 'libs', dest: JS_DEST },
+  { src: 'highcharts/modules/map', inject: 'libs', dest: JS_DEST },
+  { src: 'highcharts/modules/data', inject: 'libs', dest: JS_DEST },
+  { src: 'bootstrap/dist/css/bootstrap.min.css', inject: true }
 ]);
 
 // Declare local files that needs to be injected
 export const APP_ASSETS: InjectableDependency[] = [
-  { src: `${ASSETS_SRC}/main.css`, inject: true, dest: CSS_DEST }
+    { src: `${ASSETS_SRC}/css/esri.main.css`, inject: true, dest: CSS_DEST },
+    { src: `${ASSETS_SRC}/main.css`, inject: true, dest: CSS_DEST },
+    { src: `${ASSETS_SRC}/fonts/font-awesome-4.5.0/css/font-awesome.min.css`, inject: true, dest: CSS_DEST },
+    { src: `${ASSETS_SRC}/scripts/ags.4.0.beta3.init.js`, inject: true, dest: JS_DEST },
+    { src: `${ASSETS_SRC}/scripts/oe.js`, inject: true, dest: JS_DEST }
 ];
 
 
