@@ -9,15 +9,13 @@ import {AboutCmp} from '../../about/components/about';
 import {CollectionsCmp} from '../../collections/components/collections';
 import {ExploreCmp} from '../../explore/explore';
 import {DataFeaturedCmp} from '../../data_featured/components/data_featured';
-import {NameList} from '../../shared/services/name_list';
 
 @Component({
-  selector: 'app',
-  viewProviders: [NameList],
-  templateUrl: './app/components/app.html',
-  styleUrls: ['./app/components/app.css'],
-  encapsulation: ViewEncapsulation.None,
-  directives: [ROUTER_DIRECTIVES]
+    selector: 'app',
+    templateUrl: './app/components/app.html',
+    styleUrls: ['./app/components/app.css'],
+    encapsulation: ViewEncapsulation.None,
+    directives: [ROUTER_DIRECTIVES]
 })
 @RouteConfig([
   { path: '/', component: HomeCmp, as: 'Home' },
