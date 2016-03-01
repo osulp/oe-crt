@@ -7,7 +7,7 @@ import {
 import {HomeCmp} from '../../home/home';
 import {AboutCmp} from '../../about/components/about';
 import {CollectionsCmp} from '../../collections/components/collections';
-import {ExploreCmp} from '../../explore/components/explore';
+import {ExploreCmp} from '../../explore/explore';
 import {DataFeaturedCmp} from '../../data_featured/components/data_featured';
 import {NameList} from '../../shared/services/name_list';
 

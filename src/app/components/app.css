@@ -1,69 +1,168 @@
-/*nav{
-    position:absolute;
-    top:.5em;
-    right:1em;
-}*/
+/*All screens sizes*/
+#main_content {    
+    background-color: white;
+    height: 100%;    
+    padding:0;
+}
 
-#main_content{
-    max-width:1440px;   
-    background-color:white;   
-    height:100%;
-    margin:-20px auto 0 auto !important;
+home, explore, about, collections {
+    background-color: #F6F6F5;
+}
+
+search {
+    text-align:center;
+}
+
+.page_wrapper {
+    background-color: #F6F6F5;
+    padding:0;
+    margin:0;
+}
+        
+
+.row-centered{
+    text-align:center;
+}
+
+.col-centered{
+    display:inline-block;
+    float:none;
+    text-align:left;
+    margin-right:-4px;
+}
+
+.navbar-toggle.collapsed .icon-bar {
+    background-color: #AEB2BD;
+    height: 3px;
+}
+
+.navbar-toggle.collapsed {
+    border: 1px solid #AEB2BD;    
+}
+
+#banner-nav-wrapper {
+    padding: 16px 0 14px 0;
+    width: 100%;
+    margin-bottom: -35px;
+}
+
+.crt-logo {
+        padding: 15px 0 15px 20px;
+    }
+
+        .crt-logo img {
+            margin-top: 0;
+        }
+
+
+.crt-nav {
+    padding: 15px 15px 0 0;
+    margin-bottom: 15px;
+}
+
+a.a-nav {
+    font-weight: bolder;
+    margin-right: 20px;
+    font-size: .9em !important;
+    color: #292E31 !important;
+    font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
 
 .footer {
-    vertical-align:middle;
-    max-width:1440px;    
-    margin:0 auto;
-    background-color:#EEECE5;
-    color:#C34500;
+    vertical-align: middle;   
+    margin: 0 auto;
+    background-color: #EEECE5;
+    color: #C34500;
 }
 
     .footer div {
         height: 90px;
         padding: 35px 0;
-        /* © 2016 Oregon Commun: */
         font-size: 12px;
         color: #6F7C82;
         line-height: 20px;
     }
-.footer div:nth-of-type(2)
-{
-    text-align:right;
+
+
+/* Custom, iPhone Retina */
+@media only screen and (min-width : 320px) {
+   
 }
 
-home, explore, about, collections{
-    background-color:#F6F6F5;   
-}
-
-@media (min-width:1200px) {
-    .page_wrapper {
-        background-color: #F6F6F5;
-        width: 1440px;
-        margin-left:-15px;
+/* Extra Small Devices, Phones */ 
+@media only screen and (min-width : 480px) {
+    .col-xs-0 {
+        display:none;
     }
 }
 
+/* Small Devices, Tablets */
+@media only screen and (min-width : 768px) {
 
-.navbar{
-    padding:16px 0 14px 0;    
-    text-align:right;   
-    width:100%;
-    margin-bottom:-35px !important;
 }
 
-.crt-logo{    
-    margin:16px 0 14px 135px;
+/* Medium Devices, Desktops */
+@media only screen and (min-width : 992px) {
+    .page_wrapper {
+        max-width: 1199px;       
+    }
+    .col-md-0 {
+        display:none;
+    }
 }
 
-.nav-link{
-    margin-top:31px;
+/* Large Devices, Wide Screens */
+@media only screen and (min-width : 1200px) {
+
+    #main_content {
+        max-width: 1440px;
+        margin: -20px auto 0 auto;
+    }
+
+    .col-md-0, .col-xs-0 {
+        display:inline;
+    }
+
+    .footer {
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+
+        .footer div:nth-of-type(2) {
+            text-align: right;
+        }
+
+    .page_wrapper {
+        max-width: 1440px;       
+    }
+
+    #banner-nav-wrapper {
+        padding: 16px 0 14px 0;
+        text-align: right;
+        width: 100%;
+        margin-bottom: -35px !important;
+    }
+
+    .crt-logo {
+        padding: 16px 0 14px 135px;
+    }
+
+
+        .crt-logo img {
+            padding-top: 16px;
+        }
+
+    .crt-nav {    
+        padding-top:31px;
+        padding-right:115px;
+    }
+
+    a.a-nav {
+        font-weight: bolder;
+        padding-right: 20px;
+        font-size: .9em !important;
+        color: #292E31 !important;
+        font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    }
 }
-a.a-nav
-{
-    font-weight:bolder;
-    margin-right:20px;
-    font-size:.9em !important;
-    color:#292E31 !important;
-    font-family:  AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-}
+

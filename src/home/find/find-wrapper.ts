@@ -1,7 +1,7 @@
 import {Component} from 'angular2/core';
 import {TopicsCmp} from './topics/topics';
 import {PlacesCmp} from './places/places';
-import {SearchCmp} from './search/search';
+import {SearchCmp} from '../../shared/components/search/search';
 import {Router} from 'angular2/router';
 
 @Component({

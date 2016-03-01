@@ -20,8 +20,8 @@ interface SearchResult {
 
 @Component({
     selector: 'search',
-    templateUrl: './home/find/search/search.html',
-    styleUrls: ['./home/find/search/search.css'],
+    templateUrl: './shared/components/search/search.html',
+    styleUrls: ['./shared/components/search/search.css'],
     providers: [JSONP_PROVIDERS, SearchTopicsPlacesService],
     directives: [CORE_DIRECTIVES, NgClass]
 })

@@ -1,13 +1,27 @@
-<div id="topics-wrapper">
-    <header class="find_header">
-        <div class="title"><h2 class="h2-light">Topics</h2></div>
-        <div class="explore-more">
-            <div>Explore more topics </div>
-            <div class="glyphicon glyphicon-menu-right" aria-hidden="true"></div>
-            <div class="clearfix"></div>
+<div id="topics-row-wrapper">
+    <div class="row pull-right">
+        <div class="col-lg-2 col-md-0 col-xs-0">
+            &nbsp;
         </div>
-    </header>
-    <ul>
-        <li *ngFor="#item of items | async">{{item.topic}}</li>
-    </ul>
+        <div class="col-lg-10 col-md-12 col-xs-12">
+            <div class="find_header row">
+                <div class="col-xs-12">
+                    <header class="">
+                        <div class="title"><h2 class="h2-light">Topics</h2></div>
+                        <div class="explore-more">
+                            <div>Explore more topics </div>
+                            <div class="glyphicon glyphicon-menu-right" aria-hidden="true"></div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </header>
+                </div>
+            </div>
+            <div id="topics-wrapper" class="row">
+                <div class="col-xs-12">&nbsp;</div>
+                <ul>
+                    <li *ngFor="#item of items | async">{{item.topic}}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>

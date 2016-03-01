@@ -96,10 +96,12 @@ export const PROD_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependenci
 
 // Declare local files that needs to be injected
 export const APP_ASSETS: InjectableDependency[] = [
-    { src: `${ASSETS_SRC}/css/esri.main.css`, inject: true, dest: CSS_DEST },
+    { src: `${ASSETS_SRC}/css/esri.3.15.css`, inject: true, dest: CSS_DEST },
+    { src: `${ASSETS_SRC}/css/bootstrapmap.css`, inject: true, dest: CSS_DEST },
     { src: `${ASSETS_SRC}/main.css`, inject: true, dest: CSS_DEST },
     { src: `${ASSETS_SRC}/fonts/font-awesome-4.5.0/css/font-awesome.min.css`, inject: true, dest: CSS_DEST },
-    { src: `${ASSETS_SRC}/scripts/ags.4.0.beta3.init.js`, inject: true, dest: JS_DEST },
+    { src: `${ASSETS_SRC}/scripts/ags.3.15.init.js`, inject: true, dest: JS_DEST },
+
     { src: `${ASSETS_SRC}/scripts/oe.js`, inject: true, dest: JS_DEST }
 ];
 

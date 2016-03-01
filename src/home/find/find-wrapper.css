@@ -1,24 +1,20 @@
 /*find section shared component styles*/
 
-topics {
+/*topics {
     float: right;
     margin-top: 60px;
-}
+    
+}*/
 
-places {
+/*places {
     float: left;
     margin-top: 60px;
-}
+}*/
 
-search {
-    text-align:center;
-}
 
 #find-topic-place-wrapper {
     background-image: url('../../assets/img/banner_image.png');
-    background-repeat: no-repeat;
-    /*height: 480px;*/
-    margin: 0 -30px !important;
+    background-repeat: no-repeat;    
 }
 
 
