@@ -55,10 +55,9 @@ if (ENABLE_HOT_LOADING) {
   process.exit(0);
 }
 
-interface InjectableDependency {
+interface IDependency {
   src: string;
   inject: string | boolean;
-  dest?: string;
 }
 
 // Declare NPM dependencies (Note that globs should not be injected).
@@ -80,10 +79,11 @@ export const DEV_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencie
   { src: 'bootstrap/dist/css/bootstrap.css', inject: true, dest: CSS_DEST }
 ]);
 
-export const PROD_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencies([
+export const PROD_NPM_DEPENDENCIES: IDependency[] = normalizeDependencies([
   { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims' },
   { src: 'reflect-metadata/Reflect.js', inject: 'shims' },
   { src: 'es6-shim/es6-shim.min.js', inject: 'shims' },
+  { src: 'angular2/es6/dev/src/testing/shims_for_IE.js', inject: 'shims' },
   { src: 'systemjs/dist/system.js', inject: 'shims' },
   { src: 'angular2/bundles/angular2-polyfills.min.js', inject: 'libs' },
   { src: 'jquery/dist/jquery.js', inject: 'libs', dest: JS_DEST },
@@ -139,10 +139,10 @@ export const SYSTEM_BUILDER_CONFIG = {
 // --------------
 // Private.
 
-function normalizeDependencies(deps: InjectableDependency[]) {
+function normalizeDependencies(deps: IDependency[]) {
   deps
-    .filter((d:InjectableDependency) => !/\*/.test(d.src)) // Skip globs
-    .forEach((d:InjectableDependency) => d.src = require.resolve(d.src));
+    .filter((d:IDependency) => !/\*/.test(d.src)) // Skip globs
+    .forEach((d:IDependency) => d.src = require.resolve(d.src));
   return deps;
 }
 
