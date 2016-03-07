@@ -14,13 +14,18 @@ import 'rxjs/add/operator/map';
 
 
 export class TopicsCmp implements OnInit {
+    public Topics;
     constructor(private _topicService: TopicsService) { }
 
     items: Observable<string[]>;
 
     search(term: string) {
-        //this._topicService.search(term).then(items => this.items = items);        
-        this.items = this._topicService.search(term);
+        //this._topicService.search(term).then(items => this.items = items);  
+        this._topicService.getTopics().subscribe(
+            data => { this.Topics = data; },
+            err => console.error(err),
+            () => console.log('done loading topics'));
+        //this.items = this._topicService.getTopics();
     }
 
     ngOnInit() {

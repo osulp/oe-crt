@@ -1,0 +1,27 @@
+<div id="topics-row-wrapper">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="find_header row row-centered">
+                <div class="col-xs-12 col-centered" (click)="toggleTopicsWrapper()">
+                    <header class="">
+                        <div class="title"><h2 class="h2-light">Topics</h2></div>
+                        <div class="toggle-topics">
+                            <div [ngClass]="getClass()" aria-hidden="true"></div>
+                        </div>
+                    </header>
+                </div>
+            </div>
+            <div id="topics-wrapper" class="row" [hidden]="!visible">
+                <div id="topic-col-list">
+                    <div id="all-topics" [ngClass]="showAllSelected ? 'selected' : ''" (click)="toggleAllTopics($event)">All Topics</div>
+                    <div (click)="toggleTopic(topic)"
+                         [ngClass]="topic.selected ? 'selected' : ''"
+                         *ngFor="#topic of Topics"         
+                         >
+                        {{topic.topic}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+<div id="places-row-wrapper" class="">
+    <div class="row">
+        <div class="col-xs-12" (click)="toggle()">
+            <header class="find_header">
+                <div class="title"><h2 class="h2-light">Places</h2></div>
+                <div class="toggle-places">
+                    <div [ngClass]="getClass()" aria-hidden="true"></div>
+                </div>
+            </header>
+        </div>
+    </div>
+    <div class="row row-map" [hidden]="!visible">
+        <div class="col-xs-12">
+            <!-- Bootstrap-map-js -->
+            <div id="viewDiv"></div>
+        </div>        
+    </div>
+
+</div>
+
+

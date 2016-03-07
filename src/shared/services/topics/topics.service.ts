@@ -1,19 +1,29 @@
 import {Injectable} from 'angular2/core';
 import {Jsonp, URLSearchParams} from 'angular2/http';
+import {Topic} from '../../data_models/topic';
+
 @Injectable()
+
 export class TopicsService {
-    constructor(private jsonp: Jsonp) { }
-    search(term: string) {
+    constructor(public jsonp: Jsonp) { }
+    getTopics() {
         let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/topics';
         var params = new URLSearchParams();
-        //params.set('search', term); // the user's search value
-        //params.set('action', 'opensearch');
         params.set('f', 'json');
         params.set('callback', 'JSONP_CALLBACK');
-        // TODO: Add error handling
         return this.jsonp
             .get(serviceUrl, { search: params })
-            .map(request => <string[]>request.json());
+            .map(request => <string[]>request.json())
+            .map((topics: Array<any>) => {
+                let result: Array<Topic> = [];
+                if (topics) {
+                    topics.forEach((topic) => {
+                        result.push(new Topic(topic.topic, topic.domain, false));
+                    });
+                }
+                return result;
+            });
     }
 }
+
 

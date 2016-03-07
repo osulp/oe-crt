@@ -61,22 +61,22 @@ interface IDependency {
 }
 
 // Declare NPM dependencies (Note that globs should not be injected).
-export const DEV_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencies([
-  { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims', dest: JS_DEST },
-  { src: 'reflect-metadata/Reflect.js', inject: 'shims', dest: JS_DEST },
-  { src: 'es6-shim/es6-shim.js', inject: 'shims', dest: JS_DEST },
-  { src: 'systemjs/dist/system.src.js', inject: 'shims', dest: JS_DEST },
-  { src: 'angular2/bundles/angular2-polyfills.js', inject: 'shims', dest: JS_DEST },
-  { src: 'rxjs/bundles/Rx.js', inject: 'libs', dest: JS_DEST },
-  { src: 'angular2/bundles/angular2.js', inject: 'libs', dest: JS_DEST },
-  { src: 'angular2/bundles/router.js', inject: 'libs', dest: JS_DEST },
-  { src: 'angular2/bundles/http.js', inject: 'libs', dest: JS_DEST },
-  { src: 'jquery/dist/jquery.js', inject: 'libs', dest: JS_DEST },
-  { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs', dest: JS_DEST },
-  { src: 'highcharts/highcharts', inject: 'libs', dest: JS_DEST },
-  { src: 'highcharts/modules/map', inject: 'libs', dest: JS_DEST },
-  { src: 'highcharts/modules/data', inject: 'libs', dest: JS_DEST },
-  { src: 'bootstrap/dist/css/bootstrap.css', inject: true, dest: CSS_DEST }
+export const DEV_NPM_DEPENDENCIES: IDependency[] = normalizeDependencies([
+  { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims' },
+  { src: 'reflect-metadata/Reflect.js', inject: 'shims' },
+  { src: 'es6-shim/es6-shim.js', inject: 'shims' },
+  { src: 'systemjs/dist/system.src.js', inject: 'shims' },
+  { src: 'angular2/bundles/angular2-polyfills.js', inject: 'shims' },
+  { src: 'rxjs/bundles/Rx.js', inject: 'libs' },
+  { src: 'angular2/bundles/angular2.js', inject: 'libs'},
+  { src: 'angular2/bundles/router.js', inject: 'libs' },
+  { src: 'angular2/bundles/http.js', inject: 'libs' },
+  { src: 'jquery/dist/jquery.js', inject: 'libs' },
+  { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs' },
+  { src: 'highcharts/highcharts', inject: 'libs' },
+  { src: 'highcharts/modules/map', inject: 'libs' },
+  { src: 'highcharts/modules/data', inject: 'libs' },
+  { src: 'bootstrap/dist/css/bootstrap.css', inject: true }
 ]);
 
 export const PROD_NPM_DEPENDENCIES: IDependency[] = normalizeDependencies([
@@ -86,23 +86,23 @@ export const PROD_NPM_DEPENDENCIES: IDependency[] = normalizeDependencies([
   { src: 'angular2/es6/dev/src/testing/shims_for_IE.js', inject: 'shims' },
   { src: 'systemjs/dist/system.js', inject: 'shims' },
   { src: 'angular2/bundles/angular2-polyfills.min.js', inject: 'libs' },
-  { src: 'jquery/dist/jquery.js', inject: 'libs', dest: JS_DEST },
-  { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs', dest: JS_DEST },
-  { src: 'highcharts/highcharts', inject: 'libs', dest: JS_DEST },
-  { src: 'highcharts/modules/map', inject: 'libs', dest: JS_DEST },
-  { src: 'highcharts/modules/data', inject: 'libs', dest: JS_DEST },
+  { src: 'jquery/dist/jquery.js', inject: 'libs' },
+  { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs' },
+  { src: 'highcharts/highcharts', inject: 'libs' },
+  { src: 'highcharts/modules/map', inject: 'libs' },
+  { src: 'highcharts/modules/data', inject: 'libs' },
   { src: 'bootstrap/dist/css/bootstrap.min.css', inject: true }
 ]);
 
 // Declare local files that needs to be injected
-export const APP_ASSETS: InjectableDependency[] = [
-    { src: `${ASSETS_SRC}/css/esri.3.15.css`, inject: true, dest: CSS_DEST },
-    { src: `${ASSETS_SRC}/css/bootstrapmap.css`, inject: true, dest: CSS_DEST },
-    { src: `${ASSETS_SRC}/main.css`, inject: true, dest: CSS_DEST },
-    { src: `${ASSETS_SRC}/fonts/font-awesome-4.5.0/css/font-awesome.min.css`, inject: true, dest: CSS_DEST },
-    { src: `${ASSETS_SRC}/scripts/ags.3.15.init.js`, inject: true, dest: JS_DEST },
+export const APP_ASSETS: IDependency[] = [
+    { src: `${ASSETS_SRC}/css/esri.3.15.css`, inject: true },
+    { src: `${ASSETS_SRC}/css/bootstrapmap.css`, inject: true },
+    { src: `${ASSETS_SRC}/main.css`, inject: true },
+    { src: `${ASSETS_SRC}/fonts/font-awesome-4.5.0/css/font-awesome.min.css`, inject: true },
+    { src: `${ASSETS_SRC}/scripts/ags.3.15.init.js`, inject: true },
 
-    { src: `${ASSETS_SRC}/scripts/oe.js`, inject: true, dest: JS_DEST }
+    { src: `${ASSETS_SRC}/scripts/oe.js`, inject: true }
 ];
 
 

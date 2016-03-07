@@ -1,4 +1,4 @@
-#search-wrapper {
+.search-wrapper {
     margin-top: 56px;    
     position:relative;
 }
@@ -10,7 +10,7 @@
     font-family: 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;   
 }
 
-#search-wrapper input{
+.search-wrapper input{
     width:60%;
     height:50px;    
     border-radius: 4px 0 0 4px;
@@ -19,11 +19,11 @@
     /*box-shadow: 0 0 3px #ccc, 0 10px 15px #ebebeb inset;*/
     text-indent:45px;
 }
-#search-wrapper input::-ms-clear {
+.search-wrapper input::-ms-clear {
     display: none;
 }
 
-#search-wrapper .fa-search { 
+.search-wrapper .fa-search { 
   position: relative;  
   left: 40px;  
 }

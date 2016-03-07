@@ -16,6 +16,10 @@ search {
 .page_wrapper {
     background-color: #F6F6F5;
     padding:0;
+    margin:4px 0 0 0;   
+}
+
+home .page_wrapper{
     margin:0;
 }
         
@@ -40,21 +44,6 @@ search {
     border: 1px solid #AEB2BD;    
 }
 
-#banner-nav-wrapper {
-    padding: 16px 0 14px 0;
-    width: 100%;
-    margin-bottom: -35px;
-}
-
-.crt-logo {
-        padding: 15px 0 15px 20px;
-    }
-
-        .crt-logo img {
-            margin-top: 0;
-        }
-
-
 .crt-nav {
     padding: 15px 15px 0 0;
     margin-bottom: 15px;
@@ -67,6 +56,32 @@ a.a-nav {
     color: #292E31 !important;
     font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
+
+a.a-nav.router-link-active{
+    background-color:none !important;
+    text-decoration:underline !important;
+    color: rgba(41,46,49,.50) !important;
+}
+a.a-nav:hover{
+    background-color:none !important;
+    text-decoration:underline !important;
+    color: rgba(41,46,49,.50) !important;
+}
+
+#banner-nav-wrapper {
+    margin:0;
+    box-shadow: 0 4px 2px -2px rgba(0,0,0,0.25);    
+}
+
+.crt-logo {
+        padding: 15px 0 15px 20px;
+    }
+
+        .crt-logo img {
+            margin-top: 0;
+        }
+
+
 
 .footer {
     vertical-align: middle;   
@@ -137,10 +152,10 @@ a.a-nav {
     }
 
     #banner-nav-wrapper {
-        padding: 16px 0 14px 0;
+        /*padding: 16px 0 14px 0;
         text-align: right;
         width: 100%;
-        margin-bottom: -35px !important;
+        margin-bottom: -35px !important;*/
     }
 
     .crt-logo {
@@ -157,12 +172,12 @@ a.a-nav {
         padding-right:115px;
     }
 
-    a.a-nav {
+    /*a.a-nav {
         font-weight: bolder;
         padding-right: 20px;
         font-size: .9em !important;
-        color: #292E31 !important;
+        color: #292E31;
         font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    }
+    }*/
 }
 
