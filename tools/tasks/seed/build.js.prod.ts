@@ -13,11 +13,12 @@ const INLINE_OPTIONS = {
 export = () => {
   let tsProject = makeTsProject();
   let src = [
-    'typings/browser.d.ts',
-    'tools/manual_typings/**/*.d.ts',
-    join(APP_SRC, '**/*.ts'),
-    '!' + join(APP_SRC, '**/*.spec.ts'),
-    '!' + join(APP_SRC, '**/*.e2e.ts')
+      'typings/browser.d.ts',
+      'tools/manual_typings/**/*.d.ts',
+      join(APP_SRC,'main.ts'),
+      join(APP_SRC, '**/*.ts'),
+      '!' + join(APP_SRC, '**/*.spec.ts'),
+      '!' + join(APP_SRC, '**/*.e2e.ts')
   ];
   let result = gulp.src(src)
     .pipe(plugins.plumber())

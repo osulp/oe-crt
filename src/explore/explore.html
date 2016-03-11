@@ -1,4 +1,4 @@
-<div id="explore-page" class="page_wrapper explore-page col-xs-12">
+<div id="explore-page" class="page_wrapper explore-page col-xs-12">    
     <div class="col-lg-12 col-md-12 col-xs-12">
         <div class="row">
             <search class="col-lg-12 col-md-12 col-xs-12"></search>
@@ -6,9 +6,10 @@
     </div>
     <div class="col-xs-12">
         <div class="row">
-            <topics></topics>
+            <topics (selectedTopics)="selectedTopics =onGetSelectedTopics($event)"></topics>
         </div>
     </div>
+    <div></div>
     <div class="col-xs-12">
         <div class="row">
             <places></places>

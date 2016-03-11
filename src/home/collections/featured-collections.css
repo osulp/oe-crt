@@ -2,7 +2,7 @@
 .featured-collection-wrapper:after{
     position:absolute;
     content:' ';
-    background-image:url('../../assets/img/feat-graph.png');
+    background-image:url('assets/img/feat-graph.png');
     width:118px;
     height:100px;
     top:75px;   

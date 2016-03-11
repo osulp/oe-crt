@@ -48,6 +48,7 @@
     "gulp-filter": "^4.0.0",
     "gulp-inject": "^3.0.0",
     "gulp-inline-ng2-template": "^1.1.0",
+    "gulp-less": "^3.0.5",
     "gulp-load-plugins": "^1.2.0",
     "gulp-plumber": "~1.1.0",
     "gulp-shell": "~0.5.2",
@@ -95,7 +96,7 @@
     "yargs": "^4.2.0"
   },
   "dependencies": {
-    "angular2": "2.0.0-beta.8",
+    "angular2": "2.0.0-beta.9",
     "bootstrap": "^3.3.5",
     "highcharts": "^4.2.1",
     "jquery": "^2.1.4",

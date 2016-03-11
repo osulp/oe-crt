@@ -1,8 +1,11 @@
-import {Component, OnInit}   from 'angular2/core';
+import {Component, OnInit, Output, EventEmitter}   from 'angular2/core';
 import {JSONP_PROVIDERS}  from 'angular2/http';
-import {Observable}       from 'rxjs/Observable';
 import {Topic} from '../../shared/data_models/topic';
+import {Indicator} from '../../shared/data_models/indicator';
 import {TopicsService} from '../../shared/services/topics/topics.service';
+import {IndicatorsService} from '../../shared/services/indicators/indicators.service';
+import {SelectIndicatorsCmp} from './indicators/select-indicators';
+import {IndicatorTopicFilterPipe} from './indicators/indicator-topic-filter-pipe';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/share';
 
@@ -10,23 +13,33 @@ import 'rxjs/add/operator/share';
     selector: 'topics',
     templateUrl: './explore/topics/topics.html',
     styleUrls: ['./explore/topics/topics.css'],
-    providers: [JSONP_PROVIDERS, TopicsService]
+    directives: [SelectIndicatorsCmp],
+    pipes: [IndicatorTopicFilterPipe],
+    providers: [JSONP_PROVIDERS, TopicsService, IndicatorsService]
 })
 
 
 
 export class TopicsCmp implements OnInit {
+    @Output() selectedTopics = new EventEmitter();
+    //selectedIndicators = new EventEmitter();
+    public Indicators;
     public Topics;
+    public _selectedIndicators;
+    public _selectedTopics;
     visible: boolean;
+    chkBoxVisibile: boolean;
     showAllSelected: boolean;
     selected: string[];
 
-    constructor(public _topicService: TopicsService) {
+    constructor(
+        public _topicService: TopicsService,
+        public _indicatorService: IndicatorsService
+    ) {
         this.visible = true;
         this.showAllSelected = false;
+        this.chkBoxVisibile = false;
     }
-
-    topics: Observable<Array<Topic>>;
 
     getClass() {
         return this.visible ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
@@ -46,6 +59,8 @@ export class TopicsCmp implements OnInit {
                     topic.toggleSelected();
                 }
             });
+            this._selectedTopics = [];
+            this.selectedTopics.emit(this._selectedTopics);
         }
     }
 
@@ -66,11 +81,42 @@ export class TopicsCmp implements OnInit {
             topic,
             ...this.Topics.slice(i + 1)
         ];
+        this._selectedTopics = [];
+        for (var x = 0; x < this.Topics.length; x++) {
+            if (this.Topics[x].selected) {
+                this._selectedTopics.push(this.Topics[x].topic);
+            }
+        }
+        this.selectedTopics.emit(this._selectedTopics);
     }
+
+    getIndicators() {
+        this._indicatorService.getIndicators().subscribe(
+            data => {
+                this.Indicators = data;
+            },
+            err => console.error(err),
+            () => console.log('done loading indicators'));
+    }
+
+    toggleIndicator(indicator: Indicator) {
+        indicator.toggleSelected();
+        const i = this.Indicators.indexOf(indicator);
+        this.Indicators = [
+            ...this.Indicators.slice(0, i),
+            indicator,
+            ...this.Indicators.slice(i + 1)
+        ];
+    }
+
 
     ngOnInit() {
         this.getTopics();
+        this.getIndicators();
         this.selected = ['All Topics'];
+        this.selectedTopics.emit('test');
     }
 }
+
+
 

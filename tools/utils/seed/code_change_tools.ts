@@ -10,7 +10,7 @@ let runServer = () => {
 
   if (APP_BASE !== '/') {
     routes[`${APP_BASE}`] = APP_DEST;
-    baseDir = `${DIST_DIR}/empty/`;
+    baseDir = `${DIST_DIR}/dev/`;
   }
 
   browserSync({

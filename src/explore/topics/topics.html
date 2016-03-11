@@ -16,11 +16,24 @@
                     <div id="all-topics" [ngClass]="showAllSelected ? 'selected' : ''" (click)="toggleAllTopics($event)">All Topics</div>
                     <div (click)="toggleTopic(topic)"
                          [ngClass]="topic.selected ? 'selected' : ''"
-                         *ngFor="#topic of Topics"         
-                         >
+                         *ngFor="#topic of Topics">
                         {{topic.topic}}
                     </div>
                 </div>
+                <div>
+                    <div class="multiselect">
+                        <div class="selectBox" (click)="chkBoxVisibile = !chkBoxVisibile;">
+                            <select>
+                                <option>Filter Indicators</option>
+                            </select>
+                            <div class="overSelect"></div>
+                        </div>
+                        <div id="checkboxes" [hidden]="!chkBoxVisibile">
+                            <label *ngFor="#indicator of Indicators | indicatorTopicFilterPipe : Topics; #i = index" attr.for={{i}}><input type="checkbox" checked="{{indicator.selected}}" id="{{i}}" />{{indicator.indicator}}</label>           
+                        </div>
+                    </div>                    
+                </div>
+                <select-indicators></select-indicators>
             </div>
         </div>
     </div>

@@ -10,114 +10,114 @@ const ENVIRONMENTS = {
 
 
 export class SeedConfig {
-  PORT                 = argv['port']                        || 5555;
-  PROJECT_ROOT         = normalize(join(__dirname, '..'));
-  ENV                  = getEnvironment();
-  DEBUG                = argv['debug']                       || false;
-  DOCS_PORT            = argv['docs-port']                   || 4003;
-  COVERAGE_PORT        = argv['coverage-port']               || 4004;
-  APP_BASE             = argv['base']                        || '/';
+    PORT = argv['port'] || 5555;
+    PROJECT_ROOT = normalize(join(__dirname, '..'));
+    ENV = getEnvironment();
+    DEBUG = argv['debug'] || false;
+    DOCS_PORT = argv['docs-port'] || 4003;
+    COVERAGE_PORT = argv['coverage-port'] || 4004;
+    APP_BASE = argv['base'] || '/';
 
-  ENABLE_HOT_LOADING   = argv['hot-loader'];
-  HOT_LOADER_PORT      = 5578;
+    ENABLE_HOT_LOADING = argv['hot-loader'];
+    HOT_LOADER_PORT = 5578;
 
-  BOOTSTRAP_MODULE = this.ENABLE_HOT_LOADING ? `${this.APP_BASE}hot_loader_main` : `${this.APP_BASE}main`;
+    BOOTSTRAP_MODULE = this.ENABLE_HOT_LOADING ? `${this.APP_BASE}hot_loader_main` : `${this.APP_BASE}main`;
 
-  APP_TITLE            = 'Application Title';
+    APP_TITLE = 'Application Title';
 
-  APP_SRC              = 'src';
-  ASSETS_SRC           = `${this.APP_SRC}/assets`;
+    APP_SRC = 'src';
+    ASSETS_SRC = `${this.APP_SRC}/assets`;
 
-  TOOLS_DIR            = 'tools';
-  SEED_TASKS_DIR       = join(process.cwd(), this.TOOLS_DIR, 'tasks', 'seed');
-  DOCS_DEST            = 'docs';
-  DIST_DIR             = 'dist';
-  DEV_DEST             = `${this.DIST_DIR}/dev`;
-  PROD_DEST            = `${this.DIST_DIR}/prod`;
-  TMP_DIR              = `${this.DIST_DIR}/tmp`;
-  APP_DEST             = `${this.DIST_DIR}/${this.ENV}`;
-  CSS_DEST             = `${this.APP_DEST}/css`;
-  JS_DEST              = `${this.APP_DEST}/js`;
-  APP_ROOT             = this.ENV === 'dev' ? `${this.APP_BASE}${this.APP_DEST}/` : `${this.APP_BASE}`;
-  VERSION              = appVersion();
+    TOOLS_DIR = 'tools';
+    SEED_TASKS_DIR = join(process.cwd(), this.TOOLS_DIR, 'tasks', 'seed');
+    DOCS_DEST = 'docs';
+    DIST_DIR = 'dist';
+    DEV_DEST = `${this.DIST_DIR}/dev`;
+    PROD_DEST = `${this.DIST_DIR}/prod`;
+    TMP_DIR = `${this.DIST_DIR}/tmp`;
+    APP_DEST = `${this.DIST_DIR}/${this.ENV}`;
+    CSS_DEST = `${this.APP_DEST}/css`;
+    JS_DEST = `${this.APP_DEST}/js`;
+    APP_ROOT = this.ENV === 'dev' ? `${this.APP_BASE}${this.APP_DEST}/` : `${this.APP_BASE}`;
+    VERSION = appVersion();
 
-  CSS_PROD_BUNDLE      = 'all.css';
-  JS_PROD_SHIMS_BUNDLE = 'shims.js';
-  JS_PROD_APP_BUNDLE   = 'app.js';
+    CSS_PROD_BUNDLE = 'all.css';
+    JS_PROD_SHIMS_BUNDLE = 'shims.js';
+    JS_PROD_APP_BUNDLE = 'app.js';
 
-  VERSION_NPM          = '2.14.2';
-  VERSION_NODE         = '4.0.0';
+    VERSION_NPM = '2.14.2';
+    VERSION_NODE = '4.0.0';
 
-  NG2LINT_RULES        = customRules();
-
-
-  // Declare NPM dependencies (Note that globs should not be injected).
-  DEV_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencies([
-    { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims' },
-    { src: 'reflect-metadata/Reflect.js', inject: 'shims' },
-    { src: 'es6-shim/es6-shim.js', inject: 'shims' },
-    { src: 'systemjs/dist/system.src.js', inject: 'shims' },
-    { src: 'angular2/bundles/angular2-polyfills.js', inject: 'shims' },
-    { src: 'rxjs/bundles/Rx.js', inject: 'libs' },
-    { src: 'angular2/bundles/angular2.js', inject: 'libs' },
-    { src: 'angular2/bundles/router.js', inject: 'libs' },
-    { src: 'angular2/bundles/http.js', inject: 'libs' },
-    { src: 'jquery/dist/jquery.js', inject: 'libs' },
-    { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs' },
-    { src: 'highcharts/highcharts', inject: 'libs' },
-    { src: 'highcharts/modules/map', inject: 'libs' },
-    { src: 'highcharts/modules/data', inject: 'libs' },
-    { src: 'bootstrap/dist/css/bootstrap.css', inject: true }
-  ]);
-
-  PROD_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencies([
-    { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims' },
-    { src: 'reflect-metadata/Reflect.js', inject: 'shims' },
-    { src: 'es6-shim/es6-shim.min.js', inject: 'shims' },
-    { src: 'systemjs/dist/system.js', inject: 'shims' },
-    { src: 'angular2/bundles/angular2-polyfills.min.js', inject: 'libs' },
-    { src: 'jquery/dist/jquery.js', inject: 'libs' },
-    { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs' },
-    { src: 'highcharts/highcharts', inject: 'libs' },
-    { src: 'highcharts/modules/map', inject: 'libs' },
-    { src: 'highcharts/modules/data', inject: 'libs' },
-    { src: 'bootstrap/dist/css/bootstrap.min.css', inject: true }
-  ]);
-
-  //// Declare local files that needs to be injected
-  APP_ASSETS: InjectableDependency[] = [];
-  //project specfic dependencies in project.config.cs
+    NG2LINT_RULES = customRules();
 
 
-  DEV_DEPENDENCIES = this.DEV_NPM_DEPENDENCIES.concat(this.APP_ASSETS);
-  PROD_DEPENDENCIES = this.PROD_NPM_DEPENDENCIES.concat(this.APP_ASSETS);
+    // Declare NPM dependencies (Note that globs should not be injected).
+    DEV_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencies([
+        { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims' },
+        { src: 'reflect-metadata/Reflect.js', inject: 'shims' },
+        { src: 'es6-shim/es6-shim.js', inject: 'shims' },
+        { src: 'systemjs/dist/system.src.js', inject: 'shims' },
+        { src: 'angular2/bundles/angular2-polyfills.js', inject: 'shims' },
+        { src: 'rxjs/bundles/Rx.js', inject: 'libs' },
+        { src: 'angular2/bundles/angular2.js', inject: 'libs' },
+        { src: 'angular2/bundles/router.js', inject: 'libs' },
+        { src: 'angular2/bundles/http.js', inject: 'libs' },
+        { src: 'jquery/dist/jquery.js', inject: 'libs' },
+        { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs' },
+        { src: 'highcharts/highcharts', inject: 'libs' },
+        { src: 'highcharts/modules/map', inject: 'libs' },
+        { src: 'highcharts/modules/data', inject: 'libs' },
+        { src: 'bootstrap/dist/css/bootstrap.css', inject: true }
+    ]);
+
+    PROD_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencies([
+        { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims' },
+        { src: 'reflect-metadata/Reflect.js', inject: 'shims' },
+        { src: 'es6-shim/es6-shim.min.js', inject: 'shims' },
+        { src: 'systemjs/dist/system.js', inject: 'shims' },
+        { src: 'angular2/bundles/angular2-polyfills.min.js', inject: 'libs' },
+        { src: 'jquery/dist/jquery.js', inject: 'libs' },
+        { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs' },
+        { src: 'highcharts/highcharts', inject: 'libs' },
+        { src: 'highcharts/modules/map', inject: 'libs' },
+        { src: 'highcharts/modules/data', inject: 'libs' }
+    ]);
+
+    //// Declare local files that needs to be injected
+    APP_ASSETS: InjectableDependency[] = [];
+    //project specfic dependencies in project.config.cs
+    DEV_APP_ASSETS: InjectableDependency[] = [];
+    PROD_APP_ASSETS: InjectableDependency[] = [];
+
+    DEV_DEPENDENCIES = this.DEV_NPM_DEPENDENCIES.concat(this.APP_ASSETS);
+    PROD_DEPENDENCIES = this.PROD_NPM_DEPENDENCIES.concat(this.APP_ASSETS);
 
 
-  // ----------------
-  // SystemsJS Configuration.
-  protected SYSTEM_CONFIG_DEV = {
-    defaultJSExtensions: true,
-    paths: {
-      [this.BOOTSTRAP_MODULE]: `${this.APP_BASE}${this.BOOTSTRAP_MODULE}`,
-      'angular2/*': `${this.APP_BASE}angular2/*`,
-      'rxjs/*': `${this.APP_BASE}rxjs/*`,
-      '*': `${this.APP_BASE}node_modules/*`
-    },
-    packages: {
-      angular2: { defaultExtension: false },
-      rxjs: { defaultExtension: false }
-    }
-  };
+    // ----------------
+    // SystemsJS Configuration.
+    protected SYSTEM_CONFIG_DEV = {
+        defaultJSExtensions: true,
+        paths: {
+            [this.BOOTSTRAP_MODULE]: `${this.APP_BASE}${this.BOOTSTRAP_MODULE}`,
+            'angular2/*': `${this.APP_BASE}angular2/*`,
+            'rxjs/*': `${this.APP_BASE}rxjs/*`,
+            '*': `${this.APP_BASE}node_modules/*`
+        },
+        packages: {
+            angular2: { defaultExtension: false },
+            rxjs: { defaultExtension: false }
+        }
+    };
 
-  SYSTEM_CONFIG = this.SYSTEM_CONFIG_DEV;
+    SYSTEM_CONFIG = this.SYSTEM_CONFIG_DEV;
 
-  SYSTEM_BUILDER_CONFIG = {
-    defaultJSExtensions: true,
-    paths: {
-      [`${this.TMP_DIR}/*`]: `${this.TMP_DIR}/*`,
-      '*': 'node_modules/*'
-    }
-  };
+    SYSTEM_BUILDER_CONFIG = {
+        defaultJSExtensions: true,
+        paths: {
+            [`${this.TMP_DIR}/*`]: `${this.TMP_DIR}/*`,
+            '*': 'node_modules/*'
+        }
+    };
 }
 
 
