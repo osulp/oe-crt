@@ -1,6 +1,7 @@
 import * as gulp from 'gulp';
-import * as gulpLoadPlugins from 'gulp-load-plugins';import {join} from 'path';
-import {APP_SRC, TMP_DIR} from '../../config';
+import * as gulpLoadPlugins from 'gulp-load-plugins';
+import {join} from 'path';
+import {TMP_DIR, TOOLS_DIR} from '../../config';
 import {templateLocals, makeTsProject} from '../../utils';
 const plugins = <any>gulpLoadPlugins();
 
@@ -13,7 +14,7 @@ const INLINE_OPTIONS = {
 export = () => {
   let tsProject = makeTsProject();
   let src = [
-      'typings/browser.d.ts',
+    'typings/browser.d.ts',
       'tools/manual_typings/**/*.d.ts',
       join(APP_SRC,'main.ts'),
       join(APP_SRC, '**/*.ts'),

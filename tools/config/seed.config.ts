@@ -42,7 +42,7 @@ export class SeedConfig {
     VERSION = appVersion();
 
     CSS_PROD_BUNDLE = 'all.css';
-    JS_PROD_SHIMS_BUNDLE = 'shims.js';
+  JS_PROD_SHIMS_BUNDLE = 'shims.js';
     JS_PROD_APP_BUNDLE = 'app.js';
 
     VERSION_NPM = '2.14.2';
@@ -51,16 +51,16 @@ export class SeedConfig {
     NG2LINT_RULES = customRules();
 
 
-    // Declare NPM dependencies (Note that globs should not be injected).
-    DEV_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencies([
-        { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims' },
-        { src: 'reflect-metadata/Reflect.js', inject: 'shims' },
-        { src: 'es6-shim/es6-shim.js', inject: 'shims' },
-        { src: 'systemjs/dist/system.src.js', inject: 'shims' },
-        { src: 'angular2/bundles/angular2-polyfills.js', inject: 'shims' },
-        { src: 'rxjs/bundles/Rx.js', inject: 'libs' },
-        { src: 'angular2/bundles/angular2.js', inject: 'libs' },
-        { src: 'angular2/bundles/router.js', inject: 'libs' },
+  // Declare NPM dependencies (Note that globs should not be injected).
+  DEV_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencies([
+    { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims' },
+    { src: 'reflect-metadata/Reflect.js', inject: 'shims' },
+    { src: 'es6-shim/es6-shim.js', inject: 'shims' },
+    { src: 'systemjs/dist/system.src.js', inject: 'shims' },
+    { src: 'angular2/bundles/angular2-polyfills.js', inject: 'shims' },
+    { src: 'rxjs/bundles/Rx.js', inject: 'libs' },
+    { src: 'angular2/bundles/angular2.js', inject: 'libs' },
+    { src: 'angular2/bundles/router.js', inject: 'libs' },
         { src: 'angular2/bundles/http.js', inject: 'libs' },
         { src: 'jquery/dist/jquery.js', inject: 'libs' },
         { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs' },
@@ -68,20 +68,20 @@ export class SeedConfig {
         { src: 'highcharts/modules/map', inject: 'libs' },
         { src: 'highcharts/modules/data', inject: 'libs' },
         { src: 'bootstrap/dist/css/bootstrap.css', inject: true }
-    ]);
+  ]);
 
-    PROD_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencies([
-        { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims' },
-        { src: 'reflect-metadata/Reflect.js', inject: 'shims' },
-        { src: 'es6-shim/es6-shim.min.js', inject: 'shims' },
-        { src: 'systemjs/dist/system.js', inject: 'shims' },
+  PROD_NPM_DEPENDENCIES: InjectableDependency[] = normalizeDependencies([
+    { src: 'systemjs/dist/system-polyfills.src.js', inject: 'shims' },
+    { src: 'reflect-metadata/Reflect.js', inject: 'shims' },
+    { src: 'es6-shim/es6-shim.min.js', inject: 'shims' },
+    { src: 'systemjs/dist/system.js', inject: 'shims' },
         { src: 'angular2/bundles/angular2-polyfills.min.js', inject: 'libs' },
         { src: 'jquery/dist/jquery.js', inject: 'libs' },
         { src: 'bootstrap/dist/js/bootstrap.js', inject: 'libs' },
         { src: 'highcharts/highcharts', inject: 'libs' },
         { src: 'highcharts/modules/map', inject: 'libs' },
         { src: 'highcharts/modules/data', inject: 'libs' }
-    ]);
+  ]);
 
     //// Declare local files that needs to be injected
     APP_ASSETS: InjectableDependency[] = [];
@@ -89,35 +89,57 @@ export class SeedConfig {
     DEV_APP_ASSETS: InjectableDependency[] = [];
     PROD_APP_ASSETS: InjectableDependency[] = [];
 
-    DEV_DEPENDENCIES = this.DEV_NPM_DEPENDENCIES.concat(this.APP_ASSETS);
-    PROD_DEPENDENCIES = this.PROD_NPM_DEPENDENCIES.concat(this.APP_ASSETS);
+  DEV_DEPENDENCIES = this.DEV_NPM_DEPENDENCIES.concat(this.APP_ASSETS);
+  PROD_DEPENDENCIES = this.PROD_NPM_DEPENDENCIES.concat(this.APP_ASSETS);
 
 
-    // ----------------
-    // SystemsJS Configuration.
-    protected SYSTEM_CONFIG_DEV = {
-        defaultJSExtensions: true,
-        paths: {
-            [this.BOOTSTRAP_MODULE]: `${this.APP_BASE}${this.BOOTSTRAP_MODULE}`,
-            'angular2/*': `${this.APP_BASE}angular2/*`,
-            'rxjs/*': `${this.APP_BASE}rxjs/*`,
-            '*': `${this.APP_BASE}node_modules/*`
-        },
-        packages: {
-            angular2: { defaultExtension: false },
-            rxjs: { defaultExtension: false }
-        }
-    };
+  // ----------------
+  // SystemsJS Configuration.
+  protected SYSTEM_CONFIG_DEV = {
+    defaultJSExtensions: true,
+    packageConfigPaths: [`${this.APP_BASE}node_modules/*/package.json`],
+    paths: {
+      [this.BOOTSTRAP_MODULE]: `${this.APP_BASE}${this.BOOTSTRAP_MODULE}`,
+      'angular2/*': `${this.APP_BASE}angular2/*`,
+      'rxjs/*': `${this.APP_BASE}rxjs/*`,
+      '*': `${this.APP_BASE}node_modules/*`
+    },
+    packages: {
+      angular2: { defaultExtension: false },
+      rxjs: { defaultExtension: false }
+    }
+  };
 
-    SYSTEM_CONFIG = this.SYSTEM_CONFIG_DEV;
+  SYSTEM_CONFIG = this.SYSTEM_CONFIG_DEV;
 
-    SYSTEM_BUILDER_CONFIG = {
-        defaultJSExtensions: true,
-        paths: {
-            [`${this.TMP_DIR}/*`]: `${this.TMP_DIR}/*`,
-            '*': 'node_modules/*'
-        }
-    };
+  SYSTEM_BUILDER_CONFIG = {
+    defaultJSExtensions: true,
+    paths: {
+      [`${this.TMP_DIR}/*`]: `${this.TMP_DIR}/*`,
+      '*': 'node_modules/*'
+    }
+  };
+
+  // ----------------
+  // Autoprefixer configuration.
+  BROWSER_LIST = [
+    'ie >= 10',
+    'ie_mob >= 10',
+    'ff >= 30',
+    'chrome >= 34',
+    'safari >= 7',
+    'opera >= 23',
+    'ios >= 7',
+    'android >= 4.4',
+    'bb >= 10'
+  ];
+  getEnvDependencies() {
+    if (this.ENV === 'prod') {
+      return this.PROD_DEPENDENCIES;
+    } else {
+      return this.DEV_DEPENDENCIES;
+    }
+  }
 }
 
 

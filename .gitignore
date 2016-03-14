@@ -43,3 +43,4 @@ docs
 lib
 test
 tmp
+/git-sync-fork.md
