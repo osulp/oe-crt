@@ -1,4 +1,5 @@
 import {Component} from 'angular2/core';
+import {Router, RouteParams} from 'angular2/router';
 import {SearchCmp} from '../shared/components/search/search';
 import {TopicsCmp} from './topics/topics';
 import {PlacesCmp} from './places/places';
@@ -11,13 +12,19 @@ import {PlacesCmp} from './places/places';
 })
 export class ExploreCmp {
     public selectedTopics;
+
+    constructor(
+        private _router: Router, routeParams: RouteParams) {
+        this.selectedTopics = routeParams.get('topics');
+        console.log(routeParams.get('topics'));
+    }
     onGetSelectedTopics(results) {
         this.selectedTopics = results;
         var queryString = '';
         if (this.selectedTopics.length > 0) {
             console.log(this.selectedTopics[0]);
             for (var x = 0; x < this.selectedTopics.length; x++) {
-                queryString += this.selectedTopics[x].replace('&','%26');
+                queryString += this.selectedTopics[x].replace('&', '%26');
                 if (x < this.selectedTopics.length - 1) {
                     queryString += ',';
                 }
@@ -27,8 +34,6 @@ export class ExploreCmp {
         }
         console.log(queryString);
         this.updateQueryStringParam('topics', queryString);
-        //history.pushState(this.selectedTopics, 'test', location.href + '?topics=AllTopics');
-
     }
 
     updateQueryStringParam(key: string, value: string) {

@@ -1,4 +1,4 @@
-import {Component, OnInit, Output, EventEmitter}   from 'angular2/core';
+import {Component, OnInit, Input, Output, EventEmitter}   from 'angular2/core';
 import {JSONP_PROVIDERS}  from 'angular2/http';
 import {Topic} from '../../shared/data_models/topic';
 import {Indicator} from '../../shared/data_models/indicator';
@@ -22,11 +22,14 @@ import 'rxjs/add/operator/share';
 
 export class TopicsCmp implements OnInit {
     @Output() selectedTopics = new EventEmitter();
+    @Input() inputTopics: string;
+
     //selectedIndicators = new EventEmitter();
     public Indicators;
     public Topics;
     public _selectedIndicators;
     public _selectedTopics;
+    public _inputTopics;
     visible: boolean;
     chkBoxVisibile: boolean;
     showAllSelected: boolean;
@@ -66,7 +69,20 @@ export class TopicsCmp implements OnInit {
 
     getTopics() {
         this._topicService.getTopics().subscribe(
-            data => { this.Topics = data; },
+            data => {
+                this.Topics = data;
+                this._inputTopics = this._inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&');
+                var inputTopicsArr = this._inputTopics.split(',');
+                if (inputTopicsArr.length > 0 && this._inputTopics !== 'All Topics') {
+                    for (var x = 0; x < this.Topics.length; x++) {
+                        if (inputTopicsArr.indexOf(this.Topics[x].topic) !== -1) {
+                            this.Topics[x].toggleSelected();
+                        }
+                    }
+                } else {
+                    this.showAllSelected = true;
+                }
+            },
             err => console.error(err),
             () => console.log('done loading topics'));
     }
@@ -94,6 +110,14 @@ export class TopicsCmp implements OnInit {
         this._indicatorService.getIndicators().subscribe(
             data => {
                 this.Indicators = data;
+                //var inputTopicsArr = this.inputTopics.split(',');                
+                //if (this.Indicators.length > 0) {
+                //    for (var x = 0; x < this.Indicators.length; x++) {
+                //        if (inputTopicsArr.indexOf(this.Indicators[x].indicator) !== -1) {
+                //            this.Indicators[x].toggleSelected();
+                //        }                        
+                //    }
+                //}                
             },
             err => console.error(err),
             () => console.log('done loading indicators'));
@@ -111,10 +135,12 @@ export class TopicsCmp implements OnInit {
 
 
     ngOnInit() {
+        console.log('Input Topics: ' + this.inputTopics);
+        this._inputTopics = this.inputTopics;
         this.getTopics();
         this.getIndicators();
         this.selected = ['All Topics'];
-        this.selectedTopics.emit('test');
+        this.selectedTopics.emit(this.selected);
     }
 }
 
