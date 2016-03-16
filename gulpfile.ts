@@ -12,7 +12,7 @@ loadTasks(PROJECT_TASKS_DIR);
 gulp.task('build.dev', (done: any) =>
   runSequence('clean.dev',
               'tslint',
-              'css-lint',
+              //'css-lint',
               'build.assets.dev',
               'build.html_css',
               'build.js.dev',
@@ -107,7 +107,7 @@ gulp.task('test', (done: any) =>
 
 // --------------
 // Process Less
-gulp.task('build.less', done =>
+gulp.task('build.less', (done: any) =>
     runSequence('build.less.prod',
         done));
 

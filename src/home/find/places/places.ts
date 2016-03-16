@@ -9,7 +9,8 @@ import {Component, OnInit, ElementRef} from 'angular2/core';
 export class PlacesCmp implements OnInit {
     constructor(private elementRef: ElementRef) { }
     ngOnInit() {
-        if (window['map']) {
+        console.log('loaded places explore component');
+        //if (window['map']) {
             //var map = window['map'];
             //map.setVisibility(true);
             //map.resize(true);
@@ -27,7 +28,7 @@ export class PlacesCmp implements OnInit {
             //map.resize(true);
             //map.reposition();
 
-        }
+        //}
     }
 }
 

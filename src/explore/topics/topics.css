@@ -16,7 +16,7 @@
 #topics-wrapper{
     box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;    
     border-radius: 0 0 4px 4px;
-    min-height:270px;
+    /*min-height:350px;*/
     max-width:1170px;
     margin:0 auto;
     background-color:white;
@@ -130,6 +130,28 @@
             background-color: #1e90ff;
         }
 
+#selectedTopicsIndicators div {
+    padding-right:20px;
+    display:inline-block;
+}
+#selectedTopicsIndicators span:hover{
+    text-decoration:underline;
+    cursor:pointer;
+}
+#selectedTopicsIndicators img {
+    margin-left:5px;
+}
+#selectedTopicsIndicators div.indicatorCount {
+    border-radius:50%;
+    min-width:20px;
+    min-height:20px;
+    border:solid 1px #C34500;    
+    font-size:.8em;
+    display:inline-block;
+    text-align:center;
+    margin-left:5px;
+    padding:0 3px;
+}
 
 /* Small Devices, Tablets */
 @media only screen and (max-width : 992px) {

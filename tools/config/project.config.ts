@@ -12,7 +12,7 @@ export class ProjectConfig extends SeedConfig {
         this.BOOTSTRAP_MODULE = this.ENABLE_HOT_LOADING ?
             (this.ENV !== 'dev' ? 'hot_loader_main' : `${this.APP_BASE}hot_loader_main`)
             : (this.ENV !== 'dev' ? 'main' : `${this.APP_BASE}main`);
-        let additional_deps = [
+        let additional_deps: any[] = [
             // {src: 'jquery/dist/jquery.min.js', inject: 'libs'},
             // {src: 'lodash/lodash.min.js', inject: 'libs'},
         ];

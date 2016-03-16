@@ -14,7 +14,7 @@ import 'rxjs/add/operator/map';
 
 
 export class TopicsCmp implements OnInit {
-    public Topics;
+    public Topics:any;
     constructor(private _topicService: TopicsService) { }
 
     items: Observable<string[]>;

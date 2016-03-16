@@ -1,38 +1,35 @@
-import {Component} from 'angular2/core';
+import {Component, Output, EventEmitter} from 'angular2/core';
 import {Control, CORE_DIRECTIVES, NgClass} from 'angular2/common';
 import {JSONP_PROVIDERS}  from 'angular2/http';
+import {Router, RouteParams} from 'angular2/router';
 import {SearchTopicsPlacesService} from '../../../shared/services/search-topics-places/search.service';
 import {Observable} from 'rxjs/Observable';
+import {SearchResult} from '../../../shared/data_models/search-result';
+import {HelperFunctions} from '../../../shared/utilities/helper-functions';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/share';
 
-declare var jQuery: any;
-
-interface SearchResult {
-    Name: string;
-    Type: string;
-    TypeCategory: string;
-    Desc: string;
-}
-
 @Component({
     selector: 'search',
     templateUrl: './shared/components/search/search.html',
     styleUrls: ['./shared/components/search/search.css'],
-    providers: [JSONP_PROVIDERS, SearchTopicsPlacesService],
+    providers: [JSONP_PROVIDERS, SearchTopicsPlacesService, HelperFunctions],
     directives: [CORE_DIRECTIVES, NgClass]
 })
 
 export class SearchCmp {
+    @Output() selSearchResultEvt = new EventEmitter();
     term = new Control();
     searchTerms: string;
     selectedSearchResult: SearchResult;
     tempResults: [{}];
     items: Observable<[{}]>;
-    constructor(private _searchService: SearchTopicsPlacesService) {
+
+    constructor(private _searchService: SearchTopicsPlacesService, public _helperFuncs: HelperFunctions,
+        private _router: Router, routeParams: RouteParams) {
         this.items = this.term.valueChanges
             .debounceTime(200)
             .distinctUntilChanged()
@@ -40,42 +37,41 @@ export class SearchCmp {
             .share();
         this.items.subscribe(value => this.tempResults = value);
     }
-    eventHandler(event) {
-        var searchItem = JSON.parse(event.target.attributes['data-search-item'].value);
-        alert(searchItem.Name + ' ' + searchItem.Source + ' ' + searchItem.Type);
-        //console.log(event, event.keyCode, event.keyIdentifier);
+    eventHandler(event: any, searchItem: SearchResult) {
+        this.selSearchResultEvt.emit(searchItem);
     }
-    inputSearchClickHandler(event) {
+
+    inputSearchClickHandler(event: any) {
         this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
         this.searchTerms = '';
     }
-    inputKeypressHandler(event) {
+    inputKeypressHandler(event: any) {
         if (event.keyCode === 13) {
             //get tempResult values
             if (this.tempResults.length > 0) {
-                var firstItem = this.tempResults[0];
+                var firstItem: any = this.tempResults[0];
                 var selected: SearchResult = {
-                    Name: firstItem['Name'],
+                    Name: firstItem['Name'].replace(/\,/g,'%2C'),
                     Type: firstItem['Type'],
                     TypeCategory: firstItem['TypeCategory'],
                     Desc: firstItem['Desc']
                 };
                 this.selectedSearchResult = selected;
-                alert(firstItem['Name']);
+                this.selSearchResultEvt.emit(selected);
             } else {
                 alert('Please select a valid search term.');
             }
         }
     }
-    blurHandler(event) {
+    blurHandler(event: any) {
         var searchScope = this;
         setTimeout(function () {
-            //console.log(document.activeElement);
             //if tabbing on list result set input box to match the Name property, but don't clear.           
             if (document.activeElement.classList.toString() === 'list-group-item') {
-                var listItem = JSON.parse(document.activeElement.attributes['data-search-item'].value);
+                var attr: any = 'data-search-item';
+                var listItem: any = JSON.parse(document.activeElement.attributes[attr].value);
                 var selected: SearchResult = {
-                    Name: listItem.Name,
+                    Name: listItem.Name.replace(/\,/g, '%2C'),
                     Type: listItem.Type,
                     TypeCategory: listItem.TypeCategory,
                     Desc: listItem.Desc
@@ -85,14 +81,15 @@ export class SearchCmp {
             } else if (document.activeElement.id === 'explore-btn') {
                 //get tempResult values
                 if (searchScope.tempResults.length > 0) {
-                    var firstItem = searchScope.tempResults[0];
+                    var firstItem: any = searchScope.tempResults[0];
                     var selected: SearchResult = {
-                        Name: firstItem['Name'],
+                        Name: firstItem['Name'].replace(/\,/g, '%2C'),
                         Type: firstItem['Type'],
                         TypeCategory: firstItem['TypeCategory'],
                         Desc: firstItem['Desc']
                     };
                     searchScope.selectedSearchResult = selected;
+                    searchScope.selSearchResultEvt.emit(selected);
                     alert(firstItem['Name']);
                 } else {
                     alert('Please select a valid search term.');

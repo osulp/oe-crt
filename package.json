@@ -65,6 +65,7 @@
     "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.7",
     "gulp-watch": "^4.2.4",
+    "is-stream": "1.0.1",
     "isstream": "^0.1.2",
     "jasmine-core": "~2.4.1",
     "jasmine-spec-reporter": "^2.4.0",

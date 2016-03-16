@@ -1,7 +1,7 @@
 import * as gulp from 'gulp';
 import * as gulpLoadPlugins from 'gulp-load-plugins';
 import {join} from 'path';
-import {TMP_DIR, TOOLS_DIR} from '../../config';
+import {TMP_DIR, APP_SRC} from '../../config';
 import {templateLocals, makeTsProject} from '../../utils';
 const plugins = <any>gulpLoadPlugins();
 

@@ -6,7 +6,7 @@
     </div>
     <div class="col-xs-12">
         <div class="row">
-            <topics (selectedTopics)="selectedTopics =onGetSelectedTopics($event)" inputTopics={{selectedTopics}}></topics>
+            <topics (selectedTopicsFromComp)="selectedTopics = onGetSelectedTopicsFromComp($event)" (selectedIndicatorsFromComp)="selectedIndicators = onGetSelectedIndicatorsFromComp" inputTopics={{selectedTopics}} inputIndicators="{{selectedIndicators}}"></topics>
         </div>
     </div>
     <div></div>

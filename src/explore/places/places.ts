@@ -23,7 +23,8 @@ export class PlacesCmp implements OnInit {
     }
 
     ngOnInit() {
-        if (window['map']) {
+        console.log('loaded explore places component');
+        //if (window['map']) {
             //var map = window['map'];
             //map.setVisibility(true);
             //map.resize(true);
@@ -41,7 +42,7 @@ export class PlacesCmp implements OnInit {
             //map.resize(true);
             //map.reposition();
 
-        }
+        //}
     }
 }
 

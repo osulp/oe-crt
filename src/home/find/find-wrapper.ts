@@ -1,6 +1,7 @@
 import {Component} from 'angular2/core';
 import {TopicsCmp} from './topics/topics';
 import {PlacesCmp} from './places/places';
+import {SearchResult} from '../../shared/data_models/search-result';
 import {SearchCmp} from '../../shared/components/search/search';
 import {Router} from 'angular2/router';
 
@@ -12,10 +13,22 @@ import {Router} from 'angular2/router';
 })
 
 export class FindWrapperCmp {
+    selectedSearchResult: SearchResult;
     constructor(private _router: Router) { }
     page: string;
-    goto(page) {
+    goto(page: string) {
         this._router.navigate([page]);
+    }
+    //emitted from search component
+    onSelectedSearchResult(results: SearchResult) {
+        this.selectedSearchResult = results;
+        if (this.selectedSearchResult !== undefined) {
+            if (results.Type.toLowerCase() === 'indicator') {
+                this._router.navigate(['Explore', { indicators: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
+            } else {
+                this._router.navigate(['Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
+            }
+        }
     }
 }
 
