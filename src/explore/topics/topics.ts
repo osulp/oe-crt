@@ -60,7 +60,7 @@ export class TopicsCmp implements OnInit {
     }
 
     toggleAllTopics(evt: any) {
-        this.showAllSelected = !this.showAllSelected;
+        this.showAllSelected = this.showAllSelected ? this.showAllSelected : !this.showAllSelected;
         if (this.showAllSelected) {
             //turn off any other selected topics and set selected to all
             console.log('show all selected');

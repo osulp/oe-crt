@@ -109,8 +109,57 @@
     .selectBox select {
         width: 100%;
         font-weight: bold;
-        
+        height: 40px;
+        background-color: #F3f2ED;
+        color: #d1cdc7;
+        border: 1px solid #d1cdc7;
+        padding: 3px;
+        margin: 0;
+        -webkit-border-radius: 4px;
+        -moz-border-radius: 4px;
+        border-radius: 4px;       
+        display: inline-block;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        cursor: pointer;
     }
+    
+
+/* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    .selectBox select {padding-right:18px}
+}
+
+
+.selectBox:after {    
+    font-family:'Glyphicons Halflings';
+    content: '\e259';
+    font-size:16px;
+    color: white;    
+    right: 12px;
+    top: 10px;
+    padding: 0 0 2px;    
+    position: absolute;
+    pointer-events: none;
+}
+.selectBox:before {
+    content:'';
+    right:0; 
+    top:0;
+    width:40px; 
+    height:40px;
+    background:#C34500;
+    position:absolute;
+    pointer-events:none;
+    display:block;
+    border-radius:0 4px 4px 0;
+}
+
+.selectBox.open:after{
+    content:"\e260";
+}
+
 .overSelect {
     position: absolute;
     left: 0;
@@ -122,12 +171,18 @@
     border: 1px #dadada solid;
     max-height:300px;
     overflow:auto;
+    padding:0 10px;
+    font-size:.8em;
+}
+#checkboxes input[type=checkbox]{
+    margin:5px;
 }
     #checkboxes label {
         display: block;
+        font-weight:100;
     }
         #checkboxes label:hover {
-            background-color: #1e90ff;
+            background-color: #d1cdc7;
         }
 
 #selectedTopicsIndicators div {
@@ -142,7 +197,7 @@
     margin-left:5px;
 }
 #selectedTopicsIndicators div.indicatorCount {
-    border-radius:50%;
+    border-radius:35%;
     min-width:20px;
     min-height:20px;
     border:solid 1px #C34500;    
@@ -150,7 +205,8 @@
     display:inline-block;
     text-align:center;
     margin-left:5px;
-    padding:0 3px;
+    padding:0 5px;
+    color:#C34500;
 }
 
 /* Small Devices, Tablets */

@@ -23,7 +23,7 @@
                     </div>
                     <div>
                         <div class="multiselect">
-                            <div class="selectBox" (click)="chkBoxVisibile = !chkBoxVisibile;">
+                            <div class="selectBox" [ngClass]="chkBoxVisibile ? 'open' : ''" (click)="chkBoxVisibile = !chkBoxVisibile;">
                                 <select>
                                     <option>Filter Indicators</option>
                                 </select>
