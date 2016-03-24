@@ -38,9 +38,9 @@
                 </div>
                 <div id="selectedTopicsIndicators" [hidden]="visible">
                     <div *ngIf="showAllSelected">
-                        <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsPipe: 'all'}}</span></div>                    
+                        <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsCountPipe: 'all'}}</span></div>                    
                     </div>
-                    <div *ngFor="#topic of Topics | SelectedTopicsPipe" (click)="toggleTopic(topic)"><span>{{topic.topic}}</span><div class="indicatorCount">{{Indicators | SelectedIndicatorByTopicsPipe: topic}}</div><img src="assets/img/closeX.png" /></div>
+                    <div *ngFor="#topic of Topics | SelectedTopicsPipe" (click)="toggleTopic(topic)"><span>{{topic.topic}}</span><div class="indicatorCount">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic}}</div><img src="assets/img/closeX.png" /></div>
                     
 
                 </div>

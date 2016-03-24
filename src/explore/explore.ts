@@ -1,8 +1,11 @@
-import {Component} from 'angular2/core';
+import {Component, OnInit} from 'angular2/core';
 import {Router, RouteParams} from 'angular2/router';
 import {SearchCmp} from '../shared/components/search/search';
 import {TopicsCmp} from './topics/topics';
 import {PlacesCmp} from './places/places';
+import {DataCmp} from './data/data';
+import {Topic} from '../shared/data_models/topic';
+import {Indicator} from '../shared/data_models/indicator';
 
 interface QueryStringParams {
     key: string;
@@ -13,11 +16,14 @@ interface QueryStringParams {
     selector: 'explore',
     templateUrl: './explore/explore.html',
     styleUrls: ['./explore/explore.css'],
-    directives: [SearchCmp, TopicsCmp, PlacesCmp]
+    directives: [SearchCmp, TopicsCmp, PlacesCmp, DataCmp]
 })
-export class ExploreCmp {
+export class ExploreCmp implements OnInit {
     public selectedTopics: any;
     public selectedIndicators: any;
+    public selectedPlaces: any;
+    public allIndicators: Indicator[];
+    public allTopics: Topic[];
     initialIndicator: boolean;
 
     constructor(
@@ -29,6 +35,7 @@ export class ExploreCmp {
     }
     //bubble up from topics component selection
     onGetSelectedTopicsFromComp(results: any) {
+        console.log('emitted selected topics ' + results);
         this.selectedTopics = results;
         var queryString = '';
         if (this.selectedTopics.length > 0) {
@@ -56,24 +63,17 @@ export class ExploreCmp {
         var newState = this.updateQueryStringParam(qsParams);
         window.history.pushState({}, '', newState);
     }
-    //bubble up from indicators component selection
-    onGetSelectedIndicatorsFromComp(results: any) {
-        console.log(results);
-        //this.selectedTopics = results;
-        //var queryString = '';
-        //if (this.selectedTopics.length > 0) {
-        //    console.log(this.selectedTopics[0]);
-        //    for (var x = 0; x < this.selectedTopics.length; x++) {
-        //        queryString += this.selectedTopics[x].replace('&', '%26');
-        //        if (x < this.selectedTopics.length - 1) {
-        //            queryString += ',';
-        //        }
-        //    }
-        //} else {
-        //    queryString = 'All Topics';
-        //}
-        //console.log(queryString);
-        //this.updateQueryStringParam('topics', queryString);
+
+    onGetAllTopicsFromComp(results: any) {
+        console.log('Got All Topics From COMP! ' + results);
+        this.allTopics = results;
+    }
+    onGetAllIndicatorsFromComp(results: any) {
+        this.allIndicators = results;
+    }
+
+    onGetSelectedPlaceFromComp(results: any) {
+        this.selectedPlaces = results;
     }
 
     updateQueryStringParam(qsParams: QueryStringParams[]) {
@@ -99,5 +99,8 @@ export class ExploreCmp {
         }
         return (baseUrl + allParams).replace('?&', '?');
     };
+    ngOnInit() {
+        this.allTopics = [];
+    }
 }
 

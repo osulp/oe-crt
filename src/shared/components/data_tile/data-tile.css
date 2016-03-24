@@ -1,0 +1,26 @@
+#data-tile-wrapper {
+    height: 350px;
+    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
+    border-radius: 0 0 4px 4px;
+    background-color: white;
+    padding:15px;
+    position:relative
+}
+
+#view-data{
+    background-color:#E7E7EB;
+    height:40px;
+    text-align:center;
+    vertical-align:middle;
+    cursor:pointer;
+    position:absolute;
+    bottom:0;
+    color:#6F7C82;
+    padding-top:10px;
+    margin-left:-15px;
+}
+    #view-data:hover {
+        background-color: #244068;
+        color:white;
+        text-decoration:underline;
+    }

@@ -7,7 +7,7 @@ import {IndicatorsService} from '../../shared/services/indicators/indicators.ser
 import {SelectIndicatorsCmp} from './indicators/select-indicators';
 import {SelectedTopicsPipe} from './pipes/selected-topic-pipe';
 import {IndicatorTopicFilterPipe} from './indicators/indicator-topic-filter-pipe';
-import {SelectedIndicatorByTopicsPipe} from './pipes/selected-indicator-topic-pipe';
+import {SelectedIndicatorByTopicsCountPipe} from './pipes/selected-indicator-topic-count-pipe';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/share';
@@ -17,7 +17,7 @@ import 'rxjs/add/operator/share';
     templateUrl: './explore/topics/topics.html',
     styleUrls: ['./explore/topics/topics.css'],
     directives: [SelectIndicatorsCmp],
-    pipes: [IndicatorTopicFilterPipe, SelectedTopicsPipe, SelectedIndicatorByTopicsPipe],
+    pipes: [IndicatorTopicFilterPipe, SelectedTopicsPipe, SelectedIndicatorByTopicsCountPipe],
     providers: [JSONP_PROVIDERS, TopicsService, IndicatorsService]
 })
 
@@ -26,6 +26,8 @@ import 'rxjs/add/operator/share';
 export class TopicsCmp implements OnInit {
     @Output() selectedTopicsFromComp = new EventEmitter();
     @Output() selectedIndicatorsFromComp = new EventEmitter();
+    @Output() allTopicsFromComp = new EventEmitter();
+    @Output() allIndicatorsFromComp = new EventEmitter();
     @Input() inputTopics: string;
     @Input() inputIndicators: string;
 
@@ -74,6 +76,8 @@ export class TopicsCmp implements OnInit {
             for (var i = 0; i < this.Indicators.length; i++) {
                 this.toggleIndicator(this.Indicators[i], true);
             }
+            this.allTopicsFromComp.emit(this.Topics);
+            this.allIndicatorsFromComp.emit(this.Indicators);
         }
     }
 
@@ -81,6 +85,7 @@ export class TopicsCmp implements OnInit {
         this._topicService.getTopics().subscribe(
             data => {
                 this.Topics = data;
+                this.allTopicsFromComp.emit(this.Topics);
                 if (this._inputTopics.length > 0 && (this._inputTopics[0] !== 'All Topics' || this._inputTopics[0] !== '')) {
                     this.showAllSelected = this._inputTopics[0] !== 'All Topics' ? false : true;
                     for (var x = 0; x < this.Topics.length; x++) {
@@ -119,9 +124,11 @@ export class TopicsCmp implements OnInit {
         //sync indicator selections
         for (var i = 0; i < this.Indicators.length; i++) {
             if (this._selectedTopics.indexOf(this.Indicators[i].topics) !== -1) {
-                this.toggleIndicator(this.Indicators[i],true);
+                this.toggleIndicator(this.Indicators[i], true);
             }
         }
+        this.allTopicsFromComp.emit(this.Topics);
+        this.allIndicatorsFromComp.emit(this.Indicators);
     }
 
     getIndicators() {
@@ -150,6 +157,7 @@ export class TopicsCmp implements OnInit {
                         }
 
                     }
+                    this.allIndicatorsFromComp.emit(this.Indicators);
                 }
             },
             err => console.error(err),
@@ -174,6 +182,7 @@ export class TopicsCmp implements OnInit {
                 this._selectedIndicators.push(this.Indicators[x]);
             }
         }
+        this.allIndicatorsFromComp.emit(this.Indicators);
     }
 
 

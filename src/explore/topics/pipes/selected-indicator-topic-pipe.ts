@@ -13,9 +13,10 @@ export class SelectedIndicatorByTopicsPipe {
             if (topic[0] === 'all') {
                 return indicators.filter(indicator => indicator.selected).length;
             } else {
-                return indicators.filter(indicator => indicator.selected && indicator.topics === topic[0].topic).length;
+                return indicators.filter(indicator => indicator.selected && indicator.topics === topic[0].topic);
             }
         }
     }
 }
+
 
