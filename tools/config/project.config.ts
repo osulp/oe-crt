@@ -15,6 +15,12 @@ export class ProjectConfig extends SeedConfig {
         let additional_deps: any[] = [
             // {src: 'jquery/dist/jquery.min.js', inject: 'libs'},
             // {src: 'lodash/lodash.min.js', inject: 'libs'},
+            // JQuery and HighCharts
+            { src: 'jquery/dist/jquery', inject: 'libs' },
+            //{ src: 'highcharts/highcharts', inject: 'libs' },
+            //{ src: 'highcharts/highmaps', inject: 'libs' },
+            //{ src: 'highcharts/modules/map', inject: 'libs' },
+            //{ src: 'highcharts/modules/data', inject: 'libs' }
         ];
         this.DEV_NPM_DEPENDENCIES = this.DEV_DEPENDENCIES.concat(normalizeDependencies(additional_deps));
         this.PROD_NPM_DEPENDENCIES = this.PROD_NPM_DEPENDENCIES.concat(normalizeDependencies(additional_deps));

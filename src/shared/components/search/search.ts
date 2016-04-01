@@ -51,7 +51,8 @@ export class SearchCmp {
             if (this.tempResults.length > 0) {
                 var firstItem: any = this.tempResults[0];
                 var selected: SearchResult = {
-                    Name: firstItem['Name'].replace(/\,/g,'%2C'),
+                    Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                    ResID: firstItem['ResID'],
                     Type: firstItem['Type'],
                     TypeCategory: firstItem['TypeCategory'],
                     Desc: firstItem['Desc']
@@ -72,6 +73,7 @@ export class SearchCmp {
                 var listItem: any = JSON.parse(document.activeElement.attributes[attr].value);
                 var selected: SearchResult = {
                     Name: listItem.Name.replace(/\,/g, '%2C'),
+                    ResID: listItem.ResID,
                     Type: listItem.Type,
                     TypeCategory: listItem.TypeCategory,
                     Desc: listItem.Desc
@@ -84,6 +86,7 @@ export class SearchCmp {
                     var firstItem: any = searchScope.tempResults[0];
                     var selected: SearchResult = {
                         Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                        ResID: firstItem['ResID'],
                         Type: firstItem['Type'],
                         TypeCategory: firstItem['TypeCategory'],
                         Desc: firstItem['Desc']

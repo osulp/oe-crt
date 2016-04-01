@@ -1,7 +1,8 @@
-import {Component, OnInit, Output, EventEmitter, ElementRef} from 'angular2/core';
+import {Component, OnInit} from 'angular2/core';
 import {Control, CORE_DIRECTIVES} from 'angular2/common';
 import {JSONP_PROVIDERS}  from 'angular2/http';
 import {SearchPlacesService} from '../../shared/services/places/places.service';
+import {SelectedPlacesService} from '../../shared/services/places/selected-places.service';
 import {SearchResult} from '../../shared/data_models/search-result';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
@@ -19,7 +20,7 @@ import 'rxjs/add/operator/share';
 })
 
 export class PlacesCmp implements OnInit {
-    @Output() selPlacesEvt = new EventEmitter();
+    //@Output() selPlacesEvt = new EventEmitter();
     term = new Control();
     searchTerms: string;
     selectedSearchResults: SearchResult[];
@@ -29,13 +30,14 @@ export class PlacesCmp implements OnInit {
     tempResults: [{}];
     searchResults: Observable<[{}]>;
 
-    constructor(private elementRef: ElementRef, private _searchPlaceService: SearchPlacesService) {
+    constructor(private _searchPlaceService: SearchPlacesService, private _selectedPlacesService: SelectedPlacesService) {
         this.searchResults = this.term.valueChanges
             .debounceTime(200)
             .distinctUntilChanged()
             .switchMap(term => this._searchPlaceService.search(term !== undefined ? term.toString() : ''))
             .share();
         this.searchResults.subscribe(value => this.tempResults = value);
+        //this._selectedPlacesService.selectionChanged$.subscribe();
         this.selectedSearchResults = [];
     }
 
@@ -50,27 +52,30 @@ export class PlacesCmp implements OnInit {
 
     inputKeypressHandler(event: any, result: SearchResult) {
         if (event.keyCode === 13) {
-            console.log(result);
+            //console.log(result);
             if (result !== undefined) {
                 this.selectedSearchResults.push(result);
+                this._selectedPlacesService.add(result);
             } else {                //get tempResult values
                 //get tempResult values
-                console.log('no result');
-                console.log(this.searchResults);
-                console.log(this.tempResults);
+                //console.log('no result');
+                //console.log(this.searchResults);
+                //console.log(this.tempResults);
                 if (this.tempResults.length > 0) {
                     var firstItem: any = this.tempResults[0];
                     var selected: SearchResult = {
                         Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                        ResID: firstItem['ResID'],
                         Type: firstItem['Type'],
                         TypeCategory: firstItem['TypeCategory'],
                         Desc: firstItem['Desc']
                     };
                     this.selectedSearchResults.push(selected);
+                    this._selectedPlacesService.add(selected);
                 }
             }
             //broadcast out to application
-            this.selPlacesEvt.emit(this.selectedSearchResults);
+            //this.selPlacesEvt.emit(this.selectedSearchResults);
             if (this.tempResults.length === 0) {
                 alert('Please select a valid search term.');
             }
@@ -80,7 +85,8 @@ export class PlacesCmp implements OnInit {
     clickedSearchResult(event: any, result: SearchResult) {
         this.selectedSearchResults.push(result);
         //broadcast out to application
-        this.selPlacesEvt.emit(this.selectedSearchResults);
+        //this.selPlacesEvt.emit(this.selectedSearchResults);
+        this._selectedPlacesService.add(result);
         this.searchTerms = '';
     }
     blurHandler(event: any) {
@@ -92,6 +98,7 @@ export class PlacesCmp implements OnInit {
                 var listItem: any = JSON.parse(document.activeElement.attributes[attr].value);
                 var selected: SearchResult = {
                     Name: listItem.Name.replace(/\,/g, '%2C'),
+                    ResID: listItem.ResID,
                     Type: listItem.Type,
                     TypeCategory: listItem.TypeCategory,
                     Desc: listItem.Desc
@@ -104,12 +111,14 @@ export class PlacesCmp implements OnInit {
                     var firstItem: any = searchScope.tempResults[0];
                     var selected: SearchResult = {
                         Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                        ResID: firstItem['ResID'],
                         Type: firstItem['Type'],
                         TypeCategory: firstItem['TypeCategory'],
                         Desc: firstItem['Desc']
                     };
                     searchScope.selectedSearchResult = selected;
-                    searchScope.selPlacesEvt.emit(selected);
+                    //searchScope.selPlacesEvt.emit(selected);
+                    this._selectedPlacesService.add(selected);
                     alert(firstItem['Name']);
                 } else {
                     alert('Please select a valid search term.');
@@ -123,14 +132,16 @@ export class PlacesCmp implements OnInit {
     }
     removePlace(place: SearchResult) {
         var indexPlace = this.selectedSearchResults.indexOf(place);
-        this.selectedSearchResults.splice(indexPlace,1);
+        this.selectedSearchResults.splice(indexPlace, 1);
         //broadcast out to application
-        this.selPlacesEvt.emit(this.selectedSearchResults);
+        //this.selPlacesEvt.emit(this.selectedSearchResults);
+        this._selectedPlacesService.remove(place);
     }
 
     addPlaceCompare(compareType: string) {
         var compareResult: SearchResult = {
             Name: compareType,
+            ResID: compareType === 'Oregon' ? '41' : compareType === 'Rural' ? '41r' : '41u',
             Type: compareType,
             TypeCategory: 'Place',
             Desc: compareType
@@ -138,15 +149,21 @@ export class PlacesCmp implements OnInit {
         //check if already added                
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name; }).indexOf(compareType);
         console.log(indexPos);
+        console.log('index position is: ' + indexPos);
         if (indexPos === -1) {
             this.selectedSearchResults.push(compareResult);
-            this.selPlacesEvt.emit(this.selectedSearchResults);
+            //this.selPlacesEvt.emit(this.selectedSearchResults);
+            console.log(compareResult);
+            this._selectedPlacesService.add(compareResult);
         }
     }
 
     ngOnInit() {
         console.log('loaded explore places component');
         this.selectedPlaceType = 'Oregon';
+        this._selectedPlacesService.selectionChanged$.subscribe(updatedPlaces => console.log(updatedPlaces));
+        this._selectedPlacesService.load();
+        this.addPlaceCompare(this.selectedPlaceType);
         //if (window['map']) {
         //var map = window['map'];
         //map.setVisibility(true);

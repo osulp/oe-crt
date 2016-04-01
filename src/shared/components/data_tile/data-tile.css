@@ -24,3 +24,12 @@
         color:white;
         text-decoration:underline;
     }
+
+#chart-div{
+    position:relative;
+}
+.graph {
+    height: 310px;
+    width: 100%;
+    position: absolute;
+}

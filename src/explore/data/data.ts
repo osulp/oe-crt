@@ -17,16 +17,21 @@ import {SelectedIndicatorByTopicsPipe} from '../topics/pipes/selected-indicator-
 export class DataCmp implements OnInit {
     @Input() inputTopics: Topic[];
     @Input() inputIndicators: Indicator[];
-    @Input() inputPlaces: any;
+    resultView: string;
+
+
+    toggleResultView() {
+        console.log('resultview clicked');
+        console.log(this.resultView);
+        this.resultView = this.resultView === 'graph' ? 'map' : 'graph';
+    }
 
     ngOnInit() {
         //check input topics set all topics to all
+        this.resultView = 'graph';
         console.log('Data cmp: Topics Input ' + this.inputTopics);
+        //console.log('Data cmp: Places Input ' + this.inputPlaces);
     }
-    //ngOnChanges(changedStuff: any) {
-    //    //console.log('SOMETHING CHANGED:  ' + changedStuff);
-    //    //console.log(changedStuff);
-    //}
 }
 
 

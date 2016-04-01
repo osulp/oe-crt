@@ -6,6 +6,7 @@ import {PlacesCmp} from './places/places';
 import {DataCmp} from './data/data';
 import {Topic} from '../shared/data_models/topic';
 import {Indicator} from '../shared/data_models/indicator';
+import {SelectedPlacesService} from '../shared/services/places/selected-places.service';
 
 interface QueryStringParams {
     key: string;
@@ -16,7 +17,8 @@ interface QueryStringParams {
     selector: 'explore',
     templateUrl: './explore/explore.html',
     styleUrls: ['./explore/explore.css'],
-    directives: [SearchCmp, TopicsCmp, PlacesCmp, DataCmp]
+    directives: [SearchCmp, TopicsCmp, PlacesCmp, DataCmp],
+    providers: [SelectedPlacesService]
 })
 export class ExploreCmp implements OnInit {
     public selectedTopics: any;
@@ -69,10 +71,12 @@ export class ExploreCmp implements OnInit {
         this.allTopics = results;
     }
     onGetAllIndicatorsFromComp(results: any) {
+        console.log('Got All Indicators From COMP!');
         this.allIndicators = results;
     }
 
     onGetSelectedPlaceFromComp(results: any) {
+        console.log('Got Place selection for PlacesCmp');
         this.selectedPlaces = results;
     }
 

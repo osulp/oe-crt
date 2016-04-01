@@ -1,10 +1,7 @@
-<div id="data-tile-wrapper" class="row">
-    <div class="col-xs-12" id="chart-div">        
-        {{indicator.indicator}}
-        <p>Chart goes here</p>
-        <div *ngFor="#place of places">
-            {{place.Name}}
-        </div>
+<div id="data-tile-wrapper" class="row">       
+    <div class="col-xs-12" id="chart-div">                
+        <!--<div [ng2-highcharts]="chartBar" class="graph"></div>-->
+        <chart [options]="chartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
     </div>
     <div class="col-xs-12" id="view-data">
         View Data  >

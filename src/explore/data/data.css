@@ -4,13 +4,15 @@
     margin-top:40px;
     max-width:1170px;
     margin: 40px auto;
-    border-top:solid 1.25px #D1CDC7;
+    border-top:solid 1.25px #D1CDC7;    
 }
 
 #data-control-bar{
     position: absolute;
     top:27px;
     right:15px;
+    z-index:2000;
+    height:50px;
 }
 #data-control-bar div{
     display:inline-block;
