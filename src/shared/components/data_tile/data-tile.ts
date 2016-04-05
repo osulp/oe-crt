@@ -153,53 +153,53 @@ export class DataTileCmp implements OnInit, OnDestroy {
         } else {
             geoids = '41';
         }
-        //this._dataService.get(geoids, this.indicator.indicator).subscribe(
-        //    data => {
-        //        this.Data = data.length > 0 ? data : [];
-        //        //clear chart series
-        //        while (this.chart.series.length > 0) {
-        //            this.chart.series[0].remove(false);
-        //        }
-        //        //process years
-        //        var counter: any = 0;
-        //        for (var yearData in this.Data[0]) {
-        //            if (!isNaN(parseInt(yearData.substr(0, 1)))) {
-        //                if (yearData.indexOf('_MOE') === -1) {
-        //                    this.xAxisCategories[counter] = yearData;
-        //                    counter++;
-        //                }
-        //            }
-        //        }
+        this._dataService.get(geoids, this.indicator.indicator).subscribe(
+            data => {
+                this.Data = data.length > 0 ? data : [];
+                //clear chart series
+                while (this.chart.series.length > 0) {
+                    this.chart.series[0].remove(false);
+                }
+                //process years
+                var counter: any = 0;
+                for (var yearData in this.Data[0]) {
+                    if (!isNaN(parseInt(yearData.substr(0, 1)))) {
+                        if (yearData.indexOf('_MOE') === -1) {
+                            this.xAxisCategories[counter] = yearData;
+                            counter++;
+                        }
+                    }
+                }
 
-        //        this.chart.xAxis[0].setCategories(this.xAxisCategories);
-        //        //process data series
-        //        for (var x = 0; x < data.length; x++) {
-        //            //process data
-        //            let seriesData: any = {};
-        //            let yearCounter: any = 0;
+                this.chart.xAxis[0].setCategories(this.xAxisCategories);
+                //process data series
+                for (var x = 0; x < data.length; x++) {
+                    //process data
+                    let seriesData: any = {};
+                    let yearCounter: any = 0;
 
-        //            for (var year in this.xAxisCategories) {
-        //                let yearData = this.xAxisCategories[year];
-        //                seriesData[yearCounter] = this.Data[x][yearData] === null ? null : parseFloat(this.Data[x][yearData]);
-        //                yearCounter++;
-        //            }
-        //            this.chart.addSeries({
-        //                id: this.Data[x]['community'] + this.Data[x]['geoid'],
-        //                name: this.Data[x]['community']
-        //            });
-        //            this.chart.series[x].update({
-        //                id: this.Data[x]['community'] + this.Data[x]['geoid'],
-        //                name: this.Data[x]['community'],
-        //                type: 'line',
-        //                lineWidth: 2,
-        //                lineOpacity: 1.0,
-        //                data: seriesData
-        //            }, true);
-        //        }
-        //    },
-        //    err => console.error(err),
-        //    () => console.log('done loading data')
-        //);
+                    for (var year in this.xAxisCategories) {
+                        let yearData = this.xAxisCategories[year];
+                        seriesData[yearCounter] = this.Data[x][yearData] === null ? null : parseFloat(this.Data[x][yearData]);
+                        yearCounter++;
+                    }
+                    this.chart.addSeries({
+                        id: this.Data[x]['community'] + this.Data[x]['geoid'],
+                        name: this.Data[x]['community']
+                    });
+                    this.chart.series[x].update({
+                        id: this.Data[x]['community'] + this.Data[x]['geoid'],
+                        name: this.Data[x]['community'],
+                        type: 'line',
+                        lineWidth: 2,
+                        lineOpacity: 1.0,
+                        data: seriesData
+                    }, true);
+                }
+            },
+            err => console.error(err),
+            () => console.log('done loading data')
+        );
     }
 
     saveInstance(chartInstance: any) {
