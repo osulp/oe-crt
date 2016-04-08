@@ -24,7 +24,7 @@ export class FindWrapperCmp {
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
-                this._router.navigate(['Explore', { indicators: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
+                this._router.navigate(['Explore', { indicator: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
             } else {
                 this._router.navigate(['Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
             }

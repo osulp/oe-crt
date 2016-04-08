@@ -1,43 +1,43 @@
-﻿var map;
+﻿//var map;
 
-require(["esri/map","application/bootstrapmap", "dojo/on", "esri/layers/WebTiledLayer", "dojo/domReady!"],
-    function (Map, BootstrapMap, on, WebTiledLayer) {
-        window.setTimeout(function () {
+//require(["esri/map","application/bootstrapmap", "dojo/on", "esri/layers/WebTiledLayer", "dojo/domReady!"],
+//    function (Map, BootstrapMap, on, WebTiledLayer) {
+//        window.setTimeout(function () {
 
-            // Get a reference to the ArcGIS Map class
-            var map = BootstrapMap.create("viewDiv", {
-                basemap: "national-geographic",
-                center: [-122.45, 37.77],
-                zoom: 12,
-                scrollWheelZoom: false
-            });
-            function showMap(div, responsive, fillPage) {
-                if (map) {
-                    map.destroy();
-                    BootstrapMap.destroy(map);
-                }
-                if (responsive) {
-                    map = BootstrapMap.create(div, {
-                        basemap: "national-geographic",
-                        center: [-122.45, 37.77],
-                        zoom: 12,
-                        scrollWheelZoom: false
-                    });
-                } else {
-                    map = new Map(div, {
-                        basemap: "national-geographic",
-                        center: [-122.45, 37.77],
-                        zoom: 12,
-                        smartNavigation: false
-                    });
-                    on(map, "load", function () {
-                        map.disableScrollWheelZoom();
-                    });
-                }
-            }
+//            // Get a reference to the ArcGIS Map class
+//            var map = BootstrapMap.create("viewDiv", {
+//                basemap: "national-geographic",
+//                center: [-122.45, 37.77],
+//                zoom: 12,
+//                scrollWheelZoom: false
+//            });
+//            function showMap(div, responsive, fillPage) {
+//                if (map) {
+//                    map.destroy();
+//                    BootstrapMap.destroy(map);
+//                }
+//                if (responsive) {
+//                    map = BootstrapMap.create(div, {
+//                        basemap: "national-geographic",
+//                        center: [-122.45, 37.77],
+//                        zoom: 12,
+//                        scrollWheelZoom: false
+//                    });
+//                } else {
+//                    map = new Map(div, {
+//                        basemap: "national-geographic",
+//                        center: [-122.45, 37.77],
+//                        zoom: 12,
+//                        smartNavigation: false
+//                    });
+//                    on(map, "load", function () {
+//                        map.disableScrollWheelZoom();
+//                    });
+//                }
+//            }
 
-            //showMap("viewDiv", true);
-        }, 1000);
+//            //showMap("viewDiv", true);
+//        }, 1000);
             
     //    });
 

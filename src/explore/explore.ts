@@ -2,8 +2,9 @@ import {Component, OnInit} from 'angular2/core';
 import {Router, RouteParams} from 'angular2/router';
 import {SearchCmp} from '../shared/components/search/search';
 import {TopicsCmp} from './topics/topics';
-import {PlacesCmp} from './places/places';
+import {PlacesWrapperCmp} from './places_wrapper/places_wrapper';
 import {DataCmp} from './data/data';
+import {DetailCmp} from './indicator_detail/indicator_detail';
 import {Topic} from '../shared/data_models/topic';
 import {Indicator} from '../shared/data_models/indicator';
 import {SelectedPlacesService} from '../shared/services/places/selected-places.service';
@@ -17,23 +18,27 @@ interface QueryStringParams {
     selector: 'explore',
     templateUrl: './explore/explore.html',
     styleUrls: ['./explore/explore.css'],
-    directives: [SearchCmp, TopicsCmp, PlacesCmp, DataCmp],
+    directives: [SearchCmp, TopicsCmp, PlacesWrapperCmp, DataCmp, DetailCmp],
     providers: [SelectedPlacesService]
 })
 export class ExploreCmp implements OnInit {
-    public selectedTopics: any;
-    public selectedIndicators: any;
-    public selectedPlaces: any;
-    public allIndicators: Indicator[];
-    public allTopics: Topic[];
+    selectedTopics: any;
+    selectedIndicators: any;
+    selectedIndicator: any;
+    selectedPlaces: any;
+    allIndicators: Indicator[];
+    allTopics: Topic[];
+    indicatorDetailView: boolean;
     initialIndicator: boolean;
 
     constructor(
         private _router: Router, routeParams: RouteParams) {
         this.selectedTopics = routeParams.get('topics');
         this.selectedIndicators = routeParams.get('indicators');
+        this.selectedIndicator = routeParams.get('indicator');
         this.initialIndicator = true;
-        console.log(routeParams.get('topics') + ' received on load of explore cmp');
+        this.indicatorDetailView = this.selectedIndicator !== null ? true : false;
+        console.log(routeParams.get('indicator') + ' received on load of explore cmp');
     }
     //bubble up from topics component selection
     onGetSelectedTopicsFromComp(results: any) {

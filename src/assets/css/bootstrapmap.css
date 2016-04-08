@@ -8,6 +8,7 @@
   max-height: 100%;
   text-align: left;
   overflow: hidden;
+  border-radius: 0 0 4px 4px;
 }
 
 /*** Restyle Esri Zoomin-out ***/

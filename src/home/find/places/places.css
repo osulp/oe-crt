@@ -8,12 +8,17 @@
     max-width:700px;
 }
 
+.map{
+    border-radius: 0 0 4px 4px !important;
+}
+
 #viewDiv
 {
     /*width:570px;*/
     /*width:100%;*/
     background-color:rgb(221, 232, 250);
     max-width:570px;
+    height:270px;
     min-height:270px;
     margin: 0;
     padding:0;

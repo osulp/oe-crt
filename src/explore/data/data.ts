@@ -2,6 +2,7 @@ import {Component, OnInit, Input} from 'angular2/core';
 import {Topic} from '../../shared/data_models/topic';
 import {Indicator} from '../../shared/data_models/Indicator';
 import {DataTileCmp} from '../../shared/components/data_tile/data-tile';
+import {DetailCmp} from '../indicator_detail/indicator_detail';
 import {SelectedTopicsPipe} from '../topics/pipes/selected-topic-pipe';
 import {SelectedIndicatorByTopicsPipe} from '../topics/pipes/selected-indicator-topic-pipe';
 
@@ -10,7 +11,7 @@ import {SelectedIndicatorByTopicsPipe} from '../topics/pipes/selected-indicator-
     selector: 'data',
     templateUrl: './explore/data/data.html',
     styleUrls: ['./explore/data/data.css'],
-    directives: [DataTileCmp],
+    directives: [DataTileCmp, DetailCmp],
     pipes: [SelectedTopicsPipe, SelectedIndicatorByTopicsPipe]
 })
 

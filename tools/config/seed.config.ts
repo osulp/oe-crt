@@ -128,7 +128,8 @@ export class SeedConfig {
         },
         packages: {
             angular2: { defaultExtension: false },
-            rxjs: { defaultExtension: false }
+            rxjs: { defaultExtension: false },
+            app: { defaultExension: 'js' }
         }
     };
 

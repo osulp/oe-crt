@@ -1,23 +1,23 @@
-<div id="explore-page" class="page_wrapper explore-page col-xs-12">    
+<div *ngIf="!indicatorDetailView" id="explore-page" class="page_wrapper explore-page col-xs-12">   
     <div class="col-lg-12 col-md-12 col-xs-12">
         <div class="row">
             <search class="col-lg-12 col-md-12 col-xs-12"></search>
         </div>
     </div>
     <div class="col-xs-12">
-        <div class="row">            
+        <div class="row">
             <topics (selectedTopicsFromComp)="selectedTopics = onGetSelectedTopicsFromComp($event)" (selectedIndicatorsFromComp)="selectedIndicators = onGetSelectedIndicatorsFromComp" (allTopicsFromComp)="onGetAllTopicsFromComp($event)" (allIndicatorsFromComp)="onGetAllIndicatorsFromComp($event)" inputTopics={{selectedTopics}} inputIndicators="{{selectedIndicators}}"></topics>
         </div>
-    </div>   
+    </div>
     <div class="col-xs-12">
         <div class="row">
             <places></places>
         </div>
     </div>
     <div class="col-xs-12">
-        <div class="row">            
+        <div class="row">
             <data [inputTopics]="allTopics" [inputIndicators]="allIndicators"></data>
         </div>
     </div>
-
 </div>
+<indicator-detail *ngIf="indicatorDetailView" [inputIndicator]="selectedIndicator"></indicator-detail>

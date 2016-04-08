@@ -6,15 +6,17 @@ import {Subscription}   from 'rxjs/Subscription';
 import {SearchResult} from '../../data_models/search-result';
 import {JSONP_PROVIDERS}  from 'angular2/http';
 //import {Ng2Highcharts, Ng2Highmaps} from 'ng2-highcharts/ng2-highcharts';
+import {IndicatorDescService} from '../../services/indicators/indicator.desc.service';
 import {DataService} from '../../services/data/data.service';
 import {SelectedPlacesService} from '../../services/places/selected-places.service';
+import {Router} from 'angular2/router';
 
 @Component({
     selector: 'data-tile',
     templateUrl: './shared/components/data_tile/data-tile.html',
     styleUrls: ['../shared/components/data_tile/data-tile.css'],
     directives: [CHART_DIRECTIVES],
-    providers: [JSONP_PROVIDERS, DataService]
+    providers: [JSONP_PROVIDERS, DataService, IndicatorDescService]
 })
 
 
@@ -23,6 +25,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
     @Input() tileType: any;
     private places = new Array<SearchResult>();
     private subscription: Subscription;
+    private placeNames: string = '';
 
     private xAxisCategories: any = {};
     private chartOptions = {
@@ -108,25 +111,26 @@ export class DataTileCmp implements OnInit, OnDestroy {
     private Data: any;
 
 
-    constructor(private _dataService: DataService, private _selectedPlacesService: SelectedPlacesService) {
+    constructor(
+        private _dataService: DataService,
+        private _selectedPlacesService: SelectedPlacesService,
+        private _indicatorDescService: IndicatorDescService,
+        private _router: Router) {
         this.tempPlaces = new Array<SearchResult>();
         this.xAxisCategories = [];
         this.Data = [];
     }
 
     onPlacesChanged(selectedPlaces: SearchResult[]) {
-        console.log('showing subscribed data changed');
-        //console.log(selectedPlaces);
         this.places = selectedPlaces;
         //check if repeated event with same places
         //console.log(this.tempPlaces);
         if (this.tempPlaces.length !== selectedPlaces.length) {
-            //if (this.tempPlaces !== this.places) {
-            console.log('New Place to proecess!');
-            //console.log(this.tempPlaces);
-            //console.log(this.places);
+            //if (this.tempPlaces !== this.places) {                 
             for (var x = 0; x < selectedPlaces.length; x++) {
                 this.tempPlaces.push(selectedPlaces[x]);
+                this.placeNames += selectedPlaces[x].Name;
+                this.placeNames += (x < selectedPlaces.length - 1) ? ',' : '';
             }
             if (this.indicator !== undefined) {
                 this.getData(selectedPlaces);
@@ -137,12 +141,9 @@ export class DataTileCmp implements OnInit, OnDestroy {
     }
 
     getData(selectedPlaces: SearchResult[]) {
-        //get ResIDs for geoids param
-        console.log('GET DATA CALLED>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+        //get ResIDs for geoids param        
         this.chartOptions.title = { text: this.indicator.indicator };
         let geoids = '';
-        //console.log(this.places);
-        //console.log(this.places.length + ' is the length of places');
         if (selectedPlaces.length !== 0) {
             for (var x = 0; x < selectedPlaces.length; x++) {
                 geoids += selectedPlaces[x].ResID;
@@ -206,7 +207,17 @@ export class DataTileCmp implements OnInit, OnDestroy {
         this.chart = chartInstance;
     }
 
+    gotoDetails() {
+        this._router.navigate(['Explore', { indicator: encodeURI(this.indicator.indicator), places: this.placeNames }]);
+    }
+
     ngOnInit() {
+        this._indicatorDescService.getIndicator(this.indicator.indicator).subscribe(
+            data => {
+                console.log('got indicator description');
+                //console.log(data);
+            });
+
         this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
             data => {
                 console.log('subscribe throwing event');
@@ -225,5 +236,6 @@ export class DataTileCmp implements OnInit, OnDestroy {
         this.subscription.unsubscribe();
     }
 }
+
 
 

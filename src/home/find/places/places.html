@@ -14,7 +14,10 @@
     <div class="row row-map">
         <div class="col-xs-12">
             <!-- Bootstrap-map-js -->
-            <div id="viewDiv"></div>
+            <div id="viewDiv">
+                <esri-map [options]="mapOptions" (mapLoaded)="onMapLoad($event)">                    
+                </esri-map>
+            </div>
         </div>        
     </div>
 

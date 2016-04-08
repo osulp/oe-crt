@@ -6,7 +6,7 @@ import {TopicsService} from '../../shared/services/topics/topics.service';
 import {IndicatorsService} from '../../shared/services/indicators/indicators.service';
 import {SelectIndicatorsCmp} from './indicators/select-indicators';
 import {SelectedTopicsPipe} from './pipes/selected-topic-pipe';
-import {IndicatorTopicFilterPipe} from './indicators/indicator-topic-filter-pipe';
+import {IndicatorTopicFilterPipe} from './pipes/indicator-topic-filter-pipe';
 import {SelectedIndicatorByTopicsCountPipe} from './pipes/selected-indicator-topic-count-pipe';
 
 import 'rxjs/add/operator/map';

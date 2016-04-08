@@ -1,17 +1,23 @@
-import {Component, OnInit, ElementRef} from 'angular2/core';
-import {MapComponent} from '../../../shared/components/map/map.component';
+import {Component, Input, OnInit} from 'angular2/core';
+import {JSONP_PROVIDERS}  from 'angular2/http';
+import {IndicatorDescService} from '../../shared/services/indicators/indicator.desc.service';
+import { MapComponent } from '../../shared/components/map/map.component';
 
 @Component({
-    selector: 'places',
-    templateUrl: './home/find/places/places.html',
-    styleUrls: ['./home/find/places/places.css'],
+    selector: 'indicator-detail',
+    templateUrl: './explore/indicator_detail/indicator_detail.html',
+    styleUrls: ['./explore/indicator_detail/indicator_detail.css'],
+    providers: [JSONP_PROVIDERS, IndicatorDescService],
     directives: [MapComponent]
 })
 
-export class PlacesCmp implements OnInit {
-
-    // map config   
+export class DetailCmp implements OnInit {
+    @Input() inputIndicator: any;
+    indicatorDesc: any = [];
+    // map config
+    //empty object uses defaults;
     public mapOptions:any = null;
+
     // search config
     public searchOptions = {
         enableButtonMode: true, //this enables the search widget to display as a single button
@@ -19,10 +25,10 @@ export class PlacesCmp implements OnInit {
         enableInfoWindow: true,
         showInfoWindowOnSelect: false,
     };
-    constructor(private elementRef: ElementRef) { }
+
+    constructor(private _indicatorDescService: IndicatorDescService) { }
     // once the map loads
     onMapLoad(response: any) {
-        console.log('MAP LOADEDED!!!!!');
         //const map = response.map;
         // bind the search dijit to the map
         //this.searchComponent.setMap(map);
@@ -38,9 +44,11 @@ export class PlacesCmp implements OnInit {
     onBasemapSelected(basemapName: any) {
         //this.mapComponent.setBasemap(basemapName);
     }
-
     ngOnInit() {
-        console.log('loaded places explore component');
+        this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(
+            data => {
+                this.indicatorDesc = data;// IndicatorDescSer    
+                console.log(data);
+            });
     }
 }
-

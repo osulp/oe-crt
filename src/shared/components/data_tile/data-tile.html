@@ -3,7 +3,7 @@
         <!--<div [ng2-highcharts]="chartBar" class="graph"></div>-->
         <chart [options]="chartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
     </div>
-    <div class="col-xs-12" id="view-data">
+    <div class="col-xs-12" id="view-data" (click)="gotoDetails()">
         View Data  >
     </div>    
 </div>

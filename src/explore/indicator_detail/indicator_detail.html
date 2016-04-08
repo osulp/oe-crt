@@ -1,0 +1,17 @@
+<div class="row">
+    <div class="col-lg-12 data-detail-map-wrapper">
+        <esri-map [options]="mapOptions" (mapLoaded)="onMapLoad($event)">
+            <esri-search [options]="searchOptions"></esri-search>
+        </esri-map>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div>
+            {{inputIndicator}}
+        </div>
+        <div *ngFor="#id of indicatorDesc">
+            {{id.Description}}
+        </div>
+    </div>
+</div>

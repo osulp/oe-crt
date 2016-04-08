@@ -16,7 +16,8 @@ export class ProjectConfig extends SeedConfig {
 
         //FOR NPM MODULES DEPENDENCIES
         let additional_deps: InjectableDependency[] = [
-            { src: 'jquery/dist/jquery.min.js', inject: 'libs' }
+            { src: 'jquery/dist/jquery.min.js', inject: 'libs' },
+            { src: 'esri-system-js/dist/esriSystem.js', inject: 'libs' }
         ];
 
         const seedDependencies = this.NPM_DEPENDENCIES;
@@ -29,7 +30,7 @@ export class ProjectConfig extends SeedConfig {
             { src: `${this.ASSETS_SRC}/css/esri.3.15.css`, inject: true },
             { src: `${this.ASSETS_SRC}/fonts/font-awesome-4.5.0/css/font-awesome.min.css`, inject: true, env: 'dev' },
             { src: `${this.ASSETS_SRC}/main.css`, inject: true },
-            { src: `${this.ASSETS_SRC}/scripts/ags.3.15.init.js`, inject: true },
+            { src: `${this.ASSETS_SRC}/scripts/ags.3.16.init.js`, inject: true },
             { src: `${this.ASSETS_SRC}/scripts/oe.js`, inject: true }
         ];
     }

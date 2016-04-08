@@ -1,75 +1,103 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-  <base href="<%= APP_BASE %>">
-  <meta charset="utf-8">
+    <base href="<%= APP_BASE %>">
+    <meta charset="utf-8">
     <!--<meta http-equiv="X-UA-Compatible" content="IE=edge">-->
-  <title><%= APP_TITLE %></title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- inject:css -->
-  <!-- endinject -->
+    <title><%= APP_TITLE %></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- inject:css -->
+    <!-- endinject -->
 </head>
 <body>
     <app> Loading...</app>
 
-  <script>
-  // function.name (all IE)
-  // Remove once https://github.com/angular/angular/issues/6501 is fixed.
-  /*! @source http://stackoverflow.com/questions/6903762/function-name-not-supported-in-ie*/
-  if (!Object.hasOwnProperty('name')) {
-    Object.defineProperty(Function.prototype, 'name', {
-      get: function() {
-        var matches = this.toString().match(/^\s*function\s*((?![0-9])[a-zA-Z0-9_$]*)\s*\(/);
-        var name = matches && matches.length > 1 ? matches[1] : "";
-        // For better performance only parse once, and then cache the
-        // result through a new accessor for repeated access.
+    <script>
+        // function.name (all IE)
+        // Remove once https://github.com/angular/angular/issues/6501 is fixed.
+        /*! @source http://stackoverflow.com/questions/6903762/function-name-not-supported-in-ie*/
+        if (!Object.hasOwnProperty('name')) {
+            Object.defineProperty(Function.prototype, 'name', {
+                get: function () {
+                    var matches = this.toString().match(/^\s*function\s*((?![0-9])[a-zA-Z0-9_$]*)\s*\(/);
+                    var name = matches && matches.length > 1 ? matches[1] : "";
+                    // For better performance only parse once, and then cache the
+                    // result through a new accessor for repeated access.
                     Object.defineProperty(this, 'name', { value: name });
-        return name;
-      }
-    });
-  }
-  </script>
-  <script>
-  // Fixes undefined module function in SystemJS bundle
+                    return name;
+                }
+            });
+        }
+    </script>
+    <script>
+        // Fixes undefined module function in SystemJS bundle
         function module() { }
     </script>
     <!-- Bootstrap-map-js -->
     <script type="text/javascript">
         var package_path = "//esri.github.com/bootstrap-map-js/src/js";
-        var dojoConfig = {
+        window.dojoConfig = {
+            async: true,
             packages: [{
                 name: "application",
                 location: package_path
             }]
         };
-  </script>
-  <!-- shims:js -->
-  <!-- endinject -->
+    </script>
+    <!-- shims:js -->
+    <!-- endinject -->
     <!--<script>
         window.dojoConfig = {async: true};
     </script>-->
-  <% if (ENV === 'dev') { %>
-  <script>
-    System.config(<%=
+    <% if (ENV === 'dev') { %>
+    <script>
+        System.config(<%=
       JSON.stringify(SYSTEM_CONFIG, null, 2)
     %>)
-  </script>
-  <% } %>
+    </script>
+    <% } %>
 
-  <!-- libs:js -->
-  <!-- endinject -->
-  <!-- inject:js -->
-  <!-- endinject -->
-  <% if (ENV === 'dev') { %>
-  <script>
-  System.import('<%= BOOTSTRAP_MODULE %>')
-    .catch(function (e) {
-      console.error(e,
-        'Report this error at https://github.com/mgechev/angular2-seed/issues');
-    });
-  </script>
-  <% } %>
-
+    <!-- libs:js -->
+    <!-- endinject -->
+    <!-- inject:js -->
+    <!-- endinject -->
+    <% if (ENV === 'dev') { %>
+    <script>
+        // load esri modules needed by this application
+        // into a System.js module called esri
+        esriSystem.register([
+          'esri/map',
+          'esri/arcgis/utils',
+          'esri/basemaps',
+          'esri/dijit/Legend',
+          'esri/dijit/Search',
+          'esri/layers/ArcGISDynamicMapServiceLayer',
+          'esri/layers/WebTiledLayer',
+          'esri/layers/ArcGISImageServiceLayer',
+          'esri/layers/ImageServiceParameters',
+          'esri/layers/RasterFunction'
+        ], function () {
+            // then bootstrap application
+            System.import('<%= BOOTSTRAP_MODULE %>')
+      .catch(function (e) {
+          console.error(e,
+            'Report this error at https://github.com/mgechev/angular2-seed/issues');
+      });
+        }, {
+            outModuleName: 'esri-system-js',
+            moduleNameOverrides: {
+                'esri/map': 'esriMap',
+                'esri/layers/ArcGISDynamicMapServiceLayer': 'esriDynamicMapServiceLayer',
+                'esri/layers/WebTiledLayer' : 'WebTiledLayer',
+                'esri/layers/ArcGISImageServiceLayer' : 'RasterLayer',
+                'esri/layers/ImageServiceParameters' : 'ImageServiceParameters',
+                'esri/layers/RasterFunction' : 'RasterFunction',
+                'esri/arcgis/utils': 'arcgisUtils',
+                'esri/basemaps': 'esriBasemaps'
+            }
+        });
+    </script>
+    <% } %>
 </body>
 </html>
