@@ -10,6 +10,7 @@ RasterLayer,
 ImageServiceParameters,
 RasterFunction
 } from 'esri-system-js';
+//from 'esri-system-js/dist/esriSystem';
 
 @Injectable()
 export class MapService {
@@ -28,8 +29,8 @@ export class MapService {
         //add dynamic map service
         this.setMapLayers();
         map.addLayer(this.oregon_mask_layer);
-        //map.addLayer(this.mapbox_weather_layer);       
-        //map.addLayer(this.hillshade_esri_layer);
+        //map.addLayer(this.mapbox_weather_layer);
+        map.addLayer(this.hillshade_esri_layer);
         //map.addLayer(this.esri_light_gray_reference_layer);
         return map;
     };
@@ -117,7 +118,7 @@ export class MapService {
         //Define the raster layer and add to map
         this.hillshade_esri_layer = new RasterLayer(this.hillshade_esri, {
             id: 'hillshade_esri',
-            opacity: .8,
+            opacity: .5,
             imageServiceParameters: params
         });
     }

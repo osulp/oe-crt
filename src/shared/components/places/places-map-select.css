@@ -1,7 +1,7 @@
 #places-row-wrapper{
     padding-right:0;
     padding-left:0;    
-    margin-top:30px;
+    margin-top:60px;
 }
 
 #places-wrapper {
@@ -18,15 +18,35 @@
 {
     /*width:570px;*/
     /*width:100%;*/
-    background-color:rgb(221, 232, 250);
-    max-width:1170px;
+    background-color:rgb(221, 232, 250);   
+    margin: 0 auto 0 -15px;
+    padding:0;         
+}
+
+#viewDiv.exploreMap{    
+    height:310px;
+    min-height:310px;
+}
+
+#viewDiv.indicatorDetailMap {    
+    height:400px;
     min-height:270px;
     margin: 0 auto;
-    padding:0;
-    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;    
-    border-radius: 0 0 4px 4px;
 }
-.find_header{
+
+.indicatorDetailFindCombComp{
+    position:absolute;
+    top:25px;
+    z-index:200;
+    background-color:white;
+    right:10%;
+    width: 530px;
+    height: 340px;
+    border-radius:4px;
+    padding: 0 20px;
+}
+
+/*.find_header{
     height:50px;
     max-width:1170px;
     margin: 0 auto;
@@ -86,6 +106,15 @@
 #place_type_select .place_type.selected{
     background-color:#C34500;
     color:white;
+}*/
+
+.place-select.indicatorDetail, .indicatorDetailMap{
+    height:400px;
+    max-height:400px;
+}
+
+.indicatorDetailMap .row-map{
+
 }
 
 .place-select {

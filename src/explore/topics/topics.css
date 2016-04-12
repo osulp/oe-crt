@@ -1,6 +1,7 @@
 #topics-row-wrapper{
     padding-right:0;
     padding-left:0;
+    margin-top:-30px;
 }
 
     #topics-row-wrapper > div:first-child {

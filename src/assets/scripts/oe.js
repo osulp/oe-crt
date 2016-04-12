@@ -55,7 +55,7 @@
     //    map.addLayer(tiledLayer);
 
     //}, 1000);
-});
+//});
 
 
 

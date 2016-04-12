@@ -1,6 +1,6 @@
 import {Component, Input, OnInit, OnDestroy} from 'angular2/core';
 import {CHART_DIRECTIVES} from 'angular2-highcharts/index';
-import {Indicator} from '../../data_models/indicator';
+//import {Indicator} from '../../data_models/indicator';
 //import {Observable} from 'rxjs/Observable';
 import {Subscription}   from 'rxjs/Subscription';
 import {SearchResult} from '../../data_models/search-result';
@@ -14,15 +14,16 @@ import {Router} from 'angular2/router';
 @Component({
     selector: 'data-tile',
     templateUrl: './shared/components/data_tile/data-tile.html',
-    styleUrls: ['../shared/components/data_tile/data-tile.css'],
+    styleUrls: ['./shared/components/data_tile/data-tile.css'],
     directives: [CHART_DIRECTIVES],
     providers: [JSONP_PROVIDERS, DataService, IndicatorDescService]
 })
 
 
 export class DataTileCmp implements OnInit, OnDestroy {
-    @Input() indicator: Indicator;
-    @Input() tileType: any;
+    @Input() indicator: any;//Just name pull rest of info from desc service
+    @Input() tileType: any;//map/graph/table
+    @Input() viewType: any;//basic/advanced
     private places = new Array<SearchResult>();
     private subscription: Subscription;
     private placeNames: string = '';
@@ -142,7 +143,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
 
     getData(selectedPlaces: SearchResult[]) {
         //get ResIDs for geoids param        
-        this.chartOptions.title = { text: this.indicator.indicator };
+        this.chartOptions.title = { text: this.indicator };
         let geoids = '';
         if (selectedPlaces.length !== 0) {
             for (var x = 0; x < selectedPlaces.length; x++) {
@@ -154,7 +155,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
         } else {
             geoids = '41';
         }
-        this._dataService.get(geoids, this.indicator.indicator).subscribe(
+        this._dataService.get(geoids, this.indicator).subscribe(
             data => {
                 this.Data = data.length > 0 ? data : [];
                 //clear chart series
@@ -208,11 +209,12 @@ export class DataTileCmp implements OnInit, OnDestroy {
     }
 
     gotoDetails() {
-        this._router.navigate(['Explore', { indicator: encodeURI(this.indicator.indicator), places: this.placeNames }]);
+        this._router.navigate(['Explore', { indicator: encodeURI(this.indicator), places: this.placeNames }]);
+        window.scrollTo(0, 0);
     }
 
     ngOnInit() {
-        this._indicatorDescService.getIndicator(this.indicator.indicator).subscribe(
+        this._indicatorDescService.getIndicator(this.indicator).subscribe(
             data => {
                 console.log('got indicator description');
                 //console.log(data);
@@ -228,7 +230,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
             () => console.log('done with subscribe event places selected')
         );
         this._selectedPlacesService.load();
-        console.log('data-tile comp loaded. Indicator:  ' + this.indicator.indicator + '  Place(s):  ' + this.places.length);
+        console.log('data-tile comp loaded. Indicator:  ' + this.indicator + '  Place(s):  ' + this.places.length);
         //this.places = this._selectedPlacesService.get();
     }
 

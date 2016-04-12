@@ -3,6 +3,11 @@
     position:relative;
 }
 
+.search-wrapper.explore{
+    margin-top:25px;
+    margin-bottom:-25px;
+}
+
 .search{
     color:#808080;
     position:relative;

@@ -1,8 +1,8 @@
-<div class="row place-select">
-    <div class="col-lg-7 col-md-7 col-xs-12">
+<div class="row place-select" [ngClass]="setClasses('')">
+    <div [ngClass]="setClasses('MapCol')">
         <div class="row row-map">
             <div class="col-xs-12">
-                <div id="viewDiv">
+                <div id="viewDiv" [ngClass]="setClasses('Map')">
                     <esri-map [options]="mapOptions" (mapLoaded)="onMapLoad($event)">
                         <esri-search [options]="searchOptions"></esri-search>
                     </esri-map>
@@ -10,7 +10,7 @@
             </div>
         </div>
     </div>
-    <div id="find-compare-combine" class="col-lg-5 col-md-5 col-xs-12">
+    <div id="find-compare-combine" [ngClass]="setClasses('FindCombComp')">
         <div class="row">
             <div class="col-xs-12">
                 <h2>Find, Compare and Combine Places</h2>

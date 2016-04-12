@@ -1,4 +1,4 @@
-import {Component, Output, EventEmitter} from 'angular2/core';
+import {Component, Output, Input, EventEmitter} from 'angular2/core';
 import {Control, CORE_DIRECTIVES, NgClass} from 'angular2/common';
 import {JSONP_PROVIDERS}  from 'angular2/http';
 import {Router, RouteParams} from 'angular2/router';
@@ -21,6 +21,7 @@ import 'rxjs/add/operator/share';
 })
 
 export class SearchCmp {
+    @Input() viewType: any;
     @Output() selSearchResultEvt = new EventEmitter();
     term = new Control();
     searchTerms: string;

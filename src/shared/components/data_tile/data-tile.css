@@ -6,6 +6,9 @@
     padding:15px;
     position:relative
 }
+#data-tile-wrapper.advanced{
+    height:680px;    
+}
 
 #view-data{
     background-color:#E7E7EB;
@@ -32,4 +35,8 @@
     height: 310px;
     width: 100%;
     position: absolute;
+}
+
+#data-tile-wrapper.advanced .graph{
+    height: 640px;
 }

@@ -1,7 +1,7 @@
 /*All screens sizes*/
 #main_content {    
     background-color: white;
-    height: 100%;    
+    height: auto;    
     padding:0;
 }
 

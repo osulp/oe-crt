@@ -14,14 +14,15 @@ import 'rxjs/add/operator/share';
 
 @Component({
     selector: 'places-map-select',
-    templateUrl: './shared/components/places/places.html',
-    styleUrls: ['../shared/components/places/places.css'],
+    templateUrl: './shared/components/places/places-map-select.html',
+    styleUrls: ['./shared/components/places/places-map-select.css'],
     providers: [JSONP_PROVIDERS, SearchPlacesService],
     directives: [CORE_DIRECTIVES, MapComponent]
 })
 
 export class PlacesMapSelect implements OnInit {
     @Input() selectedPlaceType: any;
+    @Input() viewType: string;
     term = new Control();
     searchTerms: string;
     selectedSearchResults: SearchResult[];
@@ -45,6 +46,21 @@ export class PlacesMapSelect implements OnInit {
     inputSearchClickHandler(event: any, result: SearchResult) {
         this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
         this.searchTerms = '';
+    }
+
+    setClasses(suffix: string) {
+        let sReturn: string = '';
+        switch (suffix) {
+            case 'MapCol':
+                sReturn += this.viewType === 'explore' ? 'col-lg-7 col-md-7 col-xs-12 ' : 'col-xs-12 ';
+                break;
+            case 'FindCombComp':
+                sReturn += this.viewType === 'explore' ? 'col-lg-5 col-md-5 col-xs-12 ' : '';
+                break;
+            default:
+                break;
+        }
+        return (this.viewType === 'explore' ? 'explore' : 'indicatorDetail') + suffix + sReturn;
     }
 
     inputKeypressHandler(event: any, result: SearchResult) {
@@ -154,7 +170,18 @@ export class PlacesMapSelect implements OnInit {
             this._selectedPlacesService.add(compareResult);
         }
     }
-
+    onMapLoad(response: any) {
+        console.log('MAP LOADEDED!!!!!');
+        //const map = response.map;
+        // bind the search dijit to the map
+        //this.searchComponent.setMap(map);
+        // initialize the leged dijit with map and layer infos
+        //this.legendComponent.init(map, response.layerInfos);
+        // set the selected basemap
+        //this.basemapSelect.selectedBasemap = response.basemapName;
+        // bind the map title
+        //this.title = response.itemInfo.item.title;
+    }
     ngOnInit() {
         console.log('loaded explore places component');
         this._selectedPlacesService.selectionChanged$.subscribe(updatedPlaces => console.log(updatedPlaces));
