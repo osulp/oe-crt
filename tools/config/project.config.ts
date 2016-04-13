@@ -7,7 +7,8 @@ export class ProjectConfig extends SeedConfig {
 
     constructor() {
         super();
-        this.APP_BASE = this.ENV === 'prod' ? '/rural/crt_ng2_test/' : this.APP_BASE;
+        //this.APP_BASE = this.ENV === 'prod' ? '/rural/crt_ng2_test/' : this.APP_BASE;
+        this.APP_BASE = '/rural/crt_ng2_test/';
         this.APP_TITLE = 'Communities Reporter Tool';
         this.PROD_DEST = `${this.DIST_DIR}/prod`;
         this.BOOTSTRAP_MODULE = this.ENABLE_HOT_LOADING ?
@@ -17,7 +18,8 @@ export class ProjectConfig extends SeedConfig {
         //FOR NPM MODULES DEPENDENCIES
         let additional_deps: InjectableDependency[] = [
             { src: 'jquery/dist/jquery.min.js', inject: 'libs' },
-            { src: 'esri-system-js/dist/esriSystem.js', inject: 'libs' }
+            { src: 'esri-system-js/dist/esriSystem.js', inject: 'libs' },
+            { src: 'bootstrap/dist/css/bootstrap.css', inject: true }
         ];
 
         const seedDependencies = this.NPM_DEPENDENCIES;
@@ -33,6 +35,18 @@ export class ProjectConfig extends SeedConfig {
             { src: `${this.ASSETS_SRC}/scripts/ags.3.16.init.js`, inject: true },
             { src: `${this.ASSETS_SRC}/scripts/oe.js`, inject: true }
         ];
+
+        this.SYSTEM_CONFIG.packageConfigPaths = [`${this.APP_BASE}node_modules/*/package.json`];
+
+        (this.SYSTEM_CONFIG.paths)['angular2/*'] = `${this.APP_BASE}angular2/*`;
+        (this.SYSTEM_CONFIG.paths)['rxjs/*'] = `${this.APP_BASE}rxjs/*`;
+        (this.SYSTEM_CONFIG.paths)['*'] = `${this.APP_BASE}node_modules/*`;
+        //this.SYSTEM_BUILDER_CONFIG.paths['*'] = '';
+        (<any>this.SYSTEM_BUILDER_CONFIG.paths)['rxjs/*'] = `${this.APP_BASE}node_modules/rxjs/*`;
+        (<any>this.SYSTEM_BUILDER_CONFIG.paths)['angular2/*'] = `${this.APP_BASE}node_modules/angular2/*`;
+        (<any>this.SYSTEM_BUILDER_CONFIG.paths)['esri-system-js'] = `${this.APP_BASE}node_modules/esri-system-js/dist/esriSystem.js`;
+        (<any>this.SYSTEM_BUILDER_CONFIG.paths)['highcharts/*'] = `${this.APP_BASE}node_modules/highcharts/*`;
+        (<any>this.SYSTEM_BUILDER_CONFIG.paths)['angular2-highcharts/*'] = `${this.APP_BASE}node_modules/angular2-highcharts/*`;
     }
 }
 

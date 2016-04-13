@@ -1,4 +1,5 @@
 ﻿import { Injectable } from 'angular2/core';
+//import * as esriSystem from 'esri-system-js';
 import {
 esriMap,
 esriDynamicMapServiceLayer,
