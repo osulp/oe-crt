@@ -8,22 +8,8 @@ import {
     TMP_DIR
 } from '../../config';
 
-
-//BOOTSTRAP_MODULE, = app base + /main - production sets this in project.config.ts /rural/crt_ng2_test/main
-//JS_PROD_APP_BUNDLE = app.js
-//JS_DEST = dist/prod/js
-//SYSTEM_BUILDER_CONFIG, =
-//      {
-//        defaultJSExtensions: true,
-//        paths: {
-//            [`${this.TMP_DIR}/*`]: `${this.TMP_DIR}/*`,
-//            '*': 'node_modules/*'
-//        }
-//    };
-//TMP_DIR = dist/tmp
-
 const BUNDLER_OPTIONS = {
-  format: 'amd',
+  format: 'cjs',
   minify: true,
   mangle: false
 };

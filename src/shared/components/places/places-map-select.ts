@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from 'angular2/core';
 import {Control, CORE_DIRECTIVES} from 'angular2/common';
 import {JSONP_PROVIDERS}  from 'angular2/http';
-import {MapComponent} from '../../components/map/map.component';
+import {MapLeafletComponent} from '../../components/map/map.leaflet.component';
 import {SearchPlacesService} from '../../services/places/places.service';
 import {SelectedPlacesService} from '../../services/places/selected-places.service';
 import {SearchResult} from '../../data_models/search-result';
@@ -17,7 +17,7 @@ import 'rxjs/add/operator/share';
     templateUrl: './shared/components/places/places-map-select.html',
     styleUrls: ['./shared/components/places/places-map-select.css'],
     providers: [JSONP_PROVIDERS, SearchPlacesService],
-    directives: [CORE_DIRECTIVES, MapComponent]
+    directives: [CORE_DIRECTIVES, MapLeafletComponent]
 })
 
 export class PlacesMapSelect implements OnInit {

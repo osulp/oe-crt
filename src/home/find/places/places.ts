@@ -1,11 +1,13 @@
 import {Component, OnInit, ElementRef} from 'angular2/core';
-import {MapComponent} from '../../../shared/components/map/map.component';
+import {MapLeafletComponent} from '../../../shared/components/map/map.leaflet.component';
+//import {MapComponent} from '../../../shared/components/map/map.component';
+
 
 @Component({
     selector: 'places',
     templateUrl: './home/find/places/places.html',
     styleUrls: ['./home/find/places/places.css'],
-    directives: [MapComponent]
+    directives: [MapLeafletComponent]
 })
 
 export class PlacesCmp implements OnInit {

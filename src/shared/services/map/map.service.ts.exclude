@@ -1,5 +1,5 @@
-﻿import { Injectable } from 'angular2/core';
-//import * as esriSystem from 'esri-system-js';
+﻿/// <reference path="../../../../tools/manual_typings/project/esrisystem.d.ts" />
+import { Injectable } from 'angular2/core';
 import {
 esriMap,
 esriDynamicMapServiceLayer,
@@ -10,8 +10,9 @@ Search,
 RasterLayer,
 ImageServiceParameters,
 RasterFunction
-} from 'esri-system-js';
-//from 'esri-system-js/dist/esriSystem';
+
+} from 'esriSystem';
+//from 'esri-system-js/dist/esriSystem';//for production build
 
 @Injectable()
 export class MapService {

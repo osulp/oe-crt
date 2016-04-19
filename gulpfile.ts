@@ -120,3 +120,8 @@ gulp.task('build.less', (done: any) =>
     runSequence('build.less.prod',
         done));
 
+// --------------
+// Process Less
+gulp.task('copy.shims.prod', (done: any) =>
+    runSequence('copy.npm.depend.prod',
+        done));

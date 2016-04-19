@@ -37,7 +37,7 @@
 .indicatorDetailFindCombComp{
     position:absolute;
     top:25px;
-    z-index:200;
+    z-index:2000;
     background-color:white;
     right:10%;
     width: 530px;

@@ -106,7 +106,11 @@ export class DataTileCmp implements OnInit, OnDestroy {
     //    }
     //];
     private chart: {
-        xAxis: [{}]
+        xAxis: [{
+            setCategories: any
+        }],
+        series: any,
+        addSeries: any
     };
     private tempPlaces: Array<SearchResult>;
     private Data: any;
