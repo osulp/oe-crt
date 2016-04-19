@@ -30,15 +30,26 @@
             });
         }
     </script>
-
     <script>
         // Fixes undefined module function in SystemJS bundle
         function module() { }
-        function require() { }
-    </script>    
-
+    </script>
+    <!-- Bootstrap-map-js -->
+    <script type="text/javascript">
+        var package_path = "//esri.github.com/bootstrap-map-js/src/js";
+        window.dojoConfig = {
+            async: true,
+            packages: [{
+                name: "application",
+                location: package_path
+            }]
+        };
+    </script>
     <!-- shims:js -->
     <!-- endinject -->
+    <!--<script>
+        window.dojoConfig = {async: true};
+    </script>-->
     <% if (ENV === 'dev') { %>
     <script>
         System.config(<%=
@@ -53,12 +64,40 @@
     <!-- endinject -->
     <% if (ENV === 'dev') { %>
     <script>
-        System.import('<%= BOOTSTRAP_MODULE %>')
-          .catch(function (e) {
-              console.error(e,
-                'Report this error at https://github.com/mgechev/angular2-seed/issues');
-          });
+        // load esri modules needed by this application
+        // into a System.js module called esri
+        esriSystem.register([
+          'esri/map',
+          'esri/arcgis/utils',
+          'esri/basemaps',
+          'esri/dijit/Legend',
+          'esri/dijit/Search',
+          'esri/layers/ArcGISDynamicMapServiceLayer',
+          'esri/layers/WebTiledLayer',
+          'esri/layers/ArcGISImageServiceLayer',
+          'esri/layers/ImageServiceParameters',
+          'esri/layers/RasterFunction'
+        ], function () {
+            // then bootstrap application
+            System.import('<%= BOOTSTRAP_MODULE %>')
+      .catch(function (e) {
+          console.error(e,
+            'Report this error at https://github.com/mgechev/angular2-seed/issues');
+      });
+        }, {
+            outModuleName: 'esri-system-js',
+            moduleNameOverrides: {
+                'esri/map': 'esriMap',
+                'esri/layers/ArcGISDynamicMapServiceLayer': 'esriDynamicMapServiceLayer',
+                'esri/layers/WebTiledLayer' : 'WebTiledLayer',
+                'esri/layers/ArcGISImageServiceLayer' : 'RasterLayer',
+                'esri/layers/ImageServiceParameters' : 'ImageServiceParameters',
+                'esri/layers/RasterFunction' : 'RasterFunction',
+                'esri/arcgis/utils': 'arcgisUtils',
+                'esri/basemaps': 'esriBasemaps'
+            }
+        });
     </script>
-    <% } %>
+    <% } %>    
 </body>
 </html>
