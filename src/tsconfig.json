@@ -1,7 +1,7 @@
 ﻿{
   "compilerOptions": {
     "target": "es5",
-    "module": "commonjs",
+    "module": "system",
     "declaration": false,
     "removeComments": true,
     "noLib": false,
@@ -14,7 +14,10 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    //"outDir": "dist/dev/js",
+    "outFile": "rempel.js",
+    "allowSyntheticDefaultImports": true
   },
   "compileOnSave": false
 }

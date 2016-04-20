@@ -57,12 +57,11 @@ export class SeedConfig {
         { src: 'zone.js/dist/zone.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT },
         { src: 'es6-shim/es6-shim.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT },
         { src: 'systemjs/dist/system.src.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT },
-        //{ src: 'angular2/bundles/angular2-polyfills.js', inject: 'shims' },
-        { src: 'rxjs/bundles/Rx.js', inject: 'libs' },
-        { src: 'angular2/bundles/angular2.js', inject: 'libs' },
-        { src: 'angular2/bundles/router.js', inject: 'libs' },
-        { src: 'angular2/bundles/http.js', inject: 'libs' },
-        { src: 'bootstrap/dist/css/bootstrap.css', inject: true }
+        //{ src: 'angular2/bundles/angular2-polyfills.js', inject: 'shims' }, //causing issue with uncaught exceptions on interaction with map/chart
+        { src: 'rxjs/bundles/Rx.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT },
+        { src: 'angular2/bundles/angular2.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT },
+        { src: 'angular2/bundles/router.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT },
+        { src: 'angular2/bundles/http.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT }
     ];
     //// Declare local files that needs to be injected
     APP_ASSETS: InjectableDependency[] = [];
@@ -139,6 +138,7 @@ export class SeedConfig {
         defaultJSExtensions: true,
         paths: {
             [`${this.TMP_DIR}/*`]: `${this.TMP_DIR}/*`,
+            'esri-system-js': 'node_modules/esri-system-js/dist/esriSystem.js',
             '*': 'node_modules/*'
         }
     };

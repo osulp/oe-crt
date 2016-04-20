@@ -7,15 +7,17 @@ export class ProjectConfig extends SeedConfig {
 
     constructor() {
         super();
-        this.APP_BASE = this.ENV === 'prod' ? '/rural/crt_ng2_test/' : this.APP_BASE;
+        //this.APP_BASE = this.ENV === 'prod' ? '/rural/crt_ng2_test/' : this.APP_BASE;
+        this.APP_BASE = '/rural/crt_ng2_test/';
         this.APP_TITLE = 'Communities Reporter Tool';
         this.PROD_DEST = `${this.DIST_DIR}/prod`;
-        this.BOOTSTRAP_MODULE = this.ENABLE_HOT_LOADING ?
-            (this.ENV !== 'dev' ? 'hot_loader_main' : `${this.APP_BASE}hot_loader_main`)
-            : (this.ENV !== 'dev' ? 'main' : `${this.APP_BASE}main`);
-
+        //this.BOOTSTRAP_MODULE = this.ENABLE_HOT_LOADING ?
+        //    (this.ENV !== 'dev' ? 'hot_loader_main' : `${this.APP_BASE}hot_loader_main`)
+        //    : (this.ENV !== 'dev' ? 'main' : `${this.APP_BASE}main`);
+        //this.ENABLE_HOT_LOADING ? 'hot_loader_main' : 'main';
         //FOR NPM MODULES DEPENDENCIES
         let additional_deps: InjectableDependency[] = [
+            { src: 'bootstrap/dist/css/bootstrap.css', inject: true },
             { src: 'jquery/dist/jquery.min.js', inject: 'libs' },
             { src: 'esri-system-js/dist/esriSystem.js', inject: 'libs' }
         ];
@@ -33,6 +35,12 @@ export class ProjectConfig extends SeedConfig {
             { src: `${this.ASSETS_SRC}/scripts/ags.3.16.init.js`, inject: true },
             { src: `${this.ASSETS_SRC}/scripts/oe.js`, inject: true }
         ];
+
+        /////For non-root based application need to reassert the locations based on updated APP_BASE
+        this.SYSTEM_CONFIG.packageConfigPaths = [`${this.APP_BASE}node_modules/*/package.json`];
+        this.SYSTEM_CONFIG.paths['angular2/*'] = `${this.APP_BASE}angular2/*`;
+        this.SYSTEM_CONFIG.paths['rxjs/*'] = `${this.APP_BASE}rxjs/*`;
+        this.SYSTEM_CONFIG.paths['*'] = `${this.APP_BASE}node_modules/*`;
     }
 }
 

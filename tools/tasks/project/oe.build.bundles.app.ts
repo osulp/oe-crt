@@ -34,28 +34,11 @@ export = (done: any) => {
     console.log('BOOTSTRAP_MODULE =' + BOOTSTRAP_MODULE);
     console.log('JS_DEST =' + join(JS_DEST, JS_PROD_APP_BUNDLE));
     var config = {
-        baseURL: '.',
-        transpiler: 'typescript',
-        typescriptOptions: {
-            module: 'cjs'
-        },
         defaultJSExtensions: true,
-        packageConfigPaths: [`node_modules/*/package.json`],
         paths: {
-            [BOOTSTRAP_MODULE]: `${this.TMP_DIR}/${BOOTSTRAP_MODULE}`,
-            'angular2/*': `node_modules/angular2/*`,
-            'rxjs/*': `node_modules/rxjs/*`,
-            'angular2-highcharts/*': `node_modules/angular2-highcharts/*`,
-            'highcharts/*': `node_modules/highcharts/*`,
-            'esri-system-js/*': `node_modules/esri-system-js/*`
-        },
-        packages: {
-            angular2: { defaultExtension: false },
-            rxjs: { defaultExtension: false },
-            [BOOTSTRAP_MODULE]: { defaultExtension: false }
-        },
-        map: {
-            [BOOTSTRAP_MODULE]: `${this.TMP_DIR}/${BOOTSTRAP_MODULE}`
+            [`${this.TMP_DIR}/*`]: `${this.TMP_DIR}/*`,
+            'esri-system-js': 'node_modules/esri-system-js/dist/esriSystem.js',
+            '*': 'node_modules/*'
         }
     };
     let builder = new Builder(config);
