@@ -134,7 +134,8 @@ export class DataTileCmp implements OnInit, OnDestroy {
             //if (this.tempPlaces !== this.places) {                 
             for (var x = 0; x < selectedPlaces.length; x++) {
                 this.tempPlaces.push(selectedPlaces[x]);
-                this.placeNames += selectedPlaces[x].Name;
+                //this.placeNames += selectedPlaces[x].Name;
+                this.placeNames += encodeURIComponent(JSON.stringify(selectedPlaces[x]));
                 this.placeNames += (x < selectedPlaces.length - 1) ? ',' : '';
             }
             if (this.indicator !== undefined) {

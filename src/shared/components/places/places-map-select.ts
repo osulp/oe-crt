@@ -76,13 +76,8 @@ export class PlacesMapSelect implements OnInit {
         if (event.keyCode === 13) {
             //console.log(result);
             if (result !== undefined) {
-                this.selectedSearchResults.push(result);
-                this._selectedPlacesService.add(result);
-            } else {                //get tempResult values
-                //get tempResult values
-                //console.log('no result');
-                //console.log(this.searchResults);
-                //console.log(this.tempResults);
+                this.addPlace(result);
+            } else {
                 if (this.tempResults.length > 0) {
                     var firstItem: any = this.tempResults[0];
                     var selected: SearchResult = {
@@ -92,12 +87,9 @@ export class PlacesMapSelect implements OnInit {
                         TypeCategory: firstItem['TypeCategory'],
                         Desc: firstItem['Desc']
                     };
-                    this.selectedSearchResults.push(selected);
-                    this._selectedPlacesService.add(selected);
+                    this.addPlace(selected);
                 }
             }
-            //broadcast out to application
-            this.selPlacesEvt.emit(this.selectedSearchResults);
             if (this.tempResults.length === 0) {
                 alert('Please select a valid search term.');
             }
@@ -105,10 +97,7 @@ export class PlacesMapSelect implements OnInit {
         }
     }
     clickedSearchResult(event: any, result: SearchResult) {
-        this.selectedSearchResults.push(result);
-        //broadcast out to application
-        this.selPlacesEvt.emit(this.selectedSearchResults);
-        this._selectedPlacesService.add(result);
+        this.addPlace(result);
         this.searchTerms = '';
     }
     blurHandler(event: any) {
@@ -125,7 +114,7 @@ export class PlacesMapSelect implements OnInit {
                     TypeCategory: listItem.TypeCategory,
                     Desc: listItem.Desc
                 };
-                searchScope.selectedSearchResult = selected;
+                searchScope.addPlace(selected);
                 //if the Explore button then select the top result and go else put focus on the input
             } else if (document.activeElement.id === 'explore-btn') {
                 //get tempResult values
@@ -138,10 +127,7 @@ export class PlacesMapSelect implements OnInit {
                         TypeCategory: firstItem['TypeCategory'],
                         Desc: firstItem['Desc']
                     };
-                    searchScope.selectedSearchResult = selected;
-                    searchScope.selPlacesEvt.emit(selected);
-                    this._selectedPlacesService.add(selected);
-                    alert(firstItem['Name']);
+                    searchScope.addPlace(selected);
                 } else {
                     alert('Please select a valid search term.');
                 }
@@ -160,11 +146,13 @@ export class PlacesMapSelect implements OnInit {
         this._selectedPlacesService.remove(place);
     }
     addPlace(place: SearchResult) {
-        console.log(place);
+        console.log('MNIMAL""SL');
+        //this.selectedSearchResults.push(result);
+        //this._selectedPlacesService.add(result);
         //check if already added                
-        var indexPos = this.selectedSearchResults.map(function (e) { return e.Name; }).indexOf(place.Name);
-        //console.log(indexPos);
-        //console.log('index position is: ' + indexPos);
+        var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim(); }).indexOf(place.Name.trim());
+        console.log(indexPos);
+        console.log('index position is: ' + indexPos);
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);
             this.selPlacesEvt.emit(this.selectedSearchResults);
@@ -214,6 +202,6 @@ export class PlacesMapSelect implements OnInit {
             }
         } else {
             this.addPlaceCompare(this.selectedPlaceType);
-        }       
+        }
     }
 }

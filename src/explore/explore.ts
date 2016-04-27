@@ -104,6 +104,7 @@ export class ExploreCmp implements OnInit {
         var qsParams: QueryStringParams[] = [];
         var places: string = '';
         for (var x = 0; x < selectedPlaces.length; x++) {
+            console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
             places += encodeURIComponent(JSON.stringify(selectedPlaces[x]));
             //places += selectedPlaces[x].Name;
             if (x !== selectedPlaces.length - 1) {
