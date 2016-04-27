@@ -9,9 +9,12 @@ import {AboutCmp} from '../../about/components/about';
 import {CollectionsCmp} from '../../collections/components/collections';
 import {ExploreCmp} from '../../explore/explore';
 import {DataFeaturedCmp} from '../../data_featured/components/data_featured';
+//import appTemplate from './app/components/app.html!text';
 
 @Component({
     selector: 'app',
+    //moduleId: module.id,
+    //template: appTemplate,
     templateUrl: './app/components/app.html',
     styleUrls: ['./app/components/app.css'],
     encapsulation: ViewEncapsulation.None,

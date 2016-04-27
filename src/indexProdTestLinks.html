@@ -1,0 +1,115 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="/rural/crt_ng2_test/">
+    <meta charset="utf-8">
+    <!--<meta http-equiv="X-UA-Compatible" content="IE=edge">-->
+    <title>Communities Reporter Tool</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- inject:css -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="/rural/crt_ng2_test/assets/css/esri.3.15.css?1461187902747">
+    <link rel="stylesheet" href="/rural/crt_ng2_test/assets/fonts/font-awesome-4.5.0/css/font-awesome.min.css?1461187902748">
+    <link rel="stylesheet" href="/rural/crt_ng2_test/assets/main.css?1461187902748">
+    <!-- endinject -->
+</head>
+<body>
+    <app> Loading...</app>
+
+    <script>
+        // function.name (all IE)
+        // Remove once https://github.com/angular/angular/issues/6501 is fixed.
+        /*! @source http://stackoverflow.com/questions/6903762/function-name-not-supported-in-ie*/
+        if (!Object.hasOwnProperty('name')) {
+            Object.defineProperty(Function.prototype, 'name', {
+                get: function () {
+                    var matches = this.toString().match(/^\s*function\s*((?![0-9])[a-zA-Z0-9_$]*)\s*\(/);
+                    var name = matches && matches.length > 1 ? matches[1] : "";
+                    // For better performance only parse once, and then cache the
+                    // result through a new accessor for repeated access.
+                    Object.defineProperty(this, 'name', { value: name });
+                    return name;
+                }
+            });
+        }
+    </script>
+    <script>
+        // Fixes undefined module function in SystemJS bundle
+        function module() { }
+        function require() { }
+    </script>
+    <!-- shims:js -->
+    <!-- endinject -->
+    <!-- libs:js -->
+    <!-- endinject -->
+    <!-- inject:js -->
+    <!-- shims:js -->
+    <script src="/rural/crt_ng2_test/js/shims/system-polyfills.src.js"></script>
+    <script src="/rural/crt_ng2_test/js/shims/Reflect.js"></script>
+    <script src="/rural/crt_ng2_test/js/shims/zone.js"></script>
+    <script src="/rural/crt_ng2_test/js/shims/es6-shim.js"></script>
+    <script src="/rural/crt_ng2_test/js/shims/system.src.js"></script>
+    <!-- endinject -->
+    <script>
+        System.config({
+            "defaultJSExtensions": true,
+            "paths": {
+                "main": "/rural/crt_ng2_test/main",
+                "angular2/*": "/rural/crt_ng2_test/angular2/*",
+                "angular2-highcharts/*": "/rural/crt_ng2_test/js/lib/index",
+                "rxjs/*": "/rural/crt_ng2_test/rxjs/*"
+            },
+            "packages": {
+                "app": {
+                    "defaultExension": "js"
+                }
+            }
+        });
+    </script>
+    <script src="/rural/crt_ng2_test/js/lib/Rx.js"></script>
+    <script src="/rural/crt_ng2_test/js/lib/angular2.js"></script>
+    <script src="/rural/crt_ng2_test/js/lib/router.js"></script>
+    <script src="/rural/crt_ng2_test/js/lib/http.js"></script>
+    <script src="/rural/crt_ng2_test/js/lib/jquery.min.js"></script>
+    <script src="/rural/crt_ng2_test/js/lib/index.js"></script>
+    <script src="/rural/crt_ng2_test/js/lib/esriSystem.js"></script>
+    <script src="/rural/crt_ng2_test/js/lib/ags.3.16.init.js"></script>
+    <!-- endinject -->
+    <script>
+        // load esri modules needed by this application
+        // into a System.js module called esri
+        esriSystem.register([
+          'esri/map',
+          'esri/arcgis/utils',
+          'esri/basemaps',
+          'esri/dijit/Legend',
+          'esri/dijit/Search',
+          'esri/layers/ArcGISDynamicMapServiceLayer',
+          'esri/layers/WebTiledLayer',
+          'esri/layers/ArcGISImageServiceLayer',
+          'esri/layers/ImageServiceParameters',
+          'esri/layers/RasterFunction'
+        ], function () {
+            // then bootstrap application
+            System.import('/rural/crt_ng2_test/main')
+      .catch(function (e) {
+          console.error(e,
+            'Report this error at https://github.com/mgechev/angular2-seed/issues');
+      });
+        }, {
+            outModuleName: 'esri-system-js',
+            moduleNameOverrides: {
+                'esri/map': 'esriMap',
+                'esri/layers/ArcGISDynamicMapServiceLayer': 'esriDynamicMapServiceLayer',
+                'esri/layers/WebTiledLayer' : 'WebTiledLayer',
+                'esri/layers/ArcGISImageServiceLayer' : 'RasterLayer',
+                'esri/layers/ImageServiceParameters' : 'ImageServiceParameters',
+                'esri/layers/RasterFunction' : 'RasterFunction',
+                'esri/arcgis/utils': 'arcgisUtils',
+                'esri/basemaps': 'esriBasemaps'
+            }
+        });
+    </script>
+</body>
+</html>

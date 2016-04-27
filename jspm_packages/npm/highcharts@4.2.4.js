@@ -1,0 +1,1 @@
+module.exports = require("npm:highcharts@4.2.4/highcharts.js");

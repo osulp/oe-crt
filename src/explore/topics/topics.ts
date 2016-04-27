@@ -96,6 +96,7 @@ export class TopicsCmp implements OnInit {
                 } else {
                     this.showAllSelected = true;
                 }
+                this.getIndicators();
             },
             err => console.error(err),
             () => console.log('done loading topics'));
@@ -187,16 +188,15 @@ export class TopicsCmp implements OnInit {
 
 
     ngOnInit() {
-        console.log('Input Topics: ' + this.inputTopics);
+        //console.log('Input Topics: ' + this.inputTopics);
         this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
         this._selectedTopics = this._inputTopics;
-        console.log('Input Indicators: ' + this.inputIndicators);
+        //console.log('Input Indicators: ' + this.inputIndicators);
         this._inputIndicators = this.inputIndicators.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(';');
         this._selectedIndicators = this._inputIndicators;
-        console.log('Selected Indicators: ' + this._selectedIndicators);
+        //console.log('Selected Indicators: ' + this._selectedIndicators);
 
         this.getTopics();
-        this.getIndicators();
         //sync with component to update state/display
         this.selected = this.inputTopics.length === 0 ? ['All Topics'] : this._inputTopics;
         this.selectedTopicsFromComp.emit(this.selected);

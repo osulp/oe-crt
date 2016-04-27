@@ -19,7 +19,7 @@ export class ProjectConfig extends SeedConfig {
         let additional_deps: InjectableDependency[] = [
             { src: 'bootstrap/dist/css/bootstrap.css', inject: true },
             { src: 'jquery/dist/jquery.min.js', inject: 'libs' },
-            { src: 'esri-system-js/dist/esriSystem.js', inject: 'libs' }
+            { src: 'esri-system-js/dist/esriSystem.js', inject: 'libs', env: 'dev' }
         ];
 
         const seedDependencies = this.NPM_DEPENDENCIES;
@@ -40,8 +40,13 @@ export class ProjectConfig extends SeedConfig {
         this.SYSTEM_CONFIG.packageConfigPaths = [`${this.APP_BASE}node_modules/*/package.json`];
         this.SYSTEM_CONFIG.paths['angular2/*'] = `${this.APP_BASE}angular2/*`;
         this.SYSTEM_CONFIG.paths['rxjs/*'] = `${this.APP_BASE}rxjs/*`;
+        this.SYSTEM_CONFIG.paths['esri*'] = `${this.APP_BASE}node_modules/esri-system-js/dist/esriSystem.js`;
         this.SYSTEM_CONFIG.paths['*'] = `${this.APP_BASE}node_modules/*`;
+        //this.SYSTEM_CONFIG.map['text'] = `${this.APP_BASE}${this.APP_DEST}/assets/scripts/plugins/systemjsTextPlugin.js`;
+        //this.SYSTEM_BUILDER_CONFIG.map['esriSystem'] = `node_modules/esri-system-js/dist/esriSystem.js`;
+        //this.SYSTEM_BUILDER_CONFIG.paths['esri*'] = `node_modules/esri-system-js/dist/esriSystem.js`;
     }
 }
+
 
 

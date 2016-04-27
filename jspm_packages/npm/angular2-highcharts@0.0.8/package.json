@@ -1,0 +1,46 @@
+{
+  "name": "angular2-highcharts",
+  "version": "0.0.8",
+  "description": "Highcharts for your Angular2 project",
+  "scripts": {
+    "watch": "ntsc -w",
+    "build": "rm -rf dist && node ./node_modules/typescript/bin/tsc",
+    "test": "./node_modules/karma/bin/karma start karma.conf.js",
+    "typings-install" : "node ./node_modules/typings/dist/bin install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gevgeny/angular2-highcharts"
+  },
+  "keywords": [
+    "Angular2",
+    "ng2",
+    "charts",
+    "highcharts"
+  ],
+  "author": "Eugene Gluhotorenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gevgeny/angular2-highcharts/issues"
+  },
+  "homepage": "https://github.com/gevgeny/angular2-highcharts#readme",
+  "devDependencies": {
+    "typescript": "^1.8.0",
+    "angular2": "^2.0.0-beta.14",
+    "es6-shim": "^0.35.0",
+    "es6-promise": "^3.0.2",
+    "rxjs": "5.0.0-beta.2",
+    "reflect-metadata": "0.1.2",
+    "zone.js": "^0.6.6",
+    "http-server": "0.8.5",
+    "jasmine-core": "2.4.1",
+    "karma": "0.13.19",
+    "karma-chrome-launcher": "0.2.2",
+    "karma-jasmine": "0.3.6",
+    "typings": "^0.7.9",
+    "systemjs": "0.19.17"
+  },
+  "dependencies": {
+    "highcharts": "^4.2.1"
+  }
+}

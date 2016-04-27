@@ -1,0 +1,1 @@
+module.exports = require("npm:angular2-highcharts@0.0.8/index");

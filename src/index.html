@@ -33,18 +33,8 @@
     <script>
         // Fixes undefined module function in SystemJS bundle
         function module() { }
-    </script>
-    <!-- Bootstrap-map-js -->
-    <script type="text/javascript">
-        var package_path = "//esri.github.com/bootstrap-map-js/src/js";
-        window.dojoConfig = {
-            async: true,
-            packages: [{
-                name: "application",
-                location: package_path
-            }]
-        };
-    </script>
+        function register() {}
+    </script>    
     <!-- shims:js -->
     <!-- endinject -->
     <!--<script>
@@ -85,7 +75,7 @@
             'Report this error at https://github.com/mgechev/angular2-seed/issues');
       });
         }, {
-            outModuleName: 'esri-system-js',
+            //outModuleName: 'esri-system-js',
             moduleNameOverrides: {
                 'esri/map': 'esriMap',
                 'esri/layers/ArcGISDynamicMapServiceLayer': 'esriDynamicMapServiceLayer',
@@ -98,6 +88,6 @@
             }
         });
     </script>
-    <% } %>    
+    <% } %>
 </body>
 </html>

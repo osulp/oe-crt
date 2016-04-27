@@ -1,0 +1,54 @@
+﻿<!doctype html>
+<html>
+<head>
+    <base href="">
+    <meta charset="utf-8">
+    <!--<meta http-equiv="X-UA-Compatible" content="IE=edge">-->
+    <title>Communities Reporter Tool</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://js.arcgis.com/3.16/esri/css/esri.css">
+    <link rel="stylesheet" href="assets/fonts/font-awesome-4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/main.css">
+    <script src="assets/scripts/angular2-polyfills.min.js"></script>
+    <script src="https://js.arcgis.com/3.16/"></script>
+    <script src="assets/scripts/esriSystem.js"></script>
+    <script src="jspm_packages/system.js"></script>
+    <script src="config.js"></script>
+</head>
+<body>
+    <!-- this will be our entry component for the application -->
+    <app></app>
+    <script>        
+           esriSystem.register([
+          'esri/map',
+          'esri/arcgis/utils',
+          'esri/basemaps',
+          'esri/dijit/Legend',
+          'esri/dijit/Search',
+          'esri/layers/ArcGISDynamicMapServiceLayer',
+          'esri/layers/WebTiledLayer',
+          'esri/layers/ArcGISImageServiceLayer',
+          'esri/layers/ImageServiceParameters',
+          'esri/layers/RasterFunction'
+            ], function () {
+                // then bootstrap application
+                console.log('yep')                
+                System.import("app").then(function (msg) { console.log(msg) });
+            }, {
+                //outModuleName: 'esri',
+                moduleNameOverrides: {
+                    'esri/map': 'esriMap',
+                    'esri/layers/ArcGISDynamicMapServiceLayer': 'esriDynamicMapServiceLayer',
+                    'esri/layers/WebTiledLayer': 'WebTiledLayer',
+                    'esri/layers/ArcGISImageServiceLayer': 'RasterLayer',
+                    'esri/layers/ImageServiceParameters': 'ImageServiceParameters',
+                    'esri/layers/RasterFunction': 'RasterFunction',
+                    'esri/arcgis/utils': 'arcgisUtils',
+                    'esri/basemaps': 'esriBasemaps'
+                }
+            });       
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
-import {Component, Input, OnInit} from 'angular2/core';
+import {Component, Input, Output, EventEmitter, OnInit} from 'angular2/core';
 import {Control, CORE_DIRECTIVES} from 'angular2/common';
+//import {RouteParams} from 'angular2/router';
 import {JSONP_PROVIDERS}  from 'angular2/http';
 //import {MapLeafletComponent} from '../../components/map/map.leaflet.component';
 import {MapComponent} from '../../components/map/map.component';
@@ -24,16 +25,22 @@ import 'rxjs/add/operator/share';
 export class PlacesMapSelect implements OnInit {
     @Input() selectedPlaceType: any;
     @Input() viewType: string;
+    @Input() selectedPlaces: any;
+    @Output() selPlacesEvt = new EventEmitter();
     term = new Control();
     searchTerms: string;
     selectedSearchResults: SearchResult[];
     selectedSearchResult: SearchResult;
-    selectedPlaces: string;
+    //selectedPlaces: string;
     tempResults: [{}];
     searchResults: Observable<[{}]>;
     mapOptions: any = null;
+    urlPlaces: any;
 
-    constructor(private _searchPlaceService: SearchPlacesService, private _selectedPlacesService: SelectedPlacesService) {
+    constructor(
+        //private _routerParams: RouteParams,
+        private _searchPlaceService: SearchPlacesService,
+        private _selectedPlacesService: SelectedPlacesService) {
         this.searchResults = this.term.valueChanges
             .debounceTime(200)
             .distinctUntilChanged()
@@ -42,6 +49,7 @@ export class PlacesMapSelect implements OnInit {
         this.searchResults.subscribe(value => this.tempResults = value);
         //this._selectedPlacesService.selectionChanged$.subscribe();
         this.selectedSearchResults = [];
+        //this.urlPlaces = this._routerParams.get('places');
     }
 
     inputSearchClickHandler(event: any, result: SearchResult) {
@@ -89,7 +97,7 @@ export class PlacesMapSelect implements OnInit {
                 }
             }
             //broadcast out to application
-            //this.selPlacesEvt.emit(this.selectedSearchResults);
+            this.selPlacesEvt.emit(this.selectedSearchResults);
             if (this.tempResults.length === 0) {
                 alert('Please select a valid search term.');
             }
@@ -99,7 +107,7 @@ export class PlacesMapSelect implements OnInit {
     clickedSearchResult(event: any, result: SearchResult) {
         this.selectedSearchResults.push(result);
         //broadcast out to application
-        //this.selPlacesEvt.emit(this.selectedSearchResults);
+        this.selPlacesEvt.emit(this.selectedSearchResults);
         this._selectedPlacesService.add(result);
         this.searchTerms = '';
     }
@@ -131,7 +139,7 @@ export class PlacesMapSelect implements OnInit {
                         Desc: firstItem['Desc']
                     };
                     searchScope.selectedSearchResult = selected;
-                    //searchScope.selPlacesEvt.emit(selected);
+                    searchScope.selPlacesEvt.emit(selected);
                     this._selectedPlacesService.add(selected);
                     alert(firstItem['Name']);
                 } else {
@@ -148,8 +156,21 @@ export class PlacesMapSelect implements OnInit {
         var indexPlace = this.selectedSearchResults.indexOf(place);
         this.selectedSearchResults.splice(indexPlace, 1);
         //broadcast out to application
-        //this.selPlacesEvt.emit(this.selectedSearchResults);
+        this.selPlacesEvt.emit(this.selectedSearchResults);
         this._selectedPlacesService.remove(place);
+    }
+    addPlace(place: SearchResult) {
+        console.log(place);
+        //check if already added                
+        var indexPos = this.selectedSearchResults.map(function (e) { return e.Name; }).indexOf(place.Name);
+        //console.log(indexPos);
+        //console.log('index position is: ' + indexPos);
+        if (indexPos === -1) {
+            this.selectedSearchResults.push(place);
+            this.selPlacesEvt.emit(this.selectedSearchResults);
+            //console.log(compareResult);
+            this._selectedPlacesService.add(place);
+        }
     }
 
     addPlaceCompare(compareType: string) {
@@ -162,17 +183,17 @@ export class PlacesMapSelect implements OnInit {
         };
         //check if already added                
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name; }).indexOf(compareType);
-        console.log(indexPos);
-        console.log('index position is: ' + indexPos);
+        //console.log(indexPos);
+        //console.log('index position is: ' + indexPos);
         if (indexPos === -1) {
             this.selectedSearchResults.push(compareResult);
-            //this.selPlacesEvt.emit(this.selectedSearchResults);
-            console.log(compareResult);
+            this.selPlacesEvt.emit(this.selectedSearchResults);
+            //console.log(compareResult);
             this._selectedPlacesService.add(compareResult);
         }
     }
     onMapLoad(response: any) {
-        console.log('MAP LOADEDED!!!!!');
+        //console.log('MAP LOADEDED!!!!!');
         //const map = response.map;
         // bind the search dijit to the map
         //this.searchComponent.setMap(map);
@@ -187,7 +208,27 @@ export class PlacesMapSelect implements OnInit {
         console.log('loaded explore places component');
         this._selectedPlacesService.selectionChanged$.subscribe(updatedPlaces => console.log(updatedPlaces));
         this._selectedPlacesService.load();
-        this.addPlaceCompare(this.selectedPlaceType);
+        var urlQueryString = document.location.search;
+        var keyRegex = new RegExp('([\?&])places([^&]*|[^,]*)');
+        // If param exists already, update it
+        if (urlQueryString.match(keyRegex) !== null) {
+            console.log(urlQueryString);
+            console.log('HOT SHIT');
+            console.log(urlQueryString.match(keyRegex));
+            let temp = urlQueryString.match(keyRegex)[0];
+            this.urlPlaces = temp.replace(new RegExp('([\?&])places='), '').split(',');
+            let isStatewide = true;
+            for (var x = 0; x < this.urlPlaces.length; x++) {
+                console.log(this.urlPlaces[x]);
+                let place: SearchResult = JSON.parse(decodeURIComponent(this.urlPlaces[x]));
+                isStatewide = place.ResID.length > 3 ? false : isStatewide;
+                this.addPlace(place);
+                console.log(place);
+            }
+            this.selectedPlaceType = !isStatewide ? 'CountiesCitiesTracts' : 'Oregon';
+            console.log(this.urlPlaces);
+        } else {
+            this.addPlaceCompare(this.selectedPlaceType);
+        }
     }
 }
-

@@ -8,7 +8,17 @@ import {Topic} from '../../../shared/data_models/topic';
 export class SelectedTopicsPipe {
     transform(topics: Topic[]): any {
         if (topics !== undefined) {
-            return topics.filter(topic => topic.selected);
+            console.log('RACOON');
+            console.log(topics);
+            let tempTopics = topics.filter(topic => topic.selected);
+            if (tempTopics.length === 0) {
+                //TODO:  SCROLL on Demand logic
+                tempTopics = topics.filter(topic => topic.topic === 'Age');
+                if (tempTopics.length !== 0) {
+                    tempTopics[0].selected = true;
+                }
+            }
+            return tempTopics;
         }
     }
 }

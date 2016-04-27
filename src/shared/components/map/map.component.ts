@@ -20,7 +20,7 @@ export class MapComponent {
         console.log(this.options);
         if (this.options === null) {
             this.options = {
-                basemap: 'dark-gray',
+                basemap: 'satellite',
                 center: [-121, 44], // lon, lat
                 zoom: 6,
                 scrollWheelZoom: false

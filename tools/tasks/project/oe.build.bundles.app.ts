@@ -38,7 +38,7 @@ export = (done: any) => {
         paths: {
             [`${this.TMP_DIR}/*`]: `${this.TMP_DIR}/*`,
             'esri-system-js': 'node_modules/esri-system-js/dist/esriSystem.js',
-            '*': 'node_modules/*'
+            '/*': '/node_modules/*'
         }
     };
     let builder = new Builder(config);
