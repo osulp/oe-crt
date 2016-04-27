@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from 'angular2/core';
 import {JSONP_PROVIDERS}  from 'angular2/http';
 import {DataTileCmp} from '../../shared/components/data_tile/data-tile';
 import {IndicatorDescService} from '../../shared/services/indicators/indicator.desc.service';
+import {SearchResult} from '../../shared/data_models/search-result';
 import { PlacesMapSelect } from '../../shared/components/places/places-map-select';
 
 @Component({
@@ -19,6 +20,7 @@ export class DetailCmp implements OnInit {
     showGraph: boolean;
     showTable: boolean;
     selectedPlaceType: any = 'Oregon';
+    urlPlaces: SearchResult[] = [];
 
     constructor(private _indicatorDescService: IndicatorDescService) { }
 
@@ -32,5 +34,17 @@ export class DetailCmp implements OnInit {
                 this.indicatorDesc = data;// IndicatorDescSer    
                 console.log(data);
             });
+        var urlQueryString = document.location.search;
+        var keyRegex = new RegExp('([\?&])places([^&]*|[^,]*)');
+        // If param exists already, update it
+        if (urlQueryString.match(keyRegex) !== null) {
+            let temp = urlQueryString.match(keyRegex)[0];
+            let tempPlaces: string[] = temp.replace(new RegExp('([\?&])places='), '').split(',');
+            for (var x = 0; x < tempPlaces.length; x++) {
+                let place: SearchResult = JSON.parse(decodeURIComponent(tempPlaces[x]));
+                this.urlPlaces.push(place);
+            }
+        }
     }
 }
+

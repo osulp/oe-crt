@@ -208,27 +208,12 @@ export class PlacesMapSelect implements OnInit {
         console.log('loaded explore places component');
         this._selectedPlacesService.selectionChanged$.subscribe(updatedPlaces => console.log(updatedPlaces));
         this._selectedPlacesService.load();
-        var urlQueryString = document.location.search;
-        var keyRegex = new RegExp('([\?&])places([^&]*|[^,]*)');
-        // If param exists already, update it
-        if (urlQueryString.match(keyRegex) !== null) {
-            console.log(urlQueryString);
-            console.log('HOT SHIT');
-            console.log(urlQueryString.match(keyRegex));
-            let temp = urlQueryString.match(keyRegex)[0];
-            this.urlPlaces = temp.replace(new RegExp('([\?&])places='), '').split(',');
-            let isStatewide = true;
-            for (var x = 0; x < this.urlPlaces.length; x++) {
-                console.log(this.urlPlaces[x]);
-                let place: SearchResult = JSON.parse(decodeURIComponent(this.urlPlaces[x]));
-                isStatewide = place.ResID.length > 3 ? false : isStatewide;
-                this.addPlace(place);
-                console.log(place);
+        if (this.selectedPlaces.length > 0) {
+            for (var x = 0; x < this.selectedPlaces.length; x++) {
+                this.addPlace(this.selectedPlaces[x]);
             }
-            this.selectedPlaceType = !isStatewide ? 'CountiesCitiesTracts' : 'Oregon';
-            console.log(this.urlPlaces);
         } else {
             this.addPlaceCompare(this.selectedPlaceType);
-        }
+        }       
     }
 }
