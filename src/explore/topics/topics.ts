@@ -1,13 +1,15 @@
 import {Component, OnInit, Input, Output, EventEmitter}   from 'angular2/core';
 import {JSONP_PROVIDERS}  from 'angular2/http';
+import {IndicatorsTopicList}  from '../../shared/components/indicators/indicators_by_topic_list';
 import {Topic} from '../../shared/data_models/topic';
 import {Indicator} from '../../shared/data_models/indicator';
 import {TopicsService} from '../../shared/services/topics/topics.service';
 import {IndicatorsService} from '../../shared/services/indicators/indicators.service';
-//import {SelectIndicatorsCmp} from './indicators/select-indicators';
+//import {Subscription}   from 'rxjs/Subscription';
 import {SelectedTopicsPipe} from './pipes/selected-topic-pipe';
 import {IndicatorTopicFilterPipe} from './pipes/indicator-topic-filter-pipe';
 import {SelectedIndicatorByTopicsCountPipe} from './pipes/selected-indicator-topic-count-pipe';
+//import {SelectedIndicatorsService} from '../../shared/services/indicators/selected-indicators.service';
 
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/share';
@@ -16,7 +18,7 @@ import 'rxjs/add/operator/share';
     selector: 'topics',
     templateUrl: './explore/topics/topics.html',
     styleUrls: ['./explore/topics/topics.css'],
-    //directives: [SelectIndicatorsCmp],
+    directives: [IndicatorsTopicList],
     pipes: [IndicatorTopicFilterPipe, SelectedTopicsPipe, SelectedIndicatorByTopicsCountPipe],
     providers: [JSONP_PROVIDERS, TopicsService, IndicatorsService]
 })
@@ -31,7 +33,7 @@ export class TopicsCmp implements OnInit {
     @Input() inputTopics: string;
     @Input() inputIndicators: string;
 
-    //selectedIndicators = new EventEmitter();
+    //selectedIndicators = new EventEmitter();    
     public Indicators: any;
     public Topics: any;
     public _selectedIndicators: any;
@@ -43,10 +45,12 @@ export class TopicsCmp implements OnInit {
     chkBoxVisibile: boolean;
     showAllSelected: boolean;
     selected: string[];
+    //private subscription: Subscription;
 
     constructor(
         public _topicService: TopicsService,
         public _indicatorService: IndicatorsService
+        //private _selectedIndicatorsService: SelectedIndicatorsService
     ) {
         this.visible = true;
         this.showAllSelected = false;
@@ -75,6 +79,7 @@ export class TopicsCmp implements OnInit {
             this.selectedTopicsFromComp.emit(this._selectedTopics);
             for (var i = 0; i < this.Indicators.length; i++) {
                 this.toggleIndicator(this.Indicators[i], true);
+                //this._selectedIndicatorsService.toggle(this.Indicators[i], true);
             }
             this.allTopicsFromComp.emit(this.Topics);
             this.allIndicatorsFromComp.emit(this.Indicators);
@@ -126,9 +131,37 @@ export class TopicsCmp implements OnInit {
         for (var i = 0; i < this.Indicators.length; i++) {
             if (this._selectedTopics.indexOf(this.Indicators[i].topics) !== -1) {
                 this.toggleIndicator(this.Indicators[i], true);
+                //this._selectedIndicatorsService.toggle(this.Indicators[i], true);
             }
         }
         this.allTopicsFromComp.emit(this.Topics);
+        this.allIndicatorsFromComp.emit(this.Indicators);
+    }
+
+    onFilterIndicator(Indicators: Indicator[]) {
+        this.Indicators = Indicators;
+        this.allIndicatorsFromComp.emit(this.Indicators);
+    }
+
+    toggleIndicator(indicator: Indicator, value?: boolean) {
+        console.log('nomnuts');
+        if (value) {
+            indicator.selected = value;
+        } else {
+            indicator.toggleSelected();
+        }
+        const i = this.Indicators.indexOf(indicator);
+        this.Indicators = [
+            ...this.Indicators.slice(0, i),
+            indicator,
+            ...this.Indicators.slice(i + 1)
+        ];
+        this._selectedIndicators = [];
+        for (var x = 0; x < this.Indicators.length; x++) {
+            if (this.Indicators[x].selected) {
+                this._selectedIndicators.push(this.Indicators[x]);
+            }
+        }
         this.allIndicatorsFromComp.emit(this.Indicators);
     }
 
@@ -165,28 +198,6 @@ export class TopicsCmp implements OnInit {
             () => console.log('done loading indicators'));
     }
 
-    toggleIndicator(indicator: Indicator, value?: boolean) {
-        if (value) {
-            indicator.selected = value;
-        } else {
-            indicator.toggleSelected();
-        }
-        const i = this.Indicators.indexOf(indicator);
-        this.Indicators = [
-            ...this.Indicators.slice(0, i),
-            indicator,
-            ...this.Indicators.slice(i + 1)
-        ];
-        this._selectedIndicators = [];
-        for (var x = 0; x < this.Indicators.length; x++) {
-            if (this.Indicators[x].selected) {
-                this._selectedIndicators.push(this.Indicators[x]);
-            }
-        }
-        this.allIndicatorsFromComp.emit(this.Indicators);
-    }
-
-
     ngOnInit() {
         //console.log('Input Topics: ' + this.inputTopics);
         this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
@@ -202,8 +213,47 @@ export class TopicsCmp implements OnInit {
         this.selectedTopicsFromComp.emit(this.selected);
 
         this.selectedIndicatorsFromComp.emit(this._selectedIndicators);
+
+        //this.subscription = this._selectedIndicatorsService.selectionChanged$.subscribe(
+        //    data => {
+        //        this.Indicators = data;
+        //        console.log('testtttttttttttttttttttttt');
+        //        if (this.Indicators.length > 0) {
+        //            for (var x = 0; x < this.Indicators.length; x++) {
+        //                if (this._inputIndicators[0] !== '') {
+        //                    //turn on individual indicator from input url/selection                              
+        //                    if (this._inputIndicators.indexOf(this.Indicators[x].indicator) !== -1) {
+        //                        //this.toggleIndicator(this.Indicators[x]);
+        //                        this._selectedIndicatorsService.toggle(this.Indicators[x]);
+        //                    }
+        //                } else {
+        //                    //turn on for all selected topics                         
+        //                    if (this._inputTopics[0] !== 'All Topics') {
+        //                        if (this._inputTopics.indexOf(this.Indicators[x].topics) !== -1) {
+        //                            console.log('indicator in selected topic ' + this.Indicators[x]);
+        //                            //this.toggleIndicator(this.Indicators[x], true);
+        //                            this._selectedIndicatorsService.toggle(this.Indicators[x], true);
+        //                        }
+        //                    } else {
+        //                        //all indicators for all topics                       
+        //                        //this.toggleIndicator(this.Indicators[x], true);
+        //                        this._selectedIndicatorsService.toggle(this.Indicators[x], true);
+        //                    }
+
+        //                }
+
+        //            }
+        //            //this.allIndicatorsFromComp.emit(this.Indicators);
+        //        }
+        //    },
+        //    err => console.error(err),
+        //    () => console.log('done with subscribe event indicators')
+        //);
+        //this._selectedIndicatorsService.load();
     }
 }
+
+
 
 
 

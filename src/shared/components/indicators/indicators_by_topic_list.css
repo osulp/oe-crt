@@ -1,0 +1,53 @@
+.multiselect {
+    min-width:200px;
+    max-width: 50%;
+    margin:25px auto auto 25px;
+}
+.selectBox {
+    position: relative;
+    cursor: pointer;    
+}    
+
+.topic-header-indicator-filter h2:after{    
+    font-family:'Glyphicons Halflings';
+    content: '\e259';
+    font-size:16px;
+    color:#C34500; 
+    width:25px;
+    height:25px;
+    margin:20px;
+    background:white;
+    border: solid 1px #C34500;
+    border-radius:4px;
+    padding: 4px 4px 2px 4px;     
+    pointer-events: none;
+}
+
+
+.topic-header-indicator-filter.open h2:after{
+    content:"\e260";
+}
+
+.checkboxes {   
+    border: 1px #dadada solid;
+    max-height:300px;
+    overflow:auto;
+    padding:0 10px;
+    font-size:.8em;
+    position:absolute;
+    top:60px;
+    left:40px;
+    z-index:300;
+    background-color:white;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+}
+.checkboxes input[type=checkbox]{
+    margin:5px;
+}
+    .checkboxes label {
+        display: block;
+        font-weight:100;
+    }
+        .checkboxes label:hover {
+            background-color: #F3F2ED;
+        }

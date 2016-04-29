@@ -2,8 +2,8 @@ import {Injectable} from 'angular2/core';
 import {SearchResult} from '../../data_models/search-result';
 import {Subject}    from 'rxjs/Subject';
 import {ReplaySubject}    from 'rxjs/Rx';
-import 'rxjs/add/operator/share';
-import 'rxjs/add/operator/startWith';
+//import 'rxjs/add/operator/share';
+//import 'rxjs/add/operator/startWith';
 
 let initialState: any[] = [];
 
@@ -14,7 +14,7 @@ export class SelectedPlacesService {
     addPlace: Subject<any> = new Subject<any>();
     removePlace: Subject<any> = new Subject<any>();
     getAll: Subject<any> = new Subject<any>();
-    selectedPlaces = new Array<SearchResult>();
+    //selectedPlaces = new Array<SearchResult>();
 
     constructor() {
         this.updates
@@ -56,7 +56,7 @@ export class SelectedPlacesService {
 
     add(place: SearchResult): void {
         console.log('adding place to selectedPlaces');
-        this.selectedPlaces.push(place);
+        //this.selectedPlaces.push(place);
         this.addPlace.next(place);
     }
 

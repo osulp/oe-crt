@@ -96,13 +96,18 @@
 }
 
 .multiselect {
-    max-width: 590px;
+    min-width: 200px;
+    max-width: 50%;
+    margin-left: 25px;
+    position: relative;
+    border-top: 1px solid rgb(221, 232, 250);
+    padding-top:10px;
 }
 .selectBox {
     position: relative;
     cursor:pointer;
 }
-    .selectBox select {
+    /*.selectBox select {
         width: 100%;
         font-weight: bold;
         height: 40px;
@@ -119,16 +124,42 @@
         -moz-appearance: none;
         appearance: none;
         cursor: pointer;
-    }
+    }*/
     
 
-/* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
+/*/* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
-    .selectBox select {padding-right:18px}
+    /*.selectBox select {padding-right:18px}*/
+}
+
+.topic-header-indicator-filter p{
+    font-size:.9em;
+    font-style:italic;
+    color:#808080;
+}
+.topic-header-indicator-filter p:after{    
+    font-family:'Glyphicons Halflings';
+    font-style:normal;
+    content: '\e259';
+    font-size:14px;
+    color:#C34500; 
+    width:25px;
+    height:25px;
+    margin:20px;
+    background:white;
+    border: solid 1px #C34500;
+    border-radius:4px;
+    padding: 4px 4px 2px 4px;     
+    pointer-events: none;
 }
 
 
-.selectBox:after {    
+.topic-header-indicator-filter.open p:after{
+    content:"\e260";
+    font-style:normal;
+}
+
+/*.selectBox:after {    
     font-family:'Glyphicons Halflings';
     content: '\e259';
     font-size:16px;
@@ -154,21 +185,28 @@
 
 .selectBox.open:after{
     content:"\e260";
-}
+}*/
 
-.overSelect {
+/*.overSelect {
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
-}
-#checkboxes {   
+}*/
+
+#checkboxes {
     border: 1px #dadada solid;
-    max-height:300px;
-    overflow:auto;
-    padding:0 10px;
-    font-size:.8em;
+    max-height: 300px;
+    overflow: auto;
+    padding: 0 10px;
+    font-size: .8em;
+    position: absolute;
+    top: 40px;
+    left: 0;
+    z-index: 300;
+    background-color: white;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
 }
 #checkboxes input[type=checkbox]{
     margin:5px;

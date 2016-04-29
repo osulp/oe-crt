@@ -10,6 +10,7 @@ import {DetailCmp} from './indicator_detail/indicator_detail';
 import {Topic} from '../shared/data_models/topic';
 import {Indicator} from '../shared/data_models/indicator';
 import {SelectedPlacesService} from '../shared/services/places/selected-places.service';
+//import {SelectedIndicatorsService} from '../shared/services/indicators/selected-indicators.service';
 
 interface QueryStringParams {
     key: string;
@@ -33,12 +34,12 @@ export class ExploreCmp implements OnInit {
     indicatorDetailView: boolean;
     initialIndicator: boolean;
     selectedSearchResult: SearchResult;
-    private subscription: Subscription;
+    subscription: Subscription;
 
     constructor(
+        public _selectedPlacesService: SelectedPlacesService,
         private _router: Router,
-        private routeParams: RouteParams,
-        private _selectedPlacesService: SelectedPlacesService) {
+        private routeParams: RouteParams) {
         this.selectedTopics = routeParams.get('topics');
         this.selectedPlaces = routeParams.get('places');
         this.selectedIndicators = routeParams.get('indicators');

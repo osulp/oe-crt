@@ -13,12 +13,12 @@
                 </div>
             </div>
         </div>
-    </div>    
+    </div>
     <div class="row">
         <div class="col-xs-12" *ngFor="#topic of inputTopics | SelectedTopicsPipe">
             <div class="row">
                 <div class="col-xs-12">
-                    <h2>{{topic.topic}}</h2>
+                    <indicators-by-topic-list #indicatorList [allTopicsView]="false" [inputIndicators]="inputIndicators" [inputTopics]="[topic]" (filteredIndicatorsFromComp)="onFilterIndicator($event)"></indicators-by-topic-list>
                 </div>
             </div>
             <div class="row">

@@ -234,7 +234,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
             err => console.error(err),
             () => console.log('done with subscribe event places selected')
         );
-        this._selectedPlacesService.load();
+        //this._selectedPlacesService.load();
         console.log('data-tile comp loaded. Indicator:  ' + this.indicator + '  Place(s):  ' + this.places.length);
         //this.places = this._selectedPlacesService.get();
     }

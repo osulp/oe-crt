@@ -21,8 +21,18 @@
                             {{topic.topic}}
                         </div>
                     </div>
-                    <div>
+                    <div>                       
                         <div class="multiselect">
+                            <div class="selectBox" (click)="chkBoxVisibile = !chkBoxVisibile;">
+                                <div [ngClass]="chkBoxVisibile ? 'open' : ''" class="topic-header-indicator-filter">
+                                    <p>Filter Indicators</p>
+                                </div>
+                            </div>
+                            <div id="checkboxes" [hidden]="!chkBoxVisibile">
+                                <label *ngFor="#indicator of Indicators | indicatorTopicFilterPipe : Topics; #i = index" attr.for={{i}}><input type="checkbox" [checked]="indicator.selected" id="{{i}}" (click)="toggleIndicator(indicator)" />{{indicator.indicator}}</label>
+                            </div>
+                        </div>   
+                        <!--<div class="multiselect">
                             <div class="selectBox" [ngClass]="chkBoxVisibile ? 'open' : ''" (click)="chkBoxVisibile = !chkBoxVisibile;">
                                 <select>
                                     <option>Filter Indicators</option>
@@ -32,9 +42,8 @@
                             <div id="checkboxes" [hidden]="!chkBoxVisibile">
                                 <label *ngFor="#indicator of Indicators | indicatorTopicFilterPipe : Topics; #i = index" attr.for={{i}}><input type="checkbox" [checked]="indicator.selected" id="{{i}}" (click)="toggleIndicator(indicator)" />{{indicator.indicator}}</label>
                             </div>
-                        </div>
-                    </div>
-                    <select-indicators></select-indicators>
+                        </div>-->
+                    </div>                    
                 </div>
                 <div id="selectedTopicsIndicators" [hidden]="visible">
                     <div *ngIf="showAllSelected">
