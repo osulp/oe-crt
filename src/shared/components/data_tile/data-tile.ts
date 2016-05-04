@@ -1,7 +1,7 @@
 import {Component, Input, OnInit, OnDestroy} from 'angular2/core';
-import {CHART_DIRECTIVES} from 'angular2-highcharts/index';
-//import {Indicator} from '../../data_models/indicator';
-//import {Observable} from 'rxjs/Observable';
+import {CHART_DIRECTIVES, Highcharts} from 'angular2-highcharts';
+import * as Highchmap from 'highcharts/modules/map';
+//import * as $ from 'jquery';
 import {Subscription}   from 'rxjs/Subscription';
 import {SearchResult} from '../../data_models/search-result';
 import {JSONP_PROVIDERS}  from 'angular2/http';
@@ -10,13 +10,22 @@ import {IndicatorDescService} from '../../services/indicators/indicator.desc.ser
 import {DataService} from '../../services/data/data.service';
 import {SelectedPlacesService} from '../../services/places/selected-places.service';
 import {Router} from 'angular2/router';
+import {GeoJSONStoreService} from '../../services/geojson/geojson_store.service';
+import {GetGeoJSONService} from '../../services/geojson/geojson.service';
+
+
+Highcharts.setOptions({
+    colors: ['#058DC7', '#50B432', '#ED561B']
+});
+
+Highchmap(Highcharts);
 
 @Component({
     selector: 'data-tile',
     templateUrl: './shared/components/data_tile/data-tile.html',
     styleUrls: ['./shared/components/data_tile/data-tile.css'],
     directives: [CHART_DIRECTIVES],
-    providers: [JSONP_PROVIDERS, DataService, IndicatorDescService]
+    providers: [JSONP_PROVIDERS, DataService, IndicatorDescService, GeoJSONStoreService, GetGeoJSONService]
 })
 
 
@@ -24,8 +33,10 @@ export class DataTileCmp implements OnInit, OnDestroy {
     @Input() indicator: any;//Just name pull rest of info from desc service
     @Input() tileType: any;//map/graph/table
     @Input() viewType: any;//basic/advanced
+    public geoJSONStore: any;
     private places = new Array<SearchResult>();
     private subscription: Subscription;
+    private geoSubscription: Subscription;
     private placeNames: string = '';
 
     private xAxisCategories: any = {};
@@ -114,20 +125,34 @@ export class DataTileCmp implements OnInit, OnDestroy {
     };
     private tempPlaces: Array<SearchResult>;
     private Data: any;
-
+    private placeTypes: string[] = [];
+    private options: Object;
 
     constructor(
         private _dataService: DataService,
         private _selectedPlacesService: SelectedPlacesService,
         private _indicatorDescService: IndicatorDescService,
-        private _router: Router) {
+        private _router: Router,
+        private _geoStore: GeoJSONStoreService,
+        private _geoService: GetGeoJSONService
+    ) {
         this.tempPlaces = new Array<SearchResult>();
         this.xAxisCategories = [];
         this.Data = [];
     }
-
+    //getGeoFiles(url:string) {
+    //$.ajax({
+    //    url: url, type: 'GET', async: false, success: function (response:any) {
+    //        var test = response;
+    //    },
+    //    error: function (e:any) {
+    //        var test = e;
+    //    }
+    //});
+    //}
     onPlacesChanged(selectedPlaces: SearchResult[]) {
         this.places = selectedPlaces;
+        this.onPlaceTypeChanged();
         //check if repeated event with same places
         //console.log(this.tempPlaces);
         if (this.tempPlaces.length !== selectedPlaces.length) {
@@ -146,6 +171,17 @@ export class DataTileCmp implements OnInit, OnDestroy {
         }
     }
 
+    onPlaceTypeChanged() {
+        //get place types for map display        
+        for (var x = 0; x < this.places.length; x++) {
+            if (this.placeTypes.indexOf(this.places[x].TypeCategory) === -1) {
+                this.placeTypes.push(this.places[x].TypeCategory);
+            }
+        }
+        console.log('PLACE TYPES');
+        console.log(this.placeTypes);
+    }
+
     getData(selectedPlaces: SearchResult[]) {
         //get ResIDs for geoids param        
         this.chartOptions.title = { text: this.indicator };
@@ -160,10 +196,10 @@ export class DataTileCmp implements OnInit, OnDestroy {
         } else {
             geoids = '41';
         }
+        //var chartScope = this;
         this._dataService.get(geoids, this.indicator).subscribe(
             data => {
                 this.Data = data.length > 0 ? data : [];
-                //clear chart series
                 while (this.chart.series.length > 0) {
                     this.chart.series[0].remove(false);
                 }
@@ -210,21 +246,9 @@ export class DataTileCmp implements OnInit, OnDestroy {
     }
 
     saveInstance(chartInstance: any) {
+        console.log('saving chart instance');
+        //console.log(chartInstance);        
         this.chart = chartInstance;
-    }
-
-    gotoDetails() {
-        this._router.navigate(['Explore', { indicator: encodeURI(this.indicator), places: this.placeNames }]);
-        window.scrollTo(0, 0);
-    }
-
-    ngOnInit() {
-        this._indicatorDescService.getIndicator(this.indicator).subscribe(
-            data => {
-                console.log('got indicator description');
-                //console.log(data);
-            });
-
         this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
             data => {
                 console.log('subscribe throwing event');
@@ -234,9 +258,34 @@ export class DataTileCmp implements OnInit, OnDestroy {
             err => console.error(err),
             () => console.log('done with subscribe event places selected')
         );
-        //this._selectedPlacesService.load();
+        //this._selectedPlacesService.load();      
         console.log('data-tile comp loaded. Indicator:  ' + this.indicator + '  Place(s):  ' + this.places.length);
         //this.places = this._selectedPlacesService.get();
+
+        this.geoSubscription = this._geoStore.selectionChanged$.subscribe(
+            data => {
+                console.log('new geojson file loaded');
+                console.log(data);
+                //this.onGeoJSONChanged(data);
+            },
+            err => console.error(err),
+            () => console.log('done loading geojson')
+        );
+    }
+
+    gotoDetails() {
+        this._router.navigate(['Explore', { indicator: encodeURI(this.indicator), places: this.placeNames }]);
+        window.scrollTo(0, 0);
+    }
+
+    ngOnInit() {
+        this.chartOptions.title = { text: this.indicator };
+        this._indicatorDescService.getIndicator(this.indicator).subscribe(
+            data => {
+                console.log('got indicator description');
+                //console.log(data);                
+            });
+        this.options = {};
     }
 
     ngOnDestroy() {

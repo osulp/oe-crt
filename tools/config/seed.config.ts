@@ -56,7 +56,7 @@ export class SeedConfig {
         { src: 'reflect-metadata/Reflect.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT },
         { src: 'zone.js/dist/zone.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT },
         { src: 'es6-shim/es6-shim.js', inject: 'shims', env: ENVIRONMENTS.DEVELOPMENT },
-        { src: 'systemjs/dist/system.src.js', inject: 'shims'},
+        { src: 'systemjs/dist/system.src.js', inject: 'shims' },
         //{ src: 'angular2/bundles/angular2-polyfills.js', inject: 'shims' }, //causing issue with uncaught exceptions on interaction with map/chart
         { src: 'rxjs/bundles/Rx.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT },
         { src: 'angular2/bundles/angular2.js', inject: 'libs', env: ENVIRONMENTS.DEVELOPMENT },
@@ -124,14 +124,23 @@ export class SeedConfig {
             'angular2/*': `${this.APP_BASE}angular2/*`,
             'rxjs/*': `${this.APP_BASE}rxjs/*`,
             'esri*': `${this.APP_BASE}node_modules/esri-system-js/dist/esriSystem.js`,
+            'assets/geojson/*': `${this.APP_BASE}assets/geojson/*`,
             '*': `${this.APP_BASE}node_modules/*`
         },
         packages: {
             angular2: { defaultExtension: false },
             rxjs: { defaultExtension: false },
-            app: { defaultExension: 'js' }
+            app: { defaultExension: 'js' },
+            'angular2-highcharts': {
+                main: 'index',
+                format: 'cjs',
+                defaultExtension: 'js',
+            }
         },
         map: {
+            'angular2-highcharts': `${this.APP_BASE}node_modules/angular2-highcharts/`,
+            'highcharts/highstock.src': `${this.APP_BASE}node_modules/highcharts/highstock.src.js`,
+            'highcharts/modules/map': `${this.APP_BASE}node_modules/highcharts/modules/map.js`,
             text: `${this.ASSETS_SRC}/scripts/plugins/systemjsTextPlugin.js`
         }
     };

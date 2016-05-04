@@ -166,7 +166,7 @@ export class PlacesMapSelect implements OnInit {
             Name: compareType,
             ResID: compareType === 'Oregon' ? '41' : compareType === 'Rural' ? '41r' : '41u',
             Type: compareType,
-            TypeCategory: 'Place',
+            TypeCategory: 'Statewide',
             Desc: compareType
         };
         //check if already added                

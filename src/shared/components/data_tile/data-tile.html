@@ -1,7 +1,12 @@
 <div id="data-tile-wrapper" class="row" [ngClass]="viewType">       
     <div class="col-xs-12" id="chart-div">                
         <!--<div [ng2-highcharts]="chartBar" class="graph"></div>-->
-        <chart [options]="chartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
+        <div *ngIf="tileType === 'graph'">
+            <chart #highchart [options]="chartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
+        </div>
+        <div *ngIf="tileType === 'map'">
+            <chart #highmap type="Map" [options]="options" (load)="saveInstance($event.context)" ></chart>
+        </div>      
     </div>
     <div [hidden]="viewType !== 'basic'" class="col-xs-12" id="view-data" (click)="gotoDetails()">
         View Data  >
