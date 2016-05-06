@@ -12,7 +12,7 @@ bootstrap(AppCmp, [
   TopicsService
 ]);
 
-// In order to start the Service Worker located at "./sw.js"
+// In order to start the Service Worker located at './sw.js'
 // uncomment this line. More about Service Workers here
 // https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers
 // if ('serviceWorker' in navigator) {

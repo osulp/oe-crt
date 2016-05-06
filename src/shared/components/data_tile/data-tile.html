@@ -2,10 +2,10 @@
     <div class="col-xs-12" id="chart-div">                
         <!--<div [ng2-highcharts]="chartBar" class="graph"></div>-->
         <div *ngIf="tileType === 'graph'">
-            <chart #highchart [options]="chartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
+            <chart #highchart [options]="defaultChartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
         </div>
         <div *ngIf="tileType === 'map'">
-            <chart #highmap type="Map" [options]="options" (load)="saveInstance($event.context)" ></chart>
+            <chart #highmap type="Map" [(options)]="mapOptions" (load)="saveInstance($event.context)" class="graph" ></chart>
         </div>      
     </div>
     <div [hidden]="viewType !== 'basic'" class="col-xs-12" id="view-data" (click)="gotoDetails()">

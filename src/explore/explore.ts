@@ -43,9 +43,9 @@ export class ExploreCmp implements OnInit {
         this.selectedTopics = routeParams.get('topics');
         this.selectedPlaces = routeParams.get('places');
         this.selectedIndicators = routeParams.get('indicators');
+        //not including special characters ( , '
         this.selectedIndicator = routeParams.get('indicator');
         this.initialIndicator = true;
-
         this.indicatorDetailView = this.selectedIndicator !== null ? true : false;
         console.log(routeParams.get('indicator') + ' received on load of explore cmp');
     }
@@ -105,7 +105,7 @@ export class ExploreCmp implements OnInit {
         var qsParams: QueryStringParams[] = [];
         var places: string = '';
         for (var x = 0; x < selectedPlaces.length; x++) {
-            console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
+            //console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
             places += encodeURIComponent(JSON.stringify(selectedPlaces[x]));
             //places += selectedPlaces[x].Name;
             if (x !== selectedPlaces.length - 1) {
@@ -115,6 +115,8 @@ export class ExploreCmp implements OnInit {
         var placeParam: QueryStringParams = { key: 'places', value: places };
         qsParams.push(placeParam);
         var newState = this.updateQueryStringParam(qsParams);
+        //console.log('NEW STATE!!!!!!!!!!!');
+        //console.log(newState);
         window.history.pushState({}, '', newState);
     }
 
@@ -128,18 +130,18 @@ export class ExploreCmp implements OnInit {
         var urlQueryString = document.location.search;
         var allParams: string = '';
         for (var x = 0; x < qsParams.length; x++) {
-            console.log(qsParams[x].value);
+            //console.log(qsParams[x].value);
             var newParam = qsParams[x].value === '' ? '' : qsParams[x].key + '=' + qsParams[x].value;
             allParams = '?' + newParam;
 
-            // If the "search" string exists, then build params from it
+            // If the 'search' string exists, then build params from it
             if (urlQueryString) {
                 var keyRegex = new RegExp('([\?&])' + qsParams[x].key + '([^&]*|[^,]*)');
                 // If param exists already, update it
                 if (urlQueryString.match(keyRegex) !== null) {
-                    console.log('regex = ' + keyRegex);
-                    console.log(urlQueryString);
-                    console.log(newParam);
+                    //console.log('regex = ' + keyRegex);
+                    //console.log(urlQueryString);
+                    //console.log(newParam);
                     allParams = urlQueryString.replace(keyRegex, '$1' + newParam);
                     //allParams = urlQueryString.replace(keyRegex, '$1' + newParam);
                 } else { // Otherwise, add it to end of query string

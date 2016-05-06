@@ -1,5 +1,5 @@
 import {Injectable} from 'angular2/core';
-import {SearchResult} from '../../data_models/search-result';
+//import {SearchResult} from '../../data_models/search-result';
 import {Subject}    from 'rxjs/Subject';
 import {ReplaySubject}    from 'rxjs/Rx';
 //import 'rxjs/add/operator/share';
@@ -54,15 +54,15 @@ export class GeoJSONStoreService {
     }
 
 
-    add(place: SearchResult): void {
+    add(layer: any): void {
         console.log('adding place to selectedPlaces');
         //this.selectedPlaces.push(place);
-        this.addPlace.next(place);
+        this.addPlace.next(layer);
     }
 
-    remove(place: SearchResult): void {
+    remove(layer: any): void {
         console.log('removing place from selectedPlaces');
-        this.removePlace.next(place.Name);
+        this.removePlace.next(layer.Name);
     }
 }
 

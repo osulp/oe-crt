@@ -3,7 +3,7 @@ import {Jsonp, URLSearchParams} from 'angular2/http';
 @Injectable()
 export class GetGeoJSONService {
     constructor(private jsonp: Jsonp) { }
-    search(term: string) {
+    load(placeType: string, mostRecent: boolean) {
         let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/geojson';
         var params = new URLSearchParams();
         //params.set('term', term); // the user's search value        

@@ -28,7 +28,7 @@ export class DetailCmp implements OnInit {
         this.showMap = true;
         this.showGraph = true;
         this.showTable = false;
-        this.inputIndicator = decodeURI(this.inputIndicator);
+        this.inputIndicator = decodeURI(this.inputIndicator).replace(/\%28/g, '(').replace(/\%29/g, ')');
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(
             data => {
                 this.indicatorDesc = data;// IndicatorDescSer    
@@ -47,4 +47,5 @@ export class DetailCmp implements OnInit {
         }
     }
 }
+
 

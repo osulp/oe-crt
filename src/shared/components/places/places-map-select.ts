@@ -145,18 +145,12 @@ export class PlacesMapSelect implements OnInit {
         this.selPlacesEvt.emit(this.selectedSearchResults);
         this._selectedPlacesService.remove(place);
     }
-    addPlace(place: SearchResult) {
-        console.log('MNIMAL""SL');
-        //this.selectedSearchResults.push(result);
-        //this._selectedPlacesService.add(result);
+    addPlace(place: SearchResult) {       
         //check if already added                
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim(); }).indexOf(place.Name.trim());
-        console.log(indexPos);
-        console.log('index position is: ' + indexPos);
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);
             this.selPlacesEvt.emit(this.selectedSearchResults);
-            //console.log(compareResult);
             this._selectedPlacesService.add(place);
         }
     }
@@ -193,7 +187,6 @@ export class PlacesMapSelect implements OnInit {
         //this.title = response.itemInfo.item.title;
     }
     ngOnInit() {
-        console.log('loaded explore places component');
         this._selectedPlacesService.selectionChanged$.subscribe(updatedPlaces => console.log(updatedPlaces));
         this._selectedPlacesService.load();
         if (this.selectedPlaces.length > 0) {
@@ -205,3 +198,4 @@ export class PlacesMapSelect implements OnInit {
         }
     }
 }
+
