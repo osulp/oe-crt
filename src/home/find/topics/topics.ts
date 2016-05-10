@@ -21,7 +21,7 @@ export class TopicsCmp implements OnInit {
 
     search(term: string) {
         //this._topicService.search(term).then(items => this.items = items);  
-        this._topicService.getTopics().subscribe(
+        this._topicService.getCRTTopics().subscribe(
             data => {
                 console.log(data);
                 this.Topics = data;

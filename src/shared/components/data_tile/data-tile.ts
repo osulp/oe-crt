@@ -1,14 +1,17 @@
-﻿import {Component, Input, OnInit, OnDestroy} from 'angular2/core';
+﻿/// <reference path="../../../../tools/manual_typings/project/jquery/index.d.ts" />
+
+import {Component, Input, OnInit, OnDestroy} from 'angular2/core';
 import {CHART_DIRECTIVES, Highcharts} from 'angular2-highcharts';
 import * as Highchmap from 'highcharts/modules/map';
-//import * as $ from 'jquery';
+import * as $jq from 'jquery';
 import {Subscription}   from 'rxjs/Subscription';
+import {Year, CommunityData} from '../../data_models/community-data';
 import {SearchResult} from '../../data_models/search-result';
 import {JSONP_PROVIDERS}  from 'angular2/http';
-//import {Ng2Highcharts, Ng2Highmaps} from 'ng2-highcharts/ng2-highcharts';
 import {IndicatorDescService} from '../../services/indicators/indicator.desc.service';
 import {DataService} from '../../services/data/data.service';
 import {SelectedPlacesService} from '../../services/places/selected-places.service';
+import {SelectedDataService} from '../../services/data/selected-data.service';
 import {Router} from 'angular2/router';
 import {GeoJSONStoreService} from '../../services/geojson/geojson_store.service';
 import {GetGeoJSONService} from '../../services/geojson/geojson.service';
@@ -33,26 +36,12 @@ interface Chart {
     chartHeight: any;
 }
 
-interface AllData {
-    Data: [any];
-    Metadata: [any];
-    RelatedIndicators: [any];
-    SubTopicCategories: [any];
-    TopicCategories: [any];
-    Years: [Year];
-}
-
-
-interface Year {
-    Year: string;
-}
-
 @Component({
     selector: 'data-tile',
     templateUrl: './shared/components/data_tile/data-tile.html',
     styleUrls: ['./shared/components/data_tile/data-tile.css'],
     directives: [CHART_DIRECTIVES],
-    providers: [JSONP_PROVIDERS, DataService, IndicatorDescService, GeoJSONStoreService, GetGeoJSONService]
+    providers: [JSONP_PROVIDERS, DataService, IndicatorDescService, GeoJSONStoreService, GetGeoJSONService, SelectedDataService]
 })
 
 
@@ -64,9 +53,10 @@ export class DataTileCmp implements OnInit, OnDestroy {
     private places = new Array<SearchResult>();
     private subscription: Subscription;
     private geoSubscription: Subscription;
+    private dataSubscription: Subscription;
     private placeNames: string = '';
     private tempPlaces: Array<SearchResult>;
-    private allData: AllData;
+    private allData: CommunityData;
     private Data: any;
     private placeTypes: string[] = [];
     private place_data: [{}] = [{}];
@@ -108,7 +98,8 @@ export class DataTileCmp implements OnInit, OnDestroy {
         private _indicatorDescService: IndicatorDescService,
         private _router: Router,
         private _geoStore: GeoJSONStoreService,
-        private _geoService: GetGeoJSONService
+        private _geoService: GetGeoJSONService,
+        private _selectedDataService: SelectedDataService
     ) {
         this.tempPlaces = new Array<SearchResult>();
         this.xAxisCategories = [];
@@ -180,16 +171,59 @@ export class DataTileCmp implements OnInit, OnDestroy {
         console.log('data-tile comp loaded. Indicator:  ' + this.indicator + '  Place(s):  ' + this.places.length);
         //this.places = this._selectedPlacesService.get();
 
-        this.geoSubscription = this._geoStore.selectionChanged$.subscribe(
-            data => {
-                this.geoJSONStore = data;
-                console.log('new geojson file loaded');
-                console.log(data);
-                //this.onGeoJSONChanged(data);
-            },
-            err => console.error(err),
-            () => console.log('done loading geojson')
-        );
+        if (this.viewType === 'advanced') {
+            this.geoSubscription = this._geoStore.selectionChanged$.subscribe(
+                data => {
+                    this.geoJSONStore = data;
+                    console.log('new geojson file loaded');
+                    console.log(data);
+                    //this.onGeoJSONChanged(data);
+                },
+                err => console.error(err),
+                () => console.log('done loading geojson')
+            );
+            this.dataSubscription = this._selectedDataService.selectionChanged$.subscribe(
+                data => {
+                    console.log('Community Data throwing event');
+                    console.log(data);
+                    //add check to see if place indicator set does not equal input send add request
+                    if (data.length > 0) {
+                        //set selected year based on last return of year data
+                        this.allData = data[0];
+                        this.selectedYear = data[0].Years[data[0].Years.length - 1];
+                        this.selectedYearIndex = this._tickArray.length - 1;
+                        //Not sure if we need to keep clearing out or not
+                        while (this.chart.series.length > 0) {
+                            this.chart.series[0].remove(false);
+                        }
+                        //TODO: set layer to match placetype
+                        if (this.geoJSONStore.length < 1) {
+                            window.setTimeout(function () { console.log('wait for geoJSON load'); }, 1000);
+                        }
+                        if (this.geoJSONStore.length < 1) {
+                            window.setTimeout(function () { console.log('wait for geoJSON load'); }, 1000);
+                        }
+                        this.selectedMapData = this.geoJSONStore[0].features;
+                        //Process the data for it to work with Highmaps
+
+                        this.processDataYear();
+                        this.processYearTicks();
+                        this.hasDrillDowns = this.allData.Metadata[0].Sub_Topic_Name !== 'none' ? true : false;
+                        if (this.tileType === 'map') {
+                            this.createMapChart();
+                        } else {
+                            console.log('Chart tile has all data now');
+                            console.log(this.allData);
+                        }
+                    } else {
+                        this.getData(this.places);
+                    }
+                },
+                err => console.error(err),
+                () => console.log('done with subscribe event places selected')
+            );
+            //this._selectedDataService.load();
+        }
     }
 
     onPlacesChanged(selectedPlaces: SearchResult[]) {
@@ -248,25 +282,27 @@ export class DataTileCmp implements OnInit, OnDestroy {
         }
         //var chartScope = this;
         if (this.tileType === 'map') {
+        //if (this.viewType === 'advanced') {
             this._dataService.getAllbyGeoType(this.selectedPlaceType, this.indicator).subscribe(
                 (data: any) => {
-                    this.allData = data;                    
-                    //set selected year based on last return of year data
-                    this.selectedYear = data.Years[data.Years.length - 1];
-                    this.selectedYearIndex = this._tickArray.length - 1;
-                    //Not sure if we need to keep clearing out or not
-                    while (this.chart.series.length > 0) {
-                        this.chart.series[0].remove(false);
-                    }
-                    //TODO: set layer to match placetype                    
-                    this.selectedMapData = this.geoJSONStore[0].features;
-                    //Process the data for it to work with Highmaps
+                    this.allData = data;
+                    this._selectedDataService.add(data);
+                    ////set selected year based on last return of year data
+                    //this.selectedYear = data.Years[data.Years.length - 1];
+                    //this.selectedYearIndex = this._tickArray.length - 1;
+                    ////Not sure if we need to keep clearing out or not
+                    //while (this.chart.series.length > 0) {
+                    //    this.chart.series[0].remove(false);
+                    //}
+                    ////TODO: set layer to match placetype                    
+                    //this.selectedMapData = this.geoJSONStore[0].features;
+                    ////Process the data for it to work with Highmaps
 
-                    this.processDataYear();
-                    this.processYearTicks();
-                    this.hasDrillDowns = this.allData.Metadata[0].Sub_Topic_Name !== 'none' ? true : false;
+                    //this.processDataYear();
+                    //this.processYearTicks();
+                    //this.hasDrillDowns = this.allData.Metadata[0].Sub_Topic_Name !== 'none' ? true : false;
 
-                    this.createMapChart();
+                    //this.createMapChart();
                 },
                 err => console.error(err),
                 () => console.log('done loading data')
@@ -347,7 +383,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
             }
         });
         //set tooltip display
-        this.chart.tooltip.options.formatter = function () {            
+        this.chart.tooltip.options.formatter = function () {
             var displayValue = mapScope.formatValue(this.point.value, false) + '</b>';
             if (this.point.value === undefined) {
                 return '<span>' + this.point.properties.name + ' County</span><br/><span style="font-size: 10px">Not Available or Insufficient Data</span>';
@@ -355,7 +391,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
                 if (this.point.year !== undefined) {
                     if (this.point.year.match('-')) {
                         displayValue += '<span style="font-size:8px">  (+/- ';
-                        displayValue += mapScope.formatValue(((mapScope.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][1] - mapScope.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][0]) / 2), false);
+                        displayValue += mapScope.formatValue(((parseFloat(mapScope.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][1]) - parseFloat(mapScope.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][0])) / 2), false);
                         displayValue += ' )</span>';
                     }
                     var SeriesName = this.point.series.name.split(':').length > 1 ? this.point.series.name.split(':')[0] + ':<br />' + this.point.series.name.split(':')[1] : this.point.series.name;
@@ -395,6 +431,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
         };
         this.chart.addSeries(series);
         this.chart.setTitle({ text: this.indicator });
+        console.log(this.chart);
     }
 
     processDataYear() {
@@ -405,11 +442,11 @@ export class DataTileCmp implements OnInit, OnDestroy {
             var pData: any = this.allData.Data[d];
             if (pData.Name !== 'Oregon') {
                 this.place_data.push({
-                    name: pData.Name,
+                    name: pData.community,
                     geoid: pData.geoid,
                     value: pData[this.selectedYear.Year] === -1 ? 0 : pData[this.selectedYear.Year],
                     year: this.selectedYear.Year,
-                    id: pData.Name
+                    id: pData.community
                 });
             }
             let year_data: any[] = [];
@@ -428,23 +465,22 @@ export class DataTileCmp implements OnInit, OnDestroy {
                     year_data_moe.push(null);
                 }
                 if (_year.match('-')) {
-                    year_data_moe.push([pData[_year] - pData[_year + '_M'], pData[_year] + pData[_year + '_M']]);
+                    year_data_moe.push([pData[_year] - pData[_year + '_MOE'], pData[_year] + pData[_year + '_MOE']]);
                 } else {
                     year_data_moe.push(null);
                 }
                 year_data.push(pData[_year]);
                 prevYear = _year;
             }
-
-            this.place_data_years[pData.Name] = {
-                id: pData.Name,
-                name: pData.Name,
+            this.place_data_years[pData.community] = {
+                id: pData.community,
+                name: pData.community,
                 geoid: pData.geoid,
                 data: year_data
             };
-            this.place_data_years_moe[pData.Name] = {
-                id: pData.Name,
-                name: pData.Name,
+            this.place_data_years_moe[pData.community] = {
+                id: pData.community,
+                name: pData.community,
                 geoid: pData.geoid,
                 data: year_data_moe
             };
@@ -510,10 +546,10 @@ export class DataTileCmp implements OnInit, OnDestroy {
     getMinData(isMap: boolean, chartType?: boolean) {
         var min: any;
         var notLogrithmic = false;
-        //need to combine data with moes to get proper min/max
-        var pdy = $.extend(true, {}, isMap ? this.place_data_years : this.hasMOEs ? this.place_data_years_moe : this.place_data_years);
-        $.each(pdy, function () {
-            var arr = $.grep(this.data, function (n: any) { return (n); });//removes nulls
+        //need to combine data with moes to get proper min/ max
+        var pdy = $jq.extend(true, {}, isMap ? this.place_data_years : this.hasMOEs ? this.place_data_years_moe : this.place_data_years);
+        $jq.each(pdy, function () {
+            var arr = $jq.grep(this.data, function (n: any) { return (n); });//removes nulls
             if (chartType && arr.length !== this.data.length) {
                 notLogrithmic = true;
             }
@@ -527,24 +563,23 @@ export class DataTileCmp implements OnInit, OnDestroy {
                 min = min > PlaceMin ? PlaceMin : min;
             }
         });
-
         return notLogrithmic ? 0 : min < 10 ? 0 : min;
     }
 
     getMaxData(isMap: boolean) {
-        var max = 0;
-        var pdy = $.extend(true, {}, isMap ? this.place_data_years : this.hasMOEs ? this.place_data_years_moe : this.place_data_years);
-        $.each(pdy, function () {
-            var arr = $.grep(this.data, function (n: any) { return (n); });//removes nulls
-            var PlaceMax = isMap ? arr.sort(function (a: any, b: any) { return b - a; })[0] : this.hasMOEs ? arr.sort(function (a, b) {
+        var max: any = 0;
+        var pdy = $jq.extend(true, {}, isMap ? this.place_data_years : this.hasMOEs ? this.place_data_years_moe : this.place_data_years);
+        $jq.each(pdy, function () {
+            var arr = $jq.grep(this.data, function (n: any) { return (n); });//removes nulls           
+            var PlaceMax = isMap ? arr.sort(function (a: any, b: any) { return b - a; })[0] : this.hasMOEs ? arr.sort(function (a: any, b: any) {
                 return b[1] - a[1];
             })[0] : null;
             if (isMap) {
-                max = max < PlaceMax ? PlaceMax : max;
+                max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
             } else if (this.hasMOEs) {
-                max = max < PlaceMax[1] ? PlaceMax[1] : max;
+                max = parseFloat(max) < parseFloat(PlaceMax[1]) ? parseFloat(PlaceMax[1]) : parseFloat(max);
             } else {
-                max = max < PlaceMax ? PlaceMax : max;
+                max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
             }
         });
         return max;

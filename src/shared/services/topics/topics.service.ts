@@ -24,6 +24,17 @@ export class TopicsService {
                 return result;
             });
     }
+    getCRTTopics() {
+        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/topics';
+        var params = new URLSearchParams();
+        params.set('f', 'json');
+        params.set('crt', 'true');
+        params.set('callback', 'JSONP_CALLBACK');
+        return this.jsonp
+            .get(serviceUrl, { search: params })
+            .map(request => <string[]>request.json())
+            .map((topics: Array<any>) => { return topics; });
+    }
 }
 
 

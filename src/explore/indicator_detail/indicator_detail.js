@@ -11,10 +11,14 @@ var core_1 = require('angular2/core');
 var http_1 = require('angular2/http');
 var data_tile_1 = require('../../shared/components/data_tile/data-tile');
 var indicator_desc_service_1 = require('../../shared/services/indicators/indicator.desc.service');
+var selected_places_service_1 = require('../../shared/services/places/selected-places.service');
+var selected_data_service_1 = require('../../shared/services/data/selected-data.service');
 var places_map_select_1 = require('../../shared/components/places/places-map-select');
 var DetailCmp = (function () {
-    function DetailCmp(_indicatorDescService) {
+    function DetailCmp(_indicatorDescService, _selectedDataService, _selectedPlacesService) {
         this._indicatorDescService = _indicatorDescService;
+        this._selectedDataService = _selectedDataService;
+        this._selectedPlacesService = _selectedPlacesService;
         this.indicatorDesc = [];
         this.selectedPlaceType = 'Oregon';
         this.urlPlaces = [];
@@ -29,6 +33,15 @@ var DetailCmp = (function () {
             _this.indicatorDesc = data;
             console.log(data);
         });
+        this.selectedDataSubscription = this._selectedDataService.selectionChanged$.subscribe(function (data) {
+            console.log('Community Data throwing event');
+            console.log(data);
+            _this.SelectedData = data[0];
+        }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
+        this.selectedPlaceSubscription = this._selectedPlacesService.selectionChanged$.subscribe(function (data) {
+            console.log('subscribe throwing event');
+            console.log(data);
+        }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
         var urlQueryString = document.location.search;
         var keyRegex = new RegExp('([\?&])places([^&]*|[^,]*)');
         if (urlQueryString.match(keyRegex) !== null) {
@@ -49,10 +62,10 @@ var DetailCmp = (function () {
             selector: 'indicator-detail',
             templateUrl: './explore/indicator_detail/indicator_detail.html',
             styleUrls: ['./explore/indicator_detail/indicator_detail.css'],
-            providers: [http_1.JSONP_PROVIDERS, indicator_desc_service_1.IndicatorDescService],
+            providers: [http_1.JSONP_PROVIDERS, indicator_desc_service_1.IndicatorDescService, selected_data_service_1.SelectedDataService, selected_places_service_1.SelectedPlacesService],
             directives: [places_map_select_1.PlacesMapSelect, data_tile_1.DataTileCmp]
         }), 
-        __metadata('design:paramtypes', [indicator_desc_service_1.IndicatorDescService])
+        __metadata('design:paramtypes', [indicator_desc_service_1.IndicatorDescService, selected_data_service_1.SelectedDataService, selected_places_service_1.SelectedPlacesService])
     ], DetailCmp);
     return DetailCmp;
 })();

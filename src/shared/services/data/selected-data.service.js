@@ -11,28 +11,28 @@ var core_1 = require('angular2/core');
 var Subject_1 = require('rxjs/Subject');
 var Rx_1 = require('rxjs/Rx');
 var initialState = [];
-var SelectedPlacesService = (function () {
-    function SelectedPlacesService() {
+var SelectedDataService = (function () {
+    function SelectedDataService() {
         this.selectionChanged$ = new Rx_1.ReplaySubject(1);
         this.updates = new Subject_1.Subject();
-        this.addPlace = new Subject_1.Subject();
-        this.removePlace = new Subject_1.Subject();
+        this.addData = new Subject_1.Subject();
+        this.removeData = new Subject_1.Subject();
         this.getAll = new Subject_1.Subject();
         this.updates
             .scan(function (accumulator, operation) {
             return operation(accumulator);
         }, initialState)
             .subscribe(this.selectionChanged$);
-        this.addPlace
-            .map(function (place) {
-            return function (state) { return state.concat(place); };
+        this.addData
+            .map(function (data) {
+            return function (state) { return state.concat(data); };
         })
             .subscribe(this.updates);
-        this.removePlace
-            .map(function (place) {
+        this.removeData
+            .map(function (data) {
             return function (state) {
-                return state.filter(function (places) {
-                    return places.Name !== place;
+                return state.filter(function (dataset) {
+                    return data !== data;
                 });
             };
         })
@@ -47,21 +47,22 @@ var SelectedPlacesService = (function () {
         })
             .subscribe(this.updates);
     }
-    SelectedPlacesService.prototype.load = function () {
+    SelectedDataService.prototype.load = function () {
+        console.log('load selected data');
+        this.getAll.next(null);
     };
-    SelectedPlacesService.prototype.add = function (place) {
-        console.log('adding place to selectedPlaces');
-        this.addPlace.next(place);
+    SelectedDataService.prototype.add = function (data) {
+        console.log('adding data to selectedData');
+        this.addData.next(data);
     };
-    SelectedPlacesService.prototype.remove = function (place) {
-        console.log('removing place from selectedPlaces');
-        this.removePlace.next(place.Name);
+    SelectedDataService.prototype.remove = function (data) {
+        console.log('removing data from selectedData');
+        this.removeData.next(data);
     };
-    SelectedPlacesService = __decorate([
+    SelectedDataService = __decorate([
         core_1.Injectable(), 
         __metadata('design:paramtypes', [])
-    ], SelectedPlacesService);
-    return SelectedPlacesService;
+    ], SelectedDataService);
+    return SelectedDataService;
 })();
-exports.SelectedPlacesService = SelectedPlacesService;
-//# sourceMappingURL=selected-places.service.js.map
+exports.SelectedDataService = SelectedDataService;

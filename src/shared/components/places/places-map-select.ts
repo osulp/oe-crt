@@ -145,7 +145,7 @@ export class PlacesMapSelect implements OnInit {
         this.selPlacesEvt.emit(this.selectedSearchResults);
         this._selectedPlacesService.remove(place);
     }
-    addPlace(place: SearchResult) {       
+    addPlace(place: SearchResult) {
         //check if already added                
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim(); }).indexOf(place.Name.trim());
         if (indexPos === -1) {

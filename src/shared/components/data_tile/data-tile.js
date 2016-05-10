@@ -10,10 +10,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('angular2/core');
 var angular2_highcharts_1 = require('angular2-highcharts');
 var Highchmap = require('highcharts/modules/map');
+var $jq = require('jquery');
 var http_1 = require('angular2/http');
 var indicator_desc_service_1 = require('../../services/indicators/indicator.desc.service');
 var data_service_1 = require('../../services/data/data.service');
 var selected_places_service_1 = require('../../services/places/selected-places.service');
+var selected_data_service_1 = require('../../services/data/selected-data.service');
 var router_1 = require('angular2/router');
 var geojson_store_service_1 = require('../../services/geojson/geojson_store.service');
 var geojson_service_1 = require('../../services/geojson/geojson.service');
@@ -22,13 +24,14 @@ angular2_highcharts_1.Highcharts.setOptions({
 });
 Highchmap(angular2_highcharts_1.Highcharts);
 var DataTileCmp = (function () {
-    function DataTileCmp(_dataService, _selectedPlacesService, _indicatorDescService, _router, _geoStore, _geoService) {
+    function DataTileCmp(_dataService, _selectedPlacesService, _indicatorDescService, _router, _geoStore, _geoService, _selectedDataService) {
         this._dataService = _dataService;
         this._selectedPlacesService = _selectedPlacesService;
         this._indicatorDescService = _indicatorDescService;
         this._router = _router;
         this._geoStore = _geoStore;
         this._geoService = _geoService;
+        this._selectedDataService = _selectedDataService;
         this.geoJSONStore = [];
         this.places = new Array();
         this.placeNames = '';
@@ -104,11 +107,45 @@ var DataTileCmp = (function () {
             _this.onPlacesChanged(data);
         }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
         console.log('data-tile comp loaded. Indicator:  ' + this.indicator + '  Place(s):  ' + this.places.length);
-        this.geoSubscription = this._geoStore.selectionChanged$.subscribe(function (data) {
-            _this.geoJSONStore = data;
-            console.log('new geojson file loaded');
-            console.log(data);
-        }, function (err) { return console.error(err); }, function () { return console.log('done loading geojson'); });
+        if (this.viewType === 'advanced') {
+            this.geoSubscription = this._geoStore.selectionChanged$.subscribe(function (data) {
+                _this.geoJSONStore = data;
+                console.log('new geojson file loaded');
+                console.log(data);
+            }, function (err) { return console.error(err); }, function () { return console.log('done loading geojson'); });
+            this.dataSubscription = this._selectedDataService.selectionChanged$.subscribe(function (data) {
+                console.log('Community Data throwing event');
+                console.log(data);
+                if (data.length > 0) {
+                    _this.allData = data[0];
+                    _this.selectedYear = data[0].Years[data[0].Years.length - 1];
+                    _this.selectedYearIndex = _this._tickArray.length - 1;
+                    while (_this.chart.series.length > 0) {
+                        _this.chart.series[0].remove(false);
+                    }
+                    if (_this.geoJSONStore.length < 1) {
+                        window.setTimeout(function () { console.log('wait for geoJSON load'); }, 1000);
+                    }
+                    if (_this.geoJSONStore.length < 1) {
+                        window.setTimeout(function () { console.log('wait for geoJSON load'); }, 1000);
+                    }
+                    _this.selectedMapData = _this.geoJSONStore[0].features;
+                    _this.processDataYear();
+                    _this.processYearTicks();
+                    _this.hasDrillDowns = _this.allData.Metadata[0].Sub_Topic_Name !== 'none' ? true : false;
+                    if (_this.tileType === 'map') {
+                        _this.createMapChart();
+                    }
+                    else {
+                        console.log('Chart tile has all data now');
+                        console.log(_this.allData);
+                    }
+                }
+                else {
+                    _this.getData(_this.places);
+                }
+            }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
+        }
     };
     DataTileCmp.prototype.onPlacesChanged = function (selectedPlaces) {
         this.places = selectedPlaces;
@@ -159,16 +196,7 @@ var DataTileCmp = (function () {
         if (this.tileType === 'map') {
             this._dataService.getAllbyGeoType(this.selectedPlaceType, this.indicator).subscribe(function (data) {
                 _this.allData = data;
-                _this.selectedYear = data.Years[data.Years.length - 1];
-                _this.selectedYearIndex = _this._tickArray.length - 1;
-                while (_this.chart.series.length > 0) {
-                    _this.chart.series[0].remove(false);
-                }
-                _this.selectedMapData = _this.geoJSONStore[0].features;
-                _this.processDataYear();
-                _this.processYearTicks();
-                _this.hasDrillDowns = _this.allData.Metadata[0].Sub_Topic_Name !== 'none' ? true : false;
-                _this.createMapChart();
+                _this._selectedDataService.add(data);
             }, function (err) { return console.error(err); }, function () { return console.log('done loading data'); });
         }
         else {
@@ -245,7 +273,7 @@ var DataTileCmp = (function () {
                 if (this.point.year !== undefined) {
                     if (this.point.year.match('-')) {
                         displayValue += '<span style="font-size:8px">  (+/- ';
-                        displayValue += mapScope.formatValue(((mapScope.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][1] - mapScope.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][0]) / 2), false);
+                        displayValue += mapScope.formatValue(((parseFloat(mapScope.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][1]) - parseFloat(mapScope.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][0])) / 2), false);
                         displayValue += ' )</span>';
                     }
                     var SeriesName = this.point.series.name.split(':').length > 1 ? this.point.series.name.split(':')[0] + ':<br />' + this.point.series.name.split(':')[1] : this.point.series.name;
@@ -277,6 +305,7 @@ var DataTileCmp = (function () {
         };
         this.chart.addSeries(series);
         this.chart.setTitle({ text: this.indicator });
+        console.log(this.chart);
     };
     DataTileCmp.prototype.processDataYear = function () {
         this.place_data = [{}];
@@ -286,11 +315,11 @@ var DataTileCmp = (function () {
             var pData = this.allData.Data[d];
             if (pData.Name !== 'Oregon') {
                 this.place_data.push({
-                    name: pData.Name,
+                    name: pData.community,
                     geoid: pData.geoid,
                     value: pData[this.selectedYear.Year] === -1 ? 0 : pData[this.selectedYear.Year],
                     year: this.selectedYear.Year,
-                    id: pData.Name
+                    id: pData.community
                 });
             }
             var year_data = [];
@@ -309,7 +338,7 @@ var DataTileCmp = (function () {
                     year_data_moe.push(null);
                 }
                 if (_year.match('-')) {
-                    year_data_moe.push([pData[_year] - pData[_year + '_M'], pData[_year] + pData[_year + '_M']]);
+                    year_data_moe.push([pData[_year] - pData[_year + '_MOE'], pData[_year] + pData[_year + '_MOE']]);
                 }
                 else {
                     year_data_moe.push(null);
@@ -317,15 +346,15 @@ var DataTileCmp = (function () {
                 year_data.push(pData[_year]);
                 prevYear = _year;
             }
-            this.place_data_years[pData.Name] = {
-                id: pData.Name,
-                name: pData.Name,
+            this.place_data_years[pData.community] = {
+                id: pData.community,
+                name: pData.community,
                 geoid: pData.geoid,
                 data: year_data
             };
-            this.place_data_years_moe[pData.Name] = {
-                id: pData.Name,
-                name: pData.Name,
+            this.place_data_years_moe[pData.community] = {
+                id: pData.community,
+                name: pData.community,
                 geoid: pData.geoid,
                 data: year_data_moe
             };
@@ -387,9 +416,9 @@ var DataTileCmp = (function () {
     DataTileCmp.prototype.getMinData = function (isMap, chartType) {
         var min;
         var notLogrithmic = false;
-        var pdy = $.extend(true, {}, isMap ? this.place_data_years : this.hasMOEs ? this.place_data_years_moe : this.place_data_years);
-        $.each(pdy, function () {
-            var arr = $.grep(this.data, function (n) { return (n); });
+        var pdy = $jq.extend(true, {}, isMap ? this.place_data_years : this.hasMOEs ? this.place_data_years_moe : this.place_data_years);
+        $jq.each(pdy, function () {
+            var arr = $jq.grep(this.data, function (n) { return (n); });
             if (chartType && arr.length !== this.data.length) {
                 notLogrithmic = true;
             }
@@ -409,20 +438,20 @@ var DataTileCmp = (function () {
     };
     DataTileCmp.prototype.getMaxData = function (isMap) {
         var max = 0;
-        var pdy = $.extend(true, {}, isMap ? this.place_data_years : this.hasMOEs ? this.place_data_years_moe : this.place_data_years);
-        $.each(pdy, function () {
-            var arr = $.grep(this.data, function (n) { return (n); });
+        var pdy = $jq.extend(true, {}, isMap ? this.place_data_years : this.hasMOEs ? this.place_data_years_moe : this.place_data_years);
+        $jq.each(pdy, function () {
+            var arr = $jq.grep(this.data, function (n) { return (n); });
             var PlaceMax = isMap ? arr.sort(function (a, b) { return b - a; })[0] : this.hasMOEs ? arr.sort(function (a, b) {
                 return b[1] - a[1];
             })[0] : null;
             if (isMap) {
-                max = max < PlaceMax ? PlaceMax : max;
+                max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
             }
             else if (this.hasMOEs) {
-                max = max < PlaceMax[1] ? PlaceMax[1] : max;
+                max = parseFloat(max) < parseFloat(PlaceMax[1]) ? parseFloat(PlaceMax[1]) : parseFloat(max);
             }
             else {
-                max = max < PlaceMax ? PlaceMax : max;
+                max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
             }
         });
         return max;
@@ -514,9 +543,9 @@ var DataTileCmp = (function () {
             templateUrl: './shared/components/data_tile/data-tile.html',
             styleUrls: ['./shared/components/data_tile/data-tile.css'],
             directives: [angular2_highcharts_1.CHART_DIRECTIVES],
-            providers: [http_1.JSONP_PROVIDERS, data_service_1.DataService, indicator_desc_service_1.IndicatorDescService, geojson_store_service_1.GeoJSONStoreService, geojson_service_1.GetGeoJSONService]
+            providers: [http_1.JSONP_PROVIDERS, data_service_1.DataService, indicator_desc_service_1.IndicatorDescService, geojson_store_service_1.GeoJSONStoreService, geojson_service_1.GetGeoJSONService, selected_data_service_1.SelectedDataService]
         }), 
-        __metadata('design:paramtypes', [data_service_1.DataService, selected_places_service_1.SelectedPlacesService, indicator_desc_service_1.IndicatorDescService, router_1.Router, geojson_store_service_1.GeoJSONStoreService, geojson_service_1.GetGeoJSONService])
+        __metadata('design:paramtypes', [data_service_1.DataService, selected_places_service_1.SelectedPlacesService, indicator_desc_service_1.IndicatorDescService, router_1.Router, geojson_store_service_1.GeoJSONStoreService, geojson_service_1.GetGeoJSONService, selected_data_service_1.SelectedDataService])
     ], DataTileCmp);
     return DataTileCmp;
 })();
