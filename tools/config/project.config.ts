@@ -42,10 +42,12 @@ export class ProjectConfig extends SeedConfig {
         this.SYSTEM_CONFIG.paths['angular2/*'] = `${this.APP_BASE}angular2/*`;
         this.SYSTEM_CONFIG.paths['rxjs/*'] = `${this.APP_BASE}rxjs/*`;
         this.SYSTEM_CONFIG.paths['esri*'] = `${this.APP_BASE}node_modules/esri-system-js/dist/esriSystem.js`;
-        this.SYSTEM_CONFIG.paths['assets/geojson/*'] = `${this.APP_BASE}assets/geojson/*`;
+        //this.SYSTEM_CONFIG.paths['assets/geojson/*'] = `${this.APP_BASE}assets/geojson/*`;
         this.SYSTEM_CONFIG.map['angular2-highcharts'] = `${this.APP_BASE}node_modules/angular2-highcharts/`;
         this.SYSTEM_CONFIG.map['highcharts/highstock.src'] = `${this.APP_BASE}node_modules/highcharts/highstock.src.js`;
         this.SYSTEM_CONFIG.map['highcharts/modules/map'] = `${this.APP_BASE}node_modules/highcharts/modules/map.js`;
+        this.SYSTEM_CONFIG.map['highcharts/highcharts-more'] = `${this.APP_BASE}node_modules/highcharts/highcharts-more.js`;
+        //this.SYSTEM_CONFIG.map['highcharts/highcharts-zoom-out'] = `${this.ASSETS_SRC}/scripts/plugins/highcharts-zoom-out-plugin.js`;         
         this.SYSTEM_CONFIG.paths['*'] = `${this.APP_BASE}node_modules/*`;
         //this.SYSTEM_CONFIG.paths['highcharts'] = `${this.APP_BASE}node_modules/highcharts/highcharts.js`;
         //this.SYSTEM_CONFIG.paths['highcharts/modules/map'] = `${this.APP_BASE}node_modules/highcharts/modules/map.js`;

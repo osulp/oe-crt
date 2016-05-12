@@ -3,7 +3,9 @@
 import {Component, Input, OnInit, OnDestroy} from 'angular2/core';
 import {CHART_DIRECTIVES, Highcharts} from 'angular2-highcharts';
 import * as Highchmap from 'highcharts/modules/map';
+import * as HighchartsMore from 'highcharts/highcharts-more';
 import * as $jq from 'jquery';
+//import {Observable} from 'rxjs/Rx';
 import {Subscription}   from 'rxjs/Subscription';
 import {Year, CommunityData} from '../../data_models/community-data';
 import {SearchResult} from '../../data_models/search-result';
@@ -22,11 +24,14 @@ Highcharts.setOptions({
 });
 
 Highchmap(Highcharts);
+HighchartsMore(Highcharts);
 
 interface Chart {
     xAxis: [{
         setCategories: any;
+        options: any;
     }];
+    yAxis: any;
     series: any;
     addSeries: any;
     setTitle: any;
@@ -34,6 +39,8 @@ interface Chart {
     tooltip: any;
     chartWidth: any;
     chartHeight: any;
+    redraw: any;
+    getSelectedPoints: any;
 }
 
 @Component({
@@ -82,13 +89,60 @@ export class DataTileCmp implements OnInit, OnDestroy {
     private xAxisCategories: any = {};
     private defaultChartOptions = {
         chart: {
-            type: 'line'
+            type: 'line',
+            spacingLeft: 0,
+            spacingRight: 30,
+            spacingTop: 20,
+            zoomType: 'x',
+            resetZoomButton: {
+                position: {
+                    align: 'left', // by default
+                    // verticalAlign: 'top', // by default
+                    x: 0,
+                    y: -10
+                },
+                theme: {
+                    fill: 'white',
+                    stroke: 'silver',
+                    r: 0,
+                    states: {
+                        hover: {
+                            //fill: indicatorData.Metadata[0].Color_hex,
+                            style: {
+                                color: 'white'
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        legend: {
+            //width: isHandheld ? $jq(window).width() - 40 : isModal ? 600 : 400,
+            //itemWidth: isHandheld ? $jq(window).width() - 40 : isModal ? 300 : 200,
+            //itemStyle: {
+            //    width: isHandheld ? $jq(window).width() - 60 : isModal ? 280 : 180,
+            //    color: '#4d4d4d'
+            //},
+            //title: {
+            //    text: 'LEGEND: <span style="font-size: 9px; color: #666; font-weight: normal">(Click to hide series in chart)</span>'
+            //},
         },
         title: {},
         xAxis: {
             categories: [0, 1]
         },
-        series: [{}]
+        series: {
+            fillOpacity: 0.85,
+            animation: {
+                duration: 500
+            },
+            marker: {
+                lineWidth: 1,
+                symbol: 'circle'
+            },
+            connectNulls: true,
+            threshold: 0
+        }
     };
     private chart: Chart;
 
@@ -150,13 +204,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
         //2. Subscribe to changes in place selection and indicator selection?
         //3. On place change lookup geo layer to see if it needs to be added
         //4. Subscribe to chanes in geolayers to access geojson for layers
-        //5. On getdata for indicator/place grab geojson and update map/chart    
-        //var testProm = new Promise((res: any, rej: any) => {
-        //    setTimeout(() => {
-        //        res('TA DA!');
-        //    }, 5000);
-        //});
-        //testProm.then((r) => console.log('Tower ' + r));
+        //5. On getdata for indicator/place grab geojson and update map/chart         
         this.chart = chartInstance;
         this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
             data => {
@@ -167,10 +215,6 @@ export class DataTileCmp implements OnInit, OnDestroy {
             err => console.error(err),
             () => console.log('done with subscribe event places selected')
         );
-        //this._selectedPlacesService.load();      
-        console.log('data-tile comp loaded. Indicator:  ' + this.indicator + '  Place(s):  ' + this.places.length);
-        //this.places = this._selectedPlacesService.get();
-
         if (this.viewType === 'advanced') {
             this.geoSubscription = this._geoStore.selectionChanged$.subscribe(
                 data => {
@@ -188,7 +232,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
                     console.log(data);
                     //add check to see if place indicator set does not equal input send add request
                     if (data.length > 0) {
-                        //set selected year based on last return of year data
+                        //check to see if data loaded contains current report params
                         this.allData = data[0];
                         this.selectedYear = data[0].Years[data[0].Years.length - 1];
                         this.selectedYearIndex = this._tickArray.length - 1;
@@ -196,14 +240,9 @@ export class DataTileCmp implements OnInit, OnDestroy {
                         while (this.chart.series.length > 0) {
                             this.chart.series[0].remove(false);
                         }
-                        //TODO: set layer to match placetype
-                        if (this.geoJSONStore.length < 1) {
-                            window.setTimeout(function () { console.log('wait for geoJSON load'); }, 1000);
+                        if (this.tileType === 'map') {
+                            this.selectedMapData = this.geoJSONStore[0].features[0];
                         }
-                        if (this.geoJSONStore.length < 1) {
-                            window.setTimeout(function () { console.log('wait for geoJSON load'); }, 1000);
-                        }
-                        this.selectedMapData = this.geoJSONStore[0].features;
                         //Process the data for it to work with Highmaps
 
                         this.processDataYear();
@@ -214,9 +253,12 @@ export class DataTileCmp implements OnInit, OnDestroy {
                         } else {
                             console.log('Chart tile has all data now');
                             console.log(this.allData);
+                            this.Data = this.allData.Data;
+                            this.createGraphChart();
                         }
                     } else {
-                        this.getData(this.places);
+                        console.log('DATA SUBSCRIPTION thinks there is no data');
+                        //this.getData();
                     }
                 },
                 err => console.error(err),
@@ -228,48 +270,99 @@ export class DataTileCmp implements OnInit, OnDestroy {
 
     onPlacesChanged(selectedPlaces: SearchResult[]) {
         this.places = selectedPlaces;
-        this.onPlaceTypeChanged();
-        //check if repeated event with same places
-        //console.log(this.tempPlaces);
-        if (this.tempPlaces.length !== selectedPlaces.length) {
+        //check if repeated event with same places       
+        if (this.tempPlaces.length !== this.places.length) {
             //if (this.tempPlaces !== this.places) {                 
-            for (var x = 0; x < selectedPlaces.length; x++) {
-                this.tempPlaces.push(selectedPlaces[x]);
-                //this.placeNames += selectedPlaces[x].Name;
-                this.placeNames += encodeURIComponent(JSON.stringify(selectedPlaces[x]));
-                this.placeNames += (x < selectedPlaces.length - 1) ? ',' : '';
+            for (var x = 0; x < this.places.length; x++) {
+                this.tempPlaces.push(this.places[x]);
+                //used for goto details link creation
+                this.placeNames += encodeURIComponent(JSON.stringify(this.places[x]));
+                this.placeNames += (x < this.places.length - 1) ? ',' : '';
             }
-            if (this.indicator !== undefined) {
-                this.getData(selectedPlaces);
+        }
+        let loadingGeoJSON = this.tileType === 'map' ? this.checkLoadGeoJSON() : false;
+        let loadMoreData = this.allData !== undefined ? this.checkUpdateData() : true;       
+        if (!loadingGeoJSON && loadMoreData) {
+            console.log('need to load data');
+            this.getData();
+        } else if (!loadingGeoJSON) {
+            console.log('NEED TO UPDATE MAP/CHART');
+            if (this.tileType === 'map') {
+                //deselect to clear if place removed
+                let selectedPlaces = this.chart.getSelectedPoints();
+                for (var s = 0; s < selectedPlaces.length; s++) {
+                    selectedPlaces[s].select();
+                }
+                //select place on map        
+                for (var pd = 0; pd < this.chart.series[0].data.length; pd++) {
+                    for (var p = 0; p < this.places.length; p++) {
+                        if (this.places[p].TypeCategory === this.selectedPlaceType && this.places[p].Name.replace(' County', '') === this.chart.series[0].data[pd].id)
+                            this.chart.series[0].data[pd].select(true,true);
+                    }
+                }
             } else {
-                console.log('INDICATOR UNDEFINED!!!!');
+                while (this.chart.series.length > 0) {
+                    this.chart.series[0].remove(false);
+                }
+                this.createGraphChart();
             }
         }
     }
 
-    onPlaceTypeChanged() {
-        //get place types for map display        
+    checkLoadGeoJSON() {
+        let loadingGeoJSON = false;        
+        //check for missing placetype geojson
+        var geoJSON_to_load: any[] = [];
         for (var x = 0; x < this.places.length; x++) {
-            if (this.placeTypes.indexOf(this.places[x].TypeCategory) === -1) {
-                this.placeTypes.push(this.places[x].TypeCategory);
-                //check geostore to see if already loaded, else load needed layers
-                let alreadyLoaded = false;
-                for (var v = 0; v < this.geoJSONStore.length; v++) {
-                    alreadyLoaded = this.geoJSONStore[v].layerId === 'Counties' ? true : alreadyLoaded;
-                }
-                if (!alreadyLoaded) {
-                    this._geoService.load(this.places[x].TypeCategory, true).subscribe(
-                        data => this._geoStore.add({ layerId: 'Counties', features: data })
-                    );
+            let placeTypeLoaded = false;
+            for (var g = 0; g < this.geoJSONStore.length; g++) {
+                //TODO add check for year span as well                 
+                if (this.places[x].TypeCategory !== 'Statewide') {
+                    placeTypeLoaded = this.places[x].TypeCategory === this.geoJSONStore[g].layerId ? true : placeTypeLoaded;
+                } else {
+                    placeTypeLoaded = true; //always load state data
                 }
             }
+            if (!placeTypeLoaded) {
+                geoJSON_to_load.push(this.places[x].TypeCategory);
+                this.placeTypes.push(this.places[x].TypeCategory);
+            }
         }
+        if (geoJSON_to_load.length > 0) {
+            this.getGeoJSON(geoJSON_to_load);
+            loadingGeoJSON = true;
+        }
+        return loadingGeoJSON;
     }
 
-    getData(selectedPlaces: SearchResult[]) {
+    checkUpdateData() {
+        let loadMoreData = false;
+        for (var d = 0; d < this.places.length; d++) {
+            let geoTypeCheck = this.allData.GeoTypes.filter(geoType => { return this.places[d].TypeCategory === geoType.geoType; });
+            loadMoreData = geoTypeCheck.length !== 1 ? true : loadMoreData;
+        }
+        return loadMoreData;
+    }
+
+    getGeoJSON(placeTypeToLoad: any[]) {
+        console.log('place types to load');
+        console.log(placeTypeToLoad);
+        this._geoService.load(placeTypeToLoad, true).subscribe(
+            data => {
+                console.log('got response from geoservice');
+                console.log(data);
+                this._geoStore.add({ layerId: 'County', features: data });
+                this.getData();
+            });
+    }
+
+    getData() {
         //get ResIDs for geoids param        
         //this.defaultChartOptions.title = { text: this.indicator };
         let geoids = '';
+        //console.log('test selectedplaces');
+        //console.log(selectedPlaces);
+        let selectedPlaces = this.places;
         if (selectedPlaces.length !== 0) {
             for (var x = 0; x < selectedPlaces.length; x++) {
                 geoids += selectedPlaces[x].ResID;
@@ -281,28 +374,12 @@ export class DataTileCmp implements OnInit, OnDestroy {
             geoids = '41';
         }
         //var chartScope = this;
-        if (this.tileType === 'map') {
-        //if (this.viewType === 'advanced') {
-            this._dataService.getAllbyGeoType(this.selectedPlaceType, this.indicator).subscribe(
+        //if (this.tileType === 'map') {
+        if (this.viewType === 'advanced') {
+            this._dataService.getAllbyGeoType(this.selectedPlaceType + ',Statewide', this.indicator).subscribe(
                 (data: any) => {
                     this.allData = data;
                     this._selectedDataService.add(data);
-                    ////set selected year based on last return of year data
-                    //this.selectedYear = data.Years[data.Years.length - 1];
-                    //this.selectedYearIndex = this._tickArray.length - 1;
-                    ////Not sure if we need to keep clearing out or not
-                    //while (this.chart.series.length > 0) {
-                    //    this.chart.series[0].remove(false);
-                    //}
-                    ////TODO: set layer to match placetype                    
-                    //this.selectedMapData = this.geoJSONStore[0].features;
-                    ////Process the data for it to work with Highmaps
-
-                    //this.processDataYear();
-                    //this.processYearTicks();
-                    //this.hasDrillDowns = this.allData.Metadata[0].Sub_Topic_Name !== 'none' ? true : false;
-
-                    //this.createMapChart();
                 },
                 err => console.error(err),
                 () => console.log('done loading data')
@@ -314,49 +391,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
                     while (this.chart.series.length > 0) {
                         this.chart.series[0].remove(false);
                     }
-                    if (this.tileType === 'map') {
-                        console.log('CHECKING IF GEOJSON IS AVAILABLE AT THIS POINT');
-                        console.log(this.geoJSONStore);
-                        var series = { mapData: this.geoJSONStore[0].features };
-                        this.chart.addSeries(series);
-                        this.chart.setTitle({ text: this.indicator });
-                    } else {
-                        //process years
-                        var counter: any = 0;
-                        for (var yearData in this.Data[0]) {
-                            if (!isNaN(parseInt(yearData.substr(0, 1)))) {
-                                if (yearData.indexOf('_MOE') === -1) {
-                                    this.xAxisCategories[counter] = yearData;
-                                    counter++;
-                                }
-                            }
-                        }
-                        this.chart.xAxis[0].setCategories(this.xAxisCategories);
-                        //process data series
-                        for (var x = 0; x < data.length; x++) {
-                            //process data
-                            let seriesData: any = {};
-                            let yearCounter: any = 0;
-
-                            for (var year in this.xAxisCategories) {
-                                let yearData = this.xAxisCategories[year];
-                                seriesData[yearCounter] = this.Data[x][yearData] === null ? null : parseFloat(this.Data[x][yearData]);
-                                yearCounter++;
-                            }
-                            this.chart.addSeries({
-                                id: this.Data[x]['community'] + this.Data[x]['geoid'],
-                                name: this.Data[x]['community']
-                            });
-                            this.chart.series[x].update({
-                                id: this.Data[x]['community'] + this.Data[x]['geoid'],
-                                name: this.Data[x]['community'],
-                                type: 'line',
-                                lineWidth: 2,
-                                lineOpacity: 1.0,
-                                data: seriesData
-                            }, true);
-                        }
-                    }
+                    this.createGraphChart();
                 },
                 err => console.error(err),
                 () => console.log('done loading data')
@@ -430,9 +465,227 @@ export class DataTileCmp implements OnInit, OnDestroy {
             }
         };
         this.chart.addSeries(series);
-        this.chart.setTitle({ text: this.indicator });
-        console.log(this.chart);
+        this.chart.setTitle({ text: this.indicator });        
     }
+
+    createGraphChart() {
+        this.chart.xAxis[0].setCategories(this._tickLabels);
+        this.chart.xAxis[0].options.tickmarkPlacement = 'on';
+        this.chart.xAxis[0].options.min = 0;
+        this.chart.xAxis[0].options.max = this._tickArray.length - 1;
+        this.chart.xAxis[0].options.tickInterval = this._tickArray.length > 10 ? 2 : null;
+        this.chart.xAxis[0].options.plotLines = [{
+            color: 'gray',
+            dashStyle: 'longdashdot',
+            width: 2,
+            value: this._tickArray.length - 1,
+            id: 'plot-line-1'
+        }];
+        var indicatorYaxis = this.allData.Metadata[0]['Y-Axis'] !== null ? this.allData.Metadata[0]['Y-Axis'] : this.allData.Metadata[0].Variable;
+        this.chart.yAxis[0].setTitle({
+            text: indicatorYaxis,
+            margin: indicatorYaxis.length > 30 ? 40 : null,
+            style: { 'line-height': '.8em' }
+        });
+        this.addSeriesDataToGraphChart();
+    }       
+
+    addSeriesDataToGraphChart() {
+        //show selected places on chart only
+        var selectedPlaceData = this.Data.filter((placeData: any) => {
+            var isSelected = false;
+            for (var p = 0; p < this.places.length; p++) {
+                isSelected = (placeData.community === this.places[p].Name.replace(' County', '') && placeData.geoid === this.places[p].ResID) ? true : isSelected;
+                if (isSelected) {
+                    break;
+                }
+            }
+            return isSelected;
+        });
+        //process data series
+        for (var x = 0; x < selectedPlaceData.length; x++) {
+            var isOregon = selectedPlaceData[x]['geoid'] === '41' ? true : false;
+            var isCalifornia = selectedPlaceData[x]['geoid'] === '06' ? true : false;
+            var isState = isOregon || isCalifornia ? true : false;
+            this.chart.addSeries({
+                id: selectedPlaceData[x]['community'] + selectedPlaceData[x]['geoid'],
+                name: selectedPlaceData[x]['community'],           
+                type: 'line',
+                lineWidth: isState ? 4 : 2,
+                lineColor: '#A3A3A4',
+                lineOpacity: 1.0,
+                data: this.place_data_years[selectedPlaceData[x].community].data,
+                connectNulls: true,
+                threshold: 0,
+                fillOpacity: 0.85,
+                animation: {
+                    duration: 500
+                },
+                marker: {
+                    fillColor: isState ? '#FFFFFF' : null,
+                    lineWidth: isState ? 4 : 1, //indicatorData.Years.length > 10 && !isState ? 3 : 4,
+                    lineColor: this.allData.Metadata[0].Color_hex,
+                    radius: isState ? 4 : 2,
+                    symbol: 'circle'
+                }
+            }, true);
+            if (this.hasMOEs) {
+                this.chart.addSeries({
+                    //color: this.chart.get(this.name).color,
+                    name: selectedPlaceData[x]['community'] + selectedPlaceData[x]['geoid'] + ' Margin of Error',
+                    whiskerLength: 10,
+                    type: 'errorbar',
+                    data: this.place_data_years_moe[selectedPlaceData[x].community].data,
+                    linkedTo: selectedPlaceData[x]['community'] + selectedPlaceData[x]['geoid'],
+                    //visible: $('#chbxShowMoe')[0].checked
+                }, false);
+                var maxMoe = this.getMaxMOE(this.place_data_years_moe[selectedPlaceData[x].community].data);
+                var minMoe = this.getMinMOE(this.place_data_years_moe[selectedPlaceData[x].community].data);
+
+                if (maxMoe !== undefined) {
+                    var extremes = this.chart.yAxis[0].getExtremes();
+                    maxMoe = maxMoe < extremes.max ? extremes.max : maxMoe;
+                    minMoe = minMoe > 0 ? 0 : minMoe;
+                    this.chart.yAxis[0].setExtremes(minMoe, maxMoe);
+                }
+                this.chart.redraw();
+            }
+        }
+    }
+    
+
+    //getDrillDownData(place: any, subsubtopic: any) {
+    //    $.ajax({
+    //        type: "POST",
+    //        async: true,
+    //        url: 'crt_services.asmx/get_indicator_drilldown_data', //front end service that connects to crt GeoSearchService for searching 
+    //        contentType: "application/json; charset=utf-8",
+    //        data: '{"subtopic":"' + indicatorData.Metadata[0].Sub_Topic_Name + '", "subsubtopic":' + (subsubtopic !== undefined ? '"' + subsubtopic + '"' : null) + ', "removeIndicator":"' + indicatorData.Metadata[0].Variable + '", "geoid":"' + place_data_years[place.replace(isSchoolDist ? " School District" : " County", "")].geoid + '", "geoType":"' + (params.geoType !== undefined ? params.geoType : "County") + '"}',
+    //        dataType: "json",
+    //        success: function (response) {
+    //            var isStateWide = place === "Oregon" || place === "Statewide" ? true : false;
+    //            if (isStateWide && !$("#map_container").hasClass("hidden"))
+    //            { deselectAll(); }
+    //            $('#ckbxShowAll')[0].checked = false;
+    //            $('#showAll').css("display", "none");
+    //            $('#spHideOregon')[0].style.display = 'none';
+    //            showAllReset = true;
+    //            if (place !== "Oregon" && place !== "Statewide") {
+    //                mapChart.get(place.replace(isSchoolDist ? ' School District' : ' County', '')).select();
+    //            }
+    //            drillDownData = JSON.parse(response.d);
+    //            drill_data = processDrillDownData(drillDownData.Data);
+    //            drilldownShowing = true;
+    //            $('#title').html(place);
+    //            //$('#info .subheader').html('<h4>' + drillDownData.Metadata[0].Sub_Topic_Name + '</h4>');
+    //            $('#info .subheader').html('<h4>' + drillDownData.Metadata[0].Sub_Topic_Name.replace((' by ' + drillDownData.Metadata[0].Sub_Sub_Topic), '') + (drillDownData.Metadata[0].Sub_Sub_Topic !== "Total" ? ' by ' + drillDownData.Metadata[0].Sub_Sub_Topic : '') + '</h4>');
+    //            //$('#chart_tip_2').css("display", "none");
+
+    //            //remove current series
+    //            while (detailChart.series.length > 0) {
+    //                detailChart.series[detailChart.series.length - 1].remove(false);
+    //            }
+    //            var removeText = getRemoveText(drillDownData.Metadata);
+
+    //            $.each(drill_data.years, function () {
+    //                detailChart.addSeries({
+    //                    id: toCamelCase(this.name.replace(removeText, '')),
+    //                    name: toCamelCase(this.name.replace(removeText, '')),
+    //                    type: 'line',
+    //                    lineWidth: 2,
+    //                    lineColor: isState && subsubtopic === "Total" ? '#A3A3A4' : null,
+    //                    lineOpacity: 1.0,
+    //                    marker: {
+    //                        symbol: isState && subsubtopic === "Total" ? 'url(./css/img/oe_marker.png)' : 'circle',
+    //                        lineColor: null
+    //                    },
+    //                    data: drill_data.years[this.name].data
+    //                }, false);
+    //            });
+    //            if (hasMOEs) {
+    //                $.each(drill_data.years_moe, function () {
+    //                    detailChart.addSeries({
+    //                        whiskerLength: 30,
+    //                        name: toCamelCase(this.name.replace(removeText, '')) + ' Margin of Error',
+    //                        type: 'errorbar',
+    //                        data: drill_data.years_moe[this.name].data,
+    //                        visible: $('#chbxShowMoe')[0].checked,
+    //                        linkedTo: toCamelCase(this.name.replace(removeText, ''))
+    //                    }, false);
+    //                });
+    //                setYextremes(false);
+    //            }
+    //            var subTopicYaxis = drillDownData.Metadata[0]['Y-Axis'] !== null ? drillDownData.Metadata[0]['Y-Axis'] : drillDownData.Metadata[0].Sub_Topic_Name;
+    //            detailChart.yAxis[0].setTitle({
+    //                text: subTopicYaxis,
+    //                //margin: subTopicYaxis.length > 30 ? 25 : null,                   
+    //                style: { "font-size": subTopicYaxis.length > 30 ? ".8em" : "1em" }
+    //            });
+
+    //            detailChart.legendShow();
+    //            detailChart.redraw();
+    //            generateACSTooltips();
+    //            detailChart.hideLoading();
+    //            drilldownShowing = true;
+    //            $('#chbxShowMoe')[0].style.display = hasMOEs ? 'block' : 'none';
+    //            $('#lblShowMoe')[0].style.display = hasMOEs ? 'block' : 'none';
+    //            $('#related-indicators').css("display", indicatorData.SubTopicCategories && (isGPI || isState) ? "block" : "none");
+    //            $('#drill-down-categories').css("display", indicatorData.SubTopicCategories && !(isGPI && isState) ? "block" : "none");
+    //        },
+    //        error: function (e) {
+    //            $("#divResult").html("WebSerivce unreachable");
+    //        }
+    //    });
+    //}
+
+    //generateACSTooltips() {
+    //    $jq('.hastip').tooltipsy(
+    //        {
+    //            css: {
+    //                'padding': '10px',
+    //                'max-width': '200px',
+    //                'color': '#303030',
+    //                'background-color': '#f5f5b5',
+    //                'border': '1px solid #deca7e',
+    //                '-moz-box-shadow': '0 0 10px rgba(0, 0, 0, .5)',
+    //                '-webkit-box-shadow': '0 0 10px rgba(0, 0, 0, .5)',
+    //                'box-shadow': '0 0 10px rgba(0, 0, 0, .5)',
+    //                'text-shadow': 'none'
+    //            },
+    //            delay: 0
+    //        });
+    //}
+
+    getMaxMOE(data: any) {
+        var max = 0;
+        for (var x = 0; x < data.length; x++) {
+            if (data[x] !== null) {
+                max = max < data[x][1] ? data[x][1] : max;
+            }
+        }
+        return max;
+    }
+
+    getMinMOE(data: any) {
+        var min = 0;
+        for (var x = 0; x < data.length; x++) {
+            if (data[x] !== null) {
+                min = min > data[x][0] ? data[x][0] : min;
+            }
+        }
+        return min;
+    }
+
+    setYextremes() {
+        var extremes = this.chart.yAxis[0].getExtremes();
+        var maxData = this.getMaxData(false);
+        var minData = this.getMinData(false);
+        maxData = maxData < extremes.max ? extremes.max : maxData;
+        minData = minData > 0 ? 0 : minData;
+        this.chart.yAxis[0].setExtremes(minData, maxData);
+    }
+
+
 
     processDataYear() {
         this.place_data = [{}];
@@ -465,11 +718,11 @@ export class DataTileCmp implements OnInit, OnDestroy {
                     year_data_moe.push(null);
                 }
                 if (_year.match('-')) {
-                    year_data_moe.push([pData[_year] - pData[_year + '_MOE'], pData[_year] + pData[_year + '_MOE']]);
+                    year_data_moe.push([parseFloat(pData[_year]) - parseFloat(pData[_year + '_MOE']), parseFloat(pData[_year]) + parseFloat(pData[_year + '_MOE'])]);
                 } else {
                     year_data_moe.push(null);
                 }
-                year_data.push(pData[_year]);
+                year_data.push(parseFloat(pData[_year]));
                 prevYear = _year;
             }
             this.place_data_years[pData.community] = {
@@ -485,22 +738,24 @@ export class DataTileCmp implements OnInit, OnDestroy {
                 data: year_data_moe
             };
         }
-        //add a dataset for no data
-        for (var x = 0; x < this.selectedMapData.features.length; x++) {
-            var mData: any = this.selectedMapData.features[x];
-            var lookupResult = this.place_data.filter((place: any) => {
-                return place.geoid === mData.properties.GEOID10 && place.value === null;
-            });
-            if (lookupResult.length === 1) {
-                this.county_map_no_data.push(mData);
-                //add to place_data for empty results.
-                this.county_no_data.push({
-                    geoid: mData.properties.GEOID10,
-                    id: mData.properties.GEOID10,
-                    name: mData.properties.NAMELSAD10,
-                    value: 0,
-                    year: this.selectedYear.Year
+        //add a dataset for no data MAP DISPLAY ONLY
+        if (this.tileType === 'map') {
+            for (var x = 0; x < this.selectedMapData.features.length; x++) {
+                var mData: any = this.selectedMapData.features[x];
+                var lookupResult = this.place_data.filter((place: any) => {
+                    return place.geoid === mData.properties.GEOID10 && place.value === null;
                 });
+                if (lookupResult.length === 1) {
+                    this.county_map_no_data.push(mData);
+                    //add to place_data for empty results.
+                    this.county_no_data.push({
+                        geoid: mData.properties.GEOID10,
+                        id: mData.properties.GEOID10,
+                        name: mData.properties.NAMELSAD10,
+                        value: 0,
+                        year: this.selectedYear.Year
+                    });
+                }
             }
         }
     }
@@ -514,6 +769,9 @@ export class DataTileCmp implements OnInit, OnDestroy {
         var labelYear = true;
         var labelThirdYear = true;
         var labelYearCounter = 1;
+        this._tickArray = [];
+        this._tickLabels = [];
+        this._tickLabelsTime = [];
         for (var y = 0; y < this.allData.Years.length; y++) {
             var yearsToAdd = 0;
             var Year = this.allData.Years[y].Year;
@@ -664,6 +922,84 @@ export class DataTileCmp implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         this.subscription.unsubscribe();
-        this.geoSubscription.unsubscribe();
+        if (this.geoSubscription !== undefined) {
+            this.geoSubscription.unsubscribe();
+        }
+        if (this.dataSubscription !== undefined) {
+            this.dataSubscription.unsubscribe();
+        }
     }
 }
+
+/**
+ * Highstock plugin for zooming out X-Axis by dragging from right to left.
+ *
+ * Author: Roland Banguiran
+ * Email: banguiran@gmail.com
+ *
+ * Usage: Set zoomType to 'x'.
+ */
+
+// JSLint options:
+/*global Highcharts */
+
+(function (H: any) {
+
+    H.wrap(H.Chart.prototype, 'init', function (proceed: any) {
+
+        // Run the original proceed method
+        proceed.apply(this, Array.prototype.slice.call(arguments, 1));
+
+        var chart = this,
+            options = chart.options,
+            zoomType = options.chart.zoomType,
+            container = chart.container,
+            xAxis = chart.xAxis[0],
+            extremes: any,
+            dataMin: any,
+            dataMax: any,
+            min: any,
+            max: any,
+            selectFromPixels: any,
+            selectToPixels: any,
+            pixelDiff: any,
+            valueDiff: any,
+            newMin: any,
+            newMax: any;
+
+        if (zoomType === 'x') {
+
+            H.addEvent(container, 'mousedown', function (e: any) {
+                selectFromPixels = chart.pointer.normalize(e).chartX;
+            });
+
+            H.addEvent(container, 'mouseup', function (e: any) {
+                selectToPixels = chart.pointer.normalize(e).chartX;
+                pixelDiff = selectToPixels - selectFromPixels;
+            });
+
+            H.addEvent(chart, 'selection', function (e: any) {
+                //console.log(e);
+
+                if (pixelDiff < 0) {
+                    extremes = xAxis.getExtremes();
+                    dataMin = extremes.dataMin;
+                    dataMax = extremes.dataMax;
+                    min = extremes.min;
+                    max = extremes.max;
+
+                    valueDiff = Math.abs(xAxis.toValue(selectToPixels) - xAxis.toValue(selectFromPixels));
+                    newMin = min - valueDiff;
+                    newMax = max + valueDiff;
+
+                    newMin = (newMin > dataMin) ? newMin : dataMin;
+                    newMax = (newMax < dataMax) ? newMax : dataMax;
+
+                    xAxis.setExtremes(newMin, newMax);
+
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+} (Highcharts));

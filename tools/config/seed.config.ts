@@ -124,7 +124,7 @@ export class SeedConfig {
             'angular2/*': `${this.APP_BASE}angular2/*`,
             'rxjs/*': `${this.APP_BASE}rxjs/*`,
             'esri*': `${this.APP_BASE}node_modules/esri-system-js/dist/esriSystem.js`,
-            'assets/geojson/*': `${this.APP_BASE}assets/geojson/*`,
+            //'assets/geojson/*': `${this.APP_BASE}assets/geojson/*`,
             '*': `${this.APP_BASE}node_modules/*`
         },
         packages: {
@@ -141,6 +141,8 @@ export class SeedConfig {
             'angular2-highcharts': `${this.APP_BASE}node_modules/angular2-highcharts/`,
             'highcharts/highstock.src': `${this.APP_BASE}node_modules/highcharts/highstock.src.js`,
             'highcharts/modules/map': `${this.APP_BASE}node_modules/highcharts/modules/map.js`,
+            'highcharts/highcharts-more': `${this.APP_BASE}node_modules/highcharts/highcharts-more.js`,
+            //'highcharts/highcharts-zoom-out': `${this.ASSETS_SRC}/scripts/plugins/highcharts-zoom-out-plugin.js`,
             text: `${this.ASSETS_SRC}/scripts/plugins/systemjsTextPlugin.js`
         }
     };

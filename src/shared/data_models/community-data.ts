@@ -4,6 +4,7 @@
 
 export interface CommunityData {
     Data: [any];
+    GeoTypes: [any];
     Metadata: [any];
     RelatedIndicators: [any];
     SubTopicCategories: [any];
