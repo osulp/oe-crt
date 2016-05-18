@@ -32,8 +32,6 @@ export class SelectedIndicatorsService {
         this.toggleIndicator
             .map((indicator) => {
                 return (Indicators: Indicator[]) => {
-                    console.log('nomnuts');
-                    console.log(indicator);
                     if (indicator[1]) {
                         indicator[0].selected = indicator[1];
                     } else {
@@ -41,7 +39,6 @@ export class SelectedIndicatorsService {
                     }
                     console.log(Indicators);
                     const i = Indicators.indexOf(indicator[0]);
-                    console.log('nomnuts');
                     Indicators = [
                         ...Indicators.slice(0, i),
                         indicator[0],

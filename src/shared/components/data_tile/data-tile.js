@@ -148,13 +148,6 @@ var DataTileCmp = (function () {
             console.log(data);
             _this.onPlacesChanged(data);
         }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
-        this.mapSelectionSubscription = this._selectedPlacesService.selectionMapChanged$.subscribe(function (data) {
-            console.log('selected places subscribe throwing event');
-            console.log(data);
-            if (_this.tileType === 'graph') {
-                _this.onMapPlacesChanged(data);
-            }
-        }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
         if (this.viewType === 'advanced') {
             this.geoSubscription = this._geoStore.selectionChanged$.subscribe(function (data) {
                 _this.geoJSONStore = data;
@@ -170,7 +163,10 @@ var DataTileCmp = (function () {
             proceed.apply(this, Array.prototype.slice.call(arguments, 1));
             if (chartScope.tileType === 'map') {
                 var points = chartScope.mapChart.getSelectedPoints();
-                chartScope._selectedPlacesService.setMapPlaces(points);
+                var pointsAsPlacesForBin = points.map(function (place) {
+                    return { Name: place.id, ResID: place.geoid, Type: chartScope.selectedPlaceType, TypeCategory: chartScope.selectedPlaceType, Source: 'map' };
+                });
+                chartScope._selectedPlacesService.setAllbyPlaceType(pointsAsPlacesForBin, chartScope.selectedPlaceType);
             }
         });
     };
@@ -227,38 +223,17 @@ var DataTileCmp = (function () {
                 console.log(selectedPlaces_1);
                 for (var s = 0; s < selectedPlaces_1.length; s++) {
                     var inSelectedPlaces = false;
-                    var isFromMap = false;
                     for (var z = 0; z < this.places.length; z++) {
                         inSelectedPlaces = (this.places[z].Name === selectedPlaces_1[s].id && this.places[z].ResID === selectedPlaces_1[s].geoid) ? true : inSelectedPlaces;
-                        isFromMap = (this.places[z].Name === selectedPlaces_1[s].id && this.places[z].ResID === selectedPlaces_1[s].geoid && this.places[z].Source === 'map') ? true : isFromMap;
                     }
-                    console.log('selected places');
-                    console.log(this.places);
-                    console.log(inSelectedPlaces);
-                    console.log(isFromMap);
-                    if (!inSelectedPlaces || isFromMap) {
+                    if (!inSelectedPlaces) {
                         selectedPlaces_1[s].select();
-                    }
-                }
-                for (var pd = 0; pd < this.mapChart.series[0].data.length; pd++) {
-                    for (var p = 0; p < this.places.length; p++) {
-                        if (this.places[p].TypeCategory === this.selectedPlaceType && this.places[p].Name.replace(' County', '') === this.mapChart.series[0].data[pd].id) {
-                            console.log('map place in this.places');
-                            this.mapChart.series[0].data[pd].select(true, true);
-                        }
                     }
                 }
             }
             else {
                 this.createGraphChart();
             }
-        }
-    };
-    DataTileCmp.prototype.onMapPlacesChanged = function (selectedMapPlaces) {
-        if (this.tileType === 'graph' && this.chart)
-            ;
-        {
-            this.addSeriesDataToGraphChart(selectedMapPlaces);
         }
     };
     DataTileCmp.prototype.checkLoadGeoJSON = function () {
@@ -767,15 +742,7 @@ var DataTileCmp = (function () {
         window.scrollTo(0, 0);
     };
     DataTileCmp.prototype.ngOnInit = function () {
-        var _this = this;
         this.defaultChartOptions.title = { text: this.indicator };
-        console.log('chekcing tiel tiel');
-        console.log(this.tileType);
-        this.mapSelectionSubscription = this._selectedPlacesService.selectionMapChanged$.subscribe(function (data) {
-            console.log('got data from highmap subscriptoin');
-            console.log(_this.tileType);
-            console.log(data);
-        });
         this._indicatorDescService.getIndicator(this.indicator).subscribe(function (data) {
             console.log('got indicator description');
         });

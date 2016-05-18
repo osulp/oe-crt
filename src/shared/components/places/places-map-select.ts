@@ -174,6 +174,13 @@ export class PlacesMapSelect implements OnInit {
             this._selectedPlacesService.add(compareResult, 'search');
         }
     }
+
+    onSelectedPlacesChanged(places: any) {
+        this.selectedSearchResults = [];
+        for (var place of places) {
+            this.selectedSearchResults.push(place);
+        }
+    }
     onMapLoad(response: any) {
         //console.log('MAP LOADEDED!!!!!');
         //const map = response.map;
@@ -187,7 +194,7 @@ export class PlacesMapSelect implements OnInit {
         //this.title = response.itemInfo.item.title;
     }
     ngOnInit() {
-        this._selectedPlacesService.selectionChanged$.subscribe(updatedPlaces => console.log(updatedPlaces));
+        this._selectedPlacesService.selectionChanged$.subscribe(updatedPlaces => this.onSelectedPlacesChanged(updatedPlaces));
         this._selectedPlacesService.load();
         if (this.selectedPlaces.length > 0) {
             for (var x = 0; x < this.selectedPlaces.length; x++) {

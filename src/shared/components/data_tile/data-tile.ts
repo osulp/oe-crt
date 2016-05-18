@@ -61,7 +61,6 @@ export class DataTileCmp implements OnInit, OnDestroy {
     private subscription: Subscription;
     private geoSubscription: Subscription;
     private dataSubscription: Subscription;
-    private mapSelectionSubscription: Subscription;
     private placeNames: string = '';
     private tempPlaces: Array<SearchResult>;
     private allData: CommunityData;
@@ -222,17 +221,6 @@ export class DataTileCmp implements OnInit, OnDestroy {
             err => console.error(err),
             () => console.log('done with subscribe event places selected')
         );
-        this.mapSelectionSubscription = this._selectedPlacesService.selectionMapChanged$.subscribe(
-            data => {
-                console.log('selected places subscribe throwing event');
-                console.log(data);
-                if (this.tileType === 'graph') {
-                    this.onMapPlacesChanged(data);
-                }
-            },
-            err => console.error(err),
-            () => console.log('done with subscribe event places selected')
-        );
         if (this.viewType === 'advanced') {
             this.geoSubscription = this._geoStore.selectionChanged$.subscribe(
                 data => {
@@ -259,12 +247,10 @@ export class DataTileCmp implements OnInit, OnDestroy {
             proceed.apply(this, Array.prototype.slice.call(arguments, 1));
             if (chartScope.tileType === 'map') {
                 var points = chartScope.mapChart.getSelectedPoints();
-                chartScope._selectedPlacesService.setMapPlaces(points);
-                //console.log(points);
-                //if (points.length) {//map selection
-                //    console.log('points have length');
-                    
-                //}
+                let pointsAsPlacesForBin = points.map((place: any) => {
+                    return { Name: place.id, ResID: place.geoid, Type: chartScope.selectedPlaceType, TypeCategory: chartScope.selectedPlaceType, Source: 'map' };
+                });
+                chartScope._selectedPlacesService.setAllbyPlaceType(pointsAsPlacesForBin, chartScope.selectedPlaceType);
             }
         });
     }
@@ -279,10 +265,6 @@ export class DataTileCmp implements OnInit, OnDestroy {
             //need to set to last year which has data, not last year that might have data
             this.offsetYear = this.getDefaultYear();//retrieve offset value from end
             this.selectedYear = this.allData.Years[data[0].Years.length - this.offsetYear];
-            //Not sure if we need to keep clearing out or not
-            //while (this.chart.series.length > 0) {
-            //    this.chart.series[0].remove(false);
-            //}
             if (this.tileType === 'map') {
                 //TODO make contextual to actual place type selection--defaulting to County
                 this.selectedMapData = this.geoJSONStore[0].features[0];
@@ -334,42 +316,20 @@ export class DataTileCmp implements OnInit, OnDestroy {
                 console.log(selectedPlaces);
                 //logic
                 //1. if in selectedPlaces (selected from map), then already selected.
-                //2. If not in selectedPlaces, then deselect then select all places in this.places               
+                //2. If not in selectedPlaces, then deselect              
                 for (var s = 0; s < selectedPlaces.length; s++) {
                     //deselect only if not currently still active
                     let inSelectedPlaces = false;
-                    let isFromMap = false;
                     for (var z = 0; z < this.places.length; z++) {
                         inSelectedPlaces = (this.places[z].Name === selectedPlaces[s].id && this.places[z].ResID === selectedPlaces[s].geoid) ? true : inSelectedPlaces;
-                        isFromMap = (this.places[z].Name === selectedPlaces[s].id && this.places[z].ResID === selectedPlaces[s].geoid && this.places[z].Source === 'map') ? true : isFromMap;
                     }
-                    console.log('selected places');
-                    console.log(this.places);
-                    console.log(inSelectedPlaces);
-                    console.log(isFromMap);
-                    if (!inSelectedPlaces || isFromMap) {
+                    if (!inSelectedPlaces) {
                         selectedPlaces[s].select();
                     }
                 }
-                //select place on map        
-                for (var pd = 0; pd < this.mapChart.series[0].data.length; pd++) {
-                    for (var p = 0; p < this.places.length; p++) {
-                        if (this.places[p].TypeCategory === this.selectedPlaceType && this.places[p].Name.replace(' County', '') === this.mapChart.series[0].data[pd].id) {
-                            console.log('map place in this.places');
-                            this.mapChart.series[0].data[pd].select(true, true);
-                        }
-                    }
-                }
-            } else {                
+            } else {
                 this.createGraphChart();
             }
-        }
-    }
-
-    onMapPlacesChanged(selectedMapPlaces: any) {        
-        if (this.tileType === 'graph' && this.chart);
-        {            
-            this.addSeriesDataToGraphChart(selectedMapPlaces);
         }
     }
 
@@ -538,7 +498,6 @@ export class DataTileCmp implements OnInit, OnDestroy {
 
     createGraphChart() {
         //check if metadata, if not custom chart, need to do other stuff
-        
         //TODO catch custom chart scenarios
         if (this.allData.Metadata.length > 0) {
             console.log('making graph chart');
@@ -1035,15 +994,6 @@ export class DataTileCmp implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.defaultChartOptions.title = { text: this.indicator };
-        console.log('chekcing tiel tiel');
-        console.log(this.tileType);
-        this.mapSelectionSubscription = this._selectedPlacesService.selectionMapChanged$.subscribe(
-            data => {
-                console.log('got data from highmap subscriptoin');
-                console.log(this.tileType);
-                console.log(data);
-            }
-        );
         this._indicatorDescService.getIndicator(this.indicator).subscribe(
             data => {
                 console.log('got indicator description');

@@ -146,10 +146,18 @@ var PlacesMapSelect = (function () {
             this._selectedPlacesService.add(compareResult, 'search');
         }
     };
+    PlacesMapSelect.prototype.onSelectedPlacesChanged = function (places) {
+        this.selectedSearchResults = [];
+        for (var _i = 0; _i < places.length; _i++) {
+            var place = places[_i];
+            this.selectedSearchResults.push(place);
+        }
+    };
     PlacesMapSelect.prototype.onMapLoad = function (response) {
     };
     PlacesMapSelect.prototype.ngOnInit = function () {
-        this._selectedPlacesService.selectionChanged$.subscribe(function (updatedPlaces) { return console.log(updatedPlaces); });
+        var _this = this;
+        this._selectedPlacesService.selectionChanged$.subscribe(function (updatedPlaces) { return _this.onSelectedPlacesChanged(updatedPlaces); });
         this._selectedPlacesService.load();
         if (this.selectedPlaces.length > 0) {
             for (var x = 0; x < this.selectedPlaces.length; x++) {
