@@ -4,5 +4,6 @@
     Type: string;
     TypeCategory: string;
     Desc: string;
+    Source?: string;
 }
 

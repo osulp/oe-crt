@@ -38,8 +38,6 @@ var IndicatorsTopicList = (function () {
         this.filteredIndicatorsFromComp.emit(this.inputIndicators);
     };
     IndicatorsTopicList.prototype.ngOnInit = function () {
-        console.log('horses');
-        console.log(this.inputTopics);
         this.selTopics = this.inputTopics;
     };
     __decorate([
@@ -75,4 +73,3 @@ var IndicatorsTopicList = (function () {
     return IndicatorsTopicList;
 })();
 exports.IndicatorsTopicList = IndicatorsTopicList;
-//# sourceMappingURL=indicators_by_topic_list.js.map

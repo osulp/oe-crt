@@ -49,8 +49,6 @@ export class IndicatorsTopicList implements OnInit {
     }
 
     ngOnInit() {
-        console.log('horses');
-        console.log(this.inputTopics);
         this.selTopics = this.inputTopics;
         //console.log(this.inputTopics);
         //if (this.topic !== undefined) {

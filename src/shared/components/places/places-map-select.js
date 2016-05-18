@@ -128,7 +128,7 @@ var PlacesMapSelect = (function () {
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);
             this.selPlacesEvt.emit(this.selectedSearchResults);
-            this._selectedPlacesService.add(place);
+            this._selectedPlacesService.add(place, 'search');
         }
     };
     PlacesMapSelect.prototype.addPlaceCompare = function (compareType) {
@@ -136,14 +136,14 @@ var PlacesMapSelect = (function () {
             Name: compareType,
             ResID: compareType === 'Oregon' ? '41' : compareType === 'Rural' ? '41r' : '41u',
             Type: compareType,
-            TypeCategory: 'Statewide',
+            TypeCategory: 'State',
             Desc: compareType
         };
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name; }).indexOf(compareType);
         if (indexPos === -1) {
             this.selectedSearchResults.push(compareResult);
             this.selPlacesEvt.emit(this.selectedSearchResults);
-            this._selectedPlacesService.add(compareResult);
+            this._selectedPlacesService.add(compareResult, 'search');
         }
     };
     PlacesMapSelect.prototype.onMapLoad = function (response) {

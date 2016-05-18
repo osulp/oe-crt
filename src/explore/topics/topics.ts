@@ -144,7 +144,6 @@ export class TopicsCmp implements OnInit {
     }
 
     toggleIndicator(indicator: Indicator, value?: boolean) {
-        console.log('nomnuts');
         if (value) {
             indicator.selected = value;
         } else {
@@ -180,7 +179,6 @@ export class TopicsCmp implements OnInit {
                             //turn on for all selected topics                         
                             if (this._inputTopics[0] !== 'All Topics') {
                                 if (this._inputTopics.indexOf(this.Indicators[x].topics) !== -1) {
-                                    console.log('indicator in selected topic ' + this.Indicators[x]);
                                     this.toggleIndicator(this.Indicators[x], true);
                                 }
                             } else {

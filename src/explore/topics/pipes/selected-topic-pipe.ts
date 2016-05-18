@@ -8,8 +8,6 @@ import {Topic} from '../../../shared/data_models/topic';
 export class SelectedTopicsPipe {
     transform(topics: Topic[]): any {
         if (topics !== undefined) {
-            console.log('RACOON');
-            console.log(topics);
             let tempTopics = topics.filter(topic => topic.selected);
             if (tempTopics.length === 0) {
                 //TODO:  SCROLL on Demand logic

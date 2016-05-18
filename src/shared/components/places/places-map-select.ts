@@ -151,7 +151,7 @@ export class PlacesMapSelect implements OnInit {
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);
             this.selPlacesEvt.emit(this.selectedSearchResults);
-            this._selectedPlacesService.add(place);
+            this._selectedPlacesService.add(place, 'search');
         }
     }
 
@@ -160,7 +160,7 @@ export class PlacesMapSelect implements OnInit {
             Name: compareType,
             ResID: compareType === 'Oregon' ? '41' : compareType === 'Rural' ? '41r' : '41u',
             Type: compareType,
-            TypeCategory: 'Statewide',
+            TypeCategory: 'State',
             Desc: compareType
         };
         //check if already added                
@@ -171,7 +171,7 @@ export class PlacesMapSelect implements OnInit {
             this.selectedSearchResults.push(compareResult);
             this.selPlacesEvt.emit(this.selectedSearchResults);
             //console.log(compareResult);
-            this._selectedPlacesService.add(compareResult);
+            this._selectedPlacesService.add(compareResult, 'search');
         }
     }
     onMapLoad(response: any) {

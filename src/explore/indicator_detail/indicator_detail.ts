@@ -3,6 +3,7 @@ import {JSONP_PROVIDERS}  from 'angular2/http';
 import {DataTileCmp} from '../../shared/components/data_tile/data-tile';
 import {IndicatorDescService} from '../../shared/services/indicators/indicator.desc.service';
 import {SelectedPlacesService} from '../../shared/services/places/selected-places.service';
+import {HighmapSelectedService} from '../../shared/services/places/highmap-selected.service';
 import {SelectedDataService} from '../../shared/services/data/selected-data.service';
 import {SearchResult} from '../../shared/data_models/search-result';
 import {CommunityData} from '../../shared/data_models/community-data';
@@ -13,7 +14,7 @@ import { PlacesMapSelect } from '../../shared/components/places/places-map-selec
     selector: 'indicator-detail',
     templateUrl: './explore/indicator_detail/indicator_detail.html',
     styleUrls: ['./explore/indicator_detail/indicator_detail.css'],
-    providers: [JSONP_PROVIDERS, IndicatorDescService, SelectedDataService, SelectedPlacesService],
+    providers: [JSONP_PROVIDERS, IndicatorDescService, SelectedDataService, SelectedPlacesService, HighmapSelectedService],
     directives: [PlacesMapSelect, DataTileCmp]
 })
 
@@ -27,11 +28,13 @@ export class DetailCmp implements OnInit {
     selectedPlaceType: any = 'Oregon';
     selectedDataSubscription: Subscription;
     selectedPlaceSubscription: Subscription;
+    highmapSelectedSubscription: Subscription;
     urlPlaces: SearchResult[] = [];
 
     constructor(private _indicatorDescService: IndicatorDescService,
         private _selectedDataService: SelectedDataService,
-        private _selectedPlacesService: SelectedPlacesService
+        private _selectedPlacesService: SelectedPlacesService,
+        private _highmapSelectedService: HighmapSelectedService
     ) { }
 
     ngOnInit() {
@@ -63,6 +66,16 @@ export class DetailCmp implements OnInit {
             },
             err => console.error(err),
             () => console.log('done with subscribe event places selected')
+        );
+
+        this.highmapSelectedSubscription = this._highmapSelectedService.selectionChanged$.subscribe(
+            data => {
+                console.log('highmap subscribe throwing event');
+                console.log(data);
+                //this.onPlacesChanged(data);
+            },
+            err => console.error(err),
+            () => console.log('done with subscribe event highmap selected')
         );
 
         var urlQueryString = document.location.search;
