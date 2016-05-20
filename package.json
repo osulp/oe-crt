@@ -115,6 +115,7 @@
     "bootstrap": "^3.3.5",
     "highcharts": "^4.2.4",
     "jquery": "^2.2.3",
+    "jquery-ui": "^1.10.5",    
     "font-awesome": "^4.6.1",
     "ng2-highcharts": "^0.2.8",
     "es6-module-loader": "^0.17.8",

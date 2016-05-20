@@ -10,7 +10,7 @@
     height:680px;    
 }
 
-#view-data{
+#view-data, #slider_wrapper{
     background-color:#E7E7EB;
     height:40px;
     text-align:center;
@@ -37,6 +37,45 @@
     position: absolute;
 }
 
-#data-tile-wrapper.advanced .graph{
-    height: 640px;
+#map-wrapper {
+    position:relative;
 }
+
+#data-tile-wrapper.advanced .graph{
+    height: 600px;
+}
+
+/*#slider_wrapper:before{
+    clear:both;
+}*/
+#slider_wrapper
+{      
+    height:60px;
+    padding: 20px 40px 10px 65px;
+    width: 100%;
+}
+
+#dateSlider
+{
+    display: inline-block;
+    font-size: .8em;    
+}
+    
+/*#play_wrapper
+{
+    float: left;
+    margin: -8px 0 10px -45px;
+}*/
+
+    #play_wrapper button {
+        color:#C34500;
+        border-color:#C34500;
+        position:absolute;
+        top:15px;
+        left:15px;
+    }
+/*#play
+{
+    display: none;
+    background: #e6e6e6 url("") 50% 50% repeat-x;
+}*/

@@ -12,15 +12,13 @@ var http_1 = require('angular2/http');
 var data_tile_1 = require('../../shared/components/data_tile/data-tile');
 var indicator_desc_service_1 = require('../../shared/services/indicators/indicator.desc.service');
 var selected_places_service_1 = require('../../shared/services/places/selected-places.service');
-var highmap_selected_service_1 = require('../../shared/services/places/highmap-selected.service');
 var selected_data_service_1 = require('../../shared/services/data/selected-data.service');
 var places_map_select_1 = require('../../shared/components/places/places-map-select');
 var DetailCmp = (function () {
-    function DetailCmp(_indicatorDescService, _selectedDataService, _selectedPlacesService, _highmapSelectedService) {
+    function DetailCmp(_indicatorDescService, _selectedDataService, _selectedPlacesService) {
         this._indicatorDescService = _indicatorDescService;
         this._selectedDataService = _selectedDataService;
         this._selectedPlacesService = _selectedPlacesService;
-        this._highmapSelectedService = _highmapSelectedService;
         this.indicatorDesc = [];
         this.selectedPlaceType = 'Oregon';
         this.urlPlaces = [];
@@ -44,10 +42,6 @@ var DetailCmp = (function () {
             console.log('subscribe throwing event');
             console.log(data);
         }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
-        this.highmapSelectedSubscription = this._highmapSelectedService.selectionChanged$.subscribe(function (data) {
-            console.log('highmap subscribe throwing event');
-            console.log(data);
-        }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event highmap selected'); });
         var urlQueryString = document.location.search;
         var keyRegex = new RegExp('([\?&])places([^&]*|[^,]*)');
         if (urlQueryString.match(keyRegex) !== null) {
@@ -68,10 +62,10 @@ var DetailCmp = (function () {
             selector: 'indicator-detail',
             templateUrl: './explore/indicator_detail/indicator_detail.html',
             styleUrls: ['./explore/indicator_detail/indicator_detail.css'],
-            providers: [http_1.JSONP_PROVIDERS, indicator_desc_service_1.IndicatorDescService, selected_data_service_1.SelectedDataService, selected_places_service_1.SelectedPlacesService, highmap_selected_service_1.HighmapSelectedService],
+            providers: [http_1.JSONP_PROVIDERS, indicator_desc_service_1.IndicatorDescService, selected_data_service_1.SelectedDataService, selected_places_service_1.SelectedPlacesService],
             directives: [places_map_select_1.PlacesMapSelect, data_tile_1.DataTileCmp]
         }), 
-        __metadata('design:paramtypes', [indicator_desc_service_1.IndicatorDescService, selected_data_service_1.SelectedDataService, selected_places_service_1.SelectedPlacesService, highmap_selected_service_1.HighmapSelectedService])
+        __metadata('design:paramtypes', [indicator_desc_service_1.IndicatorDescService, selected_data_service_1.SelectedDataService, selected_places_service_1.SelectedPlacesService])
     ], DetailCmp);
     return DetailCmp;
 })();

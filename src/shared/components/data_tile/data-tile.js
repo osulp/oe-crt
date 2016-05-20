@@ -7,11 +7,15 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var core_1 = require('angular2/core');
 var angular2_highcharts_1 = require('angular2-highcharts');
 var Highchmap = require('highcharts/modules/map');
 var HighchartsMore = require('highcharts/highcharts-more');
 var $jq = require('jquery');
+var timeslider_1 = require('../../components/timeslider/timeslider');
 var http_1 = require('angular2/http');
 var indicator_desc_service_1 = require('../../services/indicators/indicator.desc.service');
 var data_service_1 = require('../../services/data/data.service');
@@ -26,7 +30,7 @@ angular2_highcharts_1.Highcharts.setOptions({
 Highchmap(angular2_highcharts_1.Highcharts);
 HighchartsMore(angular2_highcharts_1.Highcharts);
 var DataTileCmp = (function () {
-    function DataTileCmp(_dataService, _selectedPlacesService, _indicatorDescService, _router, _geoStore, _geoService, _selectedDataService) {
+    function DataTileCmp(elementRef, _dataService, _selectedPlacesService, _indicatorDescService, _router, _geoStore, _geoService, _selectedDataService) {
         this._dataService = _dataService;
         this._selectedPlacesService = _selectedPlacesService;
         this._indicatorDescService = _indicatorDescService;
@@ -48,6 +52,8 @@ var DataTileCmp = (function () {
         this.hasDrillDowns = false;
         this.county_no_data = [];
         this.county_map_no_data = [];
+        this.animationCounter = -1;
+        this.sliderState = 'play';
         this.xAxisCategories = {};
         this.defaultChartOptions = {
             chart: {
@@ -94,6 +100,7 @@ var DataTileCmp = (function () {
                 threshold: 0
             }
         };
+        this.elementRef = elementRef;
         this.tempPlaces = new Array();
         this.xAxisCategories = [];
         this.Data = [];
@@ -183,6 +190,9 @@ var DataTileCmp = (function () {
             this.processDataYear();
             this.processYearTicks();
             this.selectedYearIndex = this._tickArray.length - this.offsetYear;
+            if (this.tileType === 'map') {
+                this.setupTimeSlider();
+            }
             this.hasDrillDowns = this.allData.Metadata[0].Sub_Topic_Name !== 'none' ? true : false;
             console.log('checking place_datayears');
             console.log(this.place_data_years);
@@ -199,6 +209,47 @@ var DataTileCmp = (function () {
         else {
             console.log('DATA SUBSCRIPTION thinks there is no data');
         }
+    };
+    DataTileCmp.prototype.setupTimeSlider = function () {
+        if ($.ui === undefined) {
+            var temp = $.noConflict();
+            console.log(temp);
+        }
+        var sliderScope = this;
+        $(this.elementRef.nativeElement).find('#dateSlider').labeledslider({
+            min: 0,
+            max: this.allData.Years.length - 1,
+            value: this.allData.Years.length - 1,
+            tickInterval: 1,
+            step: 1,
+            tickArray: this._tickArray,
+            tickLabels: this._tickLabelsTime,
+            change: function (event, ui) {
+                console.log('slider changed');
+                sliderScope.selectedYear = sliderScope.allData.Years[ui.value];
+                sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];
+                sliderScope.processDataYear();
+                sliderScope.mapChart.series[0].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
+                sliderScope.mapChart.setTitle({
+                    text: sliderScope.selectedPlaceType + ' (' + sliderScope.selectedYear.Year + ')'
+                });
+                sliderScope.mapChart.series[0].setData(sliderScope.place_data);
+            }
+        });
+    };
+    DataTileCmp.prototype.onPlayBtnClick = function (evt) {
+        var runScope = this;
+        var runInterval = setInterval(runCheck, 2000);
+        function runCheck() {
+            if (runScope.sliderState === 'pause') {
+                runScope.animationCounter = runScope.animationCounter < (runScope.allData.Years.length - 1) ? ++runScope.animationCounter : 0;
+                $(runScope.elementRef.nativeElement).find('#dateSlider').labeledslider({ value: runScope.animationCounter });
+            }
+            else {
+                clearInterval(runInterval);
+            }
+        }
+        this.sliderState = this.sliderState === 'play' ? 'pause' : 'play';
     };
     DataTileCmp.prototype.onPlacesChanged = function (selectedPlaces) {
         console.log(selectedPlaces);
@@ -721,7 +772,6 @@ var DataTileCmp = (function () {
             default:
                 return value;
         }
-        return value;
     };
     DataTileCmp.prototype.addCommas = function (nStr) {
         nStr += '';
@@ -740,6 +790,9 @@ var DataTileCmp = (function () {
     DataTileCmp.prototype.gotoDetails = function () {
         this._router.navigate(['Explore', { indicator: encodeURI(this.indicator.replace(/\(/g, '%28').replace(/\)/g, '%29')), places: this.placeNames }]);
         window.scrollTo(0, 0);
+    };
+    DataTileCmp.prototype.onTimeSliderChange = function (evt) {
+        console.log('well hot digity dog');
     };
     DataTileCmp.prototype.ngOnInit = function () {
         this.defaultChartOptions.title = { text: this.indicator };
@@ -773,10 +826,11 @@ var DataTileCmp = (function () {
             selector: 'data-tile',
             templateUrl: './shared/components/data_tile/data-tile.html',
             styleUrls: ['./shared/components/data_tile/data-tile.css'],
-            directives: [angular2_highcharts_1.CHART_DIRECTIVES],
+            directives: [angular2_highcharts_1.CHART_DIRECTIVES, timeslider_1.Slider],
             providers: [http_1.JSONP_PROVIDERS, data_service_1.DataService, indicator_desc_service_1.IndicatorDescService, geojson_store_service_1.GeoJSONStoreService, geojson_service_1.GetGeoJSONService, selected_data_service_1.SelectedDataService]
-        }), 
-        __metadata('design:paramtypes', [data_service_1.DataService, selected_places_service_1.SelectedPlacesService, indicator_desc_service_1.IndicatorDescService, router_1.Router, geojson_store_service_1.GeoJSONStoreService, geojson_service_1.GetGeoJSONService, selected_data_service_1.SelectedDataService])
+        }),
+        __param(0, core_1.Inject(core_1.ElementRef)), 
+        __metadata('design:paramtypes', [core_1.ElementRef, data_service_1.DataService, selected_places_service_1.SelectedPlacesService, indicator_desc_service_1.IndicatorDescService, router_1.Router, geojson_store_service_1.GeoJSONStoreService, geojson_service_1.GetGeoJSONService, selected_data_service_1.SelectedDataService])
     ], DataTileCmp);
     return DataTileCmp;
 })();

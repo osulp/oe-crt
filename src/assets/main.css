@@ -89,3 +89,110 @@ a {
     }
 
 /*#endregion */
+
+
+.ui-slider-wrapper
+{
+    position: relative;
+}
+
+    .ui-slider-wrapper .ui-slider-horizontal
+    {
+        width: 100%;
+    }
+
+.ui-slider-labels
+{
+    position: absolute;
+    border: 1px solid transparent;
+}
+
+.ui-slider-label-ticks {
+    border: 1px solid transparent;
+    position: absolute;
+    white-space: nowrap;
+    /*-moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    -moz-transform-origin: 100% 10px;
+    -ms-transform-origin: 100% 10px;
+    -o-transform-origin: 100% 10px;
+    -webkit-transform-origin: 100% 10px;
+    transform-origin: 100% 10px;*/
+}
+
+    .ui-slider-label-ticks span
+    {
+        font-size: .65em;
+        min-width: 1.1em;
+    }
+
+.ui-slider-wrapper.horizontal
+{
+    height: 3.5em;
+}
+
+.horizontal .ui-slider-labels
+{
+    left: 0;
+    right: 0;
+    top: .7em;
+}
+
+.horizontal .ui-slider-label-ticks
+{
+    width: 1.2em;
+    height: .8em;
+    text-align: center;
+    border-left: 1px solid #999;
+}
+
+    .horizontal .ui-slider-label-ticks span
+    {
+        position: relative;
+        display: inline-block;
+        margin-left: -1.2em;
+        top: .8em;
+    }
+
+.ui-slider-wrapper.vertical
+{
+    width: 4.5em;
+}
+
+.vertical .ui-slider-labels
+{
+    top: 1px;
+    bottom: 0;
+    left: .7em;
+}
+
+.vertical .ui-slider-label-ticks
+{
+    height: 1.2em;
+    width: .8em;
+    border-bottom: 1px solid #999;
+}
+
+    .vertical .ui-slider-label-ticks span {
+        position: relative;
+        display: inline-block;
+        margin-left: 1em;
+        top: .6em;
+    }       
+
+/*.ui-state-default .ui-icon
+{
+    background-image:url('../css/ui-lightness/images/ui-icons_888888_256x240.png') !important;
+}*/
+
+#dateSlider span.ui-slider-handle {
+    background: none !important;
+    background-color: #C34500 !important;
+    width:2em;
+    height:2em;
+    top:-.7em;
+    border:none;
+}

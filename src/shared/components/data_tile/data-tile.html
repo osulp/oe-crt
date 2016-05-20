@@ -1,14 +1,23 @@
-<div id="data-tile-wrapper" class="row" [ngClass]="viewType">       
-    <div class="col-xs-12" id="chart-div">                
-        <!--<div [ng2-highcharts]="chartBar" class="graph"></div>-->
+<div id="data-tile-wrapper" class="row" [ngClass]="viewType">
+    <div class="col-xs-12" id="chart-div">
         <div *ngIf="tileType === 'graph'">
             <chart #highchart [options]="defaultChartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
         </div>
         <div *ngIf="tileType === 'map'">
-            <chart #highmap type="Map" [(options)]="mapOptions" (load)="saveInstance($event.context)" class="graph" ></chart>
-        </div>      
+            <chart #highmap type="Map" [(options)]="mapOptions" (load)="saveInstance($event.context)" class="graph"></chart>
+        </div>
+    </div>
+    <div [hidden]="tileType !== 'map'">
+        <div id="slider_wrapper">
+            <div id="play_wrapper">
+                <button id="play" type="button" (click)="onPlayBtnClick($event);" class="btn btn-default" aria-label="Left Align">
+                    <span [ngClass]="'glyphicon-' + sliderState" class="glyphicon" aria-hidden="true" title="Play/pause data view by years." ></span>
+                </button>
+            </div>
+            <div id="dateSlider"></div>
+        </div>
     </div>
     <div [hidden]="viewType !== 'basic'" class="col-xs-12" id="view-data" (click)="gotoDetails()">
         View Data  >
-    </div>    
+    </div>
 </div>

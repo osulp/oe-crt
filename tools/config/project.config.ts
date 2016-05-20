@@ -18,7 +18,9 @@ export class ProjectConfig extends SeedConfig {
         //FOR NPM MODULES DEPENDENCIES
         let additional_deps: InjectableDependency[] = [
             { src: 'bootstrap/dist/css/bootstrap.css', inject: true },
-            { src: 'jquery/dist/jquery.min.js', inject: 'libs' },
+            //{ src: 'jquery-ui/themes/smoothness/jquery-ui.css', inject: 'libs' },
+            //{ src: 'jquery/dist/jquery.min.js', inject: 'libs' },
+            //{ src: 'jquery-ui/jquery-ui.js', inject: 'libs' },           
             { src: 'esri-system-js/dist/esriSystem.js', inject: 'libs', env: 'dev' }
         ];
 
@@ -29,11 +31,14 @@ export class ProjectConfig extends SeedConfig {
         this.APP_ASSETS = [
             { src: `${this.ASSETS_SRC}/css/oe.css`, inject: true, env: 'prod' },
             { src: `${this.ASSETS_SRC}/css/bootstrapmap.css`, inject: true, env: 'dev' },
+            //{ src: '//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css', inject: true },
+            //{ src: '//code.jquery.com/jquery-1.10.2.js', inject: true },
+            //{ src: '//code.jquery.com/ui/1.11.4/jquery-ui.js', inject: true },
             { src: `${this.ASSETS_SRC}/css/esri.3.15.css`, inject: true },
             { src: `${this.ASSETS_SRC}/fonts/font-awesome-4.5.0/css/font-awesome.min.css`, inject: true, env: 'dev' },
             { src: `${this.ASSETS_SRC}/main.css`, inject: true },
             { src: `${this.ASSETS_SRC}/scripts/ags.3.16.init.js`, inject: true },
-            //{ src: 'https://cdn.rawgit.com/highcharts/highcharts-dist/v4.2.1/modules/map.js', inject: true },      
+            { src: `${this.ASSETS_SRC}/scripts/jquery-ui-labeledslider.js`, inject: true },
             { src: `${this.ASSETS_SRC}/scripts/oe.js`, inject: true }
         ];
 

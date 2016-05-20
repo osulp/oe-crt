@@ -1,10 +1,11 @@
 ﻿/// <reference path="../../../../tools/manual_typings/project/jquery/index.d.ts" />
 
-import {Component, Input, OnInit, OnDestroy} from 'angular2/core';
+import {Component, Input, OnInit, ElementRef, Inject, OnDestroy} from 'angular2/core';
 import {CHART_DIRECTIVES, Highcharts} from 'angular2-highcharts';
 import * as Highchmap from 'highcharts/modules/map';
 import * as HighchartsMore from 'highcharts/highcharts-more';
 import * as $jq from 'jquery';
+import {Slider} from '../../components/timeslider/timeslider';
 //import {Observable} from 'rxjs/Rx';
 import {Subscription}   from 'rxjs/Subscription';
 import {Year, CommunityData} from '../../data_models/community-data';
@@ -17,6 +18,8 @@ import {SelectedDataService} from '../../services/data/selected-data.service';
 import {Router} from 'angular2/router';
 import {GeoJSONStoreService} from '../../services/geojson/geojson_store.service';
 import {GetGeoJSONService} from '../../services/geojson/geojson.service';
+
+declare var jQuery: any;
 
 
 Highcharts.setOptions({
@@ -47,7 +50,7 @@ interface Chart {
     selector: 'data-tile',
     templateUrl: './shared/components/data_tile/data-tile.html',
     styleUrls: ['./shared/components/data_tile/data-tile.css'],
-    directives: [CHART_DIRECTIVES],
+    directives: [CHART_DIRECTIVES, Slider ],
     providers: [JSONP_PROVIDERS, DataService, IndicatorDescService, GeoJSONStoreService, GetGeoJSONService, SelectedDataService]
 })
 
@@ -57,6 +60,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
     @Input() tileType: any;//map/graph/table
     @Input() viewType: any;//basic/advanced
     public geoJSONStore: any[] = [];
+    elementRef: ElementRef;
     private places = new Array<SearchResult>();
     private subscription: Subscription;
     private geoSubscription: Subscription;
@@ -83,6 +87,8 @@ export class DataTileCmp implements OnInit, OnDestroy {
     private hasMOEs: boolean;
     private county_no_data: any = [];
     private county_map_no_data: any = [];
+    private animationCounter: number = -1;
+    private sliderState: string = 'play';
     //private school_dist_no_data: any = [];
     //private school_dist_map_no_data: any = [];
 
@@ -149,6 +155,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
     private mapChart: Chart;
 
     constructor(
+        @Inject(ElementRef) elementRef: ElementRef,
         private _dataService: DataService,
         private _selectedPlacesService: SelectedPlacesService,
         private _indicatorDescService: IndicatorDescService,
@@ -157,6 +164,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
         private _geoService: GetGeoJSONService,
         private _selectedDataService: SelectedDataService
     ) {
+        this.elementRef = elementRef;
         this.tempPlaces = new Array<SearchResult>();
         this.xAxisCategories = [];
         this.Data = [];
@@ -273,6 +281,10 @@ export class DataTileCmp implements OnInit, OnDestroy {
             this.processDataYear();
             this.processYearTicks();
             this.selectedYearIndex = this._tickArray.length - this.offsetYear;
+            if (this.tileType === 'map') {
+                this.setupTimeSlider();
+                //this.runAnimation();
+            }
             this.hasDrillDowns = this.allData.Metadata[0].Sub_Topic_Name !== 'none' ? true : false;
             console.log('checking place_datayears');
             console.log(this.place_data_years);
@@ -288,6 +300,58 @@ export class DataTileCmp implements OnInit, OnDestroy {
             console.log('DATA SUBSCRIPTION thinks there is no data');
             //this.getData();
         }
+    }
+
+    setupTimeSlider() {
+        if ($.ui === undefined) {
+            var temp = $.noConflict();
+            console.log(temp);
+        }
+        var sliderScope = this;
+        $(this.elementRef.nativeElement).find('#dateSlider').labeledslider(
+            {
+                min: 0,
+                max: this.allData.Years.length - 1,
+                value: this.allData.Years.length - 1,
+                tickInterval: 1,
+                step: 1,
+                tickArray: this._tickArray,
+                tickLabels: this._tickLabelsTime,
+                change: function (event: any, ui: any) {
+                    console.log('slider changed');
+                    sliderScope.selectedYear = sliderScope.allData.Years[ui.value];
+                    sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];//  ui.value;
+                    sliderScope.processDataYear();
+                    sliderScope.mapChart.series[0].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
+                    sliderScope.mapChart.setTitle({
+                        text: sliderScope.selectedPlaceType + ' (' + sliderScope.selectedYear.Year + ')'
+                    });
+                    sliderScope.mapChart.series[0].setData(sliderScope.place_data);
+                    //detailChart.xAxis[0].removePlotLine('plot-line-1');
+                    //detailChart.xAxis[0].addPlotLine({
+                    //    value: selectedYearIndex,
+                    //    color: 'gray',
+                    //    dashStyle: 'longdashdot',
+                    //    width: 2,
+                    //    id: 'plot-line-1'
+                    //});
+                }
+            });
+    }
+
+    onPlayBtnClick(evt: any) {
+        let runScope = this;
+        var runInterval = setInterval(runCheck, 2000);
+        function runCheck() {
+            if (runScope.sliderState === 'pause') {
+                runScope.animationCounter = runScope.animationCounter < (runScope.allData.Years.length - 1) ? ++runScope.animationCounter : 0;
+                $(runScope.elementRef.nativeElement).find('#dateSlider').labeledslider({ value: runScope.animationCounter });
+            } else {
+                clearInterval(runInterval);
+            }
+        }
+        //if state shows play, means we need to run animation        
+        this.sliderState = this.sliderState === 'play' ? 'pause' : 'play';
     }
 
     onPlacesChanged(selectedPlaces: SearchResult[]) {
@@ -968,7 +1032,6 @@ export class DataTileCmp implements OnInit, OnDestroy {
             default:
                 return value;
         }
-        return value;
     }
 
     addCommas(nStr: string) {
@@ -990,6 +1053,10 @@ export class DataTileCmp implements OnInit, OnDestroy {
     gotoDetails() {
         this._router.navigate(['Explore', { indicator: encodeURI(this.indicator.replace(/\(/g, '%28').replace(/\)/g, '%29')), places: this.placeNames }]);
         window.scrollTo(0, 0);
+    }
+
+    onTimeSliderChange(evt:any) {
+        console.log('well hot digity dog');
     }
 
     ngOnInit() {
