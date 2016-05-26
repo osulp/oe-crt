@@ -11,8 +11,8 @@ let initialState: any[] = [];
 export class GeoJSONStoreService {
     selectionChanged$: ReplaySubject<any[]> = new ReplaySubject(1);
     updates: Subject<any> = new Subject<any>();
-    addPlace: Subject<any> = new Subject<any>();
-    removePlace: Subject<any> = new Subject<any>();
+    addLayer: Subject<any> = new Subject<any>();
+    //removeData: Subject<any> = new Subject<any>();
     getAll: Subject<any> = new Subject<any>();
     //selectedPlaces = new Array<SearchResult>();
 
@@ -22,21 +22,21 @@ export class GeoJSONStoreService {
                 return operation(accumulator);
             }, initialState)
             .subscribe(this.selectionChanged$);
-        this.addPlace
-            .map((place) => {
-                return (state: any) => { return state.concat(place); };
+        this.addLayer
+            .map((layer) => {
+                return (state: any) => { return state.concat(layer); };
             })
             .subscribe(this.updates);
 
-        this.removePlace
-            .map((place) => {
-                return (state: any) => {
-                    return state.filter((places: any) => {
-                        return places.Name !== place;
-                    });
-                };
-            })
-            .subscribe(this.updates);
+        //this.removeData
+        //    .map((place) => {
+        //        return (state: any) => {
+        //            return state.filter((places: any) => {
+        //                return places.Name !== place;
+        //            });
+        //        };
+        //    })
+        //    .subscribe(this.updates);
 
         this.getAll
             .map(() => {
@@ -55,15 +55,15 @@ export class GeoJSONStoreService {
 
 
     add(layer: any): void {
-        console.log('adding place to selectedPlaces');
+        console.log('adding layer to geojsonstore');
         //this.selectedPlaces.push(place);
-        this.addPlace.next(layer);
+        this.addLayer.next(layer);
     }
 
-    remove(layer: any): void {
-        console.log('removing place from selectedPlaces');
-        this.removePlace.next(layer.Name);
-    }
+    //remove(layer: any): void {
+    //    console.log('removing place from selectedPlaces');
+    //    this.removePlace.next(layer.Name);
+    //}
 }
 
 

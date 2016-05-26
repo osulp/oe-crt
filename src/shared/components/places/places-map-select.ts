@@ -147,7 +147,7 @@ export class PlacesMapSelect implements OnInit {
     }
     addPlace(place: SearchResult) {
         //check if already added                
-        var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim(); }).indexOf(place.Name.trim());
+        var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);
             this.selPlacesEvt.emit(this.selectedSearchResults);
@@ -175,9 +175,10 @@ export class PlacesMapSelect implements OnInit {
         }
     }
 
-    onSelectedPlacesChanged(places: any) {
+    onSelectedPlacesChanged(places: any[]) {
         this.selectedSearchResults = [];
-        for (var place of places) {
+        var uniquePlaces: any[] = places.filter((place: any, index: number, self: any) => self.findIndex((t: any) => { return t.ResID === place.ResID && t.Name === place.Name; }) === index);
+        for (var place of uniquePlaces) {
             this.selectedSearchResults.push(place);
         }
     }

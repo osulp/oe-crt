@@ -124,7 +124,7 @@ var PlacesMapSelect = (function () {
         this._selectedPlacesService.remove(place);
     };
     PlacesMapSelect.prototype.addPlace = function (place) {
-        var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim(); }).indexOf(place.Name.trim());
+        var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);
             this.selPlacesEvt.emit(this.selectedSearchResults);
@@ -148,8 +148,9 @@ var PlacesMapSelect = (function () {
     };
     PlacesMapSelect.prototype.onSelectedPlacesChanged = function (places) {
         this.selectedSearchResults = [];
-        for (var _i = 0; _i < places.length; _i++) {
-            var place = places[_i];
+        var uniquePlaces = places.filter(function (place, index, self) { return self.findIndex(function (t) { return t.ResID === place.ResID && t.Name === place.Name; }) === index; });
+        for (var _i = 0; _i < uniquePlaces.length; _i++) {
+            var place = uniquePlaces[_i];
             this.selectedSearchResults.push(place);
         }
     };
