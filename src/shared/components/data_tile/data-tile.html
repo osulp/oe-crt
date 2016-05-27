@@ -4,6 +4,7 @@
             <chart #highchart [options]="defaultChartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
         </div>
         <div *ngIf="tileType === 'map'">
+            <hmap-menu [(mapView)]="selectedPlaceType" (selMapView)="onSelectedMapViewChange($event)"></hmap-menu>
             <chart #highmap type="Map" [(options)]="mapOptions" (load)="saveInstance($event.context)" class="graph"></chart>
         </div>
     </div>

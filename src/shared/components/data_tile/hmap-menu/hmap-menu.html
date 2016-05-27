@@ -1,0 +1,14 @@
+<div *ngFor="#layer of mapViews">    
+    <div #switcher [ngSwitch]="_translatedMapView">        
+        <div *ngSwitchWhen="layer">
+            <label>
+                <input #{{layer}} name="mapView" type="radio" checked="checked" value="{{layer}}" (click)="mapViewClick($event);" /> {{layer}}
+            </label>
+        </div>
+        <div *ngSwitchDefault>
+            <label>
+                <input #{{layer}} name="mapView" type="radio" value="{{layer}}" (click)="mapViewClick($event);" /> {{layer}}
+            </label>
+        </div>
+    </div>
+</div>

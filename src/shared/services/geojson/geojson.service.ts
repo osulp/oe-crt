@@ -22,9 +22,13 @@ export class GetGeoJSONService {
     getByPlaceType(placeType: any, years: any[]) {
         let observables: any[] = [];
         console.log('THESE ARE THE YEAR');
-        let geoyears = years[placeType];
-        for (var year of geoyears) {
-            observables.push(this.http.get('./assets/geojson/' + placeType.toLowerCase() + '_' + year.Year + '.json').map((res: Response) => res.json()));
+        if (placeType === 'oregon_siskiyou_boundary') {
+            observables.push(this.http.get('./assets/geojson/oregon_siskiyou_boundary.json').map((res: Response) => res.json()));
+        } else {
+            let geoyears = years[placeType];
+            for (var year of geoyears) {
+                observables.push(this.http.get('./assets/geojson/' + placeType.toLowerCase() + '_' + year.Year + '.json').map((res: Response) => res.json()));
+            }
         }
         return Observable.forkJoin(observables);
     }
