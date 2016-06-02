@@ -1,14 +1,23 @@
-<div *ngFor="#layer of mapViews">    
-    <div #switcher [ngSwitch]="_translatedMapView">        
-        <div *ngSwitchWhen="layer">
-            <label>
-                <input #{{layer}} name="mapView" type="radio" checked="checked" value="{{layer}}" (click)="mapViewClick($event);" /> {{layer}}
-            </label>
-        </div>
-        <div *ngSwitchDefault>
-            <label>
-                <input #{{layer}} name="mapView" type="radio" value="{{layer}}" (click)="mapViewClick($event);" /> {{layer}}
-            </label>
+<div id="map-menu-wrapper">
+    <div class="hamburger-menu" [ngClass]="{'selected':menuSelected}" (click)="menuSelected = !menuSelected">
+    </div>
+    <div id="map-menu" *ngIf="menuSelected">
+        <div class="arrow_box">
+            <div class="map-view-title">Select Map View</div>            
+            <div *ngFor="#layer of mapViews">
+                <div #switcher [ngSwitch]="_translatedMapView">
+                    <div *ngSwitchWhen="layer">
+                        <label>
+                            <input #{{layer}} name="mapView" type="radio" checked="checked" value="{{layer}}" (click)="mapViewClick($event);" /><span>{{layer}}</span>
+                        </label>
+                    </div>
+                    <div *ngSwitchDefault>
+                        <label>
+                            <input #{{layer}} name="mapView" type="radio" value="{{layer}}" (click)="mapViewClick($event);" /><span>{{layer}}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

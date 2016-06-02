@@ -79,3 +79,14 @@
     display: none;
     background: #e6e6e6 url("") 50% 50% repeat-x;
 }*/
+
+#mapchart {
+    position:relative;
+}
+
+#map-view-wrapper{
+    position:absolute;
+    right:0;
+    top:0;
+    z-index:10;
+}

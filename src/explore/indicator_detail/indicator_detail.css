@@ -1,3 +1,7 @@
+#indicator-detail-wrapper{
+    background-color:#F6F6F5
+}
+
 .data-detail-map-wrapper {
     height: 400px;
     max-height: 400px;
@@ -166,7 +170,7 @@
 
 .arrow_box {
     position: relative;
-    border-bottom: 1px solid rgb(128, 128, 128);
+    border-bottom: 1px solid  #D1CDC7; /*rgb(128, 128, 128);*/
 }
 
     .arrow_box:after, .arrow_box:before {
@@ -191,14 +195,14 @@
 
     .arrow_box:after {
         border-color: rgba(136, 183, 213, 0);
-        border-top-color: white;
+        border-top-color: #F6F6F5;
         border-width: 8px;
         margin-left: -8px;
     }
 
     .arrow_box:before {
         border-color: rgba(194, 225, 245, 0);
-        border-top-color: rgb(128, 128, 128);
+        border-top-color:  #D1CDC7; /*rgb(128, 128, 128);*/
         border-width: 9px;
         margin-left: -9px;
     }

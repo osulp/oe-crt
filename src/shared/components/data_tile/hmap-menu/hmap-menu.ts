@@ -12,6 +12,7 @@ export class HmapMenu implements OnInit {
     @Output() selMapView = new EventEmitter();//county / city / census tract / school district
     private mapViews: any[];
     private _translatedMapView: any;
+    private menuSelected: boolean = false;
 
 
     mapViewClick(evt: any) {
