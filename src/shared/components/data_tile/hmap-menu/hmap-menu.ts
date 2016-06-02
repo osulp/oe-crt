@@ -24,7 +24,7 @@ export class HmapMenu implements OnInit {
     ngOnInit() {
         console.log('HMAP MENU INPUT VALUE');
         console.log(this.mapView);
-        this.mapViews = ['County', 'City', 'Census Tract', 'School District'];
+        this.mapViews = ['Counties', 'Cities', 'Census Tracts', 'School Districts'];
     }
 
     ngOnChanges(changes: any) {// { [propName: string]: SimpleChange }) {
@@ -33,16 +33,16 @@ export class HmapMenu implements OnInit {
         if (changes['mapView'].currentValue !== changes['mapView'].previousValue) {
             switch (changes['mapView'].currentValue) {
                 case 'Counties':
-                    this._translatedMapView = 'County';
+                    this._translatedMapView = 'Counties';
                     break;
                 case 'Places':
-                    this._translatedMapView = 'City';
+                    this._translatedMapView = 'Cities';
                     break;
                 case 'Tracts':
-                    this._translatedMapView = 'Census Tract';
+                    this._translatedMapView = 'Census Tracts';
                     break;
                 case 'School District':
-                    this._translatedMapView = 'School District';
+                    this._translatedMapView = 'School Districts';
                     break;
                 default:
                     break;

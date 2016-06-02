@@ -683,27 +683,17 @@ export class DataTileCmp implements OnInit, OnDestroy {
                 change: function (event: any, ui: any) {
                     console.log('slider changed');
                     sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value];
-                    sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];//  ui.value;
-                    //if (sliderScope.dataStore[sliderScope.selectedPlaceType.toString()].indicatorData === undefined) {
-                    //    console.log('processing data year');
-                    //    sliderScope.processDataYear();
-                    //}
+                    sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];//  ui.value;                   
+                    sliderScope.processDataYear();
                     sliderScope.mapChart.setTitle({
                         text: sliderScope.selectedPlaceType + ' (' + sliderScope.selectedYear.Year + ')'
                     });
                     let seriesIndex = sliderScope.mapChart.series.length - 1;
                     let mapData = sliderScope.getSelectedMapData();
-                    let data: any = [];
-                    if (sliderScope.selectedPlaceType === 'Places') {
-                        console.log('WHOTPUA', sliderScope.dataStore, sliderScope.dataStore.Places.indicatorData[sliderScope.indicator].chart_data);
-                        data = sliderScope.dataStore.Places.indicatorData[sliderScope.indicator].chart_data.place_data;
-                    } else {
-                        data = sliderScope.dataStore[sliderScope.selectedPlaceType.toString()].indicatorData[sliderScope.indicator].chart_data.place_data;
-                    }
-                    console.log('setting data in slider', sliderScope.dataStore, sliderScope.selectedPlaceType, data);
+                    let data: any = sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data.place_data;                    
                     sliderScope.mapChart.series[seriesIndex].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
-                    sliderScope.mapChart.series[seriesIndex].mapData = mapData;// sliderScope.getSelectedMapData();
-                    sliderScope.mapChart.series[seriesIndex].setData(data);
+                    sliderScope.mapChart.series[seriesIndex].mapData = mapData;
+                    sliderScope.mapChart.series[seriesIndex].setData(data);                    
                     //detailChart.xAxis[0].removePlotLine('plot-line-1');
                     //detailChart.xAxis[0].addPlotLine({
                     //    value: selectedYearIndex,
@@ -740,8 +730,10 @@ export class DataTileCmp implements OnInit, OnDestroy {
             case 'Incorporated City':
             case 'Incorporated Town':
             case 'City':
+            case 'Cities':
                 return 'Places';
             case 'Census Tract':
+            case 'Census Tracts':
             case 'Unicorporated Place':
                 return 'Tracts';
             default:
@@ -751,12 +743,13 @@ export class DataTileCmp implements OnInit, OnDestroy {
 
     initMapChart() {
         console.log('CREATIN MAP CHART');
-        this.mapChart.destroy();
-        this.mapChart = new Highcharts.Map(this.mapOptions);
+        //this.mapChart.destroy();
+        //this.mapChart = new Highcharts.Map(this.mapOptions);
         var mapScope = this;
         //set tooltip display
-        this.mapChart.tooltip.options.formatter = function () {
+        this.mapChart.tooltip.options.formatter = function () {            
             var displayValue = mapScope.formatValue(this.point.value, false) + '</b>';
+            console.log('tooltip happening:', this.point.value);
             if (this.point.value === undefined) {
                 return '<span>' + this.point.properties.name + ' County</span><br/><span style="font-size: 10px">Not Available or Insufficient Data</span>';
             } else {
@@ -862,7 +855,7 @@ export class DataTileCmp implements OnInit, OnDestroy {
         //}
         this.mapChart.setTitle({ text: this.pluralize(this.selectedPlaceType) + ' (' + this.selectedYear.Year + ')' });
         console.log(this.mapChart.series, 'MAP SERIES ');
-        //this.mapChart.redraw();
+        this.mapChart.redraw();
         this.mapChart.hideLoading();
     }
 

@@ -541,20 +541,13 @@ var DataTileCmp = (function () {
                 console.log('slider changed');
                 sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value];
                 sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];
+                sliderScope.processDataYear();
                 sliderScope.mapChart.setTitle({
                     text: sliderScope.selectedPlaceType + ' (' + sliderScope.selectedYear.Year + ')'
                 });
                 var seriesIndex = sliderScope.mapChart.series.length - 1;
                 var mapData = sliderScope.getSelectedMapData();
-                var data = [];
-                if (sliderScope.selectedPlaceType === 'Places') {
-                    console.log('WHOTPUA', sliderScope.dataStore, sliderScope.dataStore.Places.indicatorData[sliderScope.indicator].chart_data);
-                    data = sliderScope.dataStore.Places.indicatorData[sliderScope.indicator].chart_data.place_data;
-                }
-                else {
-                    data = sliderScope.dataStore[sliderScope.selectedPlaceType.toString()].indicatorData[sliderScope.indicator].chart_data.place_data;
-                }
-                console.log('setting data in slider', sliderScope.dataStore, sliderScope.selectedPlaceType, data);
+                var data = sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data.place_data;
                 sliderScope.mapChart.series[seriesIndex].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
                 sliderScope.mapChart.series[seriesIndex].mapData = mapData;
                 sliderScope.mapChart.series[seriesIndex].setData(data);
@@ -584,8 +577,10 @@ var DataTileCmp = (function () {
             case 'Incorporated City':
             case 'Incorporated Town':
             case 'City':
+            case 'Cities':
                 return 'Places';
             case 'Census Tract':
+            case 'Census Tracts':
             case 'Unicorporated Place':
                 return 'Tracts';
             default:
@@ -594,11 +589,10 @@ var DataTileCmp = (function () {
     };
     DataTileCmp.prototype.initMapChart = function () {
         console.log('CREATIN MAP CHART');
-        this.mapChart.destroy();
-        this.mapChart = new angular2_highcharts_1.Highcharts.Map(this.mapOptions);
         var mapScope = this;
         this.mapChart.tooltip.options.formatter = function () {
             var displayValue = mapScope.formatValue(this.point.value, false) + '</b>';
+            console.log('tooltip happening:', this.point.value);
             if (this.point.value === undefined) {
                 return '<span>' + this.point.properties.name + ' County</span><br/><span style="font-size: 10px">Not Available or Insufficient Data</span>';
             }
@@ -676,6 +670,7 @@ var DataTileCmp = (function () {
         this.mapChart.series[this.selectedPlaceType === 'Places' ? 1 : 0].setData(this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data);
         this.mapChart.setTitle({ text: this.pluralize(this.selectedPlaceType) + ' (' + this.selectedYear.Year + ')' });
         console.log(this.mapChart.series, 'MAP SERIES ');
+        this.mapChart.redraw();
         this.mapChart.hideLoading();
     };
     DataTileCmp.prototype.createGraphChart = function () {

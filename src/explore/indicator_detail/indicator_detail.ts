@@ -7,6 +7,7 @@ import {SelectedDataService} from '../../shared/services/data/selected-data.serv
 import {SearchResult} from '../../shared/data_models/search-result';
 import {CommunityData} from '../../shared/data_models/community-data';
 import {Subscription}   from 'rxjs/Subscription';
+import {Router} from 'angular2/router';
 import { PlacesMapSelect } from '../../shared/components/places/places-map-select';
 
 @Component({
@@ -29,11 +30,26 @@ export class DetailCmp implements OnInit {
     selectedPlaceSubscription: Subscription;
     highmapSelectedSubscription: Subscription;
     urlPlaces: SearchResult[] = [];
+    visible: boolean = false;
+    indInfo: string = 'desc';
 
     constructor(private _indicatorDescService: IndicatorDescService,
         private _selectedDataService: SelectedDataService,
-        private _selectedPlacesService: SelectedPlacesService
+        private _selectedPlacesService: SelectedPlacesService,
+        private _router: Router
     ) { }
+
+    getClass() {
+        return this.visible ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
+    }
+    toggleCommunitiesWrapper() {
+        this.visible = !this.visible;
+    }
+
+    goBack() {
+        this._router.navigate(['Explore']);
+        window.scrollTo(0, 0);
+    }
 
     ngOnInit() {
         this.showMap = true;
@@ -43,7 +59,7 @@ export class DetailCmp implements OnInit {
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(
             data => {
                 this.indicatorDesc = data;// IndicatorDescSer    
-                console.log(data);
+                console.log('indicatorDesc service',data);
             });
 
         this.selectedDataSubscription = this._selectedDataService.selectionChanged$.subscribe(

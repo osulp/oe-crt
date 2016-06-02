@@ -13,16 +13,30 @@ var data_tile_1 = require('../../shared/components/data_tile/data-tile');
 var indicator_desc_service_1 = require('../../shared/services/indicators/indicator.desc.service');
 var selected_places_service_1 = require('../../shared/services/places/selected-places.service');
 var selected_data_service_1 = require('../../shared/services/data/selected-data.service');
+var router_1 = require('angular2/router');
 var places_map_select_1 = require('../../shared/components/places/places-map-select');
 var DetailCmp = (function () {
-    function DetailCmp(_indicatorDescService, _selectedDataService, _selectedPlacesService) {
+    function DetailCmp(_indicatorDescService, _selectedDataService, _selectedPlacesService, _router) {
         this._indicatorDescService = _indicatorDescService;
         this._selectedDataService = _selectedDataService;
         this._selectedPlacesService = _selectedPlacesService;
+        this._router = _router;
         this.indicatorDesc = [];
         this.selectedPlaceType = 'Oregon';
         this.urlPlaces = [];
+        this.visible = false;
+        this.indInfo = 'desc';
     }
+    DetailCmp.prototype.getClass = function () {
+        return this.visible ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
+    };
+    DetailCmp.prototype.toggleCommunitiesWrapper = function () {
+        this.visible = !this.visible;
+    };
+    DetailCmp.prototype.goBack = function () {
+        this._router.navigate(['Explore']);
+        window.scrollTo(0, 0);
+    };
     DetailCmp.prototype.ngOnInit = function () {
         var _this = this;
         this.showMap = true;
@@ -31,7 +45,7 @@ var DetailCmp = (function () {
         this.inputIndicator = decodeURI(this.inputIndicator).replace(/\%28/g, '(').replace(/\%29/g, ')');
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(function (data) {
             _this.indicatorDesc = data;
-            console.log(data);
+            console.log('indicatorDesc service', data);
         });
         this.selectedDataSubscription = this._selectedDataService.selectionChanged$.subscribe(function (data) {
             console.log('Community Data throwing event');
@@ -65,7 +79,7 @@ var DetailCmp = (function () {
             providers: [http_1.JSONP_PROVIDERS, indicator_desc_service_1.IndicatorDescService, selected_data_service_1.SelectedDataService, selected_places_service_1.SelectedPlacesService],
             directives: [places_map_select_1.PlacesMapSelect, data_tile_1.DataTileCmp]
         }), 
-        __metadata('design:paramtypes', [indicator_desc_service_1.IndicatorDescService, selected_data_service_1.SelectedDataService, selected_places_service_1.SelectedPlacesService])
+        __metadata('design:paramtypes', [indicator_desc_service_1.IndicatorDescService, selected_data_service_1.SelectedDataService, selected_places_service_1.SelectedPlacesService, router_1.Router])
     ], DetailCmp);
     return DetailCmp;
 })();
