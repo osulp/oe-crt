@@ -4,9 +4,8 @@ import {Control, CORE_DIRECTIVES} from '@angular/common';
 import {JSONP_PROVIDERS}  from '@angular/http';
 import {MapLeafletComponent} from '../../components/map/map.leaflet.component';
 //import {MapComponent} from '../../components/map/map.component';
-import {SearchPlacesService} from '../../services/places/places.service';
-import {SelectedPlacesService} from '../../services/places/selected-places.service';
-import {SearchResult} from '../../data_models/search-result';
+import {SearchPlacesService, SelectedPlacesService} from '../../services/index';
+import {SearchResult} from '../../data_models/index';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/debounceTime';
@@ -19,11 +18,11 @@ import 'rxjs/add/operator/share';
     selector: 'places-map-select',
     templateUrl: 'places.map.select.component.html',
     styleUrls: ['places.map.select.component.css'],
-    providers: [JSONP_PROVIDERS, SearchPlacesService],
+    providers: [JSONP_PROVIDERS, SearchPlacesService, SelectedPlacesService],
     directives: [CORE_DIRECTIVES, MapLeafletComponent]
 })
 
-export class PlacesMapSelect implements OnInit {
+export class PlacesMapSelectComponent implements OnInit {
     @Input() selectedPlaceType: any;
     @Input() viewType: string;
     @Input() selectedPlaces: any;

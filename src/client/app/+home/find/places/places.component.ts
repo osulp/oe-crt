@@ -11,7 +11,7 @@ import {MapLeafletComponent} from '../../../shared/components/index';
     directives: [MapLeafletComponent]
 })
 
-export class PlacesCmp implements OnInit {
+export class PlacesComponent implements OnInit {
 
     // map config   
     public mapOptions:any = null;

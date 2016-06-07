@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import {FindWrapperCmp} from './find/find.wrapper.component';
-import {FeaturedCollectionsCmp} from './collections/featured.collections.component';
-import {FeaturedDataCmp} from './data/featured.data.component';
-import {SponsorsCmp} from './sponsors/sponsors.component';
+import {FindWrapperComponent} from './find/find.wrapper.component';
+import {FeaturedCollectionsComponent} from './collections/featured.collections.component';
+import {FeaturedDataComponent} from './data/featured.data.component';
+import {SponsorsComponent} from './sponsors/sponsors.component';
 
 /**
  * This class represents the lazy loaded HomeComponent.
@@ -12,7 +12,7 @@ import {SponsorsCmp} from './sponsors/sponsors.component';
     selector: 'home',
     templateUrl: 'home.component.html',
     styleUrls: ['home.component.css'],
-    directives: [FindWrapperCmp, FeaturedCollectionsCmp,FeaturedDataCmp,SponsorsCmp]
+    directives: [FindWrapperComponent, FeaturedCollectionsComponent,FeaturedDataComponent,SponsorsComponent]
 })
 
 export class HomeComponent { }

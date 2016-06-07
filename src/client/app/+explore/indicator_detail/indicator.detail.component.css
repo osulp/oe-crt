@@ -1,0 +1,208 @@
+#indicator-detail-wrapper{
+    background-color:#F6F6F5
+}
+
+.data-detail-map-wrapper {
+    height: 400px;
+    max-height: 400px;
+}
+
+#toggleViewRow {
+    margin: 20px auto;
+    height: 50px;
+    max-width: 1170px;
+    border-bottom: 1px solid #D1CDC7;
+}
+
+#detail-data-view-wrapper {
+    max-width: 1170px;
+    margin: 0 auto;
+}
+
+.toggleView {
+    border-right: 1px solid #D1CDC7;
+}
+
+    .toggleView:nth-child(3) {
+        border-right: none;
+    }
+
+    .toggleView > span {
+        line-height: 30px;
+        vertical-align: middle;
+        color: #C34500;
+        cursor: pointer;
+        padding-bottom: 22px;
+    }
+
+    .toggleView:hover {
+        text-decoration: underline;
+    }
+
+.toggleViewIcn {
+    display: inline-block;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    border: 1px solid #D1CDC7;
+    margin-right: 13px;
+}
+
+    .toggleViewIcn.viewSelected {
+        background-image: url('assets/img/icn-view.svg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-color: #244068;
+        border: none;
+    }
+
+    .toggleViewIcn:hover {
+        border: 1px solid #244068;
+    }
+
+#data-detail-help {
+    float: right;
+}
+
+#share-btns div {
+    display: inline-block;
+    margin-left: 6px;
+    border: solid 1px #D1CDC7;
+    border-radius: 4px;
+    background-color: #F3F2ED;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    padding: 2px;
+}
+
+.detail-tile:nth-child(1) {
+    padding-right: 30px;
+}
+
+.find_header_content {
+    max-width: 1170px;
+    margin: 0 auto;
+}
+
+.find_header {
+    height: 50px;
+    margin: 0 auto;
+    background-color: #244068 !important;
+    color: white;
+    cursor: pointer;
+}
+
+    .find_header .title {
+        padding: 15px;
+        float: right;
+        color: #D1CDC7;
+    }
+
+    .find_header .toggle-communities {
+        float: right;
+        margin: 10px;
+        height: 30px;
+        width: 30px;
+        background-color: rgba(255,255,255,.30);
+        border-radius: 4px;
+        padding: 4px;
+    }
+
+.toggle-communities .glyphicon {
+    padding: 4px;
+}
+
+.back-btn {
+    background-color: #C34500;
+    float: left;
+    padding: 6px 25px;
+    border-radius: 4px;
+    margin-top: 10px;
+    position: relative;
+}
+
+    .back-btn:hover {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .back-btn:after {
+        font-family: 'Glyphicons Halflings';
+        font-style: normal;
+        content: '\e257';
+        font-size: 14px;
+        color: white;
+        width: 30px;
+        height: 25px;
+        pointer-events: none;
+        position: absolute;
+        top: 5px;
+        left: 8px;
+    }
+
+#indicator-info {
+    padding: 10px 0;
+    font-size: .8em;
+    color: #C34500;
+}
+
+    #indicator-info span {
+        padding: 20px 40px;
+    }
+
+        #indicator-info span:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        #indicator-info span.selected {
+            color:rgb(128, 128, 128);
+            /*text-decoration:underline;*/
+        }
+
+#indicator-info-content {
+    min-height: 40px;
+    margin-top: 10px;
+    font-size: .8em;
+    color:rgb(128, 128, 128);
+}
+
+.arrow_box {
+    position: relative;
+    border-bottom: 1px solid  #D1CDC7; /*rgb(128, 128, 128);*/
+}
+
+    .arrow_box:after, .arrow_box:before {
+        top: 100%;
+        left: 195px;
+        border: solid transparent;
+        content: " ";
+        background: none;
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+    }
+
+    .arrow_box.desc:after, .arrow_box.desc:before {
+        left: 65px;
+    }
+
+    .arrow_box.other:after, .arrow_box.other:before {
+        left: 330px;
+    }
+
+    .arrow_box:after {
+        border-color: rgba(136, 183, 213, 0);
+        border-top-color: #F6F6F5;
+        border-width: 8px;
+        margin-left: -8px;
+    }
+
+    .arrow_box:before {
+        border-color: rgba(194, 225, 245, 0);
+        border-top-color:  #D1CDC7; /*rgb(128, 128, 128);*/
+        border-width: 9px;
+        margin-left: -9px;
+    }

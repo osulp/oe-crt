@@ -1,8 +1,8 @@
 import {Component} from '@angular/core';
-import {TopicsCmp} from './topics/topics.component';
-import {PlacesCmp} from './places/places.component';
+import {TopicsComponent} from './topics/topics.component';
+import {PlacesComponent} from './places/places.component';
 import {SearchResult} from '../../shared/data_models/index';
-import {SearchCmp} from '../../shared/components/search/search.component';
+import {SearchComponent} from '../../shared/components/search/search.component';
 import {Router} from '@angular/router';
 
 @Component({
@@ -10,13 +10,15 @@ import {Router} from '@angular/router';
     selector: 'find-wrapper',
     templateUrl: 'find.wrapper.component..html',
     styleUrls: ['find.wrapper.component..css'],
-    directives: [SearchCmp, TopicsCmp, PlacesCmp]
+    directives: [SearchComponent, TopicsComponent, PlacesComponent]
 })
 
-export class FindWrapperCmp {
+export class FindWrapperComponent {
     selectedSearchResult: SearchResult;
-    constructor(private _router: Router) { }
     page: string;
+
+    constructor(private _router: Router) { }
+
     goto(page: string) {
         this._router.navigate([page]);
     }

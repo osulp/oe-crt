@@ -1,0 +1,111 @@
+<div id="indicator-detail-wrapper">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="find_header row">
+                <div class="col-xs-12" (click)="toggleCommunitiesWrapper()">
+                    <header class="find_header_content">
+                        <div class="back-btn" (click)="goBack();">Back</div>
+                        <div class="title">Change Community Selection</div>
+                        <div class="toggle-communities">
+                            <div [ngClass]="getClass()" aria-hidden="true"></div>
+                        </div>
+                    </header>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div [hidden]="!visible" class="row">
+        <div class="col-xs-12 data-detail-map-wrapper">
+            <places-map-select [selectedPlaceType]="selectedPlaceType" [viewType]="'indicatorDetail'" [selectedPlaces]="urlPlaces"></places-map-select>
+        </div>
+    </div>
+    <div class="row" id="toggleViewRow">
+        <div class="col-xs-6">
+            <div class="row">
+                <div class="col-xs-4 toggleView" (click)="showMap = !showMap">
+                    <div class="toggleViewIcn" [ngClass]="showMap ? 'viewSelected' : ''"></div>
+                    <span>Map View</span>
+                </div>
+                <div class="col-xs-4 toggleView" (click)="showGraph = !showGraph">
+                    <div class="toggleViewIcn" [ngClass]="showGraph ? 'viewSelected' : ''"></div><span>
+                        Graph View
+                    </span>
+                </div>
+                <div class="col-xs-4 toggleView" (click)="showTable = !showTable">
+                    <div class="toggleViewIcn" [ngClass]="showTable ? 'viewSelected' : ''"></div>
+                    <span>Table View</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-6">
+            <div id="data-detail-help">Help</div>
+        </div>
+    </div>
+    <div id="detail-data-view-wrapper" class="row">
+        <div class="col-xs-12">
+            <div class="row">
+                <div class="col-xs-10">
+                    <h2>{{inputIndicator}}</h2>
+                </div>
+                <div class="col-xs-2">
+                    <div id="share-btns">
+                        <div title="Download data"><img src="assets/img/icn-download.svg" alt="download data" /></div>
+                        <div title="Print a report"><img src="assets/img/icn-print.svg" alt="print" /></div>
+                        <div title="Share with others on social media or with links"><img src="assets/img/icn-share.svg" alt="share" /></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <div #mapView class="detail-tile" [hidden]="!showMap">
+                        MAP VIEW
+                        <data-tile [indicator]="inputIndicator" [tileType]="'map'" [viewType]="'advanced'"></data-tile>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div #graphView class="detail-tile" [hidden]="!showGraph">
+                        GRAPH VIEW
+                        <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="detail-tile" [viewType]="'advanced'"></data-tile>
+                    </div>
+                </div>
+                <div class="col-xs-11">
+                    <div #tableView [hidden]="!showTable">
+                        TABLE VIEW
+                        <!--<data-tile [indicator]="inputIndicator" [tileType]="'table'" [viewType]="'advanced'"></data-tile>-->
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div id="indicator-info" [ngClass]="indInfo" class="col-lg-5 col-md-6 col-xs-12 arrow_box">
+                    <span [ngClass]="{'selected':indInfo === 'desc'}" (click)="indInfo = 'desc';">Description</span>
+                    <span [ngClass]="{'selected':indInfo === 'src'}" (click)="indInfo = 'src';">Source</span>
+                    <span [ngClass]="{'selected':indInfo === 'other'}" (click)="indInfo = 'other';">Other Resources</span>
+                </div>
+                <div class="col-xs-12" id="indicator-info-content">
+                    <div *ngIf="indInfo === 'desc'">
+                        <div *ngFor="#id of indicatorDesc">
+                            <div>
+                                <span>Description:</span>
+                                <span>{{id.Description_v4}}</span>
+                            </div>
+                            <div>
+                                <span>Formula:</span>
+                                <span>{{id.Formula}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="indInfo === 'src'">
+                        <div *ngFor="#id of indicatorDesc">
+                            {{id.Source}}
+                        </div>
+                    </div>
+                    <div *ngIf="indInfo === 'other'">
+                        <div *ngFor="#id of indicatorDesc">
+                            {{id.Other}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

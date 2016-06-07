@@ -14,11 +14,11 @@ import 'rxjs/add/operator/map';
 
 
 
-export class TopicsCmp implements OnInit {
+export class TopicsComponent implements OnInit {
     public Topics: any;
-    constructor(private _topicService: TopicsService) { }
-
     items: Observable<string[]>;
+
+    constructor(private _topicService: TopicsService) { }
 
     search(term: string) {
         //this._topicService.search(term).then(items => this.items = items);  

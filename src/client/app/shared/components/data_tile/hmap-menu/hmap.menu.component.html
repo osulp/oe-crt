@@ -4,7 +4,7 @@
     <div id="map-menu" *ngIf="menuSelected">
         <div class="arrow_box">
             <div class="map-view-title">Select Map View</div>            
-            <div *ngFor="#layer of mapViews">
+            <div *ngFor="let layer of mapViews">
                 <div #switcher [ngSwitch]="_translatedMapView">
                     <div *ngSwitchWhen="layer">
                         <label>

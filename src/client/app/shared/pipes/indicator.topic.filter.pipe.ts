@@ -1,11 +1,11 @@
-﻿import {Pipe} from '@angular/core';
+﻿import {Pipe, PipeTransform} from '@angular/core';
 import {Indicator,Topic} from '../../shared/data_models/index';
 
 @Pipe({
     name: 'indicatorTopicFilterPipe'
 })
 
-export class IndicatorTopicFilterPipe {
+export class IndicatorTopicFilterPipe implements PipeTransform {
     transform(indicators: Indicator[], topics: [Topic[]]): any {
         if (indicators !== undefined) {
             let selectedTopics: any = [];

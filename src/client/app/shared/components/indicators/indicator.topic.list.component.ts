@@ -15,7 +15,7 @@ import {IndicatorsService} from '../../../shared/services/index';
 })
 
 
-export class IndicatorsTopicList implements OnInit {
+export class IndicatorsTopicListComponent implements OnInit {
     @Input() topic: Topic;
     @Input() inputIndicators: Indicator[];
     @Input() inputTopics: Topic[];

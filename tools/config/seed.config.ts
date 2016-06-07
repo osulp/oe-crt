@@ -311,7 +311,12 @@ export class SeedConfig {
       '*': `${this.APP_BASE}node_modules/*`
     },
     packages: {
-      rxjs: { defaultExtension: false }
+        rxjs: { defaultExtension: false },
+        'angular2-highcharts': {
+            main: 'index',
+            format: 'cjs',
+            defaultExtension: 'js',
+        }
     },
     map: {
         'angular2-highcharts': `${this.APP_BASE}node_modules/angular2-highcharts/`,
@@ -332,48 +337,59 @@ export class SeedConfig {
    * @type {any}
    */
   SYSTEM_BUILDER_CONFIG: any = {
-    defaultJSExtensions: true,
-    packageConfigPaths: [
-      join(this.PROJECT_ROOT, 'node_modules', '*', 'package.json'),
-      join(this.PROJECT_ROOT, 'node_modules', '@angular', '*', 'package.json')
-    ],
-    paths: {
-      [`${this.TMP_DIR}/*`]: `${this.TMP_DIR}/*`,
-      '*': 'node_modules/*'
-    },
-    packages: {
-      '@angular/core': {
-        main: 'index.js',
-        defaultExtension: 'js'
+      defaultJSExtensions: true,
+      packageConfigPaths: [
+          join(this.PROJECT_ROOT, 'node_modules', '*', 'package.json'),
+          join(this.PROJECT_ROOT, 'node_modules', '@angular', '*', 'package.json')
+      ],
+      paths: {
+          [`${this.TMP_DIR}/*`]: `${this.TMP_DIR}/*`,
+          '*': 'node_modules/*'
       },
-      '@angular/compiler': {
-        main: 'index.js',
-        defaultExtension: 'js'
+      map: {
+          'jquery': 'https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js'
       },
-      '@angular/common': {
-        main: 'index.js',
-        defaultExtension: 'js'
+      meta: {
+          'jquery': { build: false }
       },
-      '@angular/http': {
-        main: 'index.js',
-        defaultExtension: 'js'
-      },
-      '@angular/platform-browser': {
-        main: 'index.js',
-        defaultExtension: 'js'
-      },
-      '@angular/platform-browser-dynamic': {
-        main: 'index.js',
-        defaultExtension: 'js'
-      },
-      '@angular/router': {
-        main: 'index.js',
-        defaultExtension: 'js'
-      },
-      'rxjs': {
-        defaultExtension: 'js'
+      packages: {
+          '@angular/core': {
+              main: 'index.js',
+              defaultExtension: 'js'
+          },
+          '@angular/compiler': {
+              main: 'index.js',
+              defaultExtension: 'js'
+          },
+          '@angular/common': {
+              main: 'index.js',
+              defaultExtension: 'js'
+          },
+          '@angular/http': {
+              main: 'index.js',
+              defaultExtension: 'js'
+          },
+          '@angular/platform-browser': {
+              main: 'index.js',
+              defaultExtension: 'js'
+          },
+          '@angular/platform-browser-dynamic': {
+              main: 'index.js',
+              defaultExtension: 'js'
+          },
+          '@angular/router': {
+              main: 'index.js',
+              defaultExtension: 'js'
+          },
+          'rxjs': {
+              defaultExtension: 'js'
+          },
+          'angular2-highcharts': {
+              main: 'index',
+              format: 'cjs',
+              defaultExtension: 'js',
+          }
       }
-    }
   };
 
   /**

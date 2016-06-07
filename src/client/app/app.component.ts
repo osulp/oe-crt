@@ -17,7 +17,7 @@ import { MyPinsComponent } from './+mypins/index';
     moduleId: module.id,
     selector: 'sd-app',
     viewProviders: [HTTP_PROVIDERS],
-    templateUrl: 'app.component.html',    
+    templateUrl: 'app.component.html',
     directives: [ROUTER_DIRECTIVES]
 })
     @Routes([
@@ -43,3 +43,4 @@ import { MyPinsComponent } from './+mypins/index';
         }
 ])
 export class AppComponent { }
+

@@ -21,7 +21,7 @@ var HomeComponent = (function () {
             selector: 'home',
             templateUrl: 'home.component.html',
             styleUrls: ['home.component.css'],
-            directives: [find_wrapper_component_1.FindWrapperCmp, featured_collections_component_1.FeaturedCollectionsCmp, featured_data_component_1.FeaturedDataCmp, sponsors_component_1.SponsorsCmp]
+            directives: [find_wrapper_component_1.FindWrapperComponent, featured_collections_component_1.FeaturedCollectionsComponent, featured_data_component_1.FeaturedDataComponent, sponsors_component_1.SponsorsComponent]
         }), 
         __metadata('design:paramtypes', [])
     ], HomeComponent);

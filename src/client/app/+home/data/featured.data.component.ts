@@ -6,4 +6,4 @@ import {Component} from '@angular/core';
     templateUrl: 'featured.data.component.html',
     styleUrls: ['featured.data.component.css']
 })
-export class FeaturedDataCmp {}
+export class FeaturedDataComponent {}

@@ -4,8 +4,8 @@ import {JSONP_PROVIDERS}  from '@angular/http';
 import {Router} from '@angular/router';
 import {SearchTopicsPlacesService} from '../../../shared/services/search-topics-places/search.service';
 import {Observable} from 'rxjs/Observable';
-import {SearchResult} from '../../../shared/data_models/search-result';
-import {HelperFunctions} from '../../../shared/utilities/helper-functions';
+import {SearchResult} from '../../../shared/data_models/index';
+import {HelperFunctions} from '../../../shared/utilities/index';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
@@ -21,7 +21,7 @@ import 'rxjs/add/operator/share';
     directives: [CORE_DIRECTIVES, NgClass]
 })
 
-export class SearchCmp {
+export class SearchComponent {
     @Input() viewType: any;
     @Output() selSearchResultEvt = new EventEmitter();
     term = new Control();

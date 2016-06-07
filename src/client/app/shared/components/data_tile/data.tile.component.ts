@@ -6,9 +6,9 @@ import {Router} from '@angular/router';
 import {CHART_DIRECTIVES, Highcharts} from 'angular2-highcharts';
 import * as Highchmap from 'highcharts/modules/map';
 import * as HighchartsMore from 'highcharts/highcharts-more';
-import * as $jq from 'jquery';
+//import * as $jq from 'jquery';
 import {Subscription}   from 'rxjs/Subscription';
-import {HmapMenu} from './hmap-menu/hmap.menu.component';
+import {HmapMenuComponent} from './hmap-menu/hmap.menu.component';
 import {Year, CommunityData, SearchResult} from '../../data_models/index';
 import {IndicatorDescService, SelectedDataService, DataService, SelectedPlacesService, GeoJSONStoreService, GetGeoJSONService, PlaceTypeService} from '../../services/index';
 //import {DataService} from '../../services/data/data.service';
@@ -17,9 +17,8 @@ import {IndicatorDescService, SelectedDataService, DataService, SelectedPlacesSe
 //import {GeoJSONStoreService} from '../../services/geojson/geojson_store.service';
 //import {GetGeoJSONService} from '../../services/geojson/geojson.service';
 //import {PlaceTypeService} from '../../services/place-types/place-types.service';
-
-declare var jQuery: any;
-
+//import $jq = require('jquery');
+export const JQUERY: JQueryStatic = <JQueryStatic>$.noConflict();
 
 Highcharts.setOptions({
     colors: ['#058DC7', '#50B432', '#ED561B']
@@ -50,12 +49,12 @@ interface Chart {
     selector: 'data-tile',
     templateUrl: 'data.tile.component.html',
     styleUrls: ['data.tile.component.css'],
-    directives: [CHART_DIRECTIVES, HmapMenu],
+    directives: [CHART_DIRECTIVES, HmapMenuComponent],
     providers: [JSONP_PROVIDERS, DataService, IndicatorDescService, GeoJSONStoreService, GetGeoJSONService, SelectedDataService, PlaceTypeService]
 })
 
 
-export class DataTileCmp implements OnInit, OnDestroy {
+export class DataTileComponent implements OnInit, OnDestroy {
     @Input() indicator: any;//Just name pull rest of info from desc service
     @Input() tileType: any;//map/graph/table
     @Input() viewType: any;//basic/advanced

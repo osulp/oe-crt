@@ -1,0 +1,256 @@
+#topics-row-wrapper{
+    padding-right:0;
+    padding-left:0;
+    margin-top:-30px;
+}
+
+    #topics-row-wrapper > div:first-child {
+        margin: 60px 5px 0 0;
+        width: 100%;
+    }
+
+#topics-wrapper{
+    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;    
+    border-radius: 0 0 4px 4px;
+    /*min-height:350px;*/
+    max-width:1170px;
+    margin:0 auto;
+    background-color:white;
+    padding: 20px 25px;
+}
+
+.find_header{
+    height:50px;
+    max-width:1170px;
+    margin: 0 auto;
+    background-color:#244068 !important;
+    color:white;
+    border-radius: 4px 4px 0 0;
+    cursor:pointer;
+}
+.find_header .title{
+    padding-left:20px;
+    float:left;
+    color:white !important;
+}
+.find_header .toggle-topics{
+    float:right;
+    margin:10px; 
+    height:30px;
+    width:30px;
+    background-color:rgba(255,255,255,.30);
+    border-radius:4px;
+    padding:4px;
+}
+
+.toggle-topics .glyphicon{
+    padding:4px;
+}
+
+.find_header .explore-more div{
+    display:inline-block;
+}
+
+.find_header .explore-more div:first-child {
+    font-size:1em;
+    font-weight:100;
+    position:relative;
+    top:-3px;
+    padding-right:3px;
+    color:rgb(221, 232, 250);
+}
+
+#topic-col-list {
+    -moz-column-width: 200px;
+    -webkit-column-width: 200px;
+    column-width: 200px;
+    -moz-column-gap: 20px;
+    -webkit-column-gap: 20px;
+    -moz-column-rule: 1px solid rgb(221, 232, 250);
+    -webkit-column-rule: 1px solid rgb(221, 232, 250);
+    column-rule: 1px solid rgb(221, 232, 250);
+    column-gap: 20px;
+}
+
+    #topic-col-list div {
+        height: 40px;
+        padding: 10px 10px 10px 16px;
+        border-radius: 4px;
+        margin-bottom:10px;
+        display: inline-block;
+        width: 100%;
+    }
+     #topic-col-list div:hover{
+         border: solid 1px #C34500;
+         cursor:pointer;
+     }
+
+        #topic-col-list div.selected {
+            background-color: #C34500;
+            color: white;
+        }
+
+
+#all-topics{
+    border: solid 1px #C34500;
+}
+
+.multiselect {
+    min-width: 200px;
+    max-width: 50%;
+    margin-left: 25px;
+    position: relative;
+    border-top: 1px solid rgb(221, 232, 250);
+    padding-top:10px;
+}
+.selectBox {
+    position: relative;
+    cursor:pointer;
+}
+    /*.selectBox select {
+        width: 100%;
+        font-weight: bold;
+        height: 40px;
+        background-color: #F3f2ED;
+        color: #d1cdc7;
+        border: 1px solid #d1cdc7;
+        padding: 3px;
+        margin: 0;
+        -webkit-border-radius: 4px;
+        -moz-border-radius: 4px;
+        border-radius: 4px;       
+        display: inline-block;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        cursor: pointer;
+    }*/
+    
+
+/*/* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    /*.selectBox select {padding-right:18px}*/
+}
+
+.topic-header-indicator-filter p{
+    font-size:.9em;
+    font-style:italic;
+    color:#808080;
+}
+.topic-header-indicator-filter p:after{    
+    font-family:'Glyphicons Halflings';
+    font-style:normal;
+    content: '\e259';
+    font-size:14px;
+    color:#C34500; 
+    width:25px;
+    height:25px;
+    margin:20px;
+    background:white;
+    border: solid 1px #C34500;
+    border-radius:4px;
+    padding: 4px 4px 2px 4px;     
+    pointer-events: none;
+}
+
+
+.topic-header-indicator-filter.open p:after{
+    content:"\e260";
+    font-style:normal;
+}
+
+/*.selectBox:after {    
+    font-family:'Glyphicons Halflings';
+    content: '\e259';
+    font-size:16px;
+    color: white;    
+    right: 12px;
+    top: 10px;
+    padding: 0 0 2px;    
+    position: absolute;
+    pointer-events: none;
+}
+.selectBox:before {
+    content:'';
+    right:0; 
+    top:0;
+    width:40px; 
+    height:40px;
+    background:#C34500;
+    position:absolute;
+    pointer-events:none;
+    display:block;
+    border-radius:0 4px 4px 0;
+}
+
+.selectBox.open:after{
+    content:"\e260";
+}*/
+
+/*.overSelect {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}*/
+
+#checkboxes {
+    border: 1px #dadada solid;
+    max-height: 300px;
+    overflow: auto;
+    padding: 0 10px;
+    font-size: .8em;
+    position: absolute;
+    top: 40px;
+    left: 0;
+    z-index: 300;
+    background-color: white;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+}
+#checkboxes input[type=checkbox]{
+    margin:5px;
+}
+    #checkboxes label {
+        display: block;
+        font-weight:100;
+    }
+        #checkboxes label:hover {
+            background-color: #F3F2ED;
+        }
+
+#selectedTopicsIndicators div {
+    padding-right:20px;
+    display:inline-block;
+}
+#selectedTopicsIndicators span:hover{
+    text-decoration:underline;
+    cursor:pointer;
+}
+#selectedTopicsIndicators img {
+    margin-left:5px;
+}
+#selectedTopicsIndicators div.indicatorCount {
+    border-radius:35%;
+    min-width:20px;
+    min-height:20px;
+    border:solid 1px #C34500;    
+    font-size:.8em;
+    display:inline-block;
+    text-align:center;
+    margin-left:5px;
+    padding:0 5px;
+    color:#C34500;
+}
+
+/* Small Devices, Tablets */
+@media only screen and (max-width : 992px) {
+
+    .find_header, #topics-wrapper {
+        margin: 0 auto;
+    }    
+}
+
+@media only screen and (min-width : 1200px) {
+
+}

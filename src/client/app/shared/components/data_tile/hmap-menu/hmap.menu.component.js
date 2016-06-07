@@ -8,22 +8,22 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var HmapMenu = (function () {
-    function HmapMenu() {
+var HmapMenuComponent = (function () {
+    function HmapMenuComponent() {
         this.selMapView = new core_1.EventEmitter();
     }
-    HmapMenu.prototype.mapViewClick = function (evt) {
+    HmapMenuComponent.prototype.mapViewClick = function (evt) {
         console.log(evt.target.value);
         if (evt.target.value !== this._translatedMapView) {
             this.selMapView.emit(evt.target.value);
         }
     };
-    HmapMenu.prototype.ngOnInit = function () {
+    HmapMenuComponent.prototype.ngOnInit = function () {
         console.log('HMAP MENU INPUT VALUE');
         console.log(this.mapView);
         this.mapViews = ['Counties', 'Cities', 'Census Tracts', 'School Districts'];
     };
-    HmapMenu.prototype.ngOnChanges = function (changes) {
+    HmapMenuComponent.prototype.ngOnChanges = function (changes) {
         console.log('Change detected:', changes);
         console.log(changes['mapView'].currentValue);
         if (changes['mapView'].currentValue !== changes['mapView'].previousValue) {
@@ -48,21 +48,21 @@ var HmapMenu = (function () {
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object)
-    ], HmapMenu.prototype, "mapView", void 0);
+    ], HmapMenuComponent.prototype, "mapView", void 0);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', Object)
-    ], HmapMenu.prototype, "selMapView", void 0);
-    HmapMenu = __decorate([
+    ], HmapMenuComponent.prototype, "selMapView", void 0);
+    HmapMenuComponent = __decorate([
         core_1.Component({
             moduleId: module.id,
             selector: 'hmap-menu',
-            templateUrl: './shared/components/data_tile/hmap-menu/hmap-menu.html',
-            styleUrls: ['./shared/components/data_tile/hmap-menu/hmap-menu.css']
+            templateUrl: 'hmap.menu.component.html',
+            styleUrls: ['hmap.menu.component.css']
         }), 
         __metadata('design:paramtypes', [])
-    ], HmapMenu);
-    return HmapMenu;
+    ], HmapMenuComponent);
+    return HmapMenuComponent;
 })();
-exports.HmapMenu = HmapMenu;
+exports.HmapMenuComponent = HmapMenuComponent;
 //# sourceMappingURL=hmap.menu.component.js.map

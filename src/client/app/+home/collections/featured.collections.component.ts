@@ -5,7 +5,7 @@ import {CollectionsService} from '../../shared/services/collections/collections.
 import 'rxjs/add/operator/map';
 
 @Component({
-    moduleId:module.id,
+    moduleId: module.id,
     selector: 'featured-collections',
     templateUrl: 'featured.collections.component.html',
     styleUrls: ['featured.collections.component.css'],
@@ -14,10 +14,10 @@ import 'rxjs/add/operator/map';
 
 
 
-export class FeaturedCollectionsCmp implements OnInit {
-    constructor(private _collectionsService: CollectionsService) { }
-
+export class FeaturedCollectionsComponent implements OnInit {
     items: Observable<string[]>;
+
+    constructor(private _collectionsService: CollectionsService) { }
 
     search(term: string) {
         //this._topicService.search(term).then(items => this.items = items);        

@@ -6,4 +6,4 @@ import {Component} from '@angular/core';
     templateUrl: 'sponsors.component.html',
     styleUrls: ['sponsors.component.css']
 })
-export class SponsorsCmp {}
+export class SponsorsComponent {}
