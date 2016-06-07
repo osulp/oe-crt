@@ -40,18 +40,18 @@ gulp.task('build.e2e', (done: any) =>
 
 // --------------
 // Build prod.
+// removed 'css-lint', because bootstrap fails miserably
 gulp.task('build.prod', (done: any) =>
-  runSequence('clean.prod',
-              'tslint',
-              'css-lint',
-              'build.assets.prod',
-              'build.html_css',
-              'copy.js.prod',
-              'build.js.prod',
-              'build.bundles',
-              'build.bundles.app',
-              'build.index.prod',
-              done));
+    runSequence('clean.prod',
+        'tslint',
+        'build.assets.prod',
+        'build.html_css',
+        'copy.js.prod',
+        'build.js.prod',
+        'build.bundles',
+        'build.bundles.app',
+        'build.index.prod',
+        done));
 
 // --------------
 // Build test.
@@ -115,3 +115,9 @@ gulp.task('test', (done: any) =>
   runSequence('build.test',
               'karma.start',
               done));
+
+// --------------
+// Process Less
+gulp.task('build.less', (done: any) =>
+    runSequence('build.less.prod',
+        done));

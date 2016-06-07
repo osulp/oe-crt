@@ -1,0 +1,16 @@
+#featured-data-wrapper {
+    margin: 63px auto;
+    max-width: 1170px;
+    padding-top: 15px;
+    border-top: solid 1px #D1CDC7;
+}
+
+#featured-data {
+    margin-left:-15px;
+}
+
+@media (max-width:1200px) {
+    #featured-data {
+        margin-left: 0;
+    }
+}

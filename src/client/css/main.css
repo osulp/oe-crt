@@ -1,63 +1,383 @@
-/* Reset */
-html,
-body,
-div {
-  border: 0;
-  margin: 0;
-  padding: 0;
+
+/*#region app */
+/*@font-face {
+	font-family: avenir;
+	src: url('avenir.woff');
+}*/
+
+
+@import url(http://fonts.googleapis.com/css?family=Lato);
+
+@font-face {
+    font-family: AvenirLTCom-Book;   
+    src: url('fonts/AvenirLTCom-Book.ttf') format('truetype'),url('fonts/AvenirLTCom-Book.eot');
 }
 
-/* Box-sizing border-box */
-* {
-  box-sizing: border-box;
+@font-face {
+    font-family: AvenirLTStd-Light;   
+    src: url('fonts/AvenirLTStd-Light.eot'), 
+    url('fonts/AvenirLTStd-Light.otf');
 }
 
-/* Set up a default font and some padding to provide breathing room */
-body {
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-  font-size: 16px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
+body, html {
+    height: 100%;
+    background-color: #EEECE5 !important;
+    background-color: #E9E9E6;
+    font-family: 'Lato', AvenirLTStd-Light, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    /* Body Avenir Light 14: */
+    /*font-family: Avenir-Light;*/
+    font-size: 14px !important;
+    color: #292E31;
+    line-height: 19px;
 }
 
-p {
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  line-height: 20px;
-  margin-bottom: 1em;
-  margin-top: 1em;
+
+
+h1 {
+    font-family: 'Lato', AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-weight: 900;
+    /*font-size:1.85em !important;*/
+    /* H1 Avenir Heavy 26: */
+    /*font-family: Avenir-Heavy;*/
+    font-size: 24px !important;
+    color: #292E31;
+    line-height: 34px;
 }
 
-ul {
-  margin: 10px 0 0 0;
-  padding: 0 0 0 20px;
+h2 {
+    font-family: 'Lato', AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-weight: 900;
+    /*font-size:1.33em !important;*/
+    /* H2 Avenir Heavy 22: */
+    /*font-family: Avenir-Heavy;*/
+    font-size: 22px !important;
+    color: #292E31;
+    line-height: 30px;
+} 
+
+h2.h2-light{
+    font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    color:#ffffff;
+    line-height:20px;
+
 }
 
-li {
-  font-weight: 400;
-  margin-top: 4px;
+h3 {
+    /* H3 Avenir Heavy 20: */
+    /*font-family: Avenir-Heavy;*/
+    font-family: 'Lato', AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 20px;
+    color: #C34500;
+    line-height: 27px;
 }
 
-input {
-  border: 1px solid #106cc8;
-  font-size: 14px;
-  height: 40px;
-  outline: none;
-  padding: 8px;
+a {
+    /* Link Avenir Light 14: */
+    font-family: 'Lato', AvenirLTStd-Light, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 14px !important;
+    color: #C34500 !important;
+    line-height: 19px;
 }
 
-button {
-  background-color: #106cc8;
-  border-style: none;
-  color: rgba(255, 255, 255, 0.87);
-  cursor: pointer;
-  display: inline-block;
-  font-size: 14px;
-  height: 40px;
-  padding: 8px 18px;
-  text-decoration: none;
+    a:hover {
+        /* Link Hover Avenir Li: */
+        font-family: 'Lato', AvenirLTStd-Light, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        font-size: 14px;
+        color: #C34500;
+        line-height: 19px;
+    }
+
+/*#endregion */
+
+
+.ui-slider-wrapper
+{
+    position: relative;
 }
 
-button:hover {
-  background-color: #28739e;
+    .ui-slider-wrapper .ui-slider-horizontal
+    {
+        width: 100%;
+    }
+
+.ui-slider-labels
+{
+    position: absolute;
+    border: 1px solid transparent;
 }
+
+.ui-slider-label-ticks {
+    border: 1px solid transparent;
+    position: absolute;
+    white-space: nowrap;
+    /*-moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    -webkit-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    -moz-transform-origin: 100% 10px;
+    -ms-transform-origin: 100% 10px;
+    -o-transform-origin: 100% 10px;
+    -webkit-transform-origin: 100% 10px;
+    transform-origin: 100% 10px;*/
+}
+
+    .ui-slider-label-ticks span
+    {
+        font-size: .65em;
+        min-width: 1.1em;
+    }
+
+.ui-slider-wrapper.horizontal
+{
+    height: 3.5em;
+}
+
+.horizontal .ui-slider-labels
+{
+    left: 0;
+    right: 0;
+    top: .7em;
+}
+
+.horizontal .ui-slider-label-ticks
+{
+    width: 1.2em;
+    height: .8em;
+    text-align: center;
+    border-left: 1px solid #999;
+}
+
+    .horizontal .ui-slider-label-ticks span
+    {
+        position: relative;
+        display: inline-block;
+        margin-left: -1.2em;
+        top: .8em;
+    }
+
+.ui-slider-wrapper.vertical
+{
+    width: 4.5em;
+}
+
+.vertical .ui-slider-labels
+{
+    top: 1px;
+    bottom: 0;
+    left: .7em;
+}
+
+.vertical .ui-slider-label-ticks
+{
+    height: 1.2em;
+    width: .8em;
+    border-bottom: 1px solid #999;
+}
+
+    .vertical .ui-slider-label-ticks span {
+        position: relative;
+        display: inline-block;
+        margin-left: 1em;
+        top: .6em;
+    }       
+
+/*.ui-state-default .ui-icon
+{
+    background-image:url('../css/ui-lightness/images/ui-icons_888888_256x240.png') !important;
+}*/
+
+#dateSlider span.ui-slider-handle {
+    background: none !important;
+    background-color: #C34500 !important;
+    width:2em;
+    height:2em;
+    top:-.7em;
+    border:none;
+}
+
+
+/*All screens sizes*/
+#main_content {    
+    background-color: white;
+    height: auto;    
+    padding:0;
+}
+
+home, explore, about, collections {
+    background-color: #F6F6F5;
+}
+
+search {
+    text-align:center;
+}
+
+.page_wrapper {
+    background-color: #F6F6F5;
+    padding:0;
+    margin:4px 0 0 0;   
+}
+
+home .page_wrapper{
+    margin:0;
+}
+        
+
+.row-centered{
+    text-align:center;
+}
+
+.col-centered{
+    display:inline-block;
+    float:none;
+    text-align:left;
+    margin-right:-4px;
+}
+
+.navbar-toggle.collapsed .icon-bar {
+    background-color: #AEB2BD;
+    height: 3px;
+}
+
+.navbar-toggle.collapsed {
+    border: 1px solid #AEB2BD;    
+}
+
+.crt-nav {
+    padding: 15px 15px 0 0;
+    margin-bottom: 15px;
+}
+
+a.a-nav {
+    font-weight: bolder;
+    margin-right: 20px;
+    font-size: .9em !important;
+    color: #292E31 !important;
+    font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+a.a-nav.router-link-active{
+    background-color:none !important;
+    text-decoration:underline !important;
+    color: rgba(41,46,49,.50) !important;
+}
+a.a-nav:hover{
+    background-color:none !important;
+    text-decoration:underline !important;
+    color: rgba(41,46,49,.50) !important;
+}
+
+#banner-nav-wrapper {
+    margin:0;
+    box-shadow: 0 4px 2px -2px rgba(0,0,0,0.25);    
+}
+
+.crt-logo {
+        padding: 15px 0 15px 20px;
+    }
+
+        .crt-logo img {
+            margin-top: 0;
+        }
+
+
+
+.footer {
+    vertical-align: middle;   
+    margin: 0 auto;
+    background-color: #EEECE5;
+    color: #C34500;
+}
+
+    .footer div {
+        height: 90px;
+        padding: 35px 0;
+        font-size: 12px;
+        color: #6F7C82;
+        line-height: 20px;
+    }
+
+
+/* Custom, iPhone Retina */
+@media only screen and (min-width : 320px) {
+   
+}
+
+/* Extra Small Devices, Phones */ 
+@media only screen and (min-width : 480px) {
+    .col-xs-0 {
+        display:none;
+    }
+}
+
+/* Small Devices, Tablets */
+@media only screen and (min-width : 768px) {
+
+}
+
+/* Medium Devices, Desktops */
+@media only screen and (min-width : 992px) {
+    .page_wrapper {
+        max-width: 1199px;       
+    }
+    .col-md-0 {
+        display:none;
+    }
+}
+
+/* Large Devices, Wide Screens */
+@media only screen and (min-width : 1200px) {
+
+    #main_content {
+        max-width: 1440px;
+        margin: -20px auto 0 auto;
+    }
+
+    .col-md-0, .col-xs-0 {
+        display:inline;
+    }
+
+    .footer {
+        max-width: 1440px;
+        margin: 0 auto;
+    }
+
+        .footer div:nth-of-type(2) {
+            text-align: right;
+        }
+
+    .page_wrapper {
+        max-width: 1440px;       
+    }
+
+    #banner-nav-wrapper {
+        /*padding: 16px 0 14px 0;
+        text-align: right;
+        width: 100%;
+        margin-bottom: -35px !important;*/
+    }
+
+    .crt-logo {
+        padding: 16px 0 14px 135px;
+    }
+
+
+        .crt-logo img {
+            padding-top: 16px;
+        }
+
+    .crt-nav {    
+        padding-top:31px;
+        padding-right:115px;
+    }
+
+    /*a.a-nav {
+        font-weight: bolder;
+        padding-right: 20px;
+        font-size: .9em !important;
+        color: #292E31;
+        font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    }*/
+}
+

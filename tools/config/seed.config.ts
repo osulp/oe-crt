@@ -312,6 +312,11 @@ export class SeedConfig {
     },
     packages: {
       rxjs: { defaultExtension: false }
+    },
+    map: {
+        'angular2-highcharts': `${this.APP_BASE}node_modules/angular2-highcharts/`,
+        'highcharts/highstock.src': `${this.APP_BASE}node_modules/highcharts/highstock.src.js`,
+        'highcharts/modules/map': `${this.APP_BASE}node_modules/highcharts/modules/map.js`
     }
   };
 

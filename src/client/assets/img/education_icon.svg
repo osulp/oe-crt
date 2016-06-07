@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="22px" height="16px" viewBox="0 0 22 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.5.2 (25235) - http://www.bohemiancoding.com/sketch -->
+    <title>Shape</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="home-rural" sketch:type="MSArtboardGroup" transform="translate(-452.000000, -581.000000)" fill="#C34500">
+            <g id="//-CONTENT-//" sketch:type="MSLayerGroup" transform="translate(0.000000, 80.000000)">
+                <g id="::-topics" transform="translate(135.000000, 225.000000)" sketch:type="MSShapeGroup">
+                    <path d="M338.447,281.105 L328.447,276.105 C328.166,275.964 327.834,275.964 327.552,276.105 L317.552,281.105 C317.351,281.205 317.198,281.378 317.107,281.568 C317.047,281.69 317,281.898 317,282 L317,287.765 C317,288.316 317.448,288.765 318,288.765 C318.552,288.765 319,288.316 319,287.765 L319,283.478 L321,284.278 L321,289.181 C321,289.56 321.214,289.906 321.553,290.076 C323.272,290.935 325.039,291.995 328,291.995 C330.961,291.995 332.729,290.934 334.447,290.076 C334.786,289.905 335,289.56 335,289.181 L335,284.278 L338.372,282.929 C338.737,282.783 338.983,282.436 338.999,282.042 C339.016,281.648 338.799,281.283 338.447,281.105 L338.447,281.105 Z M333,288.563 L332.025,289.05 C329.504,290.311 326.495,290.311 323.975,289.05 L323,288.563 L323,285.078 L327.628,286.93 C327.748,286.978 327.874,287 328,287 C328.126,287 328.252,286.978 328.372,286.929 L333,285.077 L333,288.563 L333,288.563 Z M328,284.923 L320.439,281.898 L328,278.119 L335.561,281.898 L328,284.923 L328,284.923 Z" id="Shape"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

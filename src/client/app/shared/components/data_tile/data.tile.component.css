@@ -1,0 +1,92 @@
+#data-tile-wrapper {
+    height: 350px;
+    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
+    border-radius: 0 0 4px 4px;
+    background-color: white;
+    padding:15px;
+    position:relative
+}
+#data-tile-wrapper.advanced{
+    height:680px;    
+}
+
+#view-data, #slider_wrapper{
+    background-color:#E7E7EB;
+    height:40px;
+    text-align:center;
+    vertical-align:middle;
+    cursor:pointer;
+    position:absolute;
+    bottom:0;
+    color:#6F7C82;
+    padding-top:10px;
+    margin-left:-15px;
+}
+    #view-data:hover {
+        background-color: #244068;
+        color:white;
+        text-decoration:underline;
+    }
+
+#chart-div{
+    position:relative;
+}
+.graph {
+    height: 310px;
+    width: 100%;
+    position: absolute;
+}
+
+#map-wrapper {
+    position:relative;
+}
+
+#data-tile-wrapper.advanced .graph{
+    height: 600px;
+}
+
+/*#slider_wrapper:before{
+    clear:both;
+}*/
+#slider_wrapper
+{      
+    height:60px;
+    padding: 20px 40px 10px 65px;
+    width: 100%;
+}
+
+#dateSlider
+{
+    display: inline-block;
+    font-size: .8em;    
+}
+    
+/*#play_wrapper
+{
+    float: left;
+    margin: -8px 0 10px -45px;
+}*/
+
+    #play_wrapper button {
+        color:#C34500;
+        border-color:#C34500;
+        position:absolute;
+        top:15px;
+        left:15px;
+    }
+/*#play
+{
+    display: none;
+    background: #e6e6e6 url("") 50% 50% repeat-x;
+}*/
+
+#mapchart {
+    position:relative;
+}
+
+#map-view-wrapper{
+    position:absolute;
+    right:0;
+    top:0;
+    z-index:10;
+}

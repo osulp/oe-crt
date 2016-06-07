@@ -39,7 +39,7 @@ export class NameListService {
       return Observable.from([this.names]);
     }
     if (!this.request) {
-      this.request = this.http.get('/assets/data.json')
+      this.request = this.http.get('./assets/data.json')
         .map((response: Response) => response.json())
         .map((data: string[]) => {
           this.request = null;
