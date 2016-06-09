@@ -4,8 +4,8 @@ import { HTTP_PROVIDERS} from '@angular/http';
 
 import { AboutComponent } from './+about/index';
 import { CollectionsComponent } from './+collections/index';
-import { ExploreComponent } from './+explore/index';
-import { HomeComponent } from './+home/index';
+import { ExploreComponent } from './+explore/explore.component';
+import { HomeComponent } from './+home/home.component';
 import { MyPinsComponent } from './+mypins/index';
 //import { d } from './shared/index';
 

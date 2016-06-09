@@ -131,7 +131,7 @@
     .back-btn:after {
         font-family: 'Glyphicons Halflings';
         font-style: normal;
-        content: '\e257';
+        content: '\\e257';
         font-size: 14px;
         color: white;
         width: 30px;

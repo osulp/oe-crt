@@ -8,7 +8,7 @@ let initialState: Indicator[] = [];
 
 @Injectable()
 export class SelectedIndicatorsService {
-    selectionChanged$: ReplaySubject<any[]> = new ReplaySubject(1);
+    selectionChanged$: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
     updates: Subject<any> = new Subject<any>();
     loadIndicators: Subject<any> = new Subject<any>();
     //toggleIndicator: Subject<[Indicator, boolean]> = new Subject<[Indicator, boolean]>();

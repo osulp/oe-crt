@@ -1,24 +1,15 @@
-﻿/// <reference path="../../../../../../tools/manual_typings/project/jquery/index.d.ts" />
-
-import {Component, Input, OnInit, ElementRef, Inject, OnDestroy} from '@angular/core';
+﻿import {Component, Input, OnInit, ElementRef, Inject, OnDestroy} from '@angular/core';
 import {JSONP_PROVIDERS}  from '@angular/http';
 import {Router} from '@angular/router';
 import {CHART_DIRECTIVES, Highcharts} from 'angular2-highcharts';
 import * as Highchmap from 'highcharts/modules/map';
 import * as HighchartsMore from 'highcharts/highcharts-more';
-//import * as $jq from 'jquery';
 import {Subscription}   from 'rxjs/Subscription';
 import {HmapMenuComponent} from './hmap-menu/hmap.menu.component';
 import {Year, CommunityData, SearchResult} from '../../data_models/index';
-import {IndicatorDescService, SelectedDataService, DataService, SelectedPlacesService, GeoJSONStoreService, GetGeoJSONService, PlaceTypeService} from '../../services/index';
-//import {DataService} from '../../services/data/data.service';
-//import {SelectedPlacesService} from '../../services/index';
-//import {SelectedDataService} from '../../services/data/selected-data.service';
-//import {GeoJSONStoreService} from '../../services/geojson/geojson_store.service';
-//import {GetGeoJSONService} from '../../services/geojson/geojson.service';
-//import {PlaceTypeService} from '../../services/place-types/place-types.service';
-//import $jq = require('jquery');
-export const JQUERY: JQueryStatic = <JQueryStatic>$.noConflict();
+import {SelectedDataService, DataService, GeoJSONStoreService, GetGeoJSONService, PlaceTypeService, SelectedPlacesService} from '../../services/index';
+
+declare var $: any;
 
 Highcharts.setOptions({
     colors: ['#058DC7', '#50B432', '#ED561B']
@@ -50,7 +41,7 @@ interface Chart {
     templateUrl: 'data.tile.component.html',
     styleUrls: ['data.tile.component.css'],
     directives: [CHART_DIRECTIVES, HmapMenuComponent],
-    providers: [JSONP_PROVIDERS, DataService, IndicatorDescService, GeoJSONStoreService, GetGeoJSONService, SelectedDataService, PlaceTypeService]
+    providers: [JSONP_PROVIDERS, DataService, GeoJSONStoreService, GetGeoJSONService, SelectedDataService, PlaceTypeService]
 })
 
 
@@ -126,10 +117,10 @@ export class DataTileComponent implements OnInit, OnDestroy {
             }
         },
         legend: {
-            width: this.isHandheld ? $jq(window).width() - 40 : 400,
-            itemWidth: this.isHandheld ? $jq(window).width() - 40 : 200,
+            //width: '75%',// this.isHandheld ? $(window).width() - 40 : 400,
+            //itemWidth: this.isHandheld ? $(window).width() - 40 : 200,
             itemStyle: {
-                width: this.isHandheld ? $jq(window).width() - 60 : 180,
+                //width: this.isHandheld ? $(window).width() - 60 : 180,
                 color: '#4d4d4d'
             },
             title: {
@@ -162,7 +153,6 @@ export class DataTileComponent implements OnInit, OnDestroy {
         @Inject(ElementRef) elementRef: ElementRef,
         private _dataService: DataService,
         private _selectedPlacesService: SelectedPlacesService,
-        private _indicatorDescService: IndicatorDescService,
         private _router: Router,
         private _geoStore: GeoJSONStoreService,
         private _geoService: GetGeoJSONService,
@@ -215,11 +205,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 shadow: false
             },
         };
-        this.dataStore = {};
-        this.dataStore.Counties = {};
-        this.dataStore.Places = {};
-        this.dataStore.Tracts = {};
-        this.dataStore.Boundary = {};
+        this.dataStore = {
+            Counties: {},
+            Places: {},
+            Tracts: {},
+            Boundary: {}
+        };
     }
 
     saveInstance(chartInstance: any) {
@@ -228,7 +219,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
         //2. Subscribe to changes in place selection and indicator selection?
         //3. On place change lookup geo layer to see if it needs to be added
         //4. Subscribe to chanes in geolayers to access geojson for layers
-        //5. On getdata for indicator/place grab geojson and update map/chart     
+        //5. On getdata for indicator/place grab geojson and update map/chart  
+        console.log('saving chart instance');
         if (this.tileType === 'graph') {
             this.chart = chartInstance;
         } else {
@@ -295,11 +287,14 @@ export class DataTileComponent implements OnInit, OnDestroy {
         this.placeNames = '';
         //check if repeated event with same places       
         if (this.tempPlaces.length !== this.places.length) {
+            console.log('temp place not the same as place length, adding ...');
             for (var x = 0; x < this.places.length; x++) {
+                console.log('place: ', this.places[x]);
                 //set selected place type based on new addition place type
                 if (this.tempPlaces.indexOf(this.places[x]) === -1) {
                     //is the new addition
                     this.selectedPlaceType = this.translatePlaceTypes(this.places[x].TypeCategory);
+                    console.log('selectedPlaceType set:', this.selectedPlaceType);
                 }
                 this.tempPlaces.push(this.places[x]);
                 //used for goto details link creation
@@ -317,7 +312,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         //console.log(this.placeTypeData);
         let loadMoreData = this.tileType === 'graph' ? true : this.checkUpdateData();
         if (!loadingGeoJSON && loadMoreData) {
-            console.log('need to load data');
+            console.log('need to load data.  chart type: ', this.tileType);
             this.getData();
         } else if (!loadingGeoJSON) {
             console.log('NEED TO UPDATE MAP/CHART');
@@ -447,6 +442,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         let mapData = { layerId: data[0].layerType, features: data };
                         this._geoStore.add(mapData);
                         this.updateDataStore(mapData, 'mapData');
+                        console.log('got geojson, updated data store and checking place type to get indicator data');
+                        console.log(this.selectedPlaceType, data);
                         if (this.selectedPlaceType === data[0].layerType) {
                             //if (data[0].layerType !== 'State' && data[0].layerType !== 'Boundary') {
                             this.getData();
@@ -487,26 +484,27 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 console.log(this.dataStore[this.translatePlaceTypes(this.places[p].TypeCategory)]);
                 if (this.dataStore[this.translatePlaceTypes(this.places[p].TypeCategory)] !== undefined) {
                     console.log('not undefined yet', this.dataStore[this.translatePlaceTypes(this.places[p].TypeCategory)]);
-                    if (this.dataStore[this.translatePlaceTypes(this.places[p].TypeCategory)].indicatorData === undefined) {
+                    if (this.dataStore[this.translatePlaceTypes(this.places[p].TypeCategory)].indicatorData[this.indicator] === undefined) {
                         console.log('now it is undefined', placeTypes.indexOf(this.places[p].TypeCategory) === -1 ? this.places[p].TypeCategory : '');
                         placeTypes += placeTypes.indexOf(this.places[p].TypeCategory) === -1 ? this.places[p].TypeCategory : '';
                         placeTypes += p === this.places.length - 1 ? '' : ',';
                     }
                 }
             }
+
             if (placeTypes === '' || placeTypes === 'State,') {
                 console.log('rimraf');
-                if (this.dataStore[this.selectedPlaceType] !== undefined) {
-                    if (this.dataStore[this.selectedPlaceType].indicatorData === undefined) {
-                        placeTypes += this.selectedPlaceType === 'Counties' ? 'County' : this.selectedPlaceType;
-                    }
+                //if (this.dataStore[this.selectedPlaceType] !== undefined) {
+                if (this.dataStore[this.selectedPlaceType].indicatorData[this.indicator] === undefined) {
+                    placeTypes += this.selectedPlaceType === 'Counties' ? 'County' : this.selectedPlaceType;
+                    //  }
                 } else {
                     placeTypes += this.selectedPlaceType === 'Counties' ? 'County' : this.selectedPlaceType;
                 }
             }
             console.log('GET DATA HOT DIGIDIGDIGIDGIG I');
             console.log(placeTypes);
-            if (placeTypes === 'State') {
+            if (placeTypes === 'State' || placeTypes === '') {
                 placeTypes = 'County,State';
             }
             this._dataService.getAllbyGeoType(placeTypes, this.indicator).subscribe(
@@ -610,14 +608,26 @@ export class DataTileComponent implements OnInit, OnDestroy {
         //identify what type of data and add to proper place type object
         console.log('SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS');
         console.log(data);
+        console.log(dataType);
         if (dataType === 'indicator') {
             for (var d = 0; d < data.length; d++) {
                 let indicatorData: any = {};
                 indicatorData[this.indicator] = { crt_db: data[d] };
                 if (this.tileType === 'map') {
-                    if (this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData === undefined) {
-                        console.log(data[d].GeoTypes[0].geoType);
+                    //console.log('problem data', data[d]);
+                    if (this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData[this.indicator] === undefined) {
+                        //console.log(data[d].GeoTypes[0].geoType);
+                        //let chart_data = {};
+                        //let add_back_chart_data = false;
+                        //if (this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData[this.indicator].chart_data !== undefined) {
+                        //    chart_data = this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData[this.indicator].chart_data;
+                        //    add_back_chart_data = true;
+                        //}
                         this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData = indicatorData;
+                        //if (add_back_chart_data) {
+                        //    this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData[this.indicator].chart_data = chart_data;
+                        //}
+                        //console.log('AFTER ADDING INDICATOR DATA FOR PLACETYPE', this.dataStore);
                     }
                 } else {
                     this.dataStore.indicatorData = indicatorData;
@@ -748,7 +758,6 @@ export class DataTileComponent implements OnInit, OnDestroy {
         //set tooltip display
         this.mapChart.tooltip.options.formatter = function () {
             var displayValue = mapScope.formatValue(this.point.value, false) + '</b>';
-            console.log('tooltip happening:', this.point.value);
             if (this.point.value === undefined) {
                 return '<span>' + this.point.properties.name + ' County</span><br/><span style="font-size: 10px">Not Available or Insufficient Data</span>';
             } else {
@@ -966,7 +975,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     checkScreenSize() {
-        if ($jq(window).width() < 481) {
+        if ($(window).width() < 481) {
             this.isHandheld = true;
         }
     }
@@ -1138,7 +1147,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 } else {
                     year_data_moe.push(null);
                 }
-                year_data.push($jq.isNumeric(pData[_year]) ? parseFloat(pData[_year]) : null);
+                year_data.push($.isNumeric(pData[_year]) ? parseFloat(pData[_year]) : null);
                 prevYear = _year;
             }
             place_data_years[pData.community] = {
@@ -1258,9 +1267,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
         console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
         let chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
         //need to combine data with moes to get proper min/ max
-        var pdy = $jq.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
-        $jq.each(pdy, function () {
-            var arr = $jq.grep(this.data, function (n: any) { return (n); });//removes nulls
+        var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
+        $.each(pdy, function () {
+            var arr = $.grep(this.data, function (n: any) { return (n); });//removes nulls
             if (chartType && arr.length !== this.data.length) {
                 notLogrithmic = true;
             }
@@ -1280,9 +1289,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
     getMaxData(isMap: boolean) {
         var max: any = 0;
         let chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
-        var pdy = $jq.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
-        $jq.each(pdy, function () {
-            var arr = $jq.grep(this.data, function (n: any) { return (n); });//removes nulls           
+        var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
+        $.each(pdy, function () {
+            var arr = $.grep(this.data, function (n: any) { return (n); });//removes nulls           
             var PlaceMax = isMap ? arr.sort(function (a: any, b: any) { return b - a; })[0] : this.hasMOEs ? arr.sort(function (a: any, b: any) {
                 return b[1] - a[1];
             })[0] : null;
@@ -1345,6 +1354,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     pluralize(value: string) {
         switch (value) {
             case 'County':
+                case '':
                 return 'Counties';
             case 'Census Tract':
                 return 'Census Tracts';
@@ -1380,7 +1390,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         window.scrollTo(0, 0);
     }
 
-    onTimeSliderChange(evt:any) {
+    onTimeSliderChange(evt: any) {
         console.log('well hot digity dog');
     }
 
@@ -1394,15 +1404,11 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.defaultChartOptions.title = { text: this.indicator };
-        this._indicatorDescService.getIndicator(this.indicator).subscribe(
-            (data: any) => {
-                console.log('got indicator description');
-                //console.log(data);                
-            });
         if (this.tileType === 'map') {
             for (var pt in this.dataStore) {
-                pt.indicatorData = {};
-                pt.mapData = {};
+                console.log('place type in data store', pt, this.dataStore);
+                this.dataStore[pt].indicatorData = {};
+                this.dataStore[pt].mapData = {};
             }
         }
     }

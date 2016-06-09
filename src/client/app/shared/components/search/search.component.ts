@@ -27,8 +27,8 @@ export class SearchComponent {
     term = new Control();
     searchTerms: string;
     selectedSearchResult: SearchResult;
-    tempResults: [{}];
-    items: Observable<[{}]>;
+    tempResults: any[];
+    items: Observable<any[]>;
 
     constructor(private _searchService: SearchTopicsPlacesService, public _helperFuncs: HelperFunctions,
         private _router: Router) {

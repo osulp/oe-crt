@@ -6,23 +6,28 @@ import {Indicator, Topic} from '../../../shared/data_models/index';
 })
 
 export class IndicatorTopicFilterPipe implements PipeTransform {
-    transform(indicators: Indicator[], topics: [Topic[]]): any {
-        if (indicators !== undefined) {
+    transform(indicators: Indicator[], topics: Topic[]): any {
+        //if (indicators !== undefined) {
             let selectedTopics: any = [];
-            if (topics[0] !== undefined) {
-                for (var x = 0; x < topics[0].length; x++) {
-                    if (topics[0][x].selected) {
-                        selectedTopics.push(topics[0][x].topic);
+            console.log(topics);
+            if (topics !== undefined) {
+                for (var x = 0; x < topics.length; x++) {
+                    if (topics[x].selected) {
+                        selectedTopics.push(topics[x].topic);
                     }
                 }
             }
+            console.log('selected topics', selectedTopics);
             if (selectedTopics.length > 0) {
-                return indicators.filter(indicator => selectedTopics.indexOf(indicator.topics) !== -1);
+                let filteredIndicators = indicators.filter(indicator => selectedTopics.indexOf(indicator.topics) !== -1);
+                console.log('filtered indicators', filteredIndicators);
+                return filteredIndicators;
             } else {
+                console.log('shouldnt be here');
                 return indicators;
             }
-        }
-        return indicators;
+        //}
+        //return indicators;
     }
 }
 

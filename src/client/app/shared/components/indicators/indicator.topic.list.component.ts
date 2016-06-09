@@ -49,6 +49,7 @@ export class IndicatorsTopicListComponent implements OnInit {
     }
 
     ngOnInit() {
+        console.log('this is the input topics for checkbox display', this.inputTopics);
         this.selTopics = this.inputTopics;
         //console.log(this.inputTopics);
         //if (this.topic !== undefined) {

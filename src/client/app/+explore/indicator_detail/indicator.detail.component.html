@@ -83,7 +83,7 @@
                 </div>
                 <div class="col-xs-12" id="indicator-info-content">
                     <div *ngIf="indInfo === 'desc'">
-                        <div *ngFor="#id of indicatorDesc">
+                        <div *ngFor="let id of indicatorDesc">
                             <div>
                                 <span>Description:</span>
                                 <span>{{id.Description_v4}}</span>
@@ -95,12 +95,12 @@
                         </div>
                     </div>
                     <div *ngIf="indInfo === 'src'">
-                        <div *ngFor="#id of indicatorDesc">
+                        <div *ngFor="let id of indicatorDesc">
                             {{id.Source}}
                         </div>
                     </div>
                     <div *ngIf="indInfo === 'other'">
-                        <div *ngFor="#id of indicatorDesc">
+                        <div *ngFor="let id of indicatorDesc">
                             {{id.Other}}
                         </div>
                     </div>

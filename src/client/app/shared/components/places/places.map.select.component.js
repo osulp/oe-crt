@@ -146,6 +146,7 @@ var PlacesMapSelectComponent = (function () {
         }
     };
     PlacesMapSelectComponent.prototype.onSelectedPlacesChanged = function (places) {
+        console.log('this one gets it', places);
         this.selectedSearchResults = [];
         var uniquePlaces = places.filter(function (place, index, self) { return self.findIndex(function (t) { return t.ResID === place.ResID && t.Name === place.Name; }) === index; });
         for (var _i = 0; _i < uniquePlaces.length; _i++) {
@@ -181,16 +182,24 @@ var PlacesMapSelectComponent = (function () {
         __metadata('design:type', Object)
     ], PlacesMapSelectComponent.prototype, "selectedPlaces", void 0);
     __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Boolean)
+    ], PlacesMapSelectComponent.prototype, "isVisible", void 0);
+    __decorate([
         core_1.Output(), 
         __metadata('design:type', Object)
     ], PlacesMapSelectComponent.prototype, "selPlacesEvt", void 0);
+    __decorate([
+        core_1.ViewChild(map_leaflet_component_1.MapLeafletComponent), 
+        __metadata('design:type', map_leaflet_component_1.MapLeafletComponent)
+    ], PlacesMapSelectComponent.prototype, "leafletMap", void 0);
     PlacesMapSelectComponent = __decorate([
         core_1.Component({
             moduleId: module.id,
             selector: 'places-map-select',
             templateUrl: 'places.map.select.component.html',
             styleUrls: ['places.map.select.component.css'],
-            providers: [http_1.JSONP_PROVIDERS, index_1.SearchPlacesService, index_1.SelectedPlacesService],
+            providers: [http_1.JSONP_PROVIDERS, index_1.SearchPlacesService],
             directives: [common_1.CORE_DIRECTIVES, map_leaflet_component_1.MapLeafletComponent]
         }), 
         __metadata('design:paramtypes', [index_1.SearchPlacesService, index_1.SelectedPlacesService])

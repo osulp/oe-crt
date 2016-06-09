@@ -1,10 +1,10 @@
 import { Component, OnInit} from '@angular/core';
-import {Router, RouteSegment} from '@angular/router';
+import {Router, ROUTER_DIRECTIVES, RouteSegment, RouteTree, OnActivate} from '@angular/router';
 import {Subscription}   from 'rxjs/Subscription';
 import {TopicsComponent} from './topics/topics.select.component';
 import {PlacesWrapperComponent} from './places_wrapper/places.wrapper.component';
-//import {DataComponent} from './data/data.wrapper.component';
-//import {DetailComponent} from './indicator_detail/indicator.detail.component';
+import {DataComponent} from './data/data.wrapper.component';
+import {DetailComponent} from './indicator_detail/indicator.detail.component';
 import {SearchComponent} from '../shared/components/index';
 import {SearchResult, Topic, Indicator} from '../shared/data_models/index';
 import {SelectedPlacesService} from '../shared/services/index';
@@ -18,15 +18,15 @@ interface QueryStringParams {
  * This class represents the lazy loaded ExploreComponent.
  */
 @Component({
-  moduleId: module.id,
-  selector: 'explore',
-  templateUrl: 'explore.component.html',
-  styleUrls: ['explore.component.css'],
-  directives: [SearchComponent, TopicsComponent, PlacesWrapperComponent],
-  providers: [SelectedPlacesService]
+    moduleId: module.id,
+    selector: 'explore',
+    templateUrl: 'explore.component.html',
+    styleUrls: ['explore.component.css'],
+    directives: [SearchComponent, TopicsComponent, PlacesWrapperComponent, DataComponent, DetailComponent, ROUTER_DIRECTIVES],
+    providers: [SelectedPlacesService]
 })
 
-export class ExploreComponent implements OnInit {
+export class ExploreComponent implements OnInit, OnActivate {
     selectedTopics: any;
     selectedIndicators: any;
     selectedIndicator: any;
@@ -42,16 +42,26 @@ export class ExploreComponent implements OnInit {
         public _selectedPlacesService: SelectedPlacesService,
         private _router: Router,
         private routeParams: RouteSegment) {
-        this.selectedTopics = routeParams.getParam('topics');
-        this.selectedPlaces = routeParams.getParam('places');
+        //this._routeParams = routeParams;  
+        console.log(window.location);
+        //this.selectedTopics = routeParams.getParam('topics');
+        this.selectedTopics = this.getParameterByName('topics');
+        console.log('topics', this.selectedTopics);
+        //this.selectedPlaces = routeParams.getParam('places');
+        this.selectedTopics = this.getParameterByName('places');
         this.selectedIndicators = routeParams.getParam('indicators');
-        //not including special characters ( , '
         this.selectedIndicator = routeParams.getParam('indicator');
         this.initialIndicator = true;
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== undefined ? true : false;
-        console.log(this.indicatorDetailView);
-        console.log(this.selectedIndicator);
-        console.log(routeParams.getParam('indicator') + ' received on load of explore Component');
+        console.log('selected topics', this.selectedTopics);
+        console.log('selected places', this.selectedPlaces);
+        //console.log(routeParams.getParam('indicator') + ' received on load of explore Component');
+    }
+
+    routerOnActivate(curr: RouteSegment, prev?: RouteSegment,
+        currTree?: RouteTree, prevTree?: RouteTree): void {
+        let myparam = curr.getParam('topics');
+        console.log('myparam test', myparam);
     }
 
     //emitted from search component
@@ -59,9 +69,9 @@ export class ExploreComponent implements OnInit {
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
-                this._router.navigate(['Explore', { indicator: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
+                this._router.navigate(['/Explore', { indicator: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
             } else {
-                this._router.navigate(['Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
+                this._router.navigate(['/Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
             }
         }
     }
@@ -106,6 +116,7 @@ export class ExploreComponent implements OnInit {
     }
 
     onPlacesChanged(selectedPlaces: SearchResult[]) {
+        console.log('place added via explore comp', selectedPlaces);
         var qsParams: QueryStringParams[] = [];
         var places: string = '';
         for (var x = 0; x < selectedPlaces.length; x++) {
@@ -129,8 +140,13 @@ export class ExploreComponent implements OnInit {
     //    this.selectedPlaces = results;
     //}
 
+    getParameterByName(name:any) {
+        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+        return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+    }
+
     updateQueryStringParam(qsParams: QueryStringParams[]) {
-        var baseUrl = [location.protocol, '//', location.host, location.pathname].join('');
+        var baseUrl = [location.protocol, '//', location.host, location.pathname.replace('/%3C%=%20APP_BASE% 20 %%3E', '')].join('');
         var urlQueryString = document.location.search;
         var allParams: string = '';
         for (var x = 0; x < qsParams.length; x++) {
@@ -167,7 +183,7 @@ export class ExploreComponent implements OnInit {
             err => console.error(err),
             () => console.log('done with subscribe event places selected')
         );
-        this._selectedPlacesService.load();
+        //Sthis._selectedPlacesService
     }
 }
 

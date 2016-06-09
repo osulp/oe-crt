@@ -14,10 +14,10 @@ var IndicatorTopicFilterPipe = (function () {
     IndicatorTopicFilterPipe.prototype.transform = function (indicators, topics) {
         if (indicators !== undefined) {
             var selectedTopics = [];
-            if (topics[0] !== undefined) {
-                for (var x = 0; x < topics[0].length; x++) {
-                    if (topics[0][x].selected) {
-                        selectedTopics.push(topics[0][x].topic);
+            if (topics !== undefined) {
+                for (var x = 0; x < topics.length; x++) {
+                    if (topics[x].selected) {
+                        selectedTopics.push(topics[x].topic);
                     }
                 }
             }

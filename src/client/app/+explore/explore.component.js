@@ -11,6 +11,8 @@ var core_1 = require('@angular/core');
 var router_1 = require('@angular/router');
 var topics_select_component_1 = require('./topics/topics.select.component');
 var places_wrapper_component_1 = require('./places_wrapper/places.wrapper.component');
+var data_wrapper_component_1 = require('./data/data.wrapper.component');
+var indicator_detail_component_1 = require('./indicator_detail/indicator.detail.component');
 var index_1 = require('../shared/components/index');
 var index_2 = require('../shared/services/index');
 var ExploreComponent = (function () {
@@ -19,24 +21,29 @@ var ExploreComponent = (function () {
         this._router = _router;
         this.routeParams = routeParams;
         this.indicatorDetailView = false;
-        this.selectedTopics = routeParams.getParam('topics');
-        this.selectedPlaces = routeParams.getParam('places');
+        console.log(window.location);
+        this.selectedTopics = this.getParameterByName('topics');
+        console.log('topics', this.selectedTopics);
+        this.selectedTopics = this.getParameterByName('places');
         this.selectedIndicators = routeParams.getParam('indicators');
         this.selectedIndicator = routeParams.getParam('indicator');
         this.initialIndicator = true;
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== undefined ? true : false;
-        console.log(this.indicatorDetailView);
-        console.log(this.selectedIndicator);
-        console.log(routeParams.getParam('indicator') + ' received on load of explore Component');
+        console.log('selected topics', this.selectedTopics);
+        console.log('selected places', this.selectedPlaces);
     }
+    ExploreComponent.prototype.routerOnActivate = function (curr, prev, currTree, prevTree) {
+        var myparam = curr.getParam('topics');
+        console.log('myparam test', myparam);
+    };
     ExploreComponent.prototype.onSelectedSearchResult = function (results) {
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
-                this._router.navigate(['Explore', { indicator: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
+                this._router.navigate(['/Explore', { indicator: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
             }
             else {
-                this._router.navigate(['Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
+                this._router.navigate(['/Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
             }
         }
     };
@@ -75,6 +82,7 @@ var ExploreComponent = (function () {
         this.allIndicators = results;
     };
     ExploreComponent.prototype.onPlacesChanged = function (selectedPlaces) {
+        console.log('place added via explore comp', selectedPlaces);
         var qsParams = [];
         var places = '';
         for (var x = 0; x < selectedPlaces.length; x++) {
@@ -88,8 +96,12 @@ var ExploreComponent = (function () {
         var newState = this.updateQueryStringParam(qsParams);
         window.history.pushState({}, '', newState);
     };
+    ExploreComponent.prototype.getParameterByName = function (name) {
+        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+        return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+    };
     ExploreComponent.prototype.updateQueryStringParam = function (qsParams) {
-        var baseUrl = [location.protocol, '//', location.host, location.pathname].join('');
+        var baseUrl = [location.protocol, '//', location.host, location.pathname.replace('/%3C%=%20APP_BASE% 20 %%3E', '')].join('');
         var urlQueryString = document.location.search;
         var allParams = '';
         for (var x = 0; x < qsParams.length; x++) {
@@ -117,7 +129,6 @@ var ExploreComponent = (function () {
             console.log(data);
             _this.onPlacesChanged(data);
         }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
-        this._selectedPlacesService.load();
     };
     ExploreComponent = __decorate([
         core_1.Component({
@@ -125,7 +136,7 @@ var ExploreComponent = (function () {
             selector: 'explore',
             templateUrl: 'explore.component.html',
             styleUrls: ['explore.component.css'],
-            directives: [index_1.SearchComponent, topics_select_component_1.TopicsComponent, places_wrapper_component_1.PlacesWrapperComponent],
+            directives: [index_1.SearchComponent, topics_select_component_1.TopicsComponent, places_wrapper_component_1.PlacesWrapperComponent, data_wrapper_component_1.DataComponent, indicator_detail_component_1.DetailComponent, router_1.ROUTER_DIRECTIVES],
             providers: [index_2.SelectedPlacesService]
         }), 
         __metadata('design:paramtypes', [index_2.SelectedPlacesService, router_1.Router, router_1.RouteSegment])

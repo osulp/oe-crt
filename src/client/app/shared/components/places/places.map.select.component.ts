@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
+import {Component, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {Control, CORE_DIRECTIVES} from '@angular/common';
 //import {RouteParams} from 'angular2/router';
 import {JSONP_PROVIDERS}  from '@angular/http';
@@ -18,7 +18,7 @@ import 'rxjs/add/operator/share';
     selector: 'places-map-select',
     templateUrl: 'places.map.select.component.html',
     styleUrls: ['places.map.select.component.css'],
-    providers: [JSONP_PROVIDERS, SearchPlacesService, SelectedPlacesService],
+    providers: [JSONP_PROVIDERS, SearchPlacesService],
     directives: [CORE_DIRECTIVES, MapLeafletComponent]
 })
 
@@ -26,14 +26,17 @@ export class PlacesMapSelectComponent implements OnInit {
     @Input() selectedPlaceType: any;
     @Input() viewType: string;
     @Input() selectedPlaces: any;
+    @Input() isVisible: boolean;
     @Output() selPlacesEvt = new EventEmitter();
+    @ViewChild(MapLeafletComponent) leafletMap: MapLeafletComponent;
     term = new Control();
     searchTerms: string;
     selectedSearchResults: SearchResult[];
     selectedSearchResult: SearchResult;
     //selectedPlaces: string;
     tempResults: [{}];
-    searchResults: Observable<[{}]>;
+    //searchResults: Observable<[{}]>;
+    searchResults: Observable<any>;
     mapOptions: any = null;
     urlPlaces: any;
 
@@ -44,7 +47,7 @@ export class PlacesMapSelectComponent implements OnInit {
         this.searchResults = this.term.valueChanges
             .debounceTime(200)
             .distinctUntilChanged()
-            .switchMap(term => this._searchPlaceService.search(term !== undefined ? term.toString() : ''))
+            .switchMap((term: any) => this._searchPlaceService.search(term !== undefined ? term.toString() : ''))
             .share();
         this.searchResults.subscribe(value => this.tempResults = value);
         //this._selectedPlacesService.selectionChanged$.subscribe();
@@ -170,12 +173,12 @@ export class PlacesMapSelectComponent implements OnInit {
         if (indexPos === -1) {
             this.selectedSearchResults.push(compareResult);
             this.selPlacesEvt.emit(this.selectedSearchResults);
-            //console.log(compareResult);
             this._selectedPlacesService.add(compareResult, 'search');
         }
     }
 
     onSelectedPlacesChanged(places: any[]) {
+        console.log('this one gets it', places);
         this.selectedSearchResults = [];
         var uniquePlaces: any[] = places.filter((place: any, index: number, self: any) => self.findIndex((t: any) => { return t.ResID === place.ResID && t.Name === place.Name; }) === index);
         for (var place of uniquePlaces) {

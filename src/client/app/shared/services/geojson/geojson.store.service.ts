@@ -9,7 +9,7 @@ let initialState: any[] = [];
 
 @Injectable()
 export class GeoJSONStoreService {
-    selectionChanged$: ReplaySubject<any[]> = new ReplaySubject(1);
+    selectionChanged$: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
     updates: Subject<any> = new Subject<any>();
     addLayer: Subject<any> = new Subject<any>();
     //removeData: Subject<any> = new Subject<any>();

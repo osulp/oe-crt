@@ -38,6 +38,7 @@ var IndicatorsTopicListComponent = (function () {
         this.filteredIndicatorsFromComp.emit(this.inputIndicators);
     };
     IndicatorsTopicListComponent.prototype.ngOnInit = function () {
+        console.log('this is the input topics for checkbox display', this.inputTopics);
         this.selTopics = this.inputTopics;
     };
     __decorate([

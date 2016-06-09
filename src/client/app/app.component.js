@@ -12,9 +12,9 @@ var router_1 = require('@angular/router');
 var http_1 = require('@angular/http');
 var index_1 = require('./+about/index');
 var index_2 = require('./+collections/index');
-var index_3 = require('./+explore/index');
-var index_4 = require('./+home/index');
-var index_5 = require('./+mypins/index');
+var explore_component_1 = require('./+explore/explore.component');
+var home_component_1 = require('./+home/home.component');
+var index_3 = require('./+mypins/index');
 var AppComponent = (function () {
     function AppComponent() {
     }
@@ -29,7 +29,7 @@ var AppComponent = (function () {
         router_1.Routes([
             {
                 path: '/',
-                component: index_4.HomeComponent
+                component: home_component_1.HomeComponent
             },
             {
                 path: '/About',
@@ -37,7 +37,7 @@ var AppComponent = (function () {
             },
             {
                 path: '/Explore',
-                component: index_3.ExploreComponent
+                component: explore_component_1.ExploreComponent
             },
             {
                 path: '/Collections',
@@ -45,7 +45,7 @@ var AppComponent = (function () {
             },
             {
                 path: '/My Pins',
-                component: index_5.MyPinsComponent
+                component: index_3.MyPinsComponent
             }
         ]), 
         __metadata('design:paramtypes', [])

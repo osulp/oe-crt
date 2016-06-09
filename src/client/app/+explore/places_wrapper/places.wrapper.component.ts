@@ -1,4 +1,4 @@
-﻿import {Component, OnInit} from '@angular/core';
+﻿import {Component, ViewChild, OnInit} from '@angular/core';
 import {PlacesMapSelectComponent} from '../../shared/components/index';
 import {SearchResult} from '../../shared/data_models/index';
 
@@ -12,11 +12,19 @@ import {SearchResult} from '../../shared/data_models/index';
 })
 
 export class PlacesWrapperComponent implements OnInit {
+    @ViewChild(PlacesMapSelectComponent) placeMap: PlacesMapSelectComponent;
     selectedPlaceType: string;
     urlPlaces: SearchResult[] = [];
 
     getClass() {
         return this.selectedPlaceType === 'CountiesCitiesTracts' ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
+    }
+
+    toggleSelection(tab: any) {
+        this.selectedPlaceType = tab;
+        if (tab === 'CountiesCitiesTracts') {
+            this.placeMap.leafletMap.refreshMap();
+        }
     }
 
     ngOnInit() {

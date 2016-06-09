@@ -140,7 +140,7 @@
 .topic-header-indicator-filter p:after{    
     font-family:'Glyphicons Halflings';
     font-style:normal;
-    content: '\e259';
+    content: '\\e259';
     font-size:14px;
     color:#C34500; 
     width:25px;
@@ -155,7 +155,7 @@
 
 
 .topic-header-indicator-filter.open p:after{
-    content:"\e260";
+    content:"\\e260";
     font-style:normal;
 }
 

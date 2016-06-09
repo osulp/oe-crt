@@ -7,7 +7,7 @@ let initialState: any[] = [];
 @Injectable()
 export class SelectedPlacesService {
     //search based selections
-    selectionChanged$: ReplaySubject<any[]> = new ReplaySubject(1);
+    selectionChanged$: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
     updates: Subject<any> = new Subject<any>();
     addPlace: Subject<any> = new Subject<any>();
     removePlace: Subject<any> = new Subject<any>();
@@ -19,7 +19,9 @@ export class SelectedPlacesService {
             .scan((accumulator: Object[], operation: Function) => {
                 return operation(accumulator);
             }, initialState)
-            .subscribe(this.selectionChanged$);
+            .subscribe((data: any) => {
+                this.selectionChanged$.next(data);
+            });
 
         this.addPlace
             .map((place: any) => {

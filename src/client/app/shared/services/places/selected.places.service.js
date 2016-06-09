@@ -13,6 +13,7 @@ var Rx_1 = require('rxjs/Rx');
 var initialState = [];
 var SelectedPlacesService = (function () {
     function SelectedPlacesService() {
+        var _this = this;
         this.selectionChanged$ = new Rx_1.ReplaySubject(1);
         this.updates = new Subject_1.Subject();
         this.addPlace = new Subject_1.Subject();
@@ -23,7 +24,9 @@ var SelectedPlacesService = (function () {
             .scan(function (accumulator, operation) {
             return operation(accumulator);
         }, initialState)
-            .subscribe(this.selectionChanged$);
+            .subscribe(function (data) {
+            _this.selectionChanged$.next(data);
+        });
         this.addPlace
             .map(function (place) {
             return function (state) { return state.concat(place); };
@@ -85,4 +88,4 @@ var SelectedPlacesService = (function () {
     return SelectedPlacesService;
 })();
 exports.SelectedPlacesService = SelectedPlacesService;
-//# sourceMappingURL=selected-places.service.js.map
+//# sourceMappingURL=selected.places.service.js.map

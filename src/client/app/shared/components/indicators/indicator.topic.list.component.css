@@ -10,7 +10,7 @@
 
 .topic-header-indicator-filter h2:after{    
     font-family:'Glyphicons Halflings';
-    content: '\e259';
+    content: '\\e259';
     font-size:16px;
     color:#C34500; 
     width:25px;
@@ -25,7 +25,7 @@
 
 
 .topic-header-indicator-filter.open h2:after{
-    content:"\e260";
+    content:"\\e260";
 }
 
 .checkboxes {   

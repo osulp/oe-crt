@@ -1,38 +1,34 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, ViewChild, OnInit} from '@angular/core';
 import {JSONP_PROVIDERS}  from '@angular/http';
 import {Router} from '@angular/router';
 import {DataTileComponent,PlacesMapSelectComponent} from '../../shared/components/index';
-import {IndicatorDescService,SelectedPlacesService,SelectedDataService} from '../../shared/services/index';
-import {SearchResult, CommunityData} from '../../shared/data_models/index';
-import {Subscription}   from 'rxjs/Subscription';
+import {IndicatorDescService} from '../../shared/services/index';
+import {SearchResult} from '../../shared/data_models/index';
 
 @Component({
     moduleId: module.id,
     selector: 'indicator-detail',
     templateUrl: 'indicator.detail.component.html',
     styleUrls: ['indicator.detail.component.css'],
-    providers: [JSONP_PROVIDERS, IndicatorDescService, SelectedDataService, SelectedPlacesService],
+    providers: [JSONP_PROVIDERS, IndicatorDescService],
     directives: [PlacesMapSelectComponent, DataTileComponent]
 })
 
 export class DetailComponent implements OnInit {
     @Input() inputIndicator: any;
-    SelectedData: CommunityData;
+    @ViewChild(PlacesMapSelectComponent) placeMap: PlacesMapSelectComponent;
+    //SelectedData: CommunityData;
     indicatorDesc: any = [];
     showMap: boolean;
     showGraph: boolean;
     showTable: boolean;
     selectedPlaceType: any = 'Oregon';
-    selectedDataSubscription: Subscription;
-    selectedPlaceSubscription: Subscription;
-    highmapSelectedSubscription: Subscription;
     urlPlaces: SearchResult[] = [];
     visible: boolean = false;
     indInfo: string = 'desc';
+    initialLoad: boolean = true;
 
     constructor(private _indicatorDescService: IndicatorDescService,
-        private _selectedDataService: SelectedDataService,
-        private _selectedPlacesService: SelectedPlacesService,
         private _router: Router
     ) { }
 
@@ -41,10 +37,14 @@ export class DetailComponent implements OnInit {
     }
     toggleCommunitiesWrapper() {
         this.visible = !this.visible;
+        if (this.initialLoad) {
+            this.placeMap.leafletMap.refreshMap();
+            this.initialLoad = false;
+        }
     }
 
     goBack() {
-        this._router.navigate(['Explore']);
+        this._router.navigate(['/Explore']);
         window.scrollTo(0, 0);
     }
 
@@ -58,26 +58,6 @@ export class DetailComponent implements OnInit {
                 this.indicatorDesc = data;// IndicatorDescSer    
                 console.log('indicatorDesc service', data);
             });
-
-        this.selectedDataSubscription = this._selectedDataService.selectionChanged$.subscribe(
-            data => {
-                console.log('Community Data throwing event');
-                console.log(data);
-                this.SelectedData = data[0];
-            },
-            err => console.error(err),
-            () => console.log('done with subscribe event places selected')
-        );
-
-        this.selectedPlaceSubscription = this._selectedPlacesService.selectionChanged$.subscribe(
-            data => {
-                console.log('subscribe throwing event');
-                console.log(data);
-                //this.onPlacesChanged(data);
-            },
-            err => console.error(err),
-            () => console.log('done with subscribe event places selected')
-        );
 
         var urlQueryString = document.location.search;
         var keyRegex = new RegExp('([\?&])places([^&]*|[^,]*)');

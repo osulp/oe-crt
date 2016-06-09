@@ -15,14 +15,14 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12" *ngFor="#topic of inputTopics | SelectedTopicsPipe">
+        <div class="col-xs-12" *ngFor="let topic of inputTopics | SelectedTopicsPipe">
             <div class="row">
                 <div class="col-xs-12">
                     <indicators-by-topic-list #indicatorList [allTopicsView]="false" [inputIndicators]="inputIndicators" [inputTopics]="[topic]" (filteredIndicatorsFromComp)="onFilterIndicator($event)"></indicators-by-topic-list>
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid" *ngFor="#indicator of inputIndicators | SelectedIndicatorByTopicsPipe: topic">
+                <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid" *ngFor="let indicator of inputIndicators | SelectedIndicatorByTopicsPipe: topic">
                     <data-tile #dataTile [indicator]="indicator.indicator" [tileType]="'graph'" [viewType]="'basic'"></data-tile>
                 </div>
             </div>
