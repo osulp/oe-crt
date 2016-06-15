@@ -9,35 +9,34 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var http_1 = require('@angular/http');
-var index_1 = require('../../data_models/index');
-var TopicsService = (function () {
-    function TopicsService(jsonp) {
+var indicator_model_1 = require('../../data_models/indicator.model');
+var IndicatorsService = (function () {
+    function IndicatorsService(jsonp) {
         this.jsonp = jsonp;
     }
-    TopicsService.prototype.getCRTTopics = function () {
-        var serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/topics';
+    IndicatorsService.prototype.getIndicators = function () {
+        var serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/indicators';
         var params = new http_1.URLSearchParams();
         params.set('f', 'json');
-        params.set('crt', 'true');
         params.set('callback', 'JSONP_CALLBACK');
         return this.jsonp
             .get(serviceUrl, { search: params })
             .map(function (request) { return request.json(); })
-            .map(function (topics) {
+            .map(function (indicators) {
             var result = [];
-            if (topics) {
-                topics.forEach(function (topic) {
-                    result.push(new index_1.Topic(topic.topic, topic.icon, false));
+            if (indicators) {
+                indicators.forEach(function (indicator) {
+                    result.push(new indicator_model_1.Indicator(indicator.Indicator, indicator.topics, false));
                 });
             }
             return result;
         });
     };
-    TopicsService = __decorate([
+    IndicatorsService = __decorate([
         core_1.Injectable(), 
         __metadata('design:paramtypes', [http_1.Jsonp])
-    ], TopicsService);
-    return TopicsService;
+    ], IndicatorsService);
+    return IndicatorsService;
 })();
-exports.TopicsService = TopicsService;
-//# sourceMappingURL=topics.service.js.map
+exports.IndicatorsService = IndicatorsService;
+//# sourceMappingURL=indicators.service.js.map

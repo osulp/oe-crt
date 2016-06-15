@@ -2,6 +2,7 @@ import { APP_BASE_HREF } from '@angular/common';
 import { enableProdMode, provide } from '@angular/core';
 import { bootstrap } from '@angular/platform-browser-dynamic';
 import { ROUTER_PROVIDERS } from '@angular/router';
+//import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import {HTTP_PROVIDERS} from '@angular/http';
 //import { TopicsService} from './shared/services/index';
 
@@ -16,8 +17,8 @@ if ('<%= ENV %>' === 'prod') { enableProdMode(); }
 bootstrap(AppComponent, [
     HTTP_PROVIDERS,
     ROUTER_PROVIDERS,
-    provide(APP_BASE_HREF, { useValue: '<%= APP_BASE %>' })
-    //provide(APP_BASE_HREF, { useValue: '/' })
+    //provide(APP_BASE_HREF, { useValue: '<%= APP_BASE %>' })
+    provide(APP_BASE_HREF, { useValue: '/' })
 ]);
 
 // In order to start the Service Worker located at "./worker.js"

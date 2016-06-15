@@ -11,19 +11,20 @@ var core_1 = require('@angular/core');
 var common_1 = require('@angular/common');
 var http_1 = require('@angular/http');
 var router_1 = require('@angular/router');
-var search_service_1 = require('../../../shared/services/search-topics-places/search.service');
-var index_1 = require('../../../shared/utilities/index');
+var index_1 = require('../../../shared/services/index');
+var index_2 = require('../../../shared/utilities/index');
 require('rxjs/add/operator/map');
 require('rxjs/add/operator/debounceTime');
 require('rxjs/add/operator/distinctUntilChanged');
 require('rxjs/add/operator/switchMap');
 require('rxjs/add/operator/share');
 var SearchComponent = (function () {
-    function SearchComponent(_searchService, _helperFuncs, _router) {
+    function SearchComponent(_searchService, _helperFuncs, _router, _selectedPlacesService) {
         var _this = this;
         this._searchService = _searchService;
         this._helperFuncs = _helperFuncs;
         this._router = _router;
+        this._selectedPlacesService = _selectedPlacesService;
         this.selSearchResultEvt = new core_1.EventEmitter();
         this.term = new common_1.Control();
         this.items = this.term.valueChanges
@@ -34,6 +35,13 @@ var SearchComponent = (function () {
         this.items.subscribe(function (value) { return _this.tempResults = value; });
     }
     SearchComponent.prototype.eventHandler = function (event, searchItem) {
+        this.selectResult(searchItem);
+    };
+    SearchComponent.prototype.selectResult = function (searchItem) {
+        console.log('madeleine', searchItem);
+        if (searchItem.Type === 'Place') {
+            this._selectedPlacesService.add(searchItem, 'search');
+        }
         this.selSearchResultEvt.emit(searchItem);
     };
     SearchComponent.prototype.inputSearchClickHandler = function (event) {
@@ -52,7 +60,7 @@ var SearchComponent = (function () {
                     Desc: firstItem['Desc']
                 };
                 this.selectedSearchResult = selected;
-                this.selSearchResultEvt.emit(selected);
+                this.selectResult(selected);
             }
             else {
                 alert('Please select a valid search term.');
@@ -85,7 +93,7 @@ var SearchComponent = (function () {
                         Desc: firstItem['Desc']
                     };
                     searchScope.selectedSearchResult = selected;
-                    searchScope.selSearchResultEvt.emit(selected);
+                    searchScope.selectResult(selected);
                     alert(firstItem['Name']);
                 }
                 else {
@@ -112,10 +120,10 @@ var SearchComponent = (function () {
             selector: 'search',
             templateUrl: 'search.component.html',
             styleUrls: ['search.component.css'],
-            providers: [http_1.JSONP_PROVIDERS, search_service_1.SearchTopicsPlacesService, index_1.HelperFunctions],
+            providers: [http_1.JSONP_PROVIDERS, index_1.SearchTopicsPlacesService, index_2.HelperFunctions],
             directives: [common_1.CORE_DIRECTIVES, common_1.NgClass]
         }), 
-        __metadata('design:paramtypes', [search_service_1.SearchTopicsPlacesService, index_1.HelperFunctions, router_1.Router])
+        __metadata('design:paramtypes', [index_1.SearchTopicsPlacesService, index_2.HelperFunctions, router_1.Router, index_1.SelectedPlacesService])
     ], SearchComponent);
     return SearchComponent;
 })();

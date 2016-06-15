@@ -2,7 +2,7 @@ import {Component, Output, Input, EventEmitter} from '@angular/core';
 import {Control, CORE_DIRECTIVES, NgClass} from '@angular/common';
 import {JSONP_PROVIDERS}  from '@angular/http';
 import {Router} from '@angular/router';
-import {SearchTopicsPlacesService} from '../../../shared/services/search-topics-places/search.service';
+import {SearchTopicsPlacesService, SelectedPlacesService} from '../../../shared/services/index';
 import {Observable} from 'rxjs/Observable';
 import {SearchResult} from '../../../shared/data_models/index';
 import {HelperFunctions} from '../../../shared/utilities/index';
@@ -30,16 +30,27 @@ export class SearchComponent {
     tempResults: any[];
     items: Observable<any[]>;
 
-    constructor(private _searchService: SearchTopicsPlacesService, public _helperFuncs: HelperFunctions,
-        private _router: Router) {
+    constructor(
+        private _searchService: SearchTopicsPlacesService,
+        public _helperFuncs: HelperFunctions,
+        private _router: Router,
+        private _selectedPlacesService: SelectedPlacesService) {
         this.items = this.term.valueChanges
             .debounceTime(200)
             .distinctUntilChanged()
-            .switchMap((term:any) => this._searchService.search(term !== undefined ? term.toString() : ''))
+            .switchMap((term: any) => this._searchService.search(term !== undefined ? term.toString() : ''))
             .share();
         this.items.subscribe(value => this.tempResults = value);
     }
     eventHandler(event: any, searchItem: SearchResult) {
+        this.selectResult(searchItem);
+    }
+
+    selectResult(searchItem: SearchResult) {
+        console.log('madeleine', searchItem);
+        if (searchItem.Type === 'Place') {
+            this._selectedPlacesService.add(searchItem, 'search');
+        }
         this.selSearchResultEvt.emit(searchItem);
     }
 
@@ -60,7 +71,7 @@ export class SearchComponent {
                     Desc: firstItem['Desc']
                 };
                 this.selectedSearchResult = selected;
-                this.selSearchResultEvt.emit(selected);
+                this.selectResult(selected);
             } else {
                 alert('Please select a valid search term.');
             }
@@ -94,7 +105,7 @@ export class SearchComponent {
                         Desc: firstItem['Desc']
                     };
                     searchScope.selectedSearchResult = selected;
-                    searchScope.selSearchResultEvt.emit(selected);
+                    searchScope.selectResult(selected);
                     alert(firstItem['Name']);
                 } else {
                     alert('Please select a valid search term.');

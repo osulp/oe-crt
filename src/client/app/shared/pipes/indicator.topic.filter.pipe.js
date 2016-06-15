@@ -22,7 +22,18 @@ var IndicatorTopicFilterPipe = (function () {
                 }
             }
             if (selectedTopics.length > 0) {
-                return indicators.filter(function (indicator) { return selectedTopics.indexOf(indicator.topics) !== -1; });
+                var filteredIndicators = [];
+                for (var i = 0; i < indicators.length; i++) {
+                    var assocTopics = indicators[i].topics.split(', ');
+                    for (var _i = 0; _i < selectedTopics.length; _i++) {
+                        var t = selectedTopics[_i];
+                        if (assocTopics.indexOf(t) !== -1) {
+                            filteredIndicators.push(indicators[i]);
+                        }
+                    }
+                }
+                console.log('Filtered Indicators: ', filteredIndicators);
+                return filteredIndicators;
             }
             else {
                 return indicators;

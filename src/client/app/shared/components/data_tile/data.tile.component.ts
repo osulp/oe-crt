@@ -1175,8 +1175,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
         } else {
             this.dataStore.indicatorData[this.indicator].chart_data = chart_data;
         }
-        console.log('funions');
-        console.log(this.dataStore);
+        //console.log('funions');
+        //console.log(this.dataStore);
         //add a dataset for no data MAP DISPLAY ONLY
         if (this.tileType === 'map') {
             for (var x = 0; x < this.selectedMapData.features.length; x++) {
@@ -1242,13 +1242,13 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     getDefaultYear() {
         //start at the end and move back until you find data
-        console.log('looking for year data');
+        //console.log('looking for year data');
         let counter = 0;
         for (var y = this.placeTypeData.Years.length - 1; y > 0; y--) {
             counter++;
             let hasData = false;
             for (var d = 0; d < this.placeTypeData.Data.length; d++) {
-                console.log(this.placeTypeData.Data[d][this.placeTypeData.Years[y].Year]);
+                //console.log(this.placeTypeData.Data[d][this.placeTypeData.Years[y].Year]);
                 if (this.placeTypeData.Data[d][this.placeTypeData.Years[y].Year] !== null) {
                     hasData = true;
                     break;
@@ -1264,7 +1264,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     getMinData(isMap: boolean, chartType?: boolean) {
         var min: any;
         var notLogrithmic = false;
-        console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
+        //console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
         let chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
         //need to combine data with moes to get proper min/ max
         var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);

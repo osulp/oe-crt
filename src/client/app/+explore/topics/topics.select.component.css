@@ -73,7 +73,7 @@
 }
 
     #topic-col-list div {
-        height: 40px;
+        min-height: 40px;
         padding: 10px 10px 10px 16px;
         border-radius: 4px;
         margin-bottom:10px;
@@ -251,6 +251,3 @@
     }    
 }
 
-@media only screen and (min-width : 1200px) {
-
-}

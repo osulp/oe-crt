@@ -4,6 +4,7 @@ import {PlacesComponent} from './places/places.component';
 import {SearchResult} from '../../shared/data_models/index';
 import {SearchComponent} from '../../shared/components/search/search.component';
 import {Router} from '@angular/router';
+//import {Router} from '@angular/router-deprecated';
 
 @Component({
     moduleId: module.id,
@@ -17,7 +18,8 @@ export class FindWrapperComponent {
     selectedSearchResult: SearchResult;
     page: string;
 
-    constructor(private _router: Router) { }
+    constructor(private _router: Router
+    ) { }
 
     goto(page: string) {
         this._router.navigate([page]);
@@ -29,7 +31,8 @@ export class FindWrapperComponent {
             if (results.Type.toLowerCase() === 'indicator') {
                 this._router.navigate(['Explore', { indicator: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
             } else {
-                this._router.navigate(['Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
+                //this._router.navigate(['Explore', { places: encodeURI(JSON.stringify(results)), topics: 'All Topics' }]);
+                this._router.navigate(['Explore', { topics: 'All Topics' }]);
             }
         }
     }

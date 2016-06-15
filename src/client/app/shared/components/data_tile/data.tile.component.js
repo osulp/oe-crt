@@ -860,8 +860,6 @@ var DataTileComponent = (function () {
         else {
             this.dataStore.indicatorData[this.indicator].chart_data = chart_data;
         }
-        console.log('funions');
-        console.log(this.dataStore);
         if (this.tileType === 'map') {
             for (var x = 0; x < this.selectedMapData.features.length; x++) {
                 var mData = this.selectedMapData.features[x];
@@ -922,13 +920,11 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.getDefaultYear = function () {
-        console.log('looking for year data');
         var counter = 0;
         for (var y = this.placeTypeData.Years.length - 1; y > 0; y--) {
             counter++;
             var hasData = false;
             for (var d = 0; d < this.placeTypeData.Data.length; d++) {
-                console.log(this.placeTypeData.Data[d][this.placeTypeData.Years[y].Year]);
                 if (this.placeTypeData.Data[d][this.placeTypeData.Years[y].Year] !== null) {
                     hasData = true;
                     break;
@@ -943,7 +939,6 @@ var DataTileComponent = (function () {
     DataTileComponent.prototype.getMinData = function (isMap, chartType) {
         var min;
         var notLogrithmic = false;
-        console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
         var chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
         var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
         $.each(pdy, function () {

@@ -9,13 +9,13 @@ export class SelectedTopicsPipe implements PipeTransform {
     transform(topics: Topic[]): any {
         if (topics !== undefined) {
             let tempTopics = topics.filter(topic => topic.selected);
-            if (tempTopics.length === 0) {
-                //TODO:  SCROLL on Demand logic
-                tempTopics = topics.filter(topic => topic.topic === 'Age');
-                if (tempTopics.length !== 0) {
-                    tempTopics[0].selected = true;
-                }
-            }
+            //if (tempTopics.length === 0) {
+            //    //TODO:  SCROLL on Demand logic
+            //    tempTopics = topics.filter(topic => topic.topic === 'Demographics');
+            //    if (tempTopics.length !== 0) {
+            //        tempTopics[0].selected = true;
+            //    }
+            //}
             return tempTopics;
         }
     }

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ROUTER_DIRECTIVES, Routes } from '@angular/router';
+//import { RouteConfig, ROUTER_DIRECTIVES, Router } from '@angular/router-deprecated';
 import { HTTP_PROVIDERS} from '@angular/http';
 
 import { AboutComponent } from './+about/index';
@@ -7,6 +8,7 @@ import { CollectionsComponent } from './+collections/index';
 import { ExploreComponent } from './+explore/explore.component';
 import { HomeComponent } from './+home/home.component';
 import { MyPinsComponent } from './+mypins/index';
+import { SelectedPlacesService } from './shared/services/index';
 //import { d } from './shared/index';
 
 /**
@@ -18,29 +20,38 @@ import { MyPinsComponent } from './+mypins/index';
     selector: 'sd-app',
     viewProviders: [HTTP_PROVIDERS],
     templateUrl: 'app.component.html',
-    directives: [ROUTER_DIRECTIVES]
+    directives: [ROUTER_DIRECTIVES],
+    providers: [SelectedPlacesService]
 })
-    @Routes([
-        {
-            path: '/',
-            component: HomeComponent
-        },
-        {
-            path: '/About',
-            component: AboutComponent
-        },
-        {
-            path: '/Explore',
-            component: ExploreComponent
-        },
-        {
-            path: '/Collections',
-            component: CollectionsComponent
-        },
-        {
-            path: '/My Pins',
-            component: MyPinsComponent
-        }
+@Routes([
+    {
+        path: '/',
+        component: HomeComponent
+    },
+    {
+        path: '/About',
+        component: AboutComponent
+    },
+    {
+        path: '/Explore',
+        component: ExploreComponent
+    },
+    {
+        path: '/Collections',
+        component: CollectionsComponent
+    },
+    {
+        path: '/My Pins',
+        component: MyPinsComponent
+    }
 ])
+//@RouteConfig([
+//    { path: '/', component: HomeComponent, name: 'Home' },
+//{ path: '/home', component: HomeComponent, name:'Home1' },
+//{ path: '/about', component: AboutComponent, name: 'About' },
+//{ path: '/explore', component: ExploreComponent, name: 'Explore' },
+//{ path: '/collections', component: CollectionsComponent, name: 'Collections' },
+//{ path: '/my_pins', component: MyPinsComponent, name: 'My Pins' }
+//])
 export class AppComponent { }
 

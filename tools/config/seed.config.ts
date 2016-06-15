@@ -304,6 +304,7 @@ export class SeedConfig {
       '@angular/compiler': `${this.APP_BASE}node_modules/@angular/compiler/compiler.umd.js`,
       '@angular/http': `${this.APP_BASE}node_modules/@angular/http/http.umd.js`,
       '@angular/router': `${this.APP_BASE}node_modules/@angular/router/router.umd.js`,
+      '@angular/router-deprecated': `${this.APP_BASE}node_modules/@angular/router-deprecated/router-deprecated.umd.js`,
       '@angular/platform-browser': `${this.APP_BASE}node_modules/@angular/platform-browser/platform-browser.umd.js`,
       '@angular/platform-browser-dynamic': `${this.APP_BASE}node_modules/@angular/platform-browser-dynamic/platform-browser-dynamic.umd.js`,
       'rxjs/*': `${this.APP_BASE}node_modules/rxjs/*`,
@@ -378,6 +379,10 @@ export class SeedConfig {
               defaultExtension: 'js'
           },
           '@angular/router': {
+              main: 'index.js',
+              defaultExtension: 'js'
+          },
+          '@angular/router-deprecated': {
               main: 'index.js',
               defaultExtension: 'js'
           },

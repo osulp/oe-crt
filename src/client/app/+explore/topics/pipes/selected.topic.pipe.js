@@ -8,26 +8,22 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var SelectedIndicatorByTopicsPipe = (function () {
-    function SelectedIndicatorByTopicsPipe() {
+var SelectedTopicsPipe = (function () {
+    function SelectedTopicsPipe() {
     }
-    SelectedIndicatorByTopicsPipe.prototype.transform = function (indicators, topic) {
-        if (indicators !== undefined) {
-            if (topic.topic === 'all') {
-                return indicators.filter(function (indicator) { return indicator.selected; }).length;
-            }
-            else {
-                return indicators.filter(function (indicator) { return indicator.selected && indicator.topics.split(', ').indexOf(topic.topic) !== -1; });
-            }
+    SelectedTopicsPipe.prototype.transform = function (topics) {
+        if (topics !== undefined) {
+            var tempTopics = topics.filter(function (topic) { return topic.selected; });
+            return tempTopics;
         }
     };
-    SelectedIndicatorByTopicsPipe = __decorate([
+    SelectedTopicsPipe = __decorate([
         core_1.Pipe({
-            name: 'SelectedIndicatorByTopicsPipe'
+            name: 'SelectedTopicsPipe'
         }), 
         __metadata('design:paramtypes', [])
-    ], SelectedIndicatorByTopicsPipe);
-    return SelectedIndicatorByTopicsPipe;
+    ], SelectedTopicsPipe);
+    return SelectedTopicsPipe;
 })();
-exports.SelectedIndicatorByTopicsPipe = SelectedIndicatorByTopicsPipe;
-//# sourceMappingURL=selected.indicator.topic.pipe.js.map
+exports.SelectedTopicsPipe = SelectedTopicsPipe;
+//# sourceMappingURL=selected.topic.pipe.js.map

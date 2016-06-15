@@ -8,26 +8,24 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var SelectedIndicatorByTopicsPipe = (function () {
-    function SelectedIndicatorByTopicsPipe() {
+var TopicCountPipe = (function () {
+    function TopicCountPipe() {
     }
-    SelectedIndicatorByTopicsPipe.prototype.transform = function (indicators, topic) {
-        if (indicators !== undefined) {
-            if (topic.topic === 'all') {
-                return indicators.filter(function (indicator) { return indicator.selected; }).length;
-            }
-            else {
-                return indicators.filter(function (indicator) { return indicator.selected && indicator.topics.split(', ').indexOf(topic.topic) !== -1; });
-            }
+    TopicCountPipe.prototype.transform = function (topics, maxCount) {
+        if (topics !== 'undefined') {
+            var returnTopics = topics.filter(function (topic) { return topic.featured; });
+            returnTopics = returnTopics.slice(0, 8);
+            return returnTopics;
         }
+        return topics;
     };
-    SelectedIndicatorByTopicsPipe = __decorate([
+    TopicCountPipe = __decorate([
         core_1.Pipe({
-            name: 'SelectedIndicatorByTopicsPipe'
+            name: 'topicCountPipe'
         }), 
         __metadata('design:paramtypes', [])
-    ], SelectedIndicatorByTopicsPipe);
-    return SelectedIndicatorByTopicsPipe;
+    ], TopicCountPipe);
+    return TopicCountPipe;
 })();
-exports.SelectedIndicatorByTopicsPipe = SelectedIndicatorByTopicsPipe;
-//# sourceMappingURL=selected.indicator.topic.pipe.js.map
+exports.TopicCountPipe = TopicCountPipe;
+//# sourceMappingURL=topic.count.pipe.js.map

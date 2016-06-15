@@ -1,5 +1,6 @@
 import { Component, OnInit} from '@angular/core';
-import {Router, ROUTER_DIRECTIVES, RouteSegment, RouteTree, OnActivate} from '@angular/router';
+import {Router, RouteSegment, RouteTree, OnActivate} from '@angular/router';
+//import {Router, RouteParams} from '@angular/router-deprecated';
 import {Subscription}   from 'rxjs/Subscription';
 import {TopicsComponent} from './topics/topics.select.component';
 import {PlacesWrapperComponent} from './places_wrapper/places.wrapper.component';
@@ -22,11 +23,12 @@ interface QueryStringParams {
     selector: 'explore',
     templateUrl: 'explore.component.html',
     styleUrls: ['explore.component.css'],
-    directives: [SearchComponent, TopicsComponent, PlacesWrapperComponent, DataComponent, DetailComponent, ROUTER_DIRECTIVES],
-    providers: [SelectedPlacesService]
+    directives: [SearchComponent, TopicsComponent, PlacesWrapperComponent, DataComponent, DetailComponent]//,
+    //providers: [SelectedPlacesService]
 })
 
 export class ExploreComponent implements OnInit, OnActivate {
+    //export class ExploreComponent implements OnInit {
     selectedTopics: any;
     selectedIndicators: any;
     selectedIndicator: any;
@@ -40,28 +42,18 @@ export class ExploreComponent implements OnInit, OnActivate {
 
     constructor(
         public _selectedPlacesService: SelectedPlacesService,
-        private _router: Router,
-        private routeParams: RouteSegment) {
-        //this._routeParams = routeParams;  
-        console.log(window.location);
-        //this.selectedTopics = routeParams.getParam('topics');
-        this.selectedTopics = this.getParameterByName('topics');
-        console.log('topics', this.selectedTopics);
-        //this.selectedPlaces = routeParams.getParam('places');
-        this.selectedTopics = this.getParameterByName('places');
-        this.selectedIndicators = routeParams.getParam('indicators');
-        this.selectedIndicator = routeParams.getParam('indicator');
+        private _router: Router
+    ) {
         this.initialIndicator = true;
-        this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== undefined ? true : false;
-        console.log('selected topics', this.selectedTopics);
-        console.log('selected places', this.selectedPlaces);
-        //console.log(routeParams.getParam('indicator') + ' received on load of explore Component');
     }
 
     routerOnActivate(curr: RouteSegment, prev?: RouteSegment,
         currTree?: RouteTree, prevTree?: RouteTree): void {
-        let myparam = curr.getParam('topics');
-        console.log('myparam test', myparam);
+        this.selectedTopics = decodeURI(curr.getParam('topics'));
+        this.selectedIndicator = decodeURI(curr.getParam('indicator'));
+        this.selectedIndicators = decodeURI(curr.getParam('indicators'));
+        this.selectedPlaces = decodeURI(curr.getParam('places'));
+        this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
     }
 
     //emitted from search component
@@ -71,13 +63,14 @@ export class ExploreComponent implements OnInit, OnActivate {
             if (results.Type.toLowerCase() === 'indicator') {
                 this._router.navigate(['/Explore', { indicator: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
             } else {
-                this._router.navigate(['/Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
+                //this._router.navigate(['/Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
+                this._router.navigate(['/Explore', { topics: 'All Topics' }]);
             }
         }
     }
     //bubble up from topics component selection
     onGetSelectedTopicsFromComp(results: any) {
-        //console.log('emitted selected topics ' + results);
+        console.log('emitted selected topics ' + results);
         this.selectedTopics = results;
         var queryString = '';
         if (this.selectedTopics.length > 0) {
@@ -140,23 +133,33 @@ export class ExploreComponent implements OnInit, OnActivate {
     //    this.selectedPlaces = results;
     //}
 
-    getParameterByName(name:any) {
+    getParameterByName(name: any) {
         var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
         return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
     }
 
     updateQueryStringParam(qsParams: QueryStringParams[]) {
-        var baseUrl = [location.protocol, '//', location.host, location.pathname.replace('/%3C%=%20APP_BASE% 20 %%3E', '')].join('');
-        var urlQueryString = document.location.search;
+        //console.log('updating qs params', qsParams);
+        //var baseUrl = [location.protocol, '//', location.host, location.pathname.replace('/%3C%=%20APP_BASE% 20 %%3E', '')].join('');
+        var baseUrl = [location.protocol, '//', location.host, location.pathname.split(';')[0]].join('');
+        //console.log('baseUrl: ', baseUrl);
+        //var urlQueryString = location.pathname.replace(location.pathname.split(';')[0], ''); //
+        var urlQueryString = location.pathname.replace(location.pathname.split(';')[0], '').replace('/Explore', '');
+        //console.log('url query string', urlQueryString);
+        //alert('break1');
         var allParams: string = '';
         for (var x = 0; x < qsParams.length; x++) {
             //console.log(qsParams[x].value);
             var newParam = qsParams[x].value === '' ? '' : qsParams[x].key + '=' + qsParams[x].value;
-            allParams = '?' + newParam;
+            //allParams = '?' + newParam;
+            //allParams = ';' + newParam;
 
             // If the 'search' string exists, then build params from it
             if (urlQueryString) {
-                var keyRegex = new RegExp('([\?&])' + qsParams[x].key + '([^&]*|[^,]*)');
+                console.log('yep querystring');
+                //var keyRegex = new RegExp('([\?&])' + qsParams[x].key + '([^&]*|[^,]*)');
+                var keyRegex = new RegExp('([\;])' + qsParams[x].key + '([^;]*|[^,]*)');
+                console.log('regex qs', keyRegex);
                 // If param exists already, update it
                 if (urlQueryString.match(keyRegex) !== null) {
                     //console.log('regex = ' + keyRegex);
@@ -165,14 +168,34 @@ export class ExploreComponent implements OnInit, OnActivate {
                     allParams = urlQueryString.replace(keyRegex, '$1' + newParam);
                     //allParams = urlQueryString.replace(keyRegex, '$1' + newParam);
                 } else { // Otherwise, add it to end of query string
-                    allParams = urlQueryString + (qsParams[x].value !== '' ? '&' : '') + newParam;
+                    console.log('adding to end of qs', allParams);
+                    console.log('adding to end of qs', urlQueryString);
+                    console.log('adding to end of qs', newParam);
+                    allParams = urlQueryString + (qsParams[x].value !== '' ? ';' : '') + newParam;
+                }
+            } else {
+                let pathname = document.location.pathname;
+                var keyRegex = new RegExp('([\;])' + qsParams[x].key + '([^;]*|[^,]*)');
+                console.log('regex', keyRegex);
+                if (pathname.match(keyRegex) !== null) {
+                    allParams = pathname.replace(keyRegex, '$1' + newParam);
+                    console.log('allparams', allParams);
+                } else {
+                    //allParams = pathname + (qsParams[x].value !== '' ? ';' : '') + newParam;
+                    allParams = (qsParams[x].value !== '' ? ';' : '') + newParam;
                 }
             }
             urlQueryString = allParams;
         }
+        console.log((baseUrl + allParams).replace('?&', '?'));
+        console.log(document.location);
+        //alert('break');
         return (baseUrl + allParams).replace('?&', '?');
     };
     ngOnInit() {
+        //this.selectedTopics = this._routeParams.getParam('topics');
+        //this.selectedTopics = this.getParameterByName('topics');
+        console.log('topics from init?', this.selectedTopics);
         this.allTopics = [];
         this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
             data => {

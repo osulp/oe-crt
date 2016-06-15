@@ -54,12 +54,52 @@
     padding-right:3px;
     color:rgb(221, 232, 250);
 }
-
-ul {
-  columns: 2;
-  -webkit-columns: 2;
-  -moz-columns: 2;
+.header_link:hover{
+    text-decoration:underline;
+    cursor:pointer;
 }
+
+#topic-col-list {
+    -moz-column-width: 190px;
+    -webkit-column-width: 190px;
+    column-width: 190px;
+    -moz-column-gap: 20px;
+    -webkit-column-gap: 20px;
+    -moz-column-rule: 1px solid rgb(221, 232, 250);
+    -webkit-column-rule: 1px solid rgb(221, 232, 250);
+    column-rule: 1px solid rgb(221, 232, 250);
+    column-gap: 20px;
+    max-height: 240px;
+    margin: 25px 10px 0 5px;
+    -moz-column-count: 2;
+    -webkit-column-count: 2;
+    column-count: 2;
+}
+
+    #topic-col-list div.topic-listing {
+        min-height: 40px;
+        padding: 10px 5px 5px 10px;
+        border-radius: 4px;
+        margin-bottom:10px;
+        display: inline-block;
+        width: 100%;
+    }
+        #topic-col-list div.topic-listing:hover {
+            cursor: pointer;
+            background: rgba(40,46,48,0.10);
+            border-radius: 4px;
+        }
+        #topic-col-list div.topic-listing.firstCol{
+            margin-left:20px;
+            max-width:200px;
+        }
+
+        #topic-col-list div.topic-listing span {
+            display:table-cell
+        }
+    #topics-wrapper img{
+        margin:0 10px 0 0;
+    }
 
 /* Small Devices, Tablets */
 @media only screen and (max-width : 992px) {
@@ -69,6 +109,32 @@ ul {
     }    
 }
 
-@media only screen and (min-width : 1200px) {
+@media only screen and (max-width : 470px) {
+    #topic-col-list {
+    -moz-column-width: 170px;
+    -webkit-column-width: 170px;
+    column-width: 170px;
+    -moz-column-gap: 10px;
+    -webkit-column-gap: 10px;    
+    column-gap: 10px;
+    max-height: 240px;
+    margin: 25px 10px 0 5px;
+    -moz-column-count: 2;
+    -webkit-column-count: 2;
+    column-count: 2;
+    font-size:.8em;
+}
 
+    #topic-col-list div.topic-listing {       
+        padding: 5px;        
+    }
+        
+        #topic-col-list div.topic-listing.firstCol{
+            margin-left:10px;
+            max-width:170px;
+        }        
+
+    #topics-wrapper img{
+        margin:0 5px 0 0;
+    }
 }

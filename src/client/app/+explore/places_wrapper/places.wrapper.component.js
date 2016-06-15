@@ -9,8 +9,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var index_1 = require('../../shared/components/index');
+var index_2 = require('../../shared/services/index');
 var PlacesWrapperComponent = (function () {
-    function PlacesWrapperComponent() {
+    function PlacesWrapperComponent(_selectedPlaceService) {
+        this._selectedPlaceService = _selectedPlaceService;
         this.urlPlaces = [];
     }
     PlacesWrapperComponent.prototype.getClass = function () {
@@ -23,34 +25,34 @@ var PlacesWrapperComponent = (function () {
         }
     };
     PlacesWrapperComponent.prototype.ngOnInit = function () {
-        console.log('loaded explore places component');
-        this.selectedPlaceType = 'Oregon';
-        var urlQueryString = document.location.search;
-        var keyRegex = new RegExp('([\?&])places([^&]*|[^,]*)');
-        if (urlQueryString.match(keyRegex) !== null) {
-            var temp = urlQueryString.match(keyRegex)[0];
-            var tempPlaces = temp.replace(new RegExp('([\?&])places='), '').split(',');
-            var isOregon = false;
-            var isCalifornia = false;
-            var hasNotStatewide = false;
-            for (var x = 0; x < tempPlaces.length; x++) {
-                var place = JSON.parse(decodeURIComponent(tempPlaces[x]));
-                this.urlPlaces.push(place);
-                switch (place.ResID) {
-                    case '41':
-                        isOregon = true;
-                        break;
-                    case '06':
-                        isCalifornia = true;
-                        break;
-                    default:
-                        hasNotStatewide = true;
-                        break;
-                }
+        console.log('loaded explore places component', decodeURIComponent(this.inputPlaces));
+        this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];
+        var isOregon = false;
+        var isCalifornia = false;
+        var hasNoStatewide = false;
+        console.log('url places:', this.urlPlaces);
+        for (var x = 0; x < this.urlPlaces.length; x++) {
+            var place = this.urlPlaces[x];
+            console.log('processing place:', place);
+            switch (place.ResID) {
+                case '41':
+                    isOregon = true;
+                    break;
+                case '06':
+                    isCalifornia = true;
+                    break;
+                default:
+                    hasNoStatewide = true;
+                    break;
             }
-            this.selectedPlaceType = hasNotStatewide ? 'CountiesCitiesTracts' : (isOregon ? 'Oregon' : 'California');
         }
+        console.log('state check', hasNoStatewide);
+        this.selectedPlaceType = this.urlPlaces.length > 0 ? (hasNoStatewide ? 'CountiesCitiesTracts' : (isOregon ? 'Oregon' : 'California')) : 'Oregon';
     };
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], PlacesWrapperComponent.prototype, "inputPlaces", void 0);
     __decorate([
         core_1.ViewChild(index_1.PlacesMapSelectComponent), 
         __metadata('design:type', index_1.PlacesMapSelectComponent)
@@ -63,7 +65,7 @@ var PlacesWrapperComponent = (function () {
             styleUrls: ['places.wrapper.component.css'],
             directives: [index_1.PlacesMapSelectComponent]
         }), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [index_2.SelectedPlacesService])
     ], PlacesWrapperComponent);
     return PlacesWrapperComponent;
 })();

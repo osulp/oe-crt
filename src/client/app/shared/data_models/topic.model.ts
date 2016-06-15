@@ -1,15 +1,17 @@
 ﻿export class Topic {
     topic: string;
-    domain: string;
+    icon: string;
+    featured: boolean;
     selected: boolean;
-    constructor(topic: string, domain: string, selected:boolean) {
+    
+    constructor(topic: string, icon: string, featured: boolean, selected: boolean) {
         this.topic = topic;
-        this.domain = domain;
+        this.icon = icon;
+        this.featured = featured;
         this.selected = selected;
     }
 
     toggleSelected() {
         this.selected = !this.selected;
-
     }
 }

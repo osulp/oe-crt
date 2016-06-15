@@ -22,6 +22,7 @@ var TopicsComponent = (function () {
         this.selectedIndicatorsFromComp = new core_1.EventEmitter();
         this.allTopicsFromComp = new core_1.EventEmitter();
         this.allIndicatorsFromComp = new core_1.EventEmitter();
+        this.initialLoad = true;
         this.visible = true;
         this.showAllSelected = false;
         this.chkBoxVisibile = false;
@@ -53,43 +54,41 @@ var TopicsComponent = (function () {
     };
     TopicsComponent.prototype.getTopics = function () {
         var _this = this;
-        this._topicService.getTopics().subscribe(function (data) {
+        this._topicService.getCRTTopics().subscribe(function (data) {
             _this.Topics = data;
             _this.allTopicsFromComp.emit(_this.Topics);
-            if (_this._inputTopics.length > 0 && (_this._inputTopics[0] !== 'All Topics' || _this._inputTopics[0] !== '')) {
-                _this.showAllSelected = _this._inputTopics[0] !== 'All Topics' ? false : true;
-                for (var x = 0; x < _this.Topics.length; x++) {
-                    if (_this._inputTopics.indexOf(_this.Topics[x].topic) !== -1) {
-                        _this.Topics[x].toggleSelected();
-                    }
-                }
-            }
-            else {
-                _this.showAllSelected = true;
-            }
+            console.log('input topics = ', _this._inputTopics);
+            console.log('all topics', _this.Topics);
             _this.getIndicators();
         }, function (err) { return console.error(err); }, function () { return console.log('done loading topics'); });
     };
     TopicsComponent.prototype.toggleTopic = function (topic) {
+        console.log('topic toggled', topic);
         this.showAllSelected = false;
         topic.toggleSelected();
         var idx = this.Topics.indexOf(topic);
         this.Topics = this.Topics.slice(0, idx).concat([
             topic
         ], this.Topics.slice(idx + 1));
-        this._selectedTopics = [];
-        for (var x = 0; x < this.Topics.length; x++) {
-            if (this.Topics[x].selected) {
-                this._selectedTopics.push(this.Topics[x].topic);
+        if (!this.initialLoad) {
+            this._selectedTopics = [];
+            for (var x = 0; x < this.Topics.length; x++) {
+                if (this.Topics[x].selected) {
+                    this._selectedTopics.push(this.Topics[x].topic);
+                }
             }
+            if (this._selectedTopics.length === 0) {
+                this.showAllSelected = true;
+            }
+            this.selectedTopicsFromComp.emit(this._selectedTopics);
         }
-        if (this._selectedTopics.length === 0) {
-            this.showAllSelected = true;
-        }
-        this.selectedTopicsFromComp.emit(this._selectedTopics);
         for (var i = 0; i < this.Indicators.length; i++) {
-            if (this._selectedTopics.indexOf(this.Indicators[i].topics) !== -1) {
-                this.toggleIndicator(this.Indicators[i], true);
+            var assocTopics = this.Indicators[i].topics.split(', ');
+            for (var _i = 0, _a = this._selectedTopics; _i < _a.length; _i++) {
+                var t = _a[_i];
+                if (assocTopics.indexOf(t) !== -1) {
+                    this.toggleIndicator(this.Indicators[i], true);
+                }
             }
         }
         this.allTopicsFromComp.emit(this.Topics);
@@ -122,6 +121,8 @@ var TopicsComponent = (function () {
         var _this = this;
         this._indicatorService.getIndicators().subscribe(function (data) {
             _this.Indicators = data;
+            console.log('got indicators', _this.Indicators);
+            console.log('selected topics?', _this._selectedTopics);
             if (_this.Indicators.length > 0) {
                 for (var x = 0; x < _this.Indicators.length; x++) {
                     if (_this._inputIndicators[0] !== '') {
@@ -129,30 +130,32 @@ var TopicsComponent = (function () {
                             _this.toggleIndicator(_this.Indicators[x]);
                         }
                     }
-                    else {
-                        if (_this._inputTopics[0] !== 'All Topics') {
-                            if (_this._inputTopics.indexOf(_this.Indicators[x].topics) !== -1) {
-                                _this.toggleIndicator(_this.Indicators[x], true);
-                            }
-                        }
-                        else {
-                            _this.toggleIndicator(_this.Indicators[x], true);
+                }
+                console.log(_this.Topics);
+                if (_this._selectedTopics.length > 0) {
+                    _this.showAllSelected = _this._selectedTopics[0] !== 'All Topics' ? false : true;
+                    for (var x = 0; x < _this.Topics.length; x++) {
+                        if (_this._selectedTopics.indexOf(_this.Topics[x].topic) !== -1) {
+                            _this.toggleTopic(_this.Topics[x]);
                         }
                     }
                 }
-                _this.allIndicatorsFromComp.emit(_this.Indicators);
+                else {
+                    console.log('show all selected apparently');
+                    _this.showAllSelected = true;
+                }
             }
+            _this.initialLoad = false;
         }, function (err) { return console.error(err); }, function () { return console.log('done loading indicators'); });
     };
     TopicsComponent.prototype.ngOnInit = function () {
         this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
-        this._selectedTopics = this._inputTopics;
+        this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['Education'] : this._inputTopics;
+        console.log('input topics after replaces', this._inputTopics);
+        console.log('seletected topics after assessment', this._selectedTopics);
         this._inputIndicators = this.inputIndicators.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(';');
         this._selectedIndicators = this._inputIndicators;
         this.getTopics();
-        this.selected = this.inputTopics.length === 0 ? ['All Topics'] : this._inputTopics;
-        this.selectedTopicsFromComp.emit(this.selected);
-        this.selectedIndicatorsFromComp.emit(this._selectedIndicators);
     };
     __decorate([
         core_1.Output(), 

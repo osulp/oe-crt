@@ -26,7 +26,7 @@ var FindWrapperComponent = (function () {
                 this._router.navigate(['Explore', { indicator: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
             }
             else {
-                this._router.navigate(['Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
+                this._router.navigate(['Explore', { topics: 'All Topics' }]);
             }
         }
     };

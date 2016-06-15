@@ -17,7 +17,7 @@ var SelectedIndicatorByTopicsCountPipe = (function () {
                 return indicators.filter(function (indicator) { return indicator.selected; }).length;
             }
             else {
-                return indicators.filter(function (indicator) { return indicator.selected && indicator.topics === topic.topic; }).length;
+                return indicators.filter(function (indicator) { return indicator.selected && indicator.topics.split(', ').indexOf(topic.topic) !== -1; }).length;
             }
         }
     };

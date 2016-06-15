@@ -11,7 +11,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/share';
 
 @Component({
-    moduleId:module.id,
+    moduleId: module.id,
     selector: 'topics',
     templateUrl: 'topics.select.component.html',
     styleUrls: ['topics.select.component.css'],
@@ -42,6 +42,7 @@ export class TopicsComponent implements OnInit {
     chkBoxVisibile: boolean;
     showAllSelected: boolean;
     selected: string[];
+    initialLoad: boolean = true;
     //private subscription: Subscription;
 
     constructor(
@@ -84,20 +85,15 @@ export class TopicsComponent implements OnInit {
     }
 
     getTopics() {
-        this._topicService.getTopics().subscribe(
+        this._topicService.getCRTTopics().subscribe(
             (data: any) => {
                 this.Topics = data;
                 this.allTopicsFromComp.emit(this.Topics);
-                if (this._inputTopics.length > 0 && (this._inputTopics[0] !== 'All Topics' || this._inputTopics[0] !== '')) {
-                    this.showAllSelected = this._inputTopics[0] !== 'All Topics' ? false : true;
-                    for (var x = 0; x < this.Topics.length; x++) {
-                        if (this._inputTopics.indexOf(this.Topics[x].topic) !== -1) {
-                            this.Topics[x].toggleSelected();
-                        }
-                    }
-                } else {
-                    this.showAllSelected = true;
-                }
+                console.log('input topics = ', this._inputTopics);
+                //if ((this._selectedTopics.length > 0 && (this._selectedTopics[0] !== 'All Topics') || this._selectedTopics[0] !== '')) {
+                
+                //this._selectedTopics = this.Topics.filter((topic: any) => { console.log(topic); return topic.selected });
+                console.log('all topics', this.Topics);
                 this.getIndicators();
             },
             (err: any) => console.error(err),
@@ -106,6 +102,7 @@ export class TopicsComponent implements OnInit {
 
     toggleTopic(topic: Topic) {
         //turn off all topics, if selected
+        console.log('topic toggled', topic);
         this.showAllSelected = false;
         topic.toggleSelected();
         const idx = this.Topics.indexOf(topic);
@@ -114,22 +111,32 @@ export class TopicsComponent implements OnInit {
             topic,
             ...this.Topics.slice(idx + 1)
         ];
-        this._selectedTopics = [];
-        for (var x = 0; x < this.Topics.length; x++) {
-            if (this.Topics[x].selected) {
-                this._selectedTopics.push(this.Topics[x].topic);
+        if (!this.initialLoad) {
+            this._selectedTopics = [];
+            for (var x = 0; x < this.Topics.length; x++) {
+                if (this.Topics[x].selected) {
+                    this._selectedTopics.push(this.Topics[x].topic);
+                }
             }
+            if (this._selectedTopics.length === 0) {
+                this.showAllSelected = true;
+            }
+            this.selectedTopicsFromComp.emit(this._selectedTopics);
         }
-        if (this._selectedTopics.length === 0) {
-            this.showAllSelected = true;
-        }
-        this.selectedTopicsFromComp.emit(this._selectedTopics);
         //sync indicator selections
         for (var i = 0; i < this.Indicators.length; i++) {
-            if (this._selectedTopics.indexOf(this.Indicators[i].topics) !== -1) {
-                this.toggleIndicator(this.Indicators[i], true);
-                //this._selectedIndicatorsService.toggle(this.Indicators[i], true);
+            let assocTopics = this.Indicators[i].topics.split(', ');
+            //console.log(assocTopics);
+            for (let t of this._selectedTopics) {
+                //console.log('checking t:', t);
+                if (assocTopics.indexOf(t) !== -1) {
+                    this.toggleIndicator(this.Indicators[i], true);
+                }
             }
+            //if (this._selectedTopics.indexOf(this.Indicators[i].topics) !== -1) {
+            //    this.toggleIndicator(this.Indicators[i], true);
+            //    //this._selectedIndicatorsService.toggle(this.Indicators[i], true);
+            //}
         }
         this.allTopicsFromComp.emit(this.Topics);
         this.allIndicatorsFromComp.emit(this.Indicators);
@@ -165,6 +172,8 @@ export class TopicsComponent implements OnInit {
         this._indicatorService.getIndicators().subscribe(
             (data: any) => {
                 this.Indicators = data;
+                console.log('got indicators', this.Indicators);
+                console.log('selected topics?', this._selectedTopics);
                 if (this.Indicators.length > 0) {
                     for (var x = 0; x < this.Indicators.length; x++) {
                         if (this._inputIndicators[0] !== '') {
@@ -172,22 +181,22 @@ export class TopicsComponent implements OnInit {
                             if (this._inputIndicators.indexOf(this.Indicators[x].indicator) !== -1) {
                                 this.toggleIndicator(this.Indicators[x]);
                             }
-                        } else {
-                            //turn on for all selected topics                         
-                            if (this._inputTopics[0] !== 'All Topics') {
-                                if (this._inputTopics.indexOf(this.Indicators[x].topics) !== -1) {
-                                    this.toggleIndicator(this.Indicators[x], true);
-                                }
-                            } else {
-                                //all indicators for all topics                       
-                                this.toggleIndicator(this.Indicators[x], true);
-                            }
-
                         }
-
                     }
-                    this.allIndicatorsFromComp.emit(this.Indicators);
+                    console.log(this.Topics);
+                    if (this._selectedTopics.length > 0) {
+                        this.showAllSelected = this._selectedTopics[0] !== 'All Topics' ? false : true;
+                        for (var x = 0; x < this.Topics.length; x++) {
+                            if (this._selectedTopics.indexOf(this.Topics[x].topic) !== -1) {
+                                this.toggleTopic(this.Topics[x]);
+                            }
+                        }
+                    } else {
+                        console.log('show all selected apparently');
+                        this.showAllSelected = true;
+                    }
                 }
+                this.initialLoad = false;
             },
             (err: any) => console.error(err),
             () => console.log('done loading indicators'));
@@ -196,55 +205,16 @@ export class TopicsComponent implements OnInit {
     ngOnInit() {
         //console.log('Input Topics: ' + this.inputTopics);
         this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
-        this._selectedTopics = this._inputTopics;
+
+        this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['Education'] : this._inputTopics;
+        console.log('input topics after replaces', this._inputTopics);
+        console.log('seletected topics after assessment', this._selectedTopics);
         //console.log('Input Indicators: ' + this.inputIndicators);
         this._inputIndicators = this.inputIndicators.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(';');
         this._selectedIndicators = this._inputIndicators;
         //console.log('Selected Indicators: ' + this._selectedIndicators);
 
         this.getTopics();
-        //sync with component to update state/display
-        this.selected = this.inputTopics.length === 0 ? ['All Topics'] : this._inputTopics;
-        this.selectedTopicsFromComp.emit(this.selected);
-
-        this.selectedIndicatorsFromComp.emit(this._selectedIndicators);
-
-        //this.subscription = this._selectedIndicatorsService.selectionChanged$.subscribe(
-        //    data => {
-        //        this.Indicators = data;
-        //        console.log('testtttttttttttttttttttttt');
-        //        if (this.Indicators.length > 0) {
-        //            for (var x = 0; x < this.Indicators.length; x++) {
-        //                if (this._inputIndicators[0] !== '') {
-        //                    //turn on individual indicator from input url/selection                              
-        //                    if (this._inputIndicators.indexOf(this.Indicators[x].indicator) !== -1) {
-        //                        //this.toggleIndicator(this.Indicators[x]);
-        //                        this._selectedIndicatorsService.toggle(this.Indicators[x]);
-        //                    }
-        //                } else {
-        //                    //turn on for all selected topics                         
-        //                    if (this._inputTopics[0] !== 'All Topics') {
-        //                        if (this._inputTopics.indexOf(this.Indicators[x].topics) !== -1) {
-        //                            console.log('indicator in selected topic ' + this.Indicators[x]);
-        //                            //this.toggleIndicator(this.Indicators[x], true);
-        //                            this._selectedIndicatorsService.toggle(this.Indicators[x], true);
-        //                        }
-        //                    } else {
-        //                        //all indicators for all topics                       
-        //                        //this.toggleIndicator(this.Indicators[x], true);
-        //                        this._selectedIndicatorsService.toggle(this.Indicators[x], true);
-        //                    }
-
-        //                }
-
-        //            }
-        //            //this.allIndicatorsFromComp.emit(this.Indicators);
-        //        }
-        //    },
-        //    err => console.error(err),
-        //    () => console.log('done with subscribe event indicators')
-        //);
-        //this._selectedIndicatorsService.load();
     }
 }
 

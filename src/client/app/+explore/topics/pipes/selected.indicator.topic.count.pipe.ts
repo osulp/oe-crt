@@ -13,7 +13,7 @@ export class SelectedIndicatorByTopicsCountPipe implements PipeTransform {
             if (topic.topic === 'all') {
                 return indicators.filter(indicator => indicator.selected).length;
             } else {
-                return indicators.filter(indicator => indicator.selected && indicator.topics === topic.topic).length;
+                return indicators.filter(indicator => indicator.selected && indicator.topics.split(', ').indexOf(topic.topic) !== -1).length;
             }
         }
     }

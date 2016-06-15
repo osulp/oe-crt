@@ -17,7 +17,20 @@ export class IndicatorTopicFilterPipe implements PipeTransform {
                 }
             }
             if (selectedTopics.length > 0) {
-                return indicators.filter(indicator => selectedTopics.indexOf(indicator.topics) !== -1);
+                let filteredIndicators: any[] = [];
+                for (var i = 0; i < indicators.length; i++) {
+                    //console.log('shared pipe showing ', indicators[i]);
+                    let assocTopics = indicators[i].topics.split(', ');
+                    //console.log(assocTopics);
+                    for (let t of selectedTopics) {
+                        //console.log('checking t:', t);
+                        if (assocTopics.indexOf(t) !== -1) {
+                            filteredIndicators.push(indicators[i]);
+                        }
+                    }
+                }
+                console.log('Filtered Indicators: ', filteredIndicators);
+                return filteredIndicators;
             } else {
                 return indicators;
             }
