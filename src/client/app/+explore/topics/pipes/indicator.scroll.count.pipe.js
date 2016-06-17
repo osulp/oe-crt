@@ -8,27 +8,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var SelectedTopicsPipe = (function () {
-    function SelectedTopicsPipe() {
+var IndicatorScrollCountPipe = (function () {
+    function IndicatorScrollCountPipe() {
     }
-    SelectedTopicsPipe.prototype.transform = function (topics) {
-        if (topics !== undefined) {
-            var selectedTopics = topics.filter(function (topic) { return topic.selected; });
-            if (selectedTopics.length === 0) {
-                return topics;
-            }
-            else {
-                return selectedTopics;
-            }
+    IndicatorScrollCountPipe.prototype.transform = function (indicators, scrollCount) {
+        if (indicators !== undefined) {
+            return indicators.slice(0, scrollCount);
         }
     };
-    SelectedTopicsPipe = __decorate([
+    IndicatorScrollCountPipe = __decorate([
         core_1.Pipe({
-            name: 'SelectedTopicsPipe'
+            name: 'IndicatorScrollCountPipe'
         }), 
         __metadata('design:paramtypes', [])
-    ], SelectedTopicsPipe);
-    return SelectedTopicsPipe;
+    ], IndicatorScrollCountPipe);
+    return IndicatorScrollCountPipe;
 })();
-exports.SelectedTopicsPipe = SelectedTopicsPipe;
-//# sourceMappingURL=selected.topic.pipe.js.map
+exports.IndicatorScrollCountPipe = IndicatorScrollCountPipe;
+//# sourceMappingURL=indicator.scroll.count.pipe.js.map

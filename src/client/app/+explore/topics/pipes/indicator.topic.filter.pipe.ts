@@ -31,7 +31,7 @@ export class IndicatorTopicFilterPipe implements PipeTransform {
                     }
                 }
             }
-            console.log('Filtered Indicators explore filter pipe: ', filteredIndicators);
+            //console.log('Filtered Indicators explore filter pipe: ', filteredIndicators);
             return filteredIndicators;
         } else {
             console.log('shouldnt be here');

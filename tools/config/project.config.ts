@@ -42,6 +42,7 @@ export class ProjectConfig extends SeedConfig {
         this.SYSTEM_CONFIG.map['angular2-highcharts'] = `${this.APP_BASE}node_modules/angular2-highcharts/`;
         this.SYSTEM_CONFIG.map['highcharts/highstock.src'] = `${this.APP_BASE}node_modules/highcharts/highstock.src.js`;
         this.SYSTEM_CONFIG.map['highcharts/modules/map'] = `${this.APP_BASE}node_modules/highcharts/modules/map.js`;
+        this.SYSTEM_CONFIG.map['angular2-infinite-scroll'] = `${this.APP_BASE}node_modules/angular2-infinite-scroll/angular2-infinite-scroll.js`;
         /* Add to or override NPM module configurations: */
         //this.mergeObject(this.SYSTEM_CONFIG['map'], { leaflet: `${this.APP_ASSETS}/scripts/leaflet-1.0.0-beta.2.js}` });      
         //this.mergeObject( this.PLUGIN_CONFIGS['browser-sync'], { ghostMode: false } );

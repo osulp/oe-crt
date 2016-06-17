@@ -669,23 +669,77 @@ var DataTileComponent = (function () {
     DataTileComponent.prototype.createGraphChart = function () {
         if (this.placeTypeData.Metadata.length > 0) {
             console.log('making graph chart');
+            var chartScope = this;
             this.chart.xAxis[0].setCategories(this._tickLabels);
-            this.chart.xAxis[0].options.tickmarkPlacement = 'on';
-            this.chart.xAxis[0].options.min = 0;
-            this.chart.xAxis[0].options.max = this._tickArray.length - 1;
-            this.chart.xAxis[0].options.tickInterval = this._tickArray.length > 10 ? 2 : null;
-            this.chart.xAxis[0].options.plotLines = [{
-                    color: 'gray',
-                    dashStyle: 'longdashdot',
-                    width: 2,
-                    value: this.selectedYearIndex,
-                    id: 'plot-line-1'
-                }];
-            var indicatorYaxis = this.placeTypeData.Metadata[0]['Y-Axis'] !== null ? this.placeTypeData.Metadata[0]['Y-Axis'] : this.placeTypeData.Metadata[0].Variable;
-            this.chart.yAxis[0].setTitle({
-                text: indicatorYaxis,
-                margin: indicatorYaxis.length > 30 ? 40 : null,
-                style: { 'line-height': '.8em' }
+            this.chart.xAxis[0].update({
+                min: 0,
+                max: this._tickArray.length - 1,
+                tickInterval: this._tickArray.length > 10 ? 2 : null,
+                plotLines: [{
+                        color: 'gray',
+                        dashStyle: 'longdashdot',
+                        width: 2,
+                        value: this.selectedYearIndex,
+                        id: 'plot-line-1'
+                    }],
+                plotOptions: {
+                    series: {
+                        fillOpacity: 0.85,
+                        animation: {
+                            duration: 500
+                        },
+                        marker: {
+                            lineWidth: 1,
+                            symbol: 'circle'
+                        },
+                        connectNulls: true,
+                        threshold: 0
+                    }
+                }
+            });
+            this.chart.tooltip.options.shared = false;
+            this.chart.tooltip.options.useHTML = true;
+            this.chart.tooltip.options.formatter = function () {
+                var hoveredPlace = this.series.name
+                    .replace(' County', '')
+                    .replace(' School District', '')
+                    .replace(' Margin of Error', '');
+                if (this.series.name.match('Error')) {
+                    return false;
+                }
+                else {
+                    var displayValue = chartScope.formatValue(this.y, false) + '</b>';
+                    if (this.x.match('-')) {
+                        var value1 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][1]);
+                        var value2 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][0]);
+                        var moeValue = (value1 - value2) / 2;
+                        displayValue += '<span style="font-size:8px">  (+/- ' + chartScope.formatValue(moeValue, false) + ' )</span>';
+                    }
+                    return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size:10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><span><b>' + displayValue + '</span><br/>';
+                }
+            };
+            var indicatorYaxis = this.placeTypeData.Metadata[0]['Y-Axis'] !== null ? this.placeTypeData.Metadata[0]['Y-Axis'] : this.indicator;
+            this.chart.yAxis[0].update({
+                title: {
+                    text: indicatorYaxis,
+                    margin: indicatorYaxis.length > 30 ? 40 : null,
+                    style: { 'line-height': '.8em' }
+                },
+                labels: {
+                    formatter: function () {
+                        return chartScope.formatValue(this.value, true);
+                    }
+                },
+                plotLines: [{
+                        value: 0,
+                        width: 1,
+                        color: '#808080'
+                    }],
+                floor: 0,
+                min: 0
+            });
+            this.chart.setTitle({
+                text: this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator
             });
             this.addSeriesDataToGraphChart();
         }
@@ -1078,7 +1132,9 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.ngOnDestroy = function () {
-        this.subscription.unsubscribe();
+        if (this.subscription !== undefined) {
+            this.subscription.unsubscribe();
+        }
         if (this.geoSubscription !== undefined) {
             this.geoSubscription.unsubscribe();
         }

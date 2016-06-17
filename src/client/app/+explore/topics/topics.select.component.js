@@ -57,8 +57,6 @@ var TopicsComponent = (function () {
         this._topicService.getCRTTopics().subscribe(function (data) {
             _this.Topics = data;
             _this.allTopicsFromComp.emit(_this.Topics);
-            console.log('input topics = ', _this._inputTopics);
-            console.log('all topics', _this.Topics);
             _this.getIndicators();
         }, function (err) { return console.error(err); }, function () { return console.log('done loading topics'); });
     };
@@ -133,16 +131,18 @@ var TopicsComponent = (function () {
                 }
                 console.log(_this.Topics);
                 if (_this._selectedTopics.length > 0) {
-                    _this.showAllSelected = _this._selectedTopics[0] !== 'All Topics' ? false : true;
+                    console.log('jack has sause', _this._selectedTopics, _this._inputTopics);
+                    _this.showAllSelected = _this._selectedTopics[0] !== 'undefined' ? false : true;
                     for (var x = 0; x < _this.Topics.length; x++) {
                         if (_this._selectedTopics.indexOf(_this.Topics[x].topic) !== -1) {
                             _this.toggleTopic(_this.Topics[x]);
                         }
                     }
-                }
-                else {
-                    console.log('show all selected apparently');
-                    _this.showAllSelected = true;
+                    if (_this.showAllSelected) {
+                        for (var i = 0; i < _this.Indicators.length; i++) {
+                            _this.toggleIndicator(_this.Indicators[i], true);
+                        }
+                    }
                 }
             }
             _this.initialLoad = false;
@@ -150,7 +150,7 @@ var TopicsComponent = (function () {
     };
     TopicsComponent.prototype.ngOnInit = function () {
         this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
-        this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['Education'] : this._inputTopics;
+        this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['All Topics'] : this._inputTopics;
         console.log('input topics after replaces', this._inputTopics);
         console.log('seletected topics after assessment', this._selectedTopics);
         this._inputIndicators = this.inputIndicators.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(';');

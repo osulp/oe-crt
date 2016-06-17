@@ -27,7 +27,7 @@ var TopicsService = (function () {
             var result = [];
             if (topics) {
                 topics.forEach(function (topic) {
-                    result.push(new index_1.Topic(topic.topic, topic.icon, false));
+                    result.push(new index_1.Topic(topic.topic, topic.icon, topic.featured, false));
                 });
             }
             return result;

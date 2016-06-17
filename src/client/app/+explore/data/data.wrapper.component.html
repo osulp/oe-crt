@@ -1,4 +1,9 @@
-<div id="data-row-wrapper">
+<div id="data-row-wrapper" infinite-scroll
+     [infiniteScrollDistance]="scrollDownDistance"
+     [infiniteScrollUpDistance]="scrollUpDistance"
+     [infiniteScrollThrottle]="500"
+     (scrolled)="onScrollDown()"
+     (scrolledUp)="onScrollUp()">
     <div class="row">
         <div class="col-xs-12 place-col">
             <div id="data-control-bar">
@@ -15,17 +20,21 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12" *ngFor="let topic of inputTopics | SelectedTopicsPipe">
-            <div class="row">
-                <div class="col-xs-12">
-                    <indicators-by-topic-list #indicatorList [allTopicsView]="false" [inputIndicators]="inputIndicators" [inputTopics]="[topic]" (filteredIndicatorsFromComp)="onFilterIndicator($event)"></indicators-by-topic-list>
+        <div class="col-xs-12" *ngFor="let topic of inputTopics | SelectedTopicsPipe; let idx = index">
+            <div *ngIf="showTopic(topic, idx)">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <indicators-by-topic-list #indicatorList [inputIndicators]="inputIndicators" [inputTopics]="[topic]" (filteredIndicatorsFromComp)="onFilterIndicator($event)"></indicators-by-topic-list>
+                        <div class="back-to-top" *ngIf="idx > 0" (click)="scrollToTop()">Back to Top</div>
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid" *ngFor="let indicator of inputIndicators | SelectedIndicatorByTopicsPipe: topic">
-                    <data-tile #dataTile [indicator]="indicator.indicator" [tileType]="'graph'" [viewType]="'basic'"></data-tile>
-                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid" *ngFor="let indicator of inputIndicators | SelectedIndicatorByTopicsPipe: topic | IndicatorScrollCountPipe: showIndicatorCount">
+                        <data-tile #dataTile [indicator]="indicator.indicator" [tileType]="'graph'" [viewType]="'basic'"></data-tile>
+                    </div>
+                </div>                
             </div>
         </div>
+        <div class="back-to-top-from-bottom" (click)="scrollToTop()">Back to Top</div>
     </div>
 </div>

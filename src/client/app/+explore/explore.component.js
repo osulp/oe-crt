@@ -19,6 +19,7 @@ var ExploreComponent = (function () {
     function ExploreComponent(_selectedPlacesService, _router) {
         this._selectedPlacesService = _selectedPlacesService;
         this._router = _router;
+        this.allTopics = [];
         this.indicatorDetailView = false;
         this.initialIndicator = true;
     }
@@ -33,7 +34,7 @@ var ExploreComponent = (function () {
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
-                this._router.navigate(['/Explore', { indicator: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
+                this._router.navigate(['/Explore', { indicator: encodeURI(results.Name.replace('(', '%28').replace(')', '%29')) }]);
             }
             else {
                 this._router.navigate(['/Explore', { topics: 'All Topics' }]);
@@ -90,40 +91,26 @@ var ExploreComponent = (function () {
         var newState = this.updateQueryStringParam(qsParams);
         window.history.pushState({}, '', newState);
     };
-    ExploreComponent.prototype.getParameterByName = function (name) {
-        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-        return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-    };
     ExploreComponent.prototype.updateQueryStringParam = function (qsParams) {
-        console.log('updating qs params', qsParams);
         var baseUrl = [location.protocol, '//', location.host, location.pathname.split(';')[0]].join('');
-        console.log('baseUrl: ', baseUrl);
         var urlQueryString = location.pathname.replace(location.pathname.split(';')[0], '').replace('/Explore', '');
-        console.log('url query string', urlQueryString);
         var allParams = '';
         for (var x = 0; x < qsParams.length; x++) {
             var newParam = qsParams[x].value === '' ? '' : qsParams[x].key + '=' + qsParams[x].value;
             if (urlQueryString) {
-                console.log('yep querystring');
                 var keyRegex = new RegExp('([\;])' + qsParams[x].key + '([^;]*|[^,]*)');
-                console.log('regex qs', keyRegex);
                 if (urlQueryString.match(keyRegex) !== null) {
                     allParams = urlQueryString.replace(keyRegex, '$1' + newParam);
                 }
                 else {
-                    console.log('adding to end of qs', allParams);
-                    console.log('adding to end of qs', urlQueryString);
-                    console.log('adding to end of qs', newParam);
                     allParams = urlQueryString + (qsParams[x].value !== '' ? ';' : '') + newParam;
                 }
             }
             else {
                 var pathname = document.location.pathname;
                 var keyRegex = new RegExp('([\;])' + qsParams[x].key + '([^;]*|[^,]*)');
-                console.log('regex', keyRegex);
                 if (pathname.match(keyRegex) !== null) {
                     allParams = pathname.replace(keyRegex, '$1' + newParam);
-                    console.log('allparams', allParams);
                 }
                 else {
                     allParams = (qsParams[x].value !== '' ? ';' : '') + newParam;
@@ -131,20 +118,22 @@ var ExploreComponent = (function () {
             }
             urlQueryString = allParams;
         }
-        console.log((baseUrl + allParams).replace('?&', '?'));
-        console.log(document.location);
         return (baseUrl + allParams).replace('?&', '?');
     };
     ;
     ExploreComponent.prototype.ngOnInit = function () {
         var _this = this;
         console.log('topics from init?', this.selectedTopics);
-        this.allTopics = [];
         this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(function (data) {
             console.log('subscribe throwing event');
             console.log(data);
             _this.onPlacesChanged(data);
         }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
+    };
+    ExploreComponent.prototype.ngOnDestroy = function () {
+        if (this.subscription !== undefined) {
+            this.subscription.unsubscribe();
+        }
     };
     ExploreComponent = __decorate([
         core_1.Component({

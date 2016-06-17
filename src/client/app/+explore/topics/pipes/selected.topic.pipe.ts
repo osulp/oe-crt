@@ -8,15 +8,12 @@ import {Topic} from '../../../shared/data_models/index';
 export class SelectedTopicsPipe implements PipeTransform {
     transform(topics: Topic[]): any {
         if (topics !== undefined) {
-            let tempTopics = topics.filter(topic => topic.selected);
-            //if (tempTopics.length === 0) {
-            //    //TODO:  SCROLL on Demand logic
-            //    tempTopics = topics.filter(topic => topic.topic === 'Demographics');
-            //    if (tempTopics.length !== 0) {
-            //        tempTopics[0].selected = true;
-            //    }
-            //}
-            return tempTopics;
+            let selectedTopics = topics.filter(topic => topic.selected);
+            if (selectedTopics.length === 0) {
+                return topics;
+            } else {
+                return selectedTopics;
+            }
         }
     }
 }

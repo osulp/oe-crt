@@ -19,10 +19,11 @@ Highchmap(Highcharts);
 HighchartsMore(Highcharts);
 
 interface Chart {
-    xAxis: [{
-        setCategories: any;
-        options: any;
-    }];
+    //xAxis: [{
+    //    setCategories: any;
+    //    options: any;
+    //}];
+    xAxis: any;
     yAxis: any;
     series: any;
     addSeries: any;
@@ -872,24 +873,112 @@ export class DataTileComponent implements OnInit, OnDestroy {
         //TODO catch custom chart scenarios
         if (this.placeTypeData.Metadata.length > 0) {
             console.log('making graph chart');
+            var chartScope = this;
             this.chart.xAxis[0].setCategories(this._tickLabels);
-            this.chart.xAxis[0].options.tickmarkPlacement = 'on';
-            this.chart.xAxis[0].options.min = 0;
-            this.chart.xAxis[0].options.max = this._tickArray.length - 1;
-            this.chart.xAxis[0].options.tickInterval = this._tickArray.length > 10 ? 2 : null;
-            this.chart.xAxis[0].options.plotLines = [{
-                color: 'gray',
-                dashStyle: 'longdashdot',
-                width: 2,
-                value: this.selectedYearIndex,
-                id: 'plot-line-1'
-            }];
-            var indicatorYaxis = this.placeTypeData.Metadata[0]['Y-Axis'] !== null ? this.placeTypeData.Metadata[0]['Y-Axis'] : this.placeTypeData.Metadata[0].Variable;
-            this.chart.yAxis[0].setTitle({
-                text: indicatorYaxis,
-                margin: indicatorYaxis.length > 30 ? 40 : null,
-                style: { 'line-height': '.8em' }
+
+            this.chart.xAxis[0].update({
+                min: 0,
+                max: this._tickArray.length - 1,
+                tickInterval: this._tickArray.length > 10 ? 2 : null,
+                plotLines: [{
+                    color: 'gray',
+                    dashStyle: 'longdashdot',
+                    width: 2,
+                    value: this.selectedYearIndex,
+                    id: 'plot-line-1'
+                }],
+                plotOptions: {
+                    series: {
+                        fillOpacity: 0.85,
+                        animation: {
+                            duration: 500
+                        },
+                        marker: {
+                            lineWidth: 1,
+                            symbol: 'circle'
+                        },
+                        connectNulls: true,
+                        threshold: 0
+                    }
+                }
             });
+
+            this.chart.tooltip.options.shared = false;
+            this.chart.tooltip.options.useHTML = true;
+            this.chart.tooltip.options.formatter = function (): any {
+                //console.log('hovering', this);
+                //highlight corresponding map geography
+                //if (hoveredPlace !== undefined && hoveredPlace !== "Oregon") {
+                //    try { mapChart.get(hoveredPlace).setState(''); } catch (ex) { }
+                //}
+                let hoveredPlace = this.series.name
+                    .replace(' County', '')
+                    .replace(' School District', '')
+                    .replace(' Margin of Error', '');
+                ////if (hoveredPlace !== undefined) {
+                ////    try {
+                ////        mapChart.get(hoveredPlace).setState('hover');
+                ////    }
+                ////    catch (ex) {
+                ////    }
+                ////}
+                if (this.series.name.match('Error')) {
+                    return false;
+                    //var moe = formatValue((this.point.high - this.point.low) / 2);
+                    //return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size: 10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><b>+/-' + moe + '</b><br/>';
+                } else {
+                    var displayValue = chartScope.formatValue(this.y, false) + '</b>';
+                    if (this.x.match('-')) {
+                        //if (!drilldownShowing) {
+                        //console.log('hoevered place: ', hoveredPlace);
+                        //console.log('data store', chartScope.dataStore);
+                        let value1 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][1]);
+                        let value2 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][0]);
+                        let moeValue = (value1 - value2) / 2;
+                        //console.log(moeValue);
+                        displayValue += '<span style="font-size:8px">  (+/- ' + chartScope.formatValue(moeValue, false) + ' )</span>';
+                        //}
+                        //else {//only show MOE drill downs for State right now
+                        //    try {
+                        //        displayValue += '<span style="font-size:8px">  (+/- ' + formatValue((drill_data.years_moe[this.series.name].data[selectedYearIndexArray[this.x]][1] - drill_data.years_moe[this.series.name].data[selectedYearIndexArray[this.x]][0]) / 2) + ' )</span>';
+                        //    }
+                        //    catch (ex)
+                        //    { }
+                        //}
+                    }
+
+                    //var drillDownMsg = hasDrillDowns && !drilldownShowing && !isGPI && (isStateDDOnly && this.point.series.name === "Oregon" || !isStateDDOnly) && !hasDrillDownCategories ? '<span style="font-size:10px"><em>(Click on line to see demographics)</em></span>' : "";
+
+                    return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size:10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><span><b>' + displayValue + '</span><br/>';// + drillDownMsg;
+                }
+            };
+
+            let indicatorYaxis = this.placeTypeData.Metadata[0]['Y-Axis'] !== null ? this.placeTypeData.Metadata[0]['Y-Axis'] : this.indicator;
+            this.chart.yAxis[0].update({
+                title: {
+                    text: indicatorYaxis,
+                    margin: indicatorYaxis.length > 30 ? 40 : null,
+                    style: { 'line-height': '.8em' }
+                },
+                labels: {
+                    formatter: function () {
+                        return chartScope.formatValue(this.value, true);
+                    }
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: '#808080'
+                }],
+                floor: 0,
+                min: 0
+            });
+
+            this.chart.setTitle({
+                text: this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator
+            });
+
+
             this.addSeriesDataToGraphChart();
         } else {
             console.log('no chart for' + this.indicator);
@@ -1354,7 +1443,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     pluralize(value: string) {
         switch (value) {
             case 'County':
-                case '':
+            case '':
                 return 'Counties';
             case 'Census Tract':
                 return 'Census Tracts';
@@ -1414,7 +1503,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.subscription.unsubscribe();
+        if (this.subscription !== undefined) {
+            this.subscription.unsubscribe();
+        }
         if (this.geoSubscription !== undefined) {
             this.geoSubscription.unsubscribe();
         }

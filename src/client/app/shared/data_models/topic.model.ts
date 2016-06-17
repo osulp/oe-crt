@@ -3,7 +3,7 @@
     icon: string;
     featured: boolean;
     selected: boolean;
-    
+
     constructor(topic: string, icon: string, featured: boolean, selected: boolean) {
         this.topic = topic;
         this.icon = icon;

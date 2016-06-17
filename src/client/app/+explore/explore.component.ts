@@ -1,4 +1,4 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit, OnDestroy} from '@angular/core';
 import {Router, RouteSegment, RouteTree, OnActivate} from '@angular/router';
 //import {Router, RouteParams} from '@angular/router-deprecated';
 import {Subscription}   from 'rxjs/Subscription';
@@ -27,14 +27,14 @@ interface QueryStringParams {
     //providers: [SelectedPlacesService]
 })
 
-export class ExploreComponent implements OnInit, OnActivate {
+export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     //export class ExploreComponent implements OnInit {
     selectedTopics: any;
     selectedIndicators: any;
     selectedIndicator: any;
     selectedPlaces: any;
     allIndicators: Indicator[];
-    allTopics: Topic[];
+    allTopics: Topic[] = [];
     indicatorDetailView: boolean = false;
     initialIndicator: boolean;
     selectedSearchResult: SearchResult;
@@ -61,7 +61,7 @@ export class ExploreComponent implements OnInit, OnActivate {
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
-                this._router.navigate(['/Explore', { indicator: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
+                this._router.navigate(['/Explore', { indicator: encodeURI(results.Name.replace('(', '%28').replace(')', '%29')) }]);
             } else {
                 //this._router.navigate(['/Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
                 this._router.navigate(['/Explore', { topics: 'All Topics' }]);
@@ -128,75 +128,40 @@ export class ExploreComponent implements OnInit, OnActivate {
         window.history.pushState({}, '', newState);
     }
 
-    //onGetSelectedPlaceFromComp(results: any) {
-    //    console.log('Got Place selection for PlacesComponent');
-    //    this.selectedPlaces = results;
-    //}
-
-    getParameterByName(name: any) {
-        var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-        return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-    }
 
     updateQueryStringParam(qsParams: QueryStringParams[]) {
-        //console.log('updating qs params', qsParams);
-        //var baseUrl = [location.protocol, '//', location.host, location.pathname.replace('/%3C%=%20APP_BASE% 20 %%3E', '')].join('');
         var baseUrl = [location.protocol, '//', location.host, location.pathname.split(';')[0]].join('');
-        //console.log('baseUrl: ', baseUrl);
-        //var urlQueryString = location.pathname.replace(location.pathname.split(';')[0], ''); //
         var urlQueryString = location.pathname.replace(location.pathname.split(';')[0], '').replace('/Explore', '');
-        //console.log('url query string', urlQueryString);
-        //alert('break1');
         var allParams: string = '';
         for (var x = 0; x < qsParams.length; x++) {
-            //console.log(qsParams[x].value);
             var newParam = qsParams[x].value === '' ? '' : qsParams[x].key + '=' + qsParams[x].value;
-            //allParams = '?' + newParam;
-            //allParams = ';' + newParam;
-
             // If the 'search' string exists, then build params from it
             if (urlQueryString) {
-                console.log('yep querystring');
-                //var keyRegex = new RegExp('([\?&])' + qsParams[x].key + '([^&]*|[^,]*)');
                 var keyRegex = new RegExp('([\;])' + qsParams[x].key + '([^;]*|[^,]*)');
-                console.log('regex qs', keyRegex);
                 // If param exists already, update it
                 if (urlQueryString.match(keyRegex) !== null) {
-                    //console.log('regex = ' + keyRegex);
-                    //console.log(urlQueryString);
-                    //console.log(newParam);
                     allParams = urlQueryString.replace(keyRegex, '$1' + newParam);
-                    //allParams = urlQueryString.replace(keyRegex, '$1' + newParam);
-                } else { // Otherwise, add it to end of query string
-                    console.log('adding to end of qs', allParams);
-                    console.log('adding to end of qs', urlQueryString);
-                    console.log('adding to end of qs', newParam);
+                } else { // Otherwise, add it to end of query string                    
                     allParams = urlQueryString + (qsParams[x].value !== '' ? ';' : '') + newParam;
                 }
             } else {
                 let pathname = document.location.pathname;
                 var keyRegex = new RegExp('([\;])' + qsParams[x].key + '([^;]*|[^,]*)');
-                console.log('regex', keyRegex);
                 if (pathname.match(keyRegex) !== null) {
                     allParams = pathname.replace(keyRegex, '$1' + newParam);
-                    console.log('allparams', allParams);
                 } else {
-                    //allParams = pathname + (qsParams[x].value !== '' ? ';' : '') + newParam;
                     allParams = (qsParams[x].value !== '' ? ';' : '') + newParam;
                 }
             }
             urlQueryString = allParams;
         }
-        console.log((baseUrl + allParams).replace('?&', '?'));
-        console.log(document.location);
-        //alert('break');
         return (baseUrl + allParams).replace('?&', '?');
     };
+
     ngOnInit() {
         //this.selectedTopics = this._routeParams.getParam('topics');
         //this.selectedTopics = this.getParameterByName('topics');
         console.log('topics from init?', this.selectedTopics);
-        this.allTopics = [];
         this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
             data => {
                 console.log('subscribe throwing event');
@@ -207,6 +172,12 @@ export class ExploreComponent implements OnInit, OnActivate {
             () => console.log('done with subscribe event places selected')
         );
         //Sthis._selectedPlacesService
+    }
+
+    ngOnDestroy() {
+        if (this.subscription !== undefined) {
+            this.subscription.unsubscribe();
+        }
     }
 }
 

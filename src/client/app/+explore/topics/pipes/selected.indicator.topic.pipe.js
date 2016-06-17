@@ -14,6 +14,7 @@ var SelectedIndicatorByTopicsPipe = (function () {
     SelectedIndicatorByTopicsPipe.prototype.transform = function (indicators, topic) {
         if (indicators !== undefined) {
             if (topic.topic === 'all') {
+                console.log('gummy');
                 return indicators.filter(function (indicator) { return indicator.selected; }).length;
             }
             else {

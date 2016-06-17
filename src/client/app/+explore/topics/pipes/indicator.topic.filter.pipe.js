@@ -33,7 +33,6 @@ var IndicatorTopicFilterPipe = (function () {
                     }
                 }
             }
-            console.log('Filtered Indicators explore filter pipe: ', filteredIndicators);
             return filteredIndicators;
         }
         else {

@@ -9,10 +9,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var index_1 = require('../../shared/components/index');
-var index_2 = require('../../shared/services/index');
 var PlacesWrapperComponent = (function () {
-    function PlacesWrapperComponent(_selectedPlaceService) {
-        this._selectedPlaceService = _selectedPlaceService;
+    function PlacesWrapperComponent() {
         this.urlPlaces = [];
     }
     PlacesWrapperComponent.prototype.getClass = function () {
@@ -25,15 +23,12 @@ var PlacesWrapperComponent = (function () {
         }
     };
     PlacesWrapperComponent.prototype.ngOnInit = function () {
-        console.log('loaded explore places component', decodeURIComponent(this.inputPlaces));
         this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];
         var isOregon = false;
         var isCalifornia = false;
         var hasNoStatewide = false;
-        console.log('url places:', this.urlPlaces);
         for (var x = 0; x < this.urlPlaces.length; x++) {
             var place = this.urlPlaces[x];
-            console.log('processing place:', place);
             switch (place.ResID) {
                 case '41':
                     isOregon = true;
@@ -46,7 +41,6 @@ var PlacesWrapperComponent = (function () {
                     break;
             }
         }
-        console.log('state check', hasNoStatewide);
         this.selectedPlaceType = this.urlPlaces.length > 0 ? (hasNoStatewide ? 'CountiesCitiesTracts' : (isOregon ? 'Oregon' : 'California')) : 'Oregon';
     };
     __decorate([
@@ -65,7 +59,7 @@ var PlacesWrapperComponent = (function () {
             styleUrls: ['places.wrapper.component.css'],
             directives: [index_1.PlacesMapSelectComponent]
         }), 
-        __metadata('design:paramtypes', [index_2.SelectedPlacesService])
+        __metadata('design:paramtypes', [])
     ], PlacesWrapperComponent);
     return PlacesWrapperComponent;
 })();

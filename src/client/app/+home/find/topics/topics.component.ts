@@ -43,7 +43,7 @@ export class TopicsComponent implements OnInit {
     ngOnInit() {
         this._topicService.getCRTTopics().subscribe(
             (data: any) => {
-                console.log(data);
+                console.log('Home page topic service response:', data);
                 this.Topics = data;
             },
             (err: any) => console.error(err),

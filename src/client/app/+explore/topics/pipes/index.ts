@@ -5,5 +5,6 @@ export * from './indicator.topic.filter.pipe';
 export * from './selected.indicator.topic.count.pipe';
 export * from './selected.indicator.topic.pipe';
 export * from './selected.topic.pipe';
-
+export * from './indicator.scroll.count.pipe';
+//export * from './selected.visible.topic.pipe';
 

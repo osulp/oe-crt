@@ -29,7 +29,7 @@ export class IndicatorTopicFilterPipe implements PipeTransform {
                         }
                     }
                 }
-                console.log('Filtered Indicators: ', filteredIndicators);
+                //console.log('Filtered Indicators: ', filteredIndicators);
                 return filteredIndicators;
             } else {
                 return indicators;

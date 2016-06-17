@@ -29,7 +29,10 @@ export class FindWrapperComponent {
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
-                this._router.navigate(['Explore', { indicator: encodeURI(results.Name), topics: results.TypeCategory.split(';')[1] }]);
+                //this._router.navigate(['Explore', { indicator: encodeURIComponent(results.Name), topics: results.TypeCategory.split(';')[1] }]);
+                this._router.navigate(['Explore', {
+                    indicator: encodeURIComponent(results.Name.replace('(', '%28').replace(')', '%29'))
+                }]);
             } else {
                 //this._router.navigate(['Explore', { places: encodeURI(JSON.stringify(results)), topics: 'All Topics' }]);
                 this._router.navigate(['Explore', { topics: 'All Topics' }]);

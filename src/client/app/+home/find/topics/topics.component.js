@@ -29,7 +29,7 @@ var TopicsComponent = (function () {
     TopicsComponent.prototype.ngOnInit = function () {
         var _this = this;
         this._topicService.getCRTTopics().subscribe(function (data) {
-            console.log(data);
+            console.log('Home page topic service response:', data);
             _this.Topics = data;
         }, function (err) { return console.error(err); }, function () { return console.log('done loading topics'); });
     };

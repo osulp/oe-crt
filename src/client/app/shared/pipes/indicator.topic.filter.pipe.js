@@ -32,7 +32,6 @@ var IndicatorTopicFilterPipe = (function () {
                         }
                     }
                 }
-                console.log('Filtered Indicators: ', filteredIndicators);
                 return filteredIndicators;
             }
             else {

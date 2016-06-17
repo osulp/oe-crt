@@ -63,7 +63,7 @@ export class TopicsComponent implements OnInit {
         this.visible = !this.visible;
     }
 
-    toggleAllTopics(evt: any) {
+    toggleAllTopics(evt?: any) {
         this.showAllSelected = this.showAllSelected ? this.showAllSelected : !this.showAllSelected;
         if (this.showAllSelected) {
             //turn off any other selected topics and set selected to all
@@ -89,11 +89,8 @@ export class TopicsComponent implements OnInit {
             (data: any) => {
                 this.Topics = data;
                 this.allTopicsFromComp.emit(this.Topics);
-                console.log('input topics = ', this._inputTopics);
-                //if ((this._selectedTopics.length > 0 && (this._selectedTopics[0] !== 'All Topics') || this._selectedTopics[0] !== '')) {
-                
-                //this._selectedTopics = this.Topics.filter((topic: any) => { console.log(topic); return topic.selected });
-                console.log('all topics', this.Topics);
+                //console.log('input topics = ', this._inputTopics);                
+                //console.log('all topics', this.Topics);
                 this.getIndicators();
             },
             (err: any) => console.error(err),
@@ -185,15 +182,18 @@ export class TopicsComponent implements OnInit {
                     }
                     console.log(this.Topics);
                     if (this._selectedTopics.length > 0) {
-                        this.showAllSelected = this._selectedTopics[0] !== 'All Topics' ? false : true;
+                        console.log('jack has sause', this._selectedTopics, this._inputTopics);
+                        this.showAllSelected = this._selectedTopics[0] !== 'undefined' ? false : true;
                         for (var x = 0; x < this.Topics.length; x++) {
                             if (this._selectedTopics.indexOf(this.Topics[x].topic) !== -1) {
                                 this.toggleTopic(this.Topics[x]);
                             }
                         }
-                    } else {
-                        console.log('show all selected apparently');
-                        this.showAllSelected = true;
+                        if (this.showAllSelected) {
+                            for (var i = 0; i < this.Indicators.length; i++) {
+                                this.toggleIndicator(this.Indicators[i], true);
+                            }
+                        }
                     }
                 }
                 this.initialLoad = false;
@@ -206,7 +206,7 @@ export class TopicsComponent implements OnInit {
         //console.log('Input Topics: ' + this.inputTopics);
         this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
 
-        this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['Education'] : this._inputTopics;
+        this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['All Topics'] : this._inputTopics;
         console.log('input topics after replaces', this._inputTopics);
         console.log('seletected topics after assessment', this._selectedTopics);
         //console.log('Input Indicators: ' + this.inputIndicators);
