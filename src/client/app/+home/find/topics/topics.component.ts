@@ -1,9 +1,8 @@
 import {Component, OnInit}  from '@angular/core';
 import {JSONP_PROVIDERS}  from '@angular/http';
-//import {Router} from '@angular/router-deprecated';
 import {Router} from '@angular/router';
 import {Observable}       from 'rxjs/Observable';
-import {TopicsService} from '../../../shared/services/index';
+import {TopicsService} from '../../../shared/services/topics/topics.service';
 import {TopicCountPipe} from './topic.count.pipe';
 import 'rxjs/add/operator/map';
 

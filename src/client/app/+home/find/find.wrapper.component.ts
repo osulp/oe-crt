@@ -9,9 +9,9 @@ import {Router} from '@angular/router';
 @Component({
     moduleId: module.id,
     selector: 'find-wrapper',
-    templateUrl: 'find.wrapper.component..html',
+    templateUrl: 'find.wrapper.component.html',
     styleUrls: ['find.wrapper.component..css'],
-    directives: [SearchComponent, TopicsComponent, PlacesComponent]
+    directives: [SearchComponent, PlacesComponent, TopicsComponent]
 })
 
 export class FindWrapperComponent {

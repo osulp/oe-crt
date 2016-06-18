@@ -36,9 +36,9 @@ var FindWrapperComponent = (function () {
         core_1.Component({
             moduleId: module.id,
             selector: 'find-wrapper',
-            templateUrl: 'find.wrapper.component..html',
+            templateUrl: 'find.wrapper.component.html',
             styleUrls: ['find.wrapper.component..css'],
-            directives: [search_component_1.SearchComponent, topics_component_1.TopicsComponent, places_component_1.PlacesComponent]
+            directives: [search_component_1.SearchComponent, places_component_1.PlacesComponent, topics_component_1.TopicsComponent]
         }), 
         __metadata('design:paramtypes', [router_1.Router])
     ], FindWrapperComponent);

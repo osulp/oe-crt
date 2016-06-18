@@ -23,8 +23,8 @@ interface QueryStringParams {
     selector: 'explore',
     templateUrl: 'explore.component.html',
     styleUrls: ['explore.component.css'],
-    directives: [SearchComponent, TopicsComponent, PlacesWrapperComponent, DataComponent, DetailComponent]//,
-    //providers: [SelectedPlacesService]
+    directives: [SearchComponent, TopicsComponent, PlacesWrapperComponent, DataComponent, DetailComponent],
+    providers: [SelectedPlacesService]
 })
 
 export class ExploreComponent implements OnInit, OnActivate, OnDestroy {

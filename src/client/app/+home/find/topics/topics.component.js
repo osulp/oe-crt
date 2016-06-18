@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var http_1 = require('@angular/http');
 var router_1 = require('@angular/router');
-var index_1 = require('../../../shared/services/index');
+var topics_service_1 = require('../../../shared/services/topics/topics.service');
 var topic_count_pipe_1 = require('./topic.count.pipe');
 require('rxjs/add/operator/map');
 var TopicsComponent = (function () {
@@ -39,10 +39,10 @@ var TopicsComponent = (function () {
             selector: 'topics',
             templateUrl: 'topics.component.html',
             styleUrls: ['topics.component.css'],
-            providers: [http_1.JSONP_PROVIDERS, index_1.TopicsService],
+            providers: [http_1.JSONP_PROVIDERS, topics_service_1.TopicsService],
             pipes: [topic_count_pipe_1.TopicCountPipe]
         }), 
-        __metadata('design:paramtypes', [index_1.TopicsService, router_1.Router])
+        __metadata('design:paramtypes', [topics_service_1.TopicsService, router_1.Router])
     ], TopicsComponent);
     return TopicsComponent;
 })();

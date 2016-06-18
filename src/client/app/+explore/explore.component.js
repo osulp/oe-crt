@@ -141,7 +141,8 @@ var ExploreComponent = (function () {
             selector: 'explore',
             templateUrl: 'explore.component.html',
             styleUrls: ['explore.component.css'],
-            directives: [index_1.SearchComponent, topics_select_component_1.TopicsComponent, places_wrapper_component_1.PlacesWrapperComponent, data_wrapper_component_1.DataComponent, indicator_detail_component_1.DetailComponent]
+            directives: [index_1.SearchComponent, topics_select_component_1.TopicsComponent, places_wrapper_component_1.PlacesWrapperComponent, data_wrapper_component_1.DataComponent, indicator_detail_component_1.DetailComponent],
+            providers: [index_2.SelectedPlacesService]
         }), 
         __metadata('design:paramtypes', [index_2.SelectedPlacesService, router_1.Router])
     ], ExploreComponent);
