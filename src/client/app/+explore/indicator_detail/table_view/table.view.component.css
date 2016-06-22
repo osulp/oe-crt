@@ -1,0 +1,36 @@
+#tableData{
+    width:100%;
+    border:none;
+    padding:20px;
+    background-color:#E9E9E6;
+    border-radius:4px;
+    padding:20px;
+}
+
+
+    #tableData td {
+        height:60px;
+        align-content:center;
+        vertical-align:middle;
+    }
+
+    #tableData tr{
+        border-bottom:solid 1px rgba(128, 128, 128, 0.50);
+    }
+
+    .dataVal{
+        font-size:.9em;
+    }
+    .dataValMoe{
+        font-size:.7em;
+        color:#413c3c;
+        display:block;
+    }
+
+    .tableYear{
+        font-weight:bold;
+    }
+
+    #tableData .theading{
+    font-weight:bold;    
+}

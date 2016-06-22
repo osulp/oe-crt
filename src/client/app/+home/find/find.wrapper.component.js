@@ -28,7 +28,7 @@ var FindWrapperComponent = (function () {
                     }]);
             }
             else {
-                this._router.navigate(['Explore', { topics: 'All Topics' }]);
+                this._router.navigate(['Explore', { places: encodeURI(JSON.stringify(results)) }]);
             }
         }
     };

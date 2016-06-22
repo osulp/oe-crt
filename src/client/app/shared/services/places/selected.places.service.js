@@ -57,7 +57,7 @@ var SelectedPlacesService = (function () {
                 console.log('places from inside setAllPlaceMap');
                 return state
                     .filter(function (places) {
-                    return places.TypeCategory !== args[1];
+                    return _this.translatePlaceTypes(places.TypeCategory) !== args[1];
                 })
                     .concat(args[0]);
             };
@@ -79,7 +79,28 @@ var SelectedPlacesService = (function () {
         this.removePlace.next(place.Name);
     };
     SelectedPlacesService.prototype.setAllbyPlaceType = function (places, placeType) {
-        this._setAllByPlaceType.next([places, placeType]);
+        var translatedPlaceType = this.translatePlaceTypes(placeType);
+        this._setAllByPlaceType.next([places, translatedPlaceType]);
+    };
+    SelectedPlacesService.prototype.translatePlaceTypes = function (placeType) {
+        switch (placeType) {
+            case 'County':
+            case 'Counties':
+                return 'Counties';
+            case 'Census Designated Place':
+            case 'Incorporated City':
+            case 'Incorporated Town':
+            case 'City':
+            case 'Cities':
+            case 'Places':
+                return 'Places';
+            case 'Census Tract':
+            case 'Census Tracts':
+            case 'Unicorporated Place':
+                return 'Tracts';
+            default:
+                return placeType;
+        }
     };
     SelectedPlacesService = __decorate([
         core_1.Injectable(), 

@@ -154,7 +154,7 @@ export class PlacesMapSelectComponent implements OnInit {
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);
             this.selPlacesEvt.emit(this.selectedSearchResults);
-            this._selectedPlacesService.add(place, 'search');
+            this._selectedPlacesService.add(place, 'map');
         }
     }
 
@@ -173,7 +173,7 @@ export class PlacesMapSelectComponent implements OnInit {
         if (indexPos === -1) {
             this.selectedSearchResults.push(compareResult);
             this.selPlacesEvt.emit(this.selectedSearchResults);
-            this._selectedPlacesService.add(compareResult, 'search');
+            this._selectedPlacesService.add(compareResult, 'map');
         }
     }
 

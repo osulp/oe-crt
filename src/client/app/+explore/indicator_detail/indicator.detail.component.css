@@ -19,6 +19,11 @@
     margin: 0 auto;
 }
 
+#tableView{
+    margin-left:-15px;
+    margin-right:15px;
+}
+
 .toggleView {
     border-right: 1px solid #D1CDC7;
 }

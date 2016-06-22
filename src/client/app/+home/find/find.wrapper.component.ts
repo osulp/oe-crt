@@ -34,8 +34,8 @@ export class FindWrapperComponent {
                     indicator: encodeURIComponent(results.Name.replace('(', '%28').replace(')', '%29'))
                 }]);
             } else {
-                //this._router.navigate(['Explore', { places: encodeURI(JSON.stringify(results)), topics: 'All Topics' }]);
-                this._router.navigate(['Explore', { topics: 'All Topics' }]);
+                this._router.navigate(['Explore', { places: encodeURI(JSON.stringify(results)) }]);
+                //this._router.navigate(['Explore', { topics: 'All Topics' }]);
             }
         }
     }

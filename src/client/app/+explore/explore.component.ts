@@ -61,7 +61,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
-                this._router.navigate(['/Explore', { indicator: encodeURI(results.Name.replace('(', '%28').replace(')', '%29')) }]);
+                this._router.navigate(['/Explore', { indicator: encodeURI(results.Name).replace('(', '%28').replace(')', '%29') }]);
             } else {
                 //this._router.navigate(['/Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
                 this._router.navigate(['/Explore', { topics: 'All Topics' }]);

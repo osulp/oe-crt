@@ -56,7 +56,7 @@ export class SelectedPlacesService {
                     console.log('places from inside setAllPlaceMap');
                     return state
                         .filter((places: any) => {
-                            return places.TypeCategory !== args[1];
+                            return this.translatePlaceTypes(places.TypeCategory) !== args[1];
                         })
                         .concat(args[0]);
                 };
@@ -85,6 +85,28 @@ export class SelectedPlacesService {
     }
 
     setAllbyPlaceType(places: any, placeType: string): void {
-        this._setAllByPlaceType.next([places, placeType]);
+        let translatedPlaceType = this.translatePlaceTypes(placeType);
+        this._setAllByPlaceType.next([places, translatedPlaceType]);
+    }
+
+    translatePlaceTypes(placeType: string) {
+        switch (placeType) {
+            case 'County':
+            case 'Counties':
+                return 'Counties';
+            case 'Census Designated Place':
+            case 'Incorporated City':
+            case 'Incorporated Town':
+            case 'City':
+            case 'Cities':
+            case 'Places':
+                return 'Places';
+            case 'Census Tract':
+            case 'Census Tracts':
+            case 'Unicorporated Place':
+                return 'Tracts';
+            default:
+                return placeType;
+        }
     }
 }

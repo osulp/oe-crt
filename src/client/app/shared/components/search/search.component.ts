@@ -23,8 +23,10 @@ import 'rxjs/add/operator/share';
 
 export class SearchComponent {
     @Input() viewType: any;
+    @Input() filterType: any;
     @Output() selSearchResultEvt = new EventEmitter();
     term = new Control();
+    filter: string = '%';
     searchTerms: string;
     selectedSearchResult: SearchResult;
     tempResults: any[];
@@ -35,6 +37,9 @@ export class SearchComponent {
         public _helperFuncs: HelperFunctions,
         private _router: Router,
         private _selectedPlacesService: SelectedPlacesService) {
+        //console.log('searching for shit', this.filterType);
+        this.filter = this.filterType !== undefined ? this.filterType : this.filter;
+        //var searchScope = this;
         this.items = this.term.valueChanges
             .debounceTime(200)
             .distinctUntilChanged()
@@ -47,9 +52,9 @@ export class SearchComponent {
     }
 
     selectResult(searchItem: SearchResult) {
-        console.log('madeleine', searchItem);
+        //console.log('madeleine', searchItem);
         if (searchItem.Type === 'Place') {
-            this._selectedPlacesService.add(searchItem, 'search');
+            this._selectedPlacesService.add(searchItem, 'map');
         }
         this.selSearchResultEvt.emit(searchItem);
     }
@@ -117,5 +122,15 @@ export class SearchComponent {
         }, 1);
         //event.preventDefault();
     }
+    //ngOnInit() {
+    //    console.log('searching for shit', this.filterType);
+    //    this.filter = this.filterType !== undefined ? this.filterType : this.filter;
+    //    this.items = this.term.valueChanges
+    //        .debounceTime(200)
+    //        .distinctUntilChanged()
+    //        .switchMap((term: any) => this._searchService.search(term !== undefined ? term.toString() : ''), (this.filter !== undefined ? this.filter : null))
+    //        .share();
+    //    this.items.subscribe(value => this.tempResults = value);
+    //}
 }
 

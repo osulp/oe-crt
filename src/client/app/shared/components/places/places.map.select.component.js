@@ -127,7 +127,7 @@ var PlacesMapSelectComponent = (function () {
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);
             this.selPlacesEvt.emit(this.selectedSearchResults);
-            this._selectedPlacesService.add(place, 'search');
+            this._selectedPlacesService.add(place, 'map');
         }
     };
     PlacesMapSelectComponent.prototype.addPlaceCompare = function (compareType) {
@@ -142,7 +142,7 @@ var PlacesMapSelectComponent = (function () {
         if (indexPos === -1) {
             this.selectedSearchResults.push(compareResult);
             this.selPlacesEvt.emit(this.selectedSearchResults);
-            this._selectedPlacesService.add(compareResult, 'search');
+            this._selectedPlacesService.add(compareResult, 'map');
         }
     };
     PlacesMapSelectComponent.prototype.onSelectedPlacesChanged = function (places) {

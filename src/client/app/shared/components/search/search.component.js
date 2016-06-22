@@ -27,6 +27,8 @@ var SearchComponent = (function () {
         this._selectedPlacesService = _selectedPlacesService;
         this.selSearchResultEvt = new core_1.EventEmitter();
         this.term = new common_1.Control();
+        this.filter = '%';
+        this.filter = this.filterType !== undefined ? this.filterType : this.filter;
         this.items = this.term.valueChanges
             .debounceTime(200)
             .distinctUntilChanged()
@@ -38,9 +40,8 @@ var SearchComponent = (function () {
         this.selectResult(searchItem);
     };
     SearchComponent.prototype.selectResult = function (searchItem) {
-        console.log('madeleine', searchItem);
         if (searchItem.Type === 'Place') {
-            this._selectedPlacesService.add(searchItem, 'search');
+            this._selectedPlacesService.add(searchItem, 'map');
         }
         this.selSearchResultEvt.emit(searchItem);
     };
@@ -110,6 +111,10 @@ var SearchComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', Object)
     ], SearchComponent.prototype, "viewType", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], SearchComponent.prototype, "filterType", void 0);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', Object)
