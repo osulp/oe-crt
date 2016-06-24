@@ -1,7 +1,10 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
-import {Control, CORE_DIRECTIVES} from '@angular/common';
+import {Control, CORE_DIRECTIVES, COMMON_DIRECTIVES} from '@angular/common';
 //import {RouteParams} from 'angular2/router';
 import {JSONP_PROVIDERS}  from '@angular/http';
+import {DND_DIRECTIVES} from 'ng2-dnd/ng2-dnd';
+import {Dragula} from 'ng2-dragula/ng2-dragula';
+import {DragulaService} from 'ng2-dragula/ng2-dragula';
 import {MapLeafletComponent} from '../../components/map/map.leaflet.component';
 //import {MapComponent} from '../../components/map/map.component';
 import {SearchPlacesService, SelectedPlacesService} from '../../services/index';
@@ -19,7 +22,14 @@ import 'rxjs/add/operator/share';
     templateUrl: 'places.map.select.component.html',
     styleUrls: ['places.map.select.component.css'],
     providers: [JSONP_PROVIDERS, SearchPlacesService],
-    directives: [CORE_DIRECTIVES, MapLeafletComponent]
+    viewProviders: [DragulaService],
+    directives: [
+        CORE_DIRECTIVES,
+        MapLeafletComponent,
+        COMMON_DIRECTIVES,
+        DND_DIRECTIVES,
+        Dragula
+    ]
 })
 
 export class PlacesMapSelectComponent implements OnInit {
@@ -39,11 +49,37 @@ export class PlacesMapSelectComponent implements OnInit {
     searchResults: Observable<any>;
     mapOptions: any = null;
     urlPlaces: any;
-
-    constructor(
-        //private _routerParams: RouteParams,
+    
+    constructor(        
         private _searchPlaceService: SearchPlacesService,
-        private _selectedPlacesService: SelectedPlacesService) {
+        private _selectedPlacesService: SelectedPlacesService,
+        dragulaService: DragulaService
+    ) {
+        ////setup dragNdrop for creating content
+        dragulaService.setOptions('bag-crt', {
+            copy: false,
+            copySortSource: false
+        })
+
+        //dragulaService.drag.subscribe((value:any) => {
+        //    console.log(`drag: ${value[0]}`);
+        //    this.onDrag(value.slice(1));
+        //});
+        dragulaService.drop.subscribe((value:any) => {
+            console.log(`drop: ${value[0]}`);
+            this.onDrop(value.slice(1));
+            //this.onDrop(value);
+        });
+        dragulaService.over.subscribe((value:any) => {
+            console.log(`over: ${value[0]}`);
+            this.onOver(value.slice(1));
+            //this.onOver(value);
+        });
+        dragulaService.out.subscribe((value:any) => {
+            console.log(`out: ${value[0]}`);
+            this.onOut(value.slice(1));
+        });        
+
         this.searchResults = this.term.valueChanges
             .debounceTime(200)
             .distinctUntilChanged()
@@ -54,6 +90,66 @@ export class PlacesMapSelectComponent implements OnInit {
         this.selectedSearchResults = [];
         //this.urlPlaces = this._routerParams.get('places');
     }
+
+    onDrag(args:any) {
+        let [e, el] = args;
+        console.log('on drag', args);
+        this.setPlaceBinClasses(e);
+        // do something
+    }
+
+    onDrop(args: any) {
+        let [e, src, target] = args;
+        this.setPlaceBinClasses(e);
+        console.log('on drop', args);
+        if (args[2] === null) {
+            return;
+        }        
+    }    
+
+    onOver(args: any) {
+        //if (args[2] === null) //dragged outside any of the bags
+        //    return;
+        //if (args[2].id !== "content" && args[2].id !== args[3].id) //dragged to a container that should not add the element
+        //    args[1].remove();
+        //console.log('what the value', args);
+        let [e, src, target] = args;
+        //console.log('on over', e, src, target);
+        //console.log('src placename', src.attributes['placename']);
+        ////check if same placeType
+        //if (this.translatePlaceTypes(src.attributes['placetype']) === this.translatePlaceTypes(target.attributes['placetype'])) {
+        //    console.log('good to merge!');
+        //} else {
+        //    console.log('sorry charlie');  
+        //    //args[1].remove();              
+        //    return;              
+        //}
+        this.setPlaceBinClasses(e);
+    }
+
+    onOut(args:any) {
+        let [e, el, container] = args;
+        console.log('on out', args);
+        this.setPlaceBinClasses(e);
+        if (container.children.length > 0) {
+            this.setPlaceBinClasses(container.children[0]);
+        }
+        
+    }    
+
+    setPlaceBinClasses(e: any) {
+        if (e.parentNode !== undefined) {
+            for (var i = 0; i < e.parentNode.children.length; i++) {
+                if (e.parentNode.children.length === 1) {
+                    var reg = new RegExp(' combinedPlaces', "g");
+                    e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, "");
+                } else {
+                    e.parentNode.children[i].className += ' combinedPlaces';
+                }
+            }
+        }
+    }    
+
 
     inputSearchClickHandler(event: any, result: SearchResult) {
         this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
@@ -197,6 +293,28 @@ export class PlacesMapSelectComponent implements OnInit {
         // bind the map title
         //this.title = response.itemInfo.item.title;
     }
+
+    translatePlaceTypes(placeType: string) {
+        switch (placeType) {
+            case 'County':
+            case 'Counties':
+            case 'State':
+                return 'Counties';
+            case 'Census Designated Place':
+            case 'Incorporated City':
+            case 'Incorporated Town':
+            case 'City':
+            case 'Cities':
+                return 'Places';
+            case 'Census Tract':
+            case 'Census Tracts':
+            case 'Unicorporated Place':
+                return 'Tracts';
+            default:
+                return placeType;
+        }
+    }
+
     ngOnInit() {
         this._selectedPlacesService.selectionChanged$.subscribe(updatedPlaces => this.onSelectedPlacesChanged(updatedPlaces));
         this._selectedPlacesService.load();

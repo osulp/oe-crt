@@ -9,14 +9,13 @@
 /*@import url(https://fonts.googleapis.com/css?family=Lato);*/
 
 @font-face {
-    font-family: AvenirLTCom-Book;   
+    font-family: AvenirLTCom-Book;
     src: url('fonts/AvenirLTCom-Book.ttf') format('truetype'),url('fonts/AvenirLTCom-Book.eot');
 }
 
 @font-face {
-    font-family: AvenirLTStd-Light;   
-    src: url('fonts/AvenirLTStd-Light.eot'), 
-    url('fonts/AvenirLTStd-Light.otf');
+    font-family: AvenirLTStd-Light;
+    src: url('fonts/AvenirLTStd-Light.eot'), url('fonts/AvenirLTStd-Light.otf');
 }
 
 
@@ -54,14 +53,13 @@ h2 {
     font-size: 22px !important;
     color: #292E31;
     line-height: 30px;
-} 
-
-h2.h2-light{
-    font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    color:#ffffff;
-    line-height:20px;
-
 }
+
+    h2.h2-light {
+        font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+        color: #ffffff;
+        line-height: 20px;
+    }
 
 h3 {
     /* H3 Avenir Heavy 20: */
@@ -91,18 +89,15 @@ a {
 /*#endregion */
 
 
-.ui-slider-wrapper
-{
+.ui-slider-wrapper {
     position: relative;
 }
 
-    .ui-slider-wrapper .ui-slider-horizontal
-    {
+    .ui-slider-wrapper .ui-slider-horizontal {
         width: 100%;
     }
 
-.ui-slider-labels
-{
+.ui-slider-labels {
     position: absolute;
     border: 1px solid transparent;
 }
@@ -123,54 +118,46 @@ a {
     transform-origin: 100% 10px;*/
 }
 
-    .ui-slider-label-ticks span
-    {
+    .ui-slider-label-ticks span {
         font-size: .65em;
         min-width: 1.1em;
     }
 
-.ui-slider-wrapper.horizontal
-{
+.ui-slider-wrapper.horizontal {
     height: 3.5em;
 }
 
-.horizontal .ui-slider-labels
-{
+.horizontal .ui-slider-labels {
     left: 0;
     right: 0;
     top: .7em;
 }
 
-.horizontal .ui-slider-label-ticks
-{
+.horizontal .ui-slider-label-ticks {
     width: 1.2em;
     height: .8em;
     text-align: center;
     border-left: 1px solid #999;
 }
 
-    .horizontal .ui-slider-label-ticks span
-    {
+    .horizontal .ui-slider-label-ticks span {
         position: relative;
         display: inline-block;
         margin-left: -1.2em;
         top: .8em;
     }
 
-.ui-slider-wrapper.vertical
-{
+.ui-slider-wrapper.vertical {
     width: 4.5em;
 }
 
-.vertical .ui-slider-labels
-{
+.vertical .ui-slider-labels {
     top: 1px;
     bottom: 0;
     left: .7em;
 }
 
-.vertical .ui-slider-label-ticks
-{
+.vertical .ui-slider-label-ticks {
     height: 1.2em;
     width: .8em;
     border-bottom: 1px solid #999;
@@ -181,7 +168,7 @@ a {
         display: inline-block;
         margin-left: 1em;
         top: .6em;
-    }       
+    }
 
 /*.ui-state-default .ui-icon
 {
@@ -191,18 +178,18 @@ a {
 #dateSlider span.ui-slider-handle {
     background: none !important;
     background-color: #C34500 !important;
-    width:2em;
-    height:2em;
-    top:-.7em;
-    border:none;
+    width: 2em;
+    height: 2em;
+    top: -.7em;
+    border: none;
 }
 
 
 /*All screens sizes*/
-#main_content {    
+#main_content {
     background-color: white;
-    height: auto;    
-    padding:0;
+    height: auto;
+    padding: 0;
 }
 
 home, explore, about, collections {
@@ -210,29 +197,29 @@ home, explore, about, collections {
 }
 
 search {
-    text-align:center;
+    text-align: center;
 }
 
 .page_wrapper {
     background-color: #F6F6F5;
-    padding:0;
-    margin:4px 0 0 0;   
+    padding: 0;
+    margin: 4px 0 0 0;
 }
 
-home .page_wrapper{
-    margin:0;
-}
-        
-
-.row-centered{
-    text-align:center;
+home .page_wrapper {
+    margin: 0;
 }
 
-.col-centered{
-    display:inline-block;
-    float:none;
-    text-align:left;
-    margin-right:-4px;
+
+.row-centered {
+    text-align: center;
+}
+
+.col-centered {
+    display: inline-block;
+    float: none;
+    text-align: left;
+    margin-right: -4px;
 }
 
 .navbar-toggle.collapsed .icon-bar {
@@ -241,7 +228,7 @@ home .page_wrapper{
 }
 
 .navbar-toggle.collapsed {
-    border: 1px solid #AEB2BD;    
+    border: 1px solid #AEB2BD;
 }
 
 .crt-nav {
@@ -257,34 +244,35 @@ a.a-nav {
     font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
 }
 
-a.a-nav.router-link-active{
-    background-color:none !important;
-    text-decoration:underline !important;
-    color: rgba(41,46,49,.50) !important;
-}
-a.a-nav:hover{
-    background-color:none !important;
-    text-decoration:underline !important;
-    color: rgba(41,46,49,.50) !important;
-}
+    a.a-nav.router-link-active {
+        background-color: none !important;
+        text-decoration: underline !important;
+        color: rgba(41,46,49,.50) !important;
+    }
+
+    a.a-nav:hover {
+        background-color: none !important;
+        text-decoration: underline !important;
+        color: rgba(41,46,49,.50) !important;
+    }
 
 #banner-nav-wrapper {
-    margin:0;
-    box-shadow: 0 4px 2px -2px rgba(0,0,0,0.25);    
+    margin: 0;
+    box-shadow: 0 4px 2px -2px rgba(0,0,0,0.25);
 }
 
 .crt-logo {
-        padding: 15px 0 15px 20px;
-    }
+    padding: 15px 0 15px 20px;
+}
 
-        .crt-logo img {
-            margin-top: 0;
-        }
+    .crt-logo img {
+        margin-top: 0;
+    }
 
 
 
 .footer {
-    vertical-align: middle;   
+    vertical-align: middle;
     margin: 0 auto;
     background-color: #EEECE5;
     color: #C34500;
@@ -301,28 +289,27 @@ a.a-nav:hover{
 
 /* Custom, iPhone Retina */
 @media only screen and (min-width : 320px) {
-   
 }
 
-/* Extra Small Devices, Phones */ 
+/* Extra Small Devices, Phones */
 @media only screen and (min-width : 480px) {
     .col-xs-0 {
-        display:none;
+        display: none;
     }
 }
 
 /* Small Devices, Tablets */
 @media only screen and (min-width : 768px) {
-
 }
 
 /* Medium Devices, Desktops */
 @media only screen and (min-width : 992px) {
     .page_wrapper {
-        max-width: 1199px;       
+        max-width: 1199px;
     }
+
     .col-md-0 {
-        display:none;
+        display: none;
     }
 }
 
@@ -335,7 +322,7 @@ a.a-nav:hover{
     }
 
     .col-md-0, .col-xs-0 {
-        display:inline;
+        display: inline;
     }
 
     .footer {
@@ -348,7 +335,7 @@ a.a-nav:hover{
         }
 
     .page_wrapper {
-        max-width: 1440px;       
+        max-width: 1440px;
     }
 
     #banner-nav-wrapper {
@@ -367,9 +354,9 @@ a.a-nav:hover{
             padding-top: 16px;
         }
 
-    .crt-nav {    
-        padding-top:31px;
-        padding-right:115px;
+    .crt-nav {
+        padding-top: 31px;
+        padding-right: 115px;
     }
 
     /*a.a-nav {
@@ -380,4 +367,3 @@ a.a-nav:hover{
         font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     }*/
 }
-

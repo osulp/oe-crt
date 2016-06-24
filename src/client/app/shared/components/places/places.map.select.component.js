@@ -10,6 +10,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var common_1 = require('@angular/common');
 var http_1 = require('@angular/http');
+var ng2_dnd_1 = require('ng2-dnd/ng2-dnd');
+var ng2_dragula_1 = require('ng2-dragula/ng2-dragula');
+var ng2_dragula_2 = require('ng2-dragula/ng2-dragula');
 var map_leaflet_component_1 = require('../../components/map/map.leaflet.component');
 var index_1 = require('../../services/index');
 require('rxjs/add/operator/map');
@@ -18,13 +21,29 @@ require('rxjs/add/operator/distinctUntilChanged');
 require('rxjs/add/operator/switchMap');
 require('rxjs/add/operator/share');
 var PlacesMapSelectComponent = (function () {
-    function PlacesMapSelectComponent(_searchPlaceService, _selectedPlacesService) {
+    function PlacesMapSelectComponent(_searchPlaceService, _selectedPlacesService, dragulaService) {
         var _this = this;
         this._searchPlaceService = _searchPlaceService;
         this._selectedPlacesService = _selectedPlacesService;
         this.selPlacesEvt = new core_1.EventEmitter();
         this.term = new common_1.Control();
         this.mapOptions = null;
+        dragulaService.setOptions('bag-crt', {
+            copy: false,
+            copySortSource: false
+        });
+        dragulaService.drop.subscribe(function (value) {
+            console.log("drop: " + value[0]);
+            _this.onDrop(value.slice(1));
+        });
+        dragulaService.over.subscribe(function (value) {
+            console.log("over: " + value[0]);
+            _this.onOver(value.slice(1));
+        });
+        dragulaService.out.subscribe(function (value) {
+            console.log("out: " + value[0]);
+            _this.onOut(value.slice(1));
+        });
         this.searchResults = this.term.valueChanges
             .debounceTime(200)
             .distinctUntilChanged()
@@ -33,6 +52,44 @@ var PlacesMapSelectComponent = (function () {
         this.searchResults.subscribe(function (value) { return _this.tempResults = value; });
         this.selectedSearchResults = [];
     }
+    PlacesMapSelectComponent.prototype.onDrag = function (args) {
+        var e = args[0], el = args[1];
+        console.log('on drag', args);
+        this.setPlaceBinClasses(e);
+    };
+    PlacesMapSelectComponent.prototype.onDrop = function (args) {
+        var e = args[0], src = args[1], target = args[2];
+        this.setPlaceBinClasses(e);
+        console.log('on drop', args);
+        if (args[2] === null) {
+            return;
+        }
+    };
+    PlacesMapSelectComponent.prototype.onOver = function (args) {
+        var e = args[0], src = args[1], target = args[2];
+        this.setPlaceBinClasses(e);
+    };
+    PlacesMapSelectComponent.prototype.onOut = function (args) {
+        var e = args[0], el = args[1], container = args[2];
+        console.log('on out', args);
+        this.setPlaceBinClasses(e);
+        if (container.children.length > 0) {
+            this.setPlaceBinClasses(container.children[0]);
+        }
+    };
+    PlacesMapSelectComponent.prototype.setPlaceBinClasses = function (e) {
+        if (e.parentNode !== undefined) {
+            for (var i = 0; i < e.parentNode.children.length; i++) {
+                if (e.parentNode.children.length === 1) {
+                    var reg = new RegExp(' combinedPlaces', "g");
+                    e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, "");
+                }
+                else {
+                    e.parentNode.children[i].className += ' combinedPlaces';
+                }
+            }
+        }
+    };
     PlacesMapSelectComponent.prototype.inputSearchClickHandler = function (event, result) {
         this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
         this.searchTerms = '';
@@ -156,6 +213,26 @@ var PlacesMapSelectComponent = (function () {
     };
     PlacesMapSelectComponent.prototype.onMapLoad = function (response) {
     };
+    PlacesMapSelectComponent.prototype.translatePlaceTypes = function (placeType) {
+        switch (placeType) {
+            case 'County':
+            case 'Counties':
+            case 'State':
+                return 'Counties';
+            case 'Census Designated Place':
+            case 'Incorporated City':
+            case 'Incorporated Town':
+            case 'City':
+            case 'Cities':
+                return 'Places';
+            case 'Census Tract':
+            case 'Census Tracts':
+            case 'Unicorporated Place':
+                return 'Tracts';
+            default:
+                return placeType;
+        }
+    };
     PlacesMapSelectComponent.prototype.ngOnInit = function () {
         var _this = this;
         this._selectedPlacesService.selectionChanged$.subscribe(function (updatedPlaces) { return _this.onSelectedPlacesChanged(updatedPlaces); });
@@ -200,9 +277,16 @@ var PlacesMapSelectComponent = (function () {
             templateUrl: 'places.map.select.component.html',
             styleUrls: ['places.map.select.component.css'],
             providers: [http_1.JSONP_PROVIDERS, index_1.SearchPlacesService],
-            directives: [common_1.CORE_DIRECTIVES, map_leaflet_component_1.MapLeafletComponent]
+            viewProviders: [ng2_dragula_2.DragulaService],
+            directives: [
+                common_1.CORE_DIRECTIVES,
+                map_leaflet_component_1.MapLeafletComponent,
+                common_1.COMMON_DIRECTIVES,
+                ng2_dnd_1.DND_DIRECTIVES,
+                ng2_dragula_1.Dragula
+            ]
         }), 
-        __metadata('design:paramtypes', [index_1.SearchPlacesService, index_1.SelectedPlacesService])
+        __metadata('design:paramtypes', [index_1.SearchPlacesService, index_1.SelectedPlacesService, ng2_dragula_2.DragulaService])
     ], PlacesMapSelectComponent);
     return PlacesMapSelectComponent;
 })();

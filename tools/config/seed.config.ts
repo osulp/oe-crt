@@ -324,6 +324,7 @@ export class SeedConfig {
         'highcharts/highstock.src': `${this.APP_BASE}node_modules/highcharts/highstock.src.js`,
         'highcharts/modules/map': `${this.APP_BASE}node_modules/highcharts/modules/map.js`,
         'angular2-infinite-scroll': `${this.APP_BASE}node_modules/angular2-infinite-scroll/angular2-infinite-scroll.js`,
+        'ng2-dragula/ng2-dragula': `${this.APP_BASE}node_modules/ng2-dragula/ng2-dragula.js`,
     }
   };
 
@@ -397,6 +398,10 @@ export class SeedConfig {
           },
           'angular2-infinite-scroll': {
               main: 'angular2-infinite-scroll.js',
+              defaultExtension: 'js',
+          },
+          'ng2-dragula': {
+              main: 'ng2-dragula.js',
               defaultExtension: 'js',
           }
       }

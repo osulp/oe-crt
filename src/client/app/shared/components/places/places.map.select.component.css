@@ -304,22 +304,31 @@
     }
 
 .place-bin-wrapper {
-     margin: 0 -7px 10px -15px;
+    margin: 0 -7px 10px -15px;
+    min-height: 50px;
+    display: table-cell;
 }
 
-.place-bin-wrapper.col-lg-4
-{
-    width:37.7%;
-}
-.place-bin{
-    background-color:#244068;
-    color:white;
-    font-size:.8em;
-    padding:10px 25px 10px 8px ;
-    border-radius:4px;  
-    width:100%; 
-    margin-left:15px;
-    position:relative;
+    .place-bin-wrapper.col-lg-4 {
+        width: 37.7%;
+    }
+
+    .place-bin-wrapper div{
+        min-height:40px;
+    }
+.place-bin {
+    background-color: #244068;
+    color: white;
+    font-size: .8em;
+    padding: 10px 25px 10px 8px;
+    border-radius: 4px;
+    width: 100%;
+    margin-left: 15px;
+    position: relative;
+    cursor: move;
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
 }
 
 .place-bin span{
@@ -328,6 +337,40 @@
     top:10px;
     cursor:pointer;
 }
+
+.combinedPlaces{
+    background-color:#C34500
+}
+
+.gu-mirror {
+    position: fixed !important;
+    margin: 0 !important;
+    z-index: 9999 !important;
+    opacity: 0.8;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+    filter: alpha(opacity=80);
+    cursor: grabbing;
+      cursor: -moz-grabbing;
+      cursor: -webkit-grabbing;
+}
+
+.gu-hide {
+    display: none !important;
+}
+
+.gu-unselectable {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+}
+
+.gu-transit {
+    opacity: 0.2;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
+    filter: alpha(opacity=20);
+}
+
 
 /* Small Devices, Tablets */
 @media only screen and (max-width : 992px) {

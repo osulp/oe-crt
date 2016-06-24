@@ -5,6 +5,8 @@ import { ROUTER_PROVIDERS } from '@angular/router';
 //import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import {HTTP_PROVIDERS} from '@angular/http';
 //import { TopicsService} from './shared/services/index';
+import {DND_PROVIDERS} from 'ng2-dnd/ng2-dnd';
+
 
 import { AppComponent } from './app.component';
 
@@ -17,7 +19,8 @@ if ('<%= ENV %>' === 'prod') { enableProdMode(); }
 bootstrap(AppComponent, [
     HTTP_PROVIDERS,
     ROUTER_PROVIDERS,
-    //provide(APP_BASE_HREF, { useValue: '<%= APP_BASE %>' })
+    DND_PROVIDERS,
+   //rovide(APP_BASE_HREF, { useValue: '<%= APP_BASE %>' })
     provide(APP_BASE_HREF, { useValue: '/' })
 ]);
 

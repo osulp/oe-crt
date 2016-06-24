@@ -48,7 +48,7 @@ export class DetailComponent implements OnInit {
                 console.log('search result change', this.placeMap.selectedPlaces, this.placeMap.selectedSearchResults);
                 this._router.navigate(['Explore', {
                     indicator: encodeURIComponent(results.Name.replace('(', '%28').replace(')', '%29')),
-                    places: encodeURIComponent(JSON.stringify(this.placeMap.selectedSearchResults).replace('[','').replace(']',''))
+                    places: encodeURIComponent(JSON.stringify(this.placeMap.selectedSearchResults).replace('[', '').replace(']', ''))
                 }]);
             }
         }
@@ -68,10 +68,10 @@ export class DetailComponent implements OnInit {
     setToggleView(viewType: any) {
         switch (viewType) {
             case 'map':
-                this.showMap = !this.showMap;                
+                this.showMap = !this.showMap;
                 break;
             case 'graph':
-                this.showGraph = !this.showGraph;                
+                this.showGraph = !this.showGraph;
                 break;
             case 'table':
                 this.showTable = !this.showTable;
@@ -84,7 +84,7 @@ export class DetailComponent implements OnInit {
         function runCheck() {
             window.dispatchEvent(new Event('resize'));
             clearInterval(runInterval);
-        }        
+        }
     }
 
     goBack() {
@@ -93,7 +93,7 @@ export class DetailComponent implements OnInit {
     }
 
     onChartDataUpdate(data: any) {
-        console.log('Chart data emitted to indicator detail', data);                        
+        console.log('Chart data emitted to indicator detail', data);
         this._chartData = data;
         console.log('Chart data', this.chartData);
         //this.tableView.tableData = data;

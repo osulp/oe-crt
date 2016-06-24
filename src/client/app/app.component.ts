@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { ROUTER_DIRECTIVES, Routes } from '@angular/router';
 //import { RouteConfig, ROUTER_DIRECTIVES, Router } from '@angular/router-deprecated';
 import { HTTP_PROVIDERS} from '@angular/http';
-
 import { AboutComponent } from './+about/index';
 import { CollectionsComponent } from './+collections/index';
 import { ExploreComponent } from './+explore/explore.component';
 import { HomeComponent } from './+home/home.component';
 import { MyPinsComponent } from './+mypins/index';
+import { HelpComponent} from './+help/index';
 import { SelectedPlacesService } from './shared/services/index';
 //import { d } from './shared/index';
 
@@ -39,6 +39,10 @@ import { SelectedPlacesService } from './shared/services/index';
     {
         path: '/Collections',
         component: CollectionsComponent
+    },
+    {
+        path: '/How To',
+        component: HelpComponent
     },
     {
         path: '/My Pins',

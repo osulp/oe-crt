@@ -15,7 +15,8 @@ var index_2 = require('./+collections/index');
 var explore_component_1 = require('./+explore/explore.component');
 var home_component_1 = require('./+home/home.component');
 var index_3 = require('./+mypins/index');
-var index_4 = require('./shared/services/index');
+var index_4 = require('./+help/index');
+var index_5 = require('./shared/services/index');
 var AppComponent = (function () {
     function AppComponent() {
     }
@@ -26,7 +27,7 @@ var AppComponent = (function () {
             viewProviders: [http_1.HTTP_PROVIDERS],
             templateUrl: 'app.component.html',
             directives: [router_1.ROUTER_DIRECTIVES],
-            providers: [index_4.SelectedPlacesService]
+            providers: [index_5.SelectedPlacesService]
         }),
         router_1.Routes([
             {
@@ -44,6 +45,10 @@ var AppComponent = (function () {
             {
                 path: '/Collections',
                 component: index_2.CollectionsComponent
+            },
+            {
+                path: '/How To',
+                component: index_4.HelpComponent
             },
             {
                 path: '/My Pins',
