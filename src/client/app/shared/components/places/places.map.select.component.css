@@ -1,6 +1,6 @@
 #places-row-wrapper{
     padding-right:0;
-    padding-left:0;    
+    padding-left:0;
     margin-top:60px;
 }
 
@@ -18,17 +18,17 @@
 {
     /*width:570px;*/
     /*width:100%;*/
-    background-color:rgb(221, 232, 250);   
+    background-color:rgb(221, 232, 250);
     margin: 0 auto 0 -15px;
-    padding:0;         
+    padding:0;
 }
 
-#viewDiv.exploreMap{    
+#viewDiv.exploreMap{
     height:310px;
     min-height:310px;
 }
 
-#viewDiv.indicatorDetailMap {    
+#viewDiv.indicatorDetailMap {
     height:400px;
     min-height:270px;
     margin: 0 auto;
@@ -61,9 +61,9 @@
     float:left;
 }
 .toggle-places{
-    float:right;    
+    float:right;
     height:30px;
-    width:30px;    
+    width:30px;
 }
 
 #place_type_select {
@@ -71,7 +71,7 @@
     min-height:60px;
     padding:10px;
     margin:0 auto;
-    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;    
+    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
     border-radius: 0 0 4px 4px;
 }
 #place_type_select .place_type{
@@ -81,7 +81,7 @@
     font-weight:bold;
     padding-top:9px;
     text-align:center;
-    cursor:pointer;       
+    cursor:pointer;
 }
 
 #place_type_select .place_type:hover{
@@ -133,7 +133,7 @@
     color:#808080;
     position:relative;
     font-weight:400;
-    font-family: 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;     
+    font-family: 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     /*margin-right: -55px;*/
 }
 
@@ -146,18 +146,18 @@
     border-radius:4px;
     padding:0 10px;
     text-indent:20px;
-    margin-left:-15px; 
+    margin-left:-15px;
 }
 #search input::-ms-clear {
     display: none;
 }
 
-#search .fa-search { 
-  position: relative;  
-  left: 15px;  
+#search .fa-search {
+  position: relative;
+  left: 15px;
 }
 
-#add-btn {    
+#add-btn {
     background: #C34500;
     border: 1px solid #C34500;
     border-radius: 0 4px 4px 0;
@@ -175,38 +175,38 @@
 }
     #add-btn:hover {
         background: #802E01;
-        cursor: pointer;        
+        cursor: pointer;
         border: 1px solid #802E01;
     }
 #search .list-group {
-    position: absolute;    
-    /*width: 65%;*/    
+    position: absolute;
+    /*width: 65%;*/
     background: #FFFFFF;
     box-shadow: 2px 2px 2px 2px rgba(0,0,0,0.30);
-    border-radius: 0 0 0 4px 4px 4px 4px;    
-    text-align:left;    
+    border-radius: 0 0 0 4px 4px 4px 4px;
+    text-align:left;
     z-index:3;
     margin-left:15px;
-   
+
 }
 .search-result-wrapper{
     position:relative;
 }
 .search-result-type {
-    position:absolute;  
+    position:absolute;
     -moz-transform: rotate(-90deg);
     -ms-transform: rotate(-90deg);
     -o-transform: rotate(-90deg);
     -webkit-transform: rotate(-90deg);
-    transform: rotate(-90deg);   
+    transform: rotate(-90deg);
     height:30px;
     width:70px;
     text-align:center;
     left:-35px;
     top:8px;
     bottom:-15px;
-    padding:6px;    
-    text-transform:uppercase; 
+    padding:6px;
+    text-transform:uppercase;
     border-right:1px solid #ddd;
 }
 .search-result-content .search-result-name{
@@ -222,7 +222,7 @@
 
 .search-result-type.isIndicator{
      background:#D1CDC7;
-     font-size:.7em;    
+     font-size:.7em;
 }
 
 .search-result-type.isPlace{
@@ -273,18 +273,23 @@
     color:#802E01;
 }
 .add-place-btn span:hover{
-    text-decoration:none;    
+    text-decoration:none;
 }
 #selected-places-bin {
     background-color:#F3F2ED;
     border-radius:4px;
     border:1px solid #D1CDC7;
     min-height:140px;
-    margin-top:10px;   
-    margin-left:15px;  
-    padding:10px;  
+    margin-top:10px;
+    margin-left:15px;
+    padding:10px;
     width:88%;
+    position:relative;
 }
+    #selected-places-bin .row {
+        position:relative;
+    }
+
 
 #go-report-button{
     background-color:#C34500;
@@ -316,6 +321,46 @@
     .place-bin-wrapper div{
         min-height:40px;
     }
+    .editPanel{
+        border:1px solid #D1CDC7;
+        border-radius:4px;
+        box-shadow: 2px 2px 2px 2px rgba(0,0,0,0.30);
+        margin-left:20px;
+        padding: 0 30px 10px 0;
+        z-index:100;
+        position:absolute;
+        background:white;
+
+    }
+        .editPanel input {
+            max-width:150px;
+            margin:8px -15px 8px 10px;
+            font-size:.9em;
+        }
+        .editPanelHeading {
+            font-size:.8em;
+            margin-left:10px;
+            color:#808080;
+        }
+        .editPanelHeading img{
+            position:absolute;
+            right:8px;
+            top:5px;
+            cursor:pointer;
+        }
+
+
+.combinedLabel {
+    background-color: #98BD85;
+    color: white;
+    font-size: .8em;
+    padding: 10px 25px 10px 8px;
+    border-radius: 4px;
+    width: 100%;
+    margin-left: 15px;
+    position: relative;
+    cursor:pointer;
+}
 .place-bin {
     background-color: #244068;
     color: white;
@@ -336,6 +381,12 @@
     right:8px;
     top:10px;
     cursor:pointer;
+}
+.combinedLabel span {
+    position:absolute;
+    right:-5px;
+    top:13px;
+    font-size:1.3em;
 }
 
 .combinedPlaces{
@@ -402,7 +453,7 @@
     {
         margin-right:0;
     }
-    #go-report-button{        
+    #go-report-button{
         top:0;
         right:13.5%;
         bottom:auto;

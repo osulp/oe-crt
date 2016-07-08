@@ -46,6 +46,7 @@ export class PlacesMapSelectComponent implements OnInit {
     selectedSearchResult: SearchResult;
     //selectedPlaces: string;
     tempResults: [{}];
+    customSetCounter: number = 1;
     //searchResults: Observable<[{}]>;
     searchResults: Observable<any>;
     mapOptions: any = null;
@@ -124,22 +125,9 @@ export class PlacesMapSelectComponent implements OnInit {
 
     }
 
-    onCombineLabelKeyPress(evt: any) {
+    onCombineLabelKeyPress(evt: any, dragBin: any, placeContainer: any, inpPlace: any) {
         if (evt.keyCode === 13 || evt.keyCode === 9) {
-            //get all places in bin and update their group-name value
-            let dragBin = evt.target.parentElement.parentElement;
-            console.log('dragBin', dragBin);
-            let placesInBin = dragBin.getElementsByClassName('place-bin');
-            let updatePlaces: SearchResult[] = [];
-            for (var binP of placesInBin) {
-                this.selectedSearchResults.forEach((place: SearchResult) => {
-                    if (place.ResID === binP.getAttribute('placeresid') && place.Name === binP.getAttribute('placename')) {
-                        updatePlaces.push(place);
-                    }
-                });
-            }
-            this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, evt.target.value, true);
-            evt.target.parentNode.parentNode.setAttribute('editView', 'false');
+            this.updateCustomSetName(dragBin, placeContainer, inpPlace);
         }
     }
 
@@ -152,13 +140,13 @@ export class PlacesMapSelectComponent implements OnInit {
                     //not combined
                     var reg = new RegExp(' combinedPlaces', 'g');
                     e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
-                    e.parentNode.parentNode.setAttribute('editView', 'false');
+                    e.parentNode.parentNode.parentNode.setAttribute('editView', 'false');
                     //find place and remove combined group attr
                 } else {
                     //combined
                     combine = true;
                     e.parentNode.children[i].className += ' combinedPlaces';
-                    e.parentNode.parentNode.setAttribute('editView', 'true');
+                    e.parentNode.parentNode.parentNode.setAttribute('editView', 'true');
                 }
                 this.selectedSearchResults.forEach((place: SearchResult) => {
                     if (place.ResID === e.parentNode.children[i].getAttribute('placeresid') && place.Name === e.parentNode.children[i].getAttribute('placename')) {
@@ -172,6 +160,20 @@ export class PlacesMapSelectComponent implements OnInit {
         }
     }
 
+    updateCustomSetName(dragBin: any, placeContainer: any, inpPlace: any) {
+        //get all places in bin and update their group-name value
+        let placesInBin = dragBin.getElementsByClassName('place-bin');
+        let updatePlaces: SearchResult[] = [];
+        for (var binP of placesInBin) {
+            this.selectedSearchResults.forEach((place: SearchResult) => {
+                if (place.ResID === binP.getAttribute('placeresid') && place.Name === binP.getAttribute('placename')) {
+                    updatePlaces.push(place);
+                }
+            });
+        }
+        this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, inpPlace.value, true);
+        placeContainer.setAttribute('editView', 'false');
+    }
 
     inputSearchClickHandler(event: any, result: SearchResult) {
         this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });

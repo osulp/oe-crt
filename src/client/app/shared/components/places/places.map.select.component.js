@@ -26,6 +26,7 @@ var PlacesMapSelectComponent = (function () {
         this._selectedPlacesService = _selectedPlacesService;
         this.selPlacesEvt = new core_1.EventEmitter();
         this.term = new common_1.Control();
+        this.customSetCounter = 1;
         this.mapOptions = null;
         dragulaService.drop.subscribe(function (value) {
             console.log("drop: " + value[0]);
@@ -67,22 +68,9 @@ var PlacesMapSelectComponent = (function () {
             this.setPlaceBinGroups(container.children[0]);
         }
     };
-    PlacesMapSelectComponent.prototype.onCombineLabelKeyPress = function (evt) {
+    PlacesMapSelectComponent.prototype.onCombineLabelKeyPress = function (evt, dragBin, placeContainer, inpPlace) {
         if (evt.keyCode === 13 || evt.keyCode === 9) {
-            var dragBin = evt.target.parentElement.parentElement;
-            console.log('dragBin', dragBin);
-            var placesInBin = dragBin.getElementsByClassName('place-bin');
-            var updatePlaces = [];
-            for (var _i = 0; _i < placesInBin.length; _i++) {
-                var binP = placesInBin[_i];
-                this.selectedSearchResults.forEach(function (place) {
-                    if (place.ResID === binP.getAttribute('placeresid') && place.Name === binP.getAttribute('placename')) {
-                        updatePlaces.push(place);
-                    }
-                });
-            }
-            this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, evt.target.value, true);
-            evt.target.parentNode.parentNode.setAttribute('editView', 'false');
+            this.updateCustomSetName(dragBin, placeContainer, inpPlace);
         }
     };
     PlacesMapSelectComponent.prototype.setPlaceBinGroups = function (e, update) {
@@ -93,12 +81,12 @@ var PlacesMapSelectComponent = (function () {
                 if (e.parentNode.children.length === 1) {
                     var reg = new RegExp(' combinedPlaces', 'g');
                     e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
-                    e.parentNode.parentNode.setAttribute('editView', 'false');
+                    e.parentNode.parentNode.parentNode.setAttribute('editView', 'false');
                 }
                 else {
                     combine = true;
                     e.parentNode.children[i].className += ' combinedPlaces';
-                    e.parentNode.parentNode.setAttribute('editView', 'true');
+                    e.parentNode.parentNode.parentNode.setAttribute('editView', 'true');
                 }
                 this.selectedSearchResults.forEach(function (place) {
                     if (place.ResID === e.parentNode.children[i].getAttribute('placeresid') && place.Name === e.parentNode.children[i].getAttribute('placename')) {
@@ -110,6 +98,20 @@ var PlacesMapSelectComponent = (function () {
                 this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, e.parentNode.getAttribute('groupname'), combine);
             }
         }
+    };
+    PlacesMapSelectComponent.prototype.updateCustomSetName = function (dragBin, placeContainer, inpPlace) {
+        var placesInBin = dragBin.getElementsByClassName('place-bin');
+        var updatePlaces = [];
+        for (var _i = 0; _i < placesInBin.length; _i++) {
+            var binP = placesInBin[_i];
+            this.selectedSearchResults.forEach(function (place) {
+                if (place.ResID === binP.getAttribute('placeresid') && place.Name === binP.getAttribute('placename')) {
+                    updatePlaces.push(place);
+                }
+            });
+        }
+        this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, inpPlace.value, true);
+        placeContainer.setAttribute('editView', 'false');
     };
     PlacesMapSelectComponent.prototype.inputSearchClickHandler = function (event, result) {
         this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });

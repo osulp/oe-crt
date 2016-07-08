@@ -49,19 +49,22 @@
                     </div>
                     <div id="selected-places-bin" class="col-lg-12 col-md-12 col-xs-12">
                         <div class="row">
-                            <div #placeContainer class="col-lg-4 col-md-6 col-xs-12 place-bin-wrapper" *ngFor="let place of selectedSearchResults; let idx = index;" [attr.orig_container]="translatePlaceTypes(place.TypeCategory,place.Name)" [attr.editView]="false">
-                                <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editView') === 'true'" class="combinedLabel">
-                                    <input #inpPlace type="text" placeholder="Combined Set" (keypress)="onCombineLabelKeyPress($event)" />
-                                </div>
-                                <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editView') === 'false'" class="combinedLabel">
-                                    {{place.GroupName}}
-                                    <span (click)="placeContainer.setAttribute('editView','true')"><img src="assets/img/closeX2.png" alt="remove selected place" /></span>
-                                </div>
-
-                                <div #dragBin [hidden]="place.Combined && placeContainer.getAttribute('editView') === 'false'" [dragula]="translatePlaceTypes(place.TypeCategory)" [attr.groupname]="translatePlaceTypes(place.TypeCategory,place.Name)">
-                                    <div #placeBin [attr.placeName]="place.Name" [attr.placeResID]="place.ResID" [attr.placeType]="place.TypeCategory" [attr.combined]="place.Combined" class="place-bin">
-                                        {{place.Name}}
-                                        <span (click)="removePlace(place)"><img src="assets/img/closeX2.png" alt="remove selected place" /></span>
+                            <div #placeContainer class="col-lg-4 col-md-6 col-xs-12 place-bin-wrapper" *ngFor="let place of selectedSearchResults; let idx = index;" [attr.orig_container]="translatePlaceTypes(place.TypeCategory,place.Name)" [attr.editView]="false" >
+                                <div class="placePanelWrapper" [ngClass]="placeContainer.getAttribute('editView') === 'true' ? 'editPanel' : ''">
+                                    <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editView') === 'true'">
+                                        <span class="editPanelHeading">Edit Custom Set<img (click)="updateCustomSetName(dragBin, placeContainer, inpPlace)" src="assets/img/closeX.png" alt="close edit combined set" /></span>
+                                        <input #inpPlace type="text" placeholder="{{place.GroupName}}" (keypress)="onCombineLabelKeyPress($event, dragBin, placeContainer, inpPlace)" />
+                                    </div>
+                                    <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editView') === 'false'" title="Edit combined communities" class="combinedLabel" (click)="placeContainer.setAttribute('editView','true')">
+                                        {{place.GroupName}}
+                                        <span class="glyphicon glyphicon-edit">&nbsp;</span>
+                                    </div>
+                                    <!--<div #dragBin [hidden]="place.Combined && placeContainer.getAttribute('editView') === 'false'" [dragula]="translatePlaceTypes(place.TypeCategory)" [attr.groupname]="translatePlaceTypes(place.TypeCategory,place.Name)">-->
+                                    <div #dragBin [hidden]="place.Combined && placeContainer.getAttribute('editView') === 'false'" [dragula]="translatePlaceTypes(place.TypeCategory)" [attr.groupname]="'Custom Set ' + customSetCounter">
+                                        <div #placeBin [attr.placeName]="place.Name" [attr.placeResID]="place.ResID" [attr.placeType]="place.TypeCategory" [attr.combined]="place.Combined" class="place-bin">
+                                            {{place.Name}}
+                                            <span (click)="removePlace(place)"><img src="assets/img/closeX2.png" alt="remove selected place" />&nbsp;</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
