@@ -398,21 +398,110 @@ var DataTileComponent = (function () {
             }, function (err) { return console.error(err); }, function () { return console.log('done loading data for map'); });
         }
         else {
-            this._dataService.getIndicatorDataWithMetadata(geoids, this.indicator).subscribe(function (data) {
-                console.log(data);
-                _this.updateDataStore([data], 'indicator');
-                _this.placeTypeData = _this.dataStore.indicatorData[_this.indicator].crt_db;
-                _this.offsetYear = _this.offsetYear === undefined ? _this.getDefaultYear() : _this.offsetYear;
-                _this.selectedYear = _this.placeTypeData.Years[_this.placeTypeData.Years.length - _this.offsetYear];
-                _this.processDataYear();
-                _this.processYearTicks();
-                _this.selectedYearIndex = _this._tickArray.length - _this.offsetYear;
-                _this.Data = _this.placeTypeData.Data;
-                console.log('YUUUUUUK', _this.Data);
-                _this.onChartDataUpdate.emit(data);
-                _this.createGraphChart();
-            }, function (err) { return console.error(err); }, function () { return console.log('done loading data for graph'); });
+            var combinedGroups = this.checkCombineGroups();
+            if (combinedGroups.length > 0) {
+                this._dataService.getIndicatorDetailDataWithMetadata(geoids, this.indicator).subscribe(function (data) {
+                    var combinedData = _this.processCombinedData(data);
+                    _this.updateDataStore([combinedData], 'indicator');
+                    _this.onChartDataUpdate.emit(combinedData);
+                    _this.createGraphChart();
+                });
+            }
+            else {
+                this._dataService.getIndicatorDataWithMetadata(geoids, this.indicator).subscribe(function (data) {
+                    console.log('regular indicator data', data);
+                    _this.updateDataStore([data], 'indicator');
+                    _this.onChartDataUpdate.emit(data);
+                    _this.createGraphChart();
+                }, function (err) { return console.error(err); }, function () { return console.log('done loading data for graph'); });
+            }
         }
+    };
+    DataTileComponent.prototype.checkCombineGroups = function () {
+        var _this = this;
+        var combineArray = [];
+        var groupNames = [];
+        this.places.forEach(function (place) {
+            if (place.GroupName !== undefined) {
+                if (groupNames.indexOf(place.GroupName) === -1) {
+                    groupNames.push(place.GroupName);
+                }
+            }
+        });
+        console.log('GroupNames', groupNames);
+        groupNames.forEach(function (gn, idx) {
+            var groupArray = [];
+            if (gn !== '') {
+                _this.places.forEach(function (place) {
+                    if (place.GroupName === gn) {
+                        groupArray.push(place);
+                    }
+                });
+                if (idx === groupNames.length - 1 && groupArray.length > 1) {
+                    combineArray.push(groupArray);
+                }
+            }
+        });
+        console.log('combined array', combineArray);
+        return combineArray;
+    };
+    DataTileComponent.prototype.processCombinedData = function (data) {
+        var combinedData = data;
+        if (!data.Metadata[0].isPreCalc && data.Metadata[0].Variable_Represent.trim() !== 'Text') {
+            var groups = this.checkCombineGroups();
+            for (var _i = 0; _i < groups.length; _i++) {
+                var group = groups[_i];
+                var combinedGroupData = new Object;
+                combinedGroupData.community = group[0].GroupName;
+                combinedGroupData.Variable = group[0].Variable;
+                combinedGroupData.geoid = '';
+                var multiplyBy = parseInt(data.Metadata[0].MultiplyBy);
+                for (var _a = 0, _b = data.Years; _a < _b.length; _a++) {
+                    var year = _b[_a];
+                    var isACS = year.Year.indexOf('-') !== -1;
+                    var combinedNumerators = 0;
+                    var combinedDenoms = 0;
+                    var combinedNumMOEs = 0;
+                    var combinedDenomMOEs = 0;
+                    for (var _c = 0; _c < group.length; _c++) {
+                        var place = group[_c];
+                        var placeData = combinedData.Data.filter(function (pData) {
+                            return pData.geoid === place.ResID;
+                        });
+                        var numValue = placeData[0][year.Year + '_N'];
+                        var denomValue = placeData[0][year.Year + '_D'];
+                        var numMOEValue = isACS ? placeData[0][year.Year + '_MOE_N'] : null;
+                        var denomMOEValue = isACS ? placeData[0][year.Year + '_MOE_D'] : null;
+                        combinedNumerators = numValue !== '' && numValue !== null ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
+                        combinedDenoms = denomValue !== '' && denomValue !== null ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
+                        if (isACS) {
+                            combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
+                            combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
+                        }
+                    }
+                    combinedDenoms = combinedDenoms === 0 || combinedDenoms === null ? 1 : combinedDenoms;
+                    combinedGroupData[year.Year] = combinedNumerators / combinedDenoms * multiplyBy;
+                    if (isACS) {
+                        var displayMOE = void 0;
+                        if (combinedDenomMOEs !== 0) {
+                            var calcVal = (combinedNumerators / combinedDenoms) / multiplyBy;
+                            displayMOE = Math.round(((Math.sqrt(Math.pow(combinedNumMOEs, 2) + ((Math.pow(calcVal, 2) * (Math.pow(combinedDenomMOEs, 2))))) / combinedDenoms)) * multiplyBy * 10) / 10;
+                        }
+                        else {
+                            displayMOE = Math.round(combinedNumMOEs * 10) / 10;
+                        }
+                        combinedGroupData[year.Year + '_MOE'] = displayMOE;
+                    }
+                }
+                for (var _d = 0; _d < group.length; _d++) {
+                    var place = group[_d];
+                    combinedData.Data = combinedData.Data.filter(function (pData) { return pData.geoid !== place.ResID && pData.community !== place.Name; });
+                }
+                combinedData.Data.push(combinedGroupData);
+                console.log('combined data added', combinedData);
+            }
+        }
+        return combinedData;
     };
     DataTileComponent.prototype.checkUpdateData = function () {
         var loadMoreData = false;
@@ -672,6 +761,13 @@ var DataTileComponent = (function () {
         this.mapChart.hideLoading();
     };
     DataTileComponent.prototype.createGraphChart = function () {
+        this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
+        this.offsetYear = this.offsetYear === undefined ? this.getDefaultYear() : this.offsetYear;
+        this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.offsetYear];
+        this.processDataYear();
+        this.processYearTicks();
+        this.selectedYearIndex = this._tickArray.length - this.offsetYear;
+        this.Data = this.placeTypeData.Data;
         if (this.placeTypeData.Metadata.length > 0) {
             console.log('making graph chart');
             var chartScope = this;
@@ -775,6 +871,7 @@ var DataTileComponent = (function () {
                     }
                 }
             }
+            isSelected = placeData.geoid === '' ? true : isSelected;
             return isSelected;
         });
         for (var x = 0; x < selectedPlaceData.length; x++) {

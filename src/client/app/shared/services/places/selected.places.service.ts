@@ -11,6 +11,7 @@ export class SelectedPlacesService {
     updates: Subject<any> = new Subject<any>();
     addPlace: Subject<any> = new Subject<any>();
     removePlace: Subject<any> = new Subject<any>();
+    updatePlaces: Subject<[any[],string,boolean]> = new Subject<any>();
     _setAllByPlaceType: Subject<[any, string]> = new Subject<any>();
     getAll: Subject<any> = new Subject<any>();
 
@@ -49,11 +50,33 @@ export class SelectedPlacesService {
             })
             .subscribe(this.updates);
 
-        this._setAllByPlaceType
+        this.updatePlaces
             .map((args: any) => {
                 return (state: any) => {
                     console.log(args);
                     console.log('places from inside setAllPlaceMap');
+                    let updatedPlaces = args[0];
+                    return state
+                        .map((place: any) => {
+                            //updated the groupname attribute for updatedplaces
+                            let isPlaceToUpdate = false;
+                            updatedPlaces.forEach((up: any) => {
+                                isPlaceToUpdate = up.Name === place.Name && up.ResID == place.ResID ? true : isPlaceToUpdate;
+                            });
+                            if (isPlaceToUpdate) {
+                                place.GroupName = args[2] ? args[1] : '';
+                                place.Combined = args[2] ? true : false;
+                            }
+                            return place;
+
+                        });
+                };
+            })
+            .subscribe(this.updates);
+
+        this._setAllByPlaceType
+            .map((args: any) => {
+                return (state: any) => {
                     return state
                         .filter((places: any) => {
                             return this.translatePlaceTypes(places.TypeCategory) !== args[1];
@@ -87,6 +110,11 @@ export class SelectedPlacesService {
     setAllbyPlaceType(places: any, placeType: string): void {
         let translatedPlaceType = this.translatePlaceTypes(placeType);
         this._setAllByPlaceType.next([places, translatedPlaceType]);
+    }
+
+    updatePlaceGroupNames(places: any[], groupName: string, add: boolean): void {
+        console.log('updating place group names', places, groupName, add);
+        this.updatePlaces.next([places, groupName, add]);
     }
 
     translatePlaceTypes(placeType: string) {

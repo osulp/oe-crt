@@ -10,7 +10,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var core_1 = require('@angular/core');
 var common_1 = require('@angular/common');
 var http_1 = require('@angular/http');
-var ng2_dnd_1 = require('ng2-dnd/ng2-dnd');
 var ng2_dragula_1 = require('ng2-dragula/ng2-dragula');
 var ng2_dragula_2 = require('ng2-dragula/ng2-dragula');
 var map_leaflet_component_1 = require('../../components/map/map.leaflet.component');
@@ -28,10 +27,6 @@ var PlacesMapSelectComponent = (function () {
         this.selPlacesEvt = new core_1.EventEmitter();
         this.term = new common_1.Control();
         this.mapOptions = null;
-        dragulaService.setOptions('bag-crt', {
-            copy: false,
-            copySortSource: false
-        });
         dragulaService.drop.subscribe(function (value) {
             console.log("drop: " + value[0]);
             _this.onDrop(value.slice(1));
@@ -52,14 +47,9 @@ var PlacesMapSelectComponent = (function () {
         this.searchResults.subscribe(function (value) { return _this.tempResults = value; });
         this.selectedSearchResults = [];
     }
-    PlacesMapSelectComponent.prototype.onDrag = function (args) {
-        var e = args[0], el = args[1];
-        console.log('on drag', args);
-        this.setPlaceBinClasses(e);
-    };
     PlacesMapSelectComponent.prototype.onDrop = function (args) {
         var e = args[0], src = args[1], target = args[2];
-        this.setPlaceBinClasses(e);
+        this.setPlaceBinGroups(e, true);
         console.log('on drop', args);
         if (args[2] === null) {
             return;
@@ -67,26 +57,57 @@ var PlacesMapSelectComponent = (function () {
     };
     PlacesMapSelectComponent.prototype.onOver = function (args) {
         var e = args[0], src = args[1], target = args[2];
-        this.setPlaceBinClasses(e);
+        this.setPlaceBinGroups(e);
     };
     PlacesMapSelectComponent.prototype.onOut = function (args) {
         var e = args[0], el = args[1], container = args[2];
         console.log('on out', args);
-        this.setPlaceBinClasses(e);
+        this.setPlaceBinGroups(e);
         if (container.children.length > 0) {
-            this.setPlaceBinClasses(container.children[0]);
+            this.setPlaceBinGroups(container.children[0]);
         }
     };
-    PlacesMapSelectComponent.prototype.setPlaceBinClasses = function (e) {
+    PlacesMapSelectComponent.prototype.onCombineLabelKeyPress = function (evt) {
+        if (evt.keyCode === 13 || evt.keyCode === 9) {
+            var dragBin = evt.target.parentElement.parentElement;
+            console.log('dragBin', dragBin);
+            var placesInBin = dragBin.getElementsByClassName('place-bin');
+            var updatePlaces = [];
+            for (var _i = 0; _i < placesInBin.length; _i++) {
+                var binP = placesInBin[_i];
+                this.selectedSearchResults.forEach(function (place) {
+                    if (place.ResID === binP.getAttribute('placeresid') && place.Name === binP.getAttribute('placename')) {
+                        updatePlaces.push(place);
+                    }
+                });
+            }
+            this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, evt.target.value, true);
+            evt.target.parentNode.parentNode.setAttribute('editView', 'false');
+        }
+    };
+    PlacesMapSelectComponent.prototype.setPlaceBinGroups = function (e, update) {
         if (e.parentNode !== undefined) {
+            var updatePlaces = [];
+            var combine = false;
             for (var i = 0; i < e.parentNode.children.length; i++) {
                 if (e.parentNode.children.length === 1) {
-                    var reg = new RegExp(' combinedPlaces', "g");
-                    e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, "");
+                    var reg = new RegExp(' combinedPlaces', 'g');
+                    e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
+                    e.parentNode.parentNode.setAttribute('editView', 'false');
                 }
                 else {
+                    combine = true;
                     e.parentNode.children[i].className += ' combinedPlaces';
+                    e.parentNode.parentNode.setAttribute('editView', 'true');
                 }
+                this.selectedSearchResults.forEach(function (place) {
+                    if (place.ResID === e.parentNode.children[i].getAttribute('placeresid') && place.Name === e.parentNode.children[i].getAttribute('placename')) {
+                        updatePlaces.push(place);
+                    }
+                });
+            }
+            if (update) {
+                this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, e.parentNode.getAttribute('groupname'), combine);
             }
         }
     };
@@ -213,25 +234,34 @@ var PlacesMapSelectComponent = (function () {
     };
     PlacesMapSelectComponent.prototype.onMapLoad = function (response) {
     };
-    PlacesMapSelectComponent.prototype.translatePlaceTypes = function (placeType) {
+    PlacesMapSelectComponent.prototype.translatePlaceTypes = function (placeType, placeName) {
+        var modPT = placeType;
         switch (placeType) {
             case 'County':
             case 'Counties':
             case 'State':
-                return 'Counties';
+                modPT = 'Counties';
+                break;
             case 'Census Designated Place':
             case 'Incorporated City':
             case 'Incorporated Town':
             case 'City':
             case 'Cities':
-                return 'Places';
+                modPT = 'Places';
+                break;
             case 'Census Tract':
             case 'Census Tracts':
             case 'Unicorporated Place':
-                return 'Tracts';
+                modPT = 'Tracts';
+                break;
             default:
-                return placeType;
+                modPT = placeType;
+                break;
         }
+        if (placeName) {
+            modPT += placeName.replace(/\ /g, '');
+        }
+        return modPT;
     };
     PlacesMapSelectComponent.prototype.ngOnInit = function () {
         var _this = this;
@@ -281,8 +311,6 @@ var PlacesMapSelectComponent = (function () {
             directives: [
                 common_1.CORE_DIRECTIVES,
                 map_leaflet_component_1.MapLeafletComponent,
-                common_1.COMMON_DIRECTIVES,
-                ng2_dnd_1.DND_DIRECTIVES,
                 ng2_dragula_1.Dragula
             ]
         }), 

@@ -222,7 +222,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         //2. Subscribe to changes in place selection and indicator selection?
         //3. On place change lookup geo layer to see if it needs to be added
         //4. Subscribe to chanes in geolayers to access geojson for layers
-        //5. On getdata for indicator/place grab geojson and update map/chart  
+        //5. On getdata for indicator/place grab geojson and update map/chart
         console.log('saving chart instance');
         if (this.tileType === 'graph') {
             this.chart = chartInstance;
@@ -289,7 +289,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     onPlacesChanged(selectedPlaces: SearchResult[]) {
         this.places = selectedPlaces;
         this.placeNames = '';
-        //check if repeated event with same places       
+        //check if repeated event with same places
         if (this.tempPlaces.length !== this.places.length) {
             console.log('temp place not the same as place length, adding ...');
             for (var x = 0; x < this.places.length; x++) {
@@ -336,7 +336,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 let selectedPlaces = this.mapChart.getSelectedPoints();
                 //logic
                 //1. if in selectedPlaces (selected from map), then already selected.
-                //2. If not in selectedPlaces, then deselect              
+                //2. If not in selectedPlaces, then deselect
                 for (var s = 0; s < selectedPlaces.length; s++) {
                     //deselect only if not currently still active
                     console.log('checking selected place');
@@ -394,7 +394,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         for (var x = 0; x < this.places.length; x++) {
             let placeTypeLoaded = false;
             for (var g = 0; g < this.geoJSONStore.length; g++) {
-                //TODO add check for year span as well                 
+                //TODO add check for year span as well
                 if (this.places[x].TypeCategory !== 'State') {
                     placeTypeLoaded = this.translatePlaceTypes(this.places[x].TypeCategory) === this.geoJSONStore[g].layerId ? true : placeTypeLoaded;
                 } else {
@@ -430,7 +430,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             console.log('PLACE TYPE NOT LAODED');
             geoJSON_to_load.push('oregon_siskiyou_boundary');
             //let addBoundary = geoJSON_to_load.indexOf('Places') !== -1 ? true : false;
-            //if (addBoundary) {                
+            //if (addBoundary) {
             //}
         }
 
@@ -470,7 +470,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     getData() {
-        //get ResIDs for geoids param        
+        //get ResIDs for geoids param
         //this.defaultChartOptions.title = { text: this.indicator };
         let geoids = '';
         //console.log('test selectedplaces');
@@ -532,31 +532,143 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 () => console.log('done loading data for map')
             );
         } else {
-            this._dataService.getIndicatorDataWithMetadata(geoids, this.indicator).subscribe(
-                (data: any) => {
-                    console.log(data);
-                    this.updateDataStore([data], 'indicator');
-                    //this.placeTypeData = data;
-                    this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
-                    //this.Data = data.length > 0 ? data : [];         
-                    this.offsetYear = this.offsetYear === undefined ? this.getDefaultYear() : this.offsetYear;
-                    this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.offsetYear];
-                    this.processDataYear();
-                    this.processYearTicks();
-                    this.selectedYearIndex = this._tickArray.length - this.offsetYear;
-                    this.Data = this.placeTypeData.Data;
-                    //while (this.chart.series.length > 0) {
-                    //    this.chart.series[0].remove(false);
-                    //}
-                    console.log('YUUUUUUK', this.Data);
-                    this.onChartDataUpdate.emit(data);
-                    this.createGraphChart();
-                },
-                (err: any) => console.error(err),
-                () => console.log('done loading data for graph')
-            );
+            //check for combined requests
+            let combinedGroups = this.checkCombineGroups();
+            if (combinedGroups.length > 0) {
+                this._dataService.getIndicatorDetailDataWithMetadata(geoids, this.indicator).subscribe(
+                    (data: any) => {
+                        //console.log('detailed data response', data);
+                            //combine data by group-names
+                            let combinedData = this.processCombinedData(data);
+                            this.updateDataStore([combinedData], 'indicator');
+                            this.onChartDataUpdate.emit(combinedData);
+                            this.createGraphChart();
+                    });
+            } else {
+                this._dataService.getIndicatorDataWithMetadata(geoids, this.indicator).subscribe(
+                    (data: any) => {
+                        console.log('regular indicator data',data);
+                        this.updateDataStore([data], 'indicator');
+                        ////this.placeTypeData = data;
+                        //this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
+                        ////this.Data = data.length > 0 ? data : [];
+                        //this.offsetYear = this.offsetYear === undefined ? this.getDefaultYear() : this.offsetYear;
+                        //this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.offsetYear];
+                        //this.processDataYear();
+                        //this.processYearTicks();
+                        //this.selectedYearIndex = this._tickArray.length - this.offsetYear;
+                        //this.Data = this.placeTypeData.Data;
+                        this.onChartDataUpdate.emit(data);
+                        this.createGraphChart();
+                    },
+                    (err: any) => console.error(err),
+                    () => console.log('done loading data for graph')
+                );
+            }
         }
     }
+
+
+    checkCombineGroups() {
+        let combineArray: any[] = [];
+        //find group-names, if more than one with group-name add to combine array
+        var groupNames: any[] = [];
+        this.places.forEach((place: SearchResult) => {
+            if (place.GroupName !== undefined) {
+                if (groupNames.indexOf(place.GroupName) === -1) {
+                    groupNames.push(place.GroupName);
+                }
+            }
+        });
+        console.log('GroupNames', groupNames);
+
+        groupNames.forEach((gn: any, idx: number) => {
+            let groupArray: any[] = [];
+            if (gn !== '') {
+                this.places.forEach(place => {
+                    if (place.GroupName === gn) {
+                        groupArray.push(place);
+                    }
+                });
+                if (idx === groupNames.length - 1 && groupArray.length > 1) {
+                    combineArray.push(groupArray);
+                }
+            }
+        });
+        console.log('combined array', combineArray);
+        return combineArray;
+    }
+
+    processCombinedData(data: any) {
+        let combinedData = data;
+        if (!data.Metadata[0].isPreCalc && data.Metadata[0].Variable_Represent.trim() !== 'Text') {
+            var groups = this.checkCombineGroups();
+            //build data output combining data by group
+            for (var group of groups) {
+                //console.log('group of groups', group);
+                let combinedGroupData: any = new Object;
+                combinedGroupData.community = group[0].GroupName;
+                combinedGroupData.Variable = group[0].Variable;
+                combinedGroupData.geoid = '';
+                var multiplyBy = parseInt(data.Metadata[0].MultiplyBy);
+
+                for (var year of data.Years) {
+                    var isACS = year.Year.indexOf('-') !== -1;
+                    let combinedNumerators = 0;
+                    let combinedDenoms = 0;
+                    let combinedNumMOEs = 0;
+                    let combinedDenomMOEs = 0;
+                    for (var place of group) {
+                        //console.log('this place', place);
+                        let placeData = combinedData.Data.filter((pData: any) => {
+                            //console.log('pData Group', pData);
+                            return pData.geoid === place.ResID;
+                        });
+                        let numValue = placeData[0][year.Year + '_N'];
+                        let denomValue = placeData[0][year.Year + '_D'];
+                        let numMOEValue = isACS ? placeData[0][year.Year + '_MOE_N'] : null;
+                        let denomMOEValue = isACS ? placeData[0][year.Year + '_MOE_D'] : null;
+
+                        //console.log('place comb data', placeData);
+                        //console.log('num value', numValue);
+                        //console.log('denom value', denomValue);
+                        combinedNumerators = numValue !== '' && numValue !== null ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
+                        combinedDenoms = denomValue !== '' && denomValue !== null ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
+                        if (isACS) {
+                            combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
+                            combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
+                        }
+                    }
+                    //console.log('combined num values', combinedNumerators);
+                    //console.log('combined denom values', combinedDenoms);
+                    combinedDenoms = combinedDenoms === 0 || combinedDenoms === null ? 1 : combinedDenoms;
+                    combinedGroupData[year.Year] = combinedNumerators / combinedDenoms * multiplyBy;
+                    if (isACS) {
+                        let displayMOE: any;
+                        if (combinedDenomMOEs !== 0) {
+                            let calcVal = (combinedNumerators / combinedDenoms) / multiplyBy;
+                            //Math.Round(((Math.Sqrt(Math.Pow(num_moe_cummulative, 2) + ((Math.Pow(calc_value, 2) * (Math.Pow(denom_moe_cummulative, 2))))) / denom_cummulative)) * intMultiplyBy, 1);
+
+                            displayMOE = Math.round(((Math.sqrt(Math.pow(combinedNumMOEs, 2) + ((Math.pow(calcVal, 2) * (Math.pow(combinedDenomMOEs, 2))))) / combinedDenoms)) * multiplyBy * 10) / 10;
+                        } else {
+                            displayMOE = Math.round(combinedNumMOEs * 10) / 10;
+                        }
+                        combinedGroupData[year.Year + '_MOE'] = displayMOE;
+                    }
+                }
+                //remove place from combined data
+                for (var place of group) {
+                    combinedData.Data = combinedData.Data.filter((pData: any) => { return pData.geoid !== place.ResID && pData.community !== place.Name; });
+                    //console.log('filtered combinedData', combinedData.Data);
+                }
+                combinedData.Data.push(combinedGroupData);
+                console.log('combined data added', combinedData);
+            }
+        }
+        return combinedData;
+    }
+
+
 
     checkUpdateData() {
         let loadMoreData = false;
@@ -615,9 +727,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
             //} else {
             //    console.log('Chart tile has all data now');
             //    console.log(this.placeTypeData);
-            //    this.Data = this.placeTypeData.Data;                
+            //    this.Data = this.placeTypeData.Data;
             //    this.createGraphChart();
-            //}           
+            //}
         } else {
             console.log('DATA SUBSCRIPTION thinks there is no data');
             //this.getData();
@@ -712,7 +824,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 change: function (event: any, ui: any) {
                     console.log('slider changed');
                     sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value];
-                    sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];//  ui.value;                   
+                    sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];//  ui.value;
                     sliderScope.processDataYear();
                     sliderScope.mapChart.setTitle({
                         text: sliderScope.selectedPlaceType + ' (' + sliderScope.selectedYear.Year + ')'
@@ -746,7 +858,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 clearInterval(runInterval);
             }
         }
-        //if state shows play, means we need to run animation        
+        //if state shows play, means we need to run animation
         this.sliderState = this.sliderState === 'play' ? 'pause' : 'play';
     }
 
@@ -891,6 +1003,16 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     createGraphChart() {
+        //this.placeTypeData = data;
+        this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
+        //this.Data = data.length > 0 ? data : [];
+        this.offsetYear = this.offsetYear === undefined ? this.getDefaultYear() : this.offsetYear;
+        this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.offsetYear];
+        this.processDataYear();
+        this.processYearTicks();
+        this.selectedYearIndex = this._tickArray.length - this.offsetYear;
+        this.Data = this.placeTypeData.Data;
+        //this.onChartDataUpdate.emit(data);
         //check if metadata, if not custom chart, need to do other stuff
         //TODO catch custom chart scenarios
         if (this.placeTypeData.Metadata.length > 0) {
@@ -1012,10 +1134,10 @@ export class DataTileComponent implements OnInit, OnDestroy {
         while (this.chart.series.length > 0) {
             this.chart.series[0].remove(false);
         }
-        //show selected places on chart only       
+        //show selected places on chart only
         var selectedPlaceData = this.Data.filter((placeData: any) => {
             var isSelected = false;
-            //selctions come from the place selector box, not highmaps
+            //selections come from the place selector box, not high-maps
             for (var p = 0; p < this.places.length; p++) {
                 isSelected = (placeData.community.trim() === this.places[p].Name.replace(' County', '').trim() && placeData.geoid.trim() === this.places[p].ResID.trim()) ? true : isSelected;
                 if (isSelected) {
@@ -1032,6 +1154,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     }
                 }
             }
+            //adds combined to display since no geoids
+            isSelected = placeData.geoid === '' ? true : isSelected;
             return isSelected;
         });
         //process data series
@@ -1095,7 +1219,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     //    $.ajax({
     //        type: "POST",
     //        async: true,
-    //        url: 'crt_services.asmx/get_indicator_drilldown_data', //front end service that connects to crt GeoSearchService for searching 
+    //        url: 'crt_services.asmx/get_indicator_drilldown_data', //front end service that connects to crt GeoSearchService for searching
     //        contentType: "application/json; charset=utf-8",
     //        data: '{"subtopic":"' + indicatorData.Metadata[0].Sub_Topic_Name + '", "subsubtopic":' + (subsubtopic !== undefined ? '"' + subsubtopic + '"' : null) + ', "removeIndicator":"' + indicatorData.Metadata[0].Variable + '", "geoid":"' + place_data_years[place.replace(isSchoolDist ? " School District" : " County", "")].geoid + '", "geoType":"' + (params.geoType !== undefined ? params.geoType : "County") + '"}',
     //        dataType: "json",
@@ -1155,7 +1279,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     //            var subTopicYaxis = drillDownData.Metadata[0]['Y-Axis'] !== null ? drillDownData.Metadata[0]['Y-Axis'] : drillDownData.Metadata[0].Sub_Topic_Name;
     //            detailChart.yAxis[0].setTitle({
     //                text: subTopicYaxis,
-    //                //margin: subTopicYaxis.length > 30 ? 25 : null,                   
+    //                //margin: subTopicYaxis.length > 30 ? 25 : null,
     //                style: { "font-size": subTopicYaxis.length > 30 ? ".8em" : "1em" }
     //            });
 
@@ -1411,7 +1535,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         let chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
         var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
         $.each(pdy, function () {
-            var arr = $.grep(this.data, function (n: any) { return (n); });//removes nulls           
+            var arr = $.grep(this.data, function (n: any) { return (n); });//removes nulls
             var PlaceMax = isMap ? arr.sort(function (a: any, b: any) { return b - a; })[0] : this.hasMOEs ? arr.sort(function (a: any, b: any) {
                 return b[1] - a[1];
             })[0] : null;

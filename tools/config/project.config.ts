@@ -50,7 +50,6 @@ export class ProjectConfig extends SeedConfig {
 
         // Production
         this.SYSTEM_BUILDER_CONFIG.paths['dragula'] = `node_modules/dragula/dist/dragula.min.js`;
-    
         /* Add to or override NPM module configurations: */
         //this.mergeObject(this.SYSTEM_CONFIG['map'], { leaflet: `${this.APP_ASSETS}/scripts/leaflet-1.0.0-beta.2.js}` });      
         //this.mergeObject( this.PLUGIN_CONFIGS['browser-sync'], { ghostMode: false } );

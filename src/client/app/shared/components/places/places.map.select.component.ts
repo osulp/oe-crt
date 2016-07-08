@@ -1,13 +1,14 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
-import {Control, CORE_DIRECTIVES, COMMON_DIRECTIVES} from '@angular/common';
+import {Control, CORE_DIRECTIVES} from '@angular/common';
 //import {RouteParams} from 'angular2/router';
 import {JSONP_PROVIDERS}  from '@angular/http';
-import {DND_DIRECTIVES} from 'ng2-dnd/ng2-dnd';
+//import {DND_DIRECTIVES} from 'ng2-dnd/ng2-dnd';
 import {Dragula} from 'ng2-dragula/ng2-dragula';
 import {DragulaService} from 'ng2-dragula/ng2-dragula';
 import {MapLeafletComponent} from '../../components/map/map.leaflet.component';
 //import {MapComponent} from '../../components/map/map.component';
 import {SearchPlacesService, SelectedPlacesService} from '../../services/index';
+
 import {SearchResult} from '../../data_models/index';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
@@ -26,8 +27,8 @@ import 'rxjs/add/operator/share';
     directives: [
         CORE_DIRECTIVES,
         MapLeafletComponent,
-        COMMON_DIRECTIVES,
-        DND_DIRECTIVES,
+        //COMMON_DIRECTIVES,
+        //DND_DIRECTIVES,
         Dragula
     ]
 })
@@ -49,36 +50,36 @@ export class PlacesMapSelectComponent implements OnInit {
     searchResults: Observable<any>;
     mapOptions: any = null;
     urlPlaces: any;
-    
-    constructor(        
+
+    constructor(
         private _searchPlaceService: SearchPlacesService,
         private _selectedPlacesService: SelectedPlacesService,
         dragulaService: DragulaService
     ) {
         ////setup dragNdrop for creating content
-        dragulaService.setOptions('bag-crt', {
-            copy: false,
-            copySortSource: false
-        })
+        //dragulaService.setOptions('bag-crt', {
+        //    copy: false,
+        //    copySortSource: false
+        //});
 
         //dragulaService.drag.subscribe((value:any) => {
         //    console.log(`drag: ${value[0]}`);
         //    this.onDrag(value.slice(1));
         //});
-        dragulaService.drop.subscribe((value:any) => {
+        dragulaService.drop.subscribe((value: any) => {
             console.log(`drop: ${value[0]}`);
             this.onDrop(value.slice(1));
             //this.onDrop(value);
         });
-        dragulaService.over.subscribe((value:any) => {
+        dragulaService.over.subscribe((value: any) => {
             console.log(`over: ${value[0]}`);
             this.onOver(value.slice(1));
             //this.onOver(value);
         });
-        dragulaService.out.subscribe((value:any) => {
+        dragulaService.out.subscribe((value: any) => {
             console.log(`out: ${value[0]}`);
             this.onOut(value.slice(1));
-        });        
+        });
 
         this.searchResults = this.term.valueChanges
             .debounceTime(200)
@@ -91,64 +92,85 @@ export class PlacesMapSelectComponent implements OnInit {
         //this.urlPlaces = this._routerParams.get('places');
     }
 
-    onDrag(args:any) {
-        let [e, el] = args;
-        console.log('on drag', args);
-        this.setPlaceBinClasses(e);
-        // do something
-    }
+    //onDrag(args: any) {
+    //    let [e, el] = args;
+    //    console.log('on drag', args);
+    //    this.setPlaceBinClasses(e);
+    //    // do something
+    //}
 
     onDrop(args: any) {
         let [e, src, target] = args;
-        this.setPlaceBinClasses(e);
+        this.setPlaceBinGroups(e,true);
         console.log('on drop', args);
         if (args[2] === null) {
             return;
-        }        
-    }    
-
-    onOver(args: any) {
-        //if (args[2] === null) //dragged outside any of the bags
-        //    return;
-        //if (args[2].id !== "content" && args[2].id !== args[3].id) //dragged to a container that should not add the element
-        //    args[1].remove();
-        //console.log('what the value', args);
-        let [e, src, target] = args;
-        //console.log('on over', e, src, target);
-        //console.log('src placename', src.attributes['placename']);
-        ////check if same placeType
-        //if (this.translatePlaceTypes(src.attributes['placetype']) === this.translatePlaceTypes(target.attributes['placetype'])) {
-        //    console.log('good to merge!');
-        //} else {
-        //    console.log('sorry charlie');  
-        //    //args[1].remove();              
-        //    return;              
-        //}
-        this.setPlaceBinClasses(e);
+        }
     }
 
-    onOut(args:any) {
+    onOver(args: any) {
+        let [e, src, target] = args;
+        //console.log('on over', e, src, target);
+        this.setPlaceBinGroups(e);
+    }
+
+    onOut(args: any) {
         let [e, el, container] = args;
         console.log('on out', args);
-        this.setPlaceBinClasses(e);
+        this.setPlaceBinGroups(e);
         if (container.children.length > 0) {
-            this.setPlaceBinClasses(container.children[0]);
+            this.setPlaceBinGroups(container.children[0]);
         }
-        
-    }    
 
-    setPlaceBinClasses(e: any) {
+    }
+
+    onCombineLabelKeyPress(evt: any) {
+        if (evt.keyCode === 13 || evt.keyCode === 9) {
+            //get all places in bin and update their group-name value
+            let dragBin = evt.target.parentElement.parentElement;
+            console.log('dragBin', dragBin);
+            let placesInBin = dragBin.getElementsByClassName('place-bin');
+            let updatePlaces: SearchResult[] = [];
+            for (var binP of placesInBin) {
+                this.selectedSearchResults.forEach((place: SearchResult) => {
+                    if (place.ResID === binP.getAttribute('placeresid') && place.Name === binP.getAttribute('placename')) {
+                        updatePlaces.push(place);
+                    }
+                });
+            }
+            this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, evt.target.value, true);
+            evt.target.parentNode.parentNode.setAttribute('editView', 'false');
+        }
+    }
+
+    setPlaceBinGroups(e: any, update?: boolean) {
         if (e.parentNode !== undefined) {
+            let updatePlaces: SearchResult[] = [];
+            let combine: boolean = false;
             for (var i = 0; i < e.parentNode.children.length; i++) {
                 if (e.parentNode.children.length === 1) {
-                    var reg = new RegExp(' combinedPlaces', "g");
-                    e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, "");
+                    //not combined
+                    var reg = new RegExp(' combinedPlaces', 'g');
+                    e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
+                    e.parentNode.parentNode.setAttribute('editView', 'false');
+                    //find place and remove combined group attr
                 } else {
+                    //combined
+                    combine = true;
                     e.parentNode.children[i].className += ' combinedPlaces';
+                    e.parentNode.parentNode.setAttribute('editView', 'true');
                 }
+                this.selectedSearchResults.forEach((place: SearchResult) => {
+                    if (place.ResID === e.parentNode.children[i].getAttribute('placeresid') && place.Name === e.parentNode.children[i].getAttribute('placename')) {
+                        updatePlaces.push(place);
+                    }
+                });
+            }
+            if (update) {
+                this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, e.parentNode.getAttribute('groupname'), combine);
             }
         }
-    }    
+    }
 
 
     inputSearchClickHandler(event: any, result: SearchResult) {
@@ -202,7 +224,7 @@ export class PlacesMapSelectComponent implements OnInit {
     blurHandler(event: any) {
         var searchScope = this;
         setTimeout(function () {
-            //if tabbing on list result set input box to match the Name property, but don't clear.           
+            //if tabbing on list result set input box to match the Name property, but don't clear.
             if (document.activeElement.classList.toString() === 'list-group-item') {
                 var attr: any = 'data-search-item';
                 var listItem: any = JSON.parse(document.activeElement.attributes[attr].value);
@@ -245,7 +267,7 @@ export class PlacesMapSelectComponent implements OnInit {
         this._selectedPlacesService.remove(place);
     }
     addPlace(place: SearchResult) {
-        //check if already added                
+        //check if already added
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);
@@ -262,7 +284,7 @@ export class PlacesMapSelectComponent implements OnInit {
             TypeCategory: 'State',
             Desc: compareType
         };
-        //check if already added                
+        //check if already added
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name; }).indexOf(compareType);
         //console.log(indexPos);
         //console.log('index position is: ' + indexPos);
@@ -294,25 +316,34 @@ export class PlacesMapSelectComponent implements OnInit {
         //this.title = response.itemInfo.item.title;
     }
 
-    translatePlaceTypes(placeType: string) {
+    translatePlaceTypes(placeType: string, placeName?: string) {
+        let modPT = placeType;
         switch (placeType) {
             case 'County':
             case 'Counties':
             case 'State':
-                return 'Counties';
+                modPT = 'Counties';
+                break;
             case 'Census Designated Place':
             case 'Incorporated City':
             case 'Incorporated Town':
             case 'City':
             case 'Cities':
-                return 'Places';
+                modPT = 'Places';
+                break;
             case 'Census Tract':
             case 'Census Tracts':
             case 'Unicorporated Place':
-                return 'Tracts';
+                modPT = 'Tracts';
+                break;
             default:
-                return placeType;
+                modPT = placeType;
+                break;
         }
+        if (placeName) {
+            modPT += placeName.replace(/\ /g, '');
+        }
+        return modPT;
     }
 
     ngOnInit() {

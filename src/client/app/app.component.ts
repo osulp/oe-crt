@@ -7,7 +7,7 @@ import { CollectionsComponent } from './+collections/index';
 import { ExploreComponent } from './+explore/explore.component';
 import { HomeComponent } from './+home/home.component';
 import { MyPinsComponent } from './+mypins/index';
-import { HelpComponent} from './+help/index';
+import { HowToComponent} from './+howto/index';
 import { SelectedPlacesService } from './shared/services/index';
 //import { d } from './shared/index';
 
@@ -42,7 +42,7 @@ import { SelectedPlacesService } from './shared/services/index';
     },
     {
         path: '/How To',
-        component: HelpComponent
+        component: HowToComponent
     },
     {
         path: '/My Pins',

@@ -18,6 +18,7 @@ var SelectedPlacesService = (function () {
         this.updates = new Subject_1.Subject();
         this.addPlace = new Subject_1.Subject();
         this.removePlace = new Subject_1.Subject();
+        this.updatePlaces = new Subject_1.Subject();
         this._setAllByPlaceType = new Subject_1.Subject();
         this.getAll = new Subject_1.Subject();
         this.updates
@@ -50,11 +51,30 @@ var SelectedPlacesService = (function () {
             };
         })
             .subscribe(this.updates);
-        this._setAllByPlaceType
+        this.updatePlaces
             .map(function (args) {
             return function (state) {
                 console.log(args);
                 console.log('places from inside setAllPlaceMap');
+                var updatedPlaces = args[0];
+                return state
+                    .map(function (place) {
+                    var isPlaceToUpdate = false;
+                    updatedPlaces.forEach(function (up) {
+                        isPlaceToUpdate = up.Name === place.Name && up.ResID == place.ResID ? true : isPlaceToUpdate;
+                    });
+                    if (isPlaceToUpdate) {
+                        place.GroupName = args[2] ? args[1] : '';
+                        place.Combined = args[2] ? true : false;
+                    }
+                    return place;
+                });
+            };
+        })
+            .subscribe(this.updates);
+        this._setAllByPlaceType
+            .map(function (args) {
+            return function (state) {
                 return state
                     .filter(function (places) {
                     return _this.translatePlaceTypes(places.TypeCategory) !== args[1];
@@ -81,6 +101,10 @@ var SelectedPlacesService = (function () {
     SelectedPlacesService.prototype.setAllbyPlaceType = function (places, placeType) {
         var translatedPlaceType = this.translatePlaceTypes(placeType);
         this._setAllByPlaceType.next([places, translatedPlaceType]);
+    };
+    SelectedPlacesService.prototype.updatePlaceGroupNames = function (places, groupName, add) {
+        console.log('updating place group names', places, groupName, add);
+        this.updatePlaces.next([places, groupName, add]);
     };
     SelectedPlacesService.prototype.translatePlaceTypes = function (placeType) {
         switch (placeType) {

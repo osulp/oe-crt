@@ -5,5 +5,7 @@
     TypeCategory: string;
     Desc: string;
     Source?: string;
+    GroupName?: string;
+    Combined?: boolean;
 }
 
