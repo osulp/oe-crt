@@ -211,3 +211,59 @@
         border-width: 9px;
         margin-left: -9px;
     }
+
+
+    .data-tile-grid {
+    padding: 30px;
+}
+
+
+    #data-control-bar {
+    position: absolute;
+    top: 27px;
+    right: 15px;
+    z-index: 2000;
+    height: 50px;
+}
+
+    #data-control-bar div {
+        display: inline-block;
+    }
+
+    #map-graph-toggle {
+    margin-left: 20px;
+}
+
+    #map-graph-toggle div {
+        border: solid 1px #D1CDC7;
+        border-radius: 4px;
+        background-color: #F3F2ED;
+        text-align: center;
+        padding: 4px 12px;
+        font-weight: bold;
+        color: #D1CDC7;
+        height: 30px;
+    }
+
+        #map-graph-toggle div:nth-child(1) {
+            border-radius: 4px 0 0 4px;
+            margin-right: -3px;
+        }
+
+        #map-graph-toggle div:nth-child(2) {
+            border-radius: 0 4px 4px 0;
+        }
+
+        #map-graph-toggle div:hover {
+            cursor: pointer;
+        }
+
+        #map-graph-toggle div.selected {
+            background-color: #D1CDC7;
+            color: white;
+        }
+
+#related-indicators-wrapper {
+    border-top:solid 1.25px #D1CDC7;
+    margin-top:40px;
+}

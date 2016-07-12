@@ -30,7 +30,11 @@ var SelectedPlacesService = (function () {
         });
         this.addPlace
             .map(function (place) {
-            return function (state) { return state.concat(place); };
+            return function (state) {
+                console.log('adding place service array', state);
+                console.log('adding concated place', state.concat(place));
+                return state.concat(place);
+            };
         })
             .subscribe(this.updates);
         this.removePlace
@@ -87,7 +91,7 @@ var SelectedPlacesService = (function () {
     SelectedPlacesService.prototype.load = function () {
     };
     SelectedPlacesService.prototype.add = function (place, source) {
-        console.log('adding place to selectedPlaces');
+        console.log('adding place to selectedPlaces', place);
         if (source) {
             place.Source = source;
         }

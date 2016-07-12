@@ -34,6 +34,7 @@ export class DetailComponent implements OnInit {
     visible: boolean = false;
     indInfo: string = 'desc';
     initialLoad: boolean = true;
+    relatedIndicators: any[] = [];
 
     constructor(private _indicatorDescService: IndicatorDescService,
         private _router: Router
@@ -116,7 +117,8 @@ export class DetailComponent implements OnInit {
             .replace(/\%2B/g, '+');
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(
             (data: any) => {
-                this.indicatorDesc = data;// IndicatorDescSer    
+                this.indicatorDesc = data.Desc;// IndicatorDescSer
+                this.relatedIndicators = data.RelatedIndicators;
                 console.log('indicatorDesc service', data);
             });
 

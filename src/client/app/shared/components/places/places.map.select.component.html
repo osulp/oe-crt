@@ -53,17 +53,26 @@
                                 <div class="placePanelWrapper" [ngClass]="placeContainer.getAttribute('editView') === 'true' ? 'editPanel' : ''">
                                     <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editView') === 'true'">
                                         <span class="editPanelHeading">Edit Custom Set<img (click)="updateCustomSetName(dragBin, placeContainer, inpPlace)" src="assets/img/closeX.png" alt="close edit combined set" /></span>
-                                        <input #inpPlace type="text" placeholder="{{place.GroupName}}" (keypress)="onCombineLabelKeyPress($event, dragBin, placeContainer, inpPlace)" />
+                                        <input #inpPlace type="text" placeholder="Enter a name for custom group" (keypress)="onCombineLabelKeyPress($event, dragBin, placeContainer, inpPlace)" value="{{place.GroupName}}" (click)="inpPlace.value = ''" />
                                     </div>
                                     <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editView') === 'false'" title="Edit combined communities" class="combinedLabel" (click)="placeContainer.setAttribute('editView','true')">
                                         {{place.GroupName}}
                                         <span class="glyphicon glyphicon-edit">&nbsp;</span>
                                     </div>
                                     <!--<div #dragBin [hidden]="place.Combined && placeContainer.getAttribute('editView') === 'false'" [dragula]="translatePlaceTypes(place.TypeCategory)" [attr.groupname]="translatePlaceTypes(place.TypeCategory,place.Name)">-->
-                                    <div #dragBin [hidden]="place.Combined && placeContainer.getAttribute('editView') === 'false'" [dragula]="translatePlaceTypes(place.TypeCategory)" [attr.groupname]="'Custom Set ' + customSetCounter">
-                                        <div #placeBin [attr.placeName]="place.Name" [attr.placeResID]="place.ResID" [attr.placeType]="place.TypeCategory" [attr.combined]="place.Combined" class="place-bin">
+                                    <div #dragBin [hidden]="(place.Combined && placeContainer.getAttribute('editView') === 'false') || (!place.Combined && placeContainer.getAttribute('editView') === 'true')"
+                                         [dragula]="translatePlaceTypes(place.TypeCategory)"
+                                         class="dragBin"
+                                         [attr.dragBag]="translatePlaceTypes(place.TypeCategory)"
+                                         [attr.groupname]="(place.Combined && place.GroupName && place.GroupName !== '') ? place.GroupName : 'Custom Set ' + translatePlaceTypes(place.TypeCategory) + ' ' +customSetCounter">
+                                        <div #placeBin [attr.placeName]="place.Name"
+                                             [attr.placeResID]="place.ResID"
+                                             [attr.placeType]="place.TypeCategory"
+                                             [attr.combined]="place.Combined"
+                                             class="place-bin"
+                                             [ngClass]="place.Combined ? 'combinedPlaces' : ''">
                                             {{place.Name}}
-                                            <span (click)="removePlace(place)"><img src="assets/img/closeX2.png" alt="remove selected place" />&nbsp;</span>
+                                            <span (click)="removePlace(place, placeBin, dragBin, placeContainer)"><img src="assets/img/closeX2.png" alt="remove selected place" />&nbsp;</span>
                                         </div>
                                     </div>
                                 </div>

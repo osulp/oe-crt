@@ -26,6 +26,7 @@ var DetailComponent = (function () {
         this.visible = false;
         this.indInfo = 'desc';
         this.initialLoad = true;
+        this.relatedIndicators = [];
     }
     DetailComponent.prototype.onSelectedSearchResult = function (results) {
         this.selectedSearchResult = results;
@@ -95,7 +96,8 @@ var DetailComponent = (function () {
             .replace(/\%24/g, '$')
             .replace(/\%2B/g, '+');
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(function (data) {
-            _this.indicatorDesc = data;
+            _this.indicatorDesc = data.Desc;
+            _this.relatedIndicators = data.RelatedIndicators;
             console.log('indicatorDesc service', data);
         });
         this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];

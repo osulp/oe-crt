@@ -80,12 +80,10 @@ var PlacesMapSelectComponent = (function () {
             for (var i = 0; i < e.parentNode.children.length; i++) {
                 if (e.parentNode.children.length === 1) {
                     var reg = new RegExp(' combinedPlaces', 'g');
-                    e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'false');
                 }
                 else {
                     combine = true;
-                    e.parentNode.children[i].className += ' combinedPlaces';
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'true');
                 }
                 this.selectedSearchResults.forEach(function (place) {
@@ -196,17 +194,28 @@ var PlacesMapSelectComponent = (function () {
             }
         }, 1);
     };
-    PlacesMapSelectComponent.prototype.removePlace = function (place) {
-        var indexPlace = this.selectedSearchResults.indexOf(place);
-        this.selectedSearchResults.splice(indexPlace, 1);
+    PlacesMapSelectComponent.prototype.removePlace = function (place, placeBin, dragBin, panelContainer) {
         this.selPlacesEvt.emit(this.selectedSearchResults);
+        console.log('removing place', place);
+        if (place.Combined) {
+            console.log('place combined and chekcing dragbin', dragBin);
+            console.log(dragBin.getElementsByClassName('place-bin'));
+            if (dragBin.getElementsByClassName('place-bin').length === 2) {
+                var unCombine = this.checkCombineGroups().combineArray.forEach(function (group) {
+                    group.forEach(function (gplace) {
+                        if (gplace.GroupName === place.GroupName && gplace.ResID !== place.ResID) {
+                            return gplace;
+                        }
+                    });
+                });
+                console.log('uncombine', unCombine);
+            }
+        }
         this._selectedPlacesService.remove(place);
     };
     PlacesMapSelectComponent.prototype.addPlace = function (place) {
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
         if (indexPos === -1) {
-            this.selectedSearchResults.push(place);
-            this.selPlacesEvt.emit(this.selectedSearchResults);
             this._selectedPlacesService.add(place, 'map');
         }
     };
@@ -220,8 +229,6 @@ var PlacesMapSelectComponent = (function () {
         };
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name; }).indexOf(compareType);
         if (indexPos === -1) {
-            this.selectedSearchResults.push(compareResult);
-            this.selPlacesEvt.emit(this.selectedSearchResults);
             this._selectedPlacesService.add(compareResult, 'map');
         }
     };
@@ -233,6 +240,72 @@ var PlacesMapSelectComponent = (function () {
             var place = uniquePlaces[_i];
             this.selectedSearchResults.push(place);
         }
+        console.log('unique places', this.selectedSearchResults);
+        var runScope = this;
+        var runInterval = setInterval(runCheck, 50);
+        function runCheck() {
+            var combinedGroups = runScope.checkCombineGroups().groupName;
+            combinedGroups.forEach(function (gn, idx) {
+                console.log('Here is a group, need to be binned', gn);
+                var dragBins = document.getElementsByClassName('dragBin');
+                var processedGroups = [];
+                for (var db = 0; db < dragBins.length; db++) {
+                    console.log('dragbin processing', dragBins[db]);
+                    console.log('processed groups', processedGroups);
+                    var dBsToRemove = [];
+                    if (dragBins[db].getAttribute('groupname') === gn && processedGroups.indexOf(gn) === -1) {
+                        console.log('group to process!', gn);
+                        for (var db1 = 0; db1 < dragBins.length; db1++) {
+                            if (db1 !== db && dragBins[db1].getAttribute('groupname') === gn) {
+                                var placeBin = dragBins[db1].getElementsByClassName('place-bin');
+                                console.log('place bin to append', placeBin, dragBins[db]);
+                                for (var pb = 0; pb < placeBin.length; pb++) {
+                                    if (placeBin[pb].getAttribute('combined') === 'true') {
+                                        console.log('appending place', placeBin[pb]);
+                                        dBsToRemove.push(dragBins[db1]);
+                                    }
+                                }
+                            }
+                        }
+                        processedGroups.push(gn);
+                    }
+                    console.log('dbstoremove', dBsToRemove);
+                    dBsToRemove.forEach(function (dbr) {
+                        console.log(dbr);
+                    });
+                }
+                console.log('All the dragBins', dragBins);
+            });
+            clearInterval(runInterval);
+        }
+    };
+    PlacesMapSelectComponent.prototype.checkCombineGroups = function () {
+        var _this = this;
+        var combineArray = [];
+        var groupNames = [];
+        this.selectedSearchResults.forEach(function (place) {
+            if (place.GroupName !== undefined) {
+                if (groupNames.indexOf(place.GroupName) === -1) {
+                    groupNames.push(place.GroupName);
+                }
+            }
+        });
+        console.log('GroupNames', groupNames);
+        groupNames.forEach(function (gn, idx) {
+            var groupArray = [];
+            if (gn !== '') {
+                _this.selectedSearchResults.forEach(function (place) {
+                    if (place.GroupName === gn) {
+                        groupArray.push(place);
+                    }
+                });
+                if (idx === groupNames.length - 1 && groupArray.length > 1) {
+                    combineArray.push(groupArray);
+                }
+            }
+        });
+        console.log('combined array', combineArray);
+        return { 'groupName': groupNames, 'combineArray': combineArray };
     };
     PlacesMapSelectComponent.prototype.onMapLoad = function (response) {
     };
@@ -241,7 +314,6 @@ var PlacesMapSelectComponent = (function () {
         switch (placeType) {
             case 'County':
             case 'Counties':
-            case 'State':
                 modPT = 'Counties';
                 break;
             case 'Census Designated Place':

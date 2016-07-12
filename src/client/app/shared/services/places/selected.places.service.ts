@@ -26,7 +26,11 @@ export class SelectedPlacesService {
 
         this.addPlace
             .map((place: any) => {
-                return (state: any) => { return state.concat(place); };
+                return (state: any) => {
+                    console.log('adding place service array', state);
+                    console.log('adding concated place', state.concat(place));
+                    return state.concat(place);
+                };
             })
             .subscribe(this.updates);
 
@@ -93,7 +97,7 @@ export class SelectedPlacesService {
 
 
     add(place: any, source?: any): void {
-        console.log('adding place to selectedPlaces');
+        console.log('adding place to selectedPlaces', place);
         //this.selectedPlaces.push(place);
         if (source) {
             place.Source = source;

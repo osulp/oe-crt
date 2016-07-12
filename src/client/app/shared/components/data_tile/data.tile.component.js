@@ -188,13 +188,31 @@ var DataTileComponent = (function () {
                 var pointsAsPlacesForBin = [];
                 for (var p = 0; p < points.length; p++) {
                     var place = points[p];
-                    pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map' });
+                    var binPlace = void 0;
+                    var isInBin = false;
+                    console.log('here are the places from map click', chartScope.places);
+                    for (var b = 0; b < chartScope.places.length; b++) {
+                        console.log('map point', points[p]);
+                        console.log('place bin', chartScope.places[b]);
+                        isInBin = points[p].geoid === chartScope.places[b].ResID;
+                        if (isInBin) {
+                            console.log('IS in BIn', chartScope.places[b]);
+                            binPlace = chartScope.places[b];
+                            pointsAsPlacesForBin.push(binPlace);
+                        }
+                    }
+                    if (!isInBin) {
+                        pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map' });
+                    }
                 }
+                pointsAsPlacesForBin = pointsAsPlacesForBin.filter(function (place, index, self) { return self.findIndex(function (t) { return t.ResID === place.ResID && t.Name === place.Name; }) === index; });
+                console.log('adding from map', chartScope.tileType, pointsAsPlacesForBin);
                 chartScope._selectedPlacesService.setAllbyPlaceType(pointsAsPlacesForBin, chartScope.selectedPlaceType);
             }
         });
     };
     DataTileComponent.prototype.onPlacesChanged = function (selectedPlaces) {
+        console.log('adding DataTile place change', selectedPlaces);
         this.places = selectedPlaces;
         this.placeNames = '';
         if (this.tempPlaces.length !== this.places.length) {

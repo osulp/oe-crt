@@ -141,7 +141,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
                 // If param exists already, update it
                 if (urlQueryString.match(keyRegex) !== null) {
                     allParams = urlQueryString.replace(keyRegex, '$1' + newParam);
-                } else { // Otherwise, add it to end of query string                    
+                } else { // Otherwise, add it to end of query string
                     allParams = urlQueryString + (qsParams[x].value !== '' ? ';' : '') + newParam;
                 }
             } else {

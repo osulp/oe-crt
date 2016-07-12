@@ -139,13 +139,13 @@ export class PlacesMapSelectComponent implements OnInit {
                 if (e.parentNode.children.length === 1) {
                     //not combined
                     var reg = new RegExp(' combinedPlaces', 'g');
-                    e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
+                    //e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'false');
                     //find place and remove combined group attr
                 } else {
                     //combined
                     combine = true;
-                    e.parentNode.children[i].className += ' combinedPlaces';
+                    //e.parentNode.children[i].className += ' combinedPlaces';
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'true');
                 }
                 this.selectedSearchResults.forEach((place: SearchResult) => {
@@ -261,19 +261,38 @@ export class PlacesMapSelectComponent implements OnInit {
         }, 1);
         //event.preventDefault();
     }
-    removePlace(place: SearchResult) {
-        var indexPlace = this.selectedSearchResults.indexOf(place);
-        this.selectedSearchResults.splice(indexPlace, 1);
+    removePlace(place: SearchResult, placeBin: any, dragBin: any, panelContainer: any) {
+        //var indexPlace = this.selectedSearchResults.indexOf(place);
+        //this.selectedSearchResults.splice(indexPlace, 1);
         //broadcast out to application
         this.selPlacesEvt.emit(this.selectedSearchResults);
+        console.log('removing place', place);
+        if (place.Combined) {
+            //remove its dom node if empty
+            console.log('place combined and chekcing dragbin', dragBin);
+            console.log(dragBin.getElementsByClassName('place-bin'));
+            if (dragBin.getElementsByClassName('place-bin').length === 2) {
+                //means that removing one will leave only one in bin, needs to be uncombined
+                let unCombine = this.checkCombineGroups().combineArray.forEach((group: any[]) => {
+                    group.forEach((gplace: SearchResult) => {
+                        if (gplace.GroupName === place.GroupName && gplace.ResID !== place.ResID) {
+                            return gplace;
+                        }
+                    });
+                });
+                console.log('uncombine', unCombine);
+
+                //panelContainer.parentElement.removeChild(panelContainer);
+            }
+        }
         this._selectedPlacesService.remove(place);
     }
     addPlace(place: SearchResult) {
         //check if already added
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
         if (indexPos === -1) {
-            this.selectedSearchResults.push(place);
-            this.selPlacesEvt.emit(this.selectedSearchResults);
+            //this.selectedSearchResults.push(place);
+            //this.selPlacesEvt.emit(this.selectedSearchResults);
             this._selectedPlacesService.add(place, 'map');
         }
     }
@@ -291,8 +310,8 @@ export class PlacesMapSelectComponent implements OnInit {
         //console.log(indexPos);
         //console.log('index position is: ' + indexPos);
         if (indexPos === -1) {
-            this.selectedSearchResults.push(compareResult);
-            this.selPlacesEvt.emit(this.selectedSearchResults);
+            //this.selectedSearchResults.push(compareResult);
+            //this.selPlacesEvt.emit(this.selectedSearchResults);
             this._selectedPlacesService.add(compareResult, 'map');
         }
     }
@@ -304,7 +323,86 @@ export class PlacesMapSelectComponent implements OnInit {
         for (var place of uniquePlaces) {
             this.selectedSearchResults.push(place);
         }
+        console.log('unique places', this.selectedSearchResults);
+        let runScope = this;
+        var runInterval = setInterval(runCheck, 50);
+        function runCheck() {
+            let combinedGroups = runScope.checkCombineGroups().groupName;
+            //sort into groups if any
+            combinedGroups.forEach((gn: any, idx: number) => {
+                console.log('Here is a group, need to be binned', gn);
+                let dragBins = document.getElementsByClassName('dragBin');
+                let processedGroups: any[] = [];
+                //let placeBinsToAppend: any[]
+                for (var db = 0; db < dragBins.length; db++) {
+                    //NEED TO CHECK THAT THE ORIG type matches for appending
+                    console.log('dragbin processing', dragBins[db]);
+                    console.log('processed groups', processedGroups);
+                    let dBsToRemove: any[] = [];
+                    if (dragBins[db].getAttribute('groupname') === gn && processedGroups.indexOf(gn) === -1) {
+                        console.log('group to process!', gn);
+                        for (var db1 = 0; db1 < dragBins.length; db1++) {
+                            if (db1 !== db && dragBins[db1].getAttribute('groupname') === gn) {
+                                //append to first dragbin
+                                let placeBin = dragBins[db1].getElementsByClassName('place-bin');
+                                console.log('place bin to append', placeBin, dragBins[db]);
+                                for (var pb = 0; pb < placeBin.length; pb++) {
+                                    if (placeBin[pb].getAttribute('combined') === 'true') {
+                                        console.log('appending place', placeBin[pb]);
+                                        //dragBins[db].appendChild(placeBin[pb]);
+                                        dBsToRemove.push(dragBins[db1]);
+                                        //remove?  drag bin
+                                    }
+                                }
+                            }
+                        }
+                        processedGroups.push(gn);
+                    }
+                    console.log('dbstoremove', dBsToRemove);
+                    dBsToRemove.forEach((dbr: any) => {
+                        console.log(dbr);
+                        //dbr.parentElement.parentElement.parentElement.removeChild(dbr.parentElement.parentElement);
+                    });
+                }
+                console.log('All the dragBins', dragBins);
+                //find first instance of dragbin with groupname matching and then append other dragbins with same groupname into dragbin
+
+            });
+            clearInterval(runInterval);
+        }
     }
+
+    checkCombineGroups() {
+        let combineArray: any[] = [];
+        //find group-names, if more than one with group-name add to combine array
+        var groupNames: any[] = [];
+        this.selectedSearchResults.forEach((place: SearchResult) => {
+            if (place.GroupName !== undefined) {
+                if (groupNames.indexOf(place.GroupName) === -1) {
+                    groupNames.push(place.GroupName);
+                }
+            }
+        });
+        console.log('GroupNames', groupNames);
+
+        groupNames.forEach((gn: any, idx: number) => {
+            let groupArray: any[] = [];
+            if (gn !== '') {
+                this.selectedSearchResults.forEach(place => {
+                    if (place.GroupName === gn) {
+                        groupArray.push(place);
+                    }
+                });
+                if (idx === groupNames.length - 1 && groupArray.length > 1) {
+                    combineArray.push(groupArray);
+                }
+            }
+        });
+        console.log('combined array', combineArray);
+        //return combineArray;
+        return { 'groupName': groupNames, 'combineArray': combineArray };
+    }
+
     onMapLoad(response: any) {
         //console.log('MAP LOADEDED!!!!!');
         //const map = response.map;
@@ -323,7 +421,7 @@ export class PlacesMapSelectComponent implements OnInit {
         switch (placeType) {
             case 'County':
             case 'Counties':
-            case 'State':
+            //case 'State':
                 modPT = 'Counties';
                 break;
             case 'Census Designated Place':

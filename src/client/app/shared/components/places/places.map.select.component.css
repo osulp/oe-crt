@@ -309,7 +309,7 @@
     }
 
 .place-bin-wrapper {
-    margin: 0 -7px 10px -15px;
+    margin: 0 -7px 0 -15px;
     min-height: 50px;
     display: table-cell;
 }

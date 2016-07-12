@@ -272,21 +272,33 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 var pointsAsPlacesForBin: any[] = [];
                 for (var p = 0; p < points.length; p++) {
                     let place = points[p];
-                    //let isInBin = false;
-                    //for (var b = 0; b < chartScope.places.length; b++) {
-                    //    isInBin = points[p].geoid === chartScope.places[b].ResID && chartScope.places[b].Source === 'search';
-                    //}
-                    //if (!isInBin) {
-                    //    pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: chartScope.selectedPlaceType, TypeCategory: chartScope.selectedPlaceType, Source: 'map' });
-                    //}
-                    pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map' });
+                    let binPlace: any;
+                    let isInBin = false;
+                    console.log('here are the places from map click', chartScope.places);
+                    for (var b = 0; b < chartScope.places.length; b++) {
+                        console.log('map point', points[p]);
+                        console.log('place bin', chartScope.places[b]);
+                        isInBin = points[p].geoid === chartScope.places[b].ResID;
+                        if (isInBin) {
+                            console.log('IS in BIn', chartScope.places[b]);
+                            binPlace = chartScope.places[b];
+                            pointsAsPlacesForBin.push(binPlace);
+                        }
+                    }
+                    if (!isInBin) {
+                        pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map' });
+                    }
+                    //pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map', Combined: false });
                 }
+                pointsAsPlacesForBin = pointsAsPlacesForBin.filter((place: any, index: number, self: any) => self.findIndex((t: any) => { return t.ResID === place.ResID && t.Name === place.Name; }) === index);
+                console.log('adding from map', chartScope.tileType, pointsAsPlacesForBin);
                 chartScope._selectedPlacesService.setAllbyPlaceType(pointsAsPlacesForBin, chartScope.selectedPlaceType);
             }
         });
     }
 
     onPlacesChanged(selectedPlaces: SearchResult[]) {
+        console.log('adding DataTile place change', selectedPlaces);
         this.places = selectedPlaces;
         this.placeNames = '';
         //check if repeated event with same places
