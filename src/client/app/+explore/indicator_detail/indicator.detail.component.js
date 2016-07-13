@@ -27,6 +27,8 @@ var DetailComponent = (function () {
         this.indInfo = 'desc';
         this.initialLoad = true;
         this.relatedIndicators = [];
+        this.indicatorTitle = '';
+        this.subTitle = '';
     }
     DetailComponent.prototype.onSelectedSearchResult = function (results) {
         this.selectedSearchResult = results;
@@ -81,9 +83,9 @@ var DetailComponent = (function () {
     };
     DetailComponent.prototype.ngOnInit = function () {
         var _this = this;
-        this.showMap = true;
-        this.showGraph = true;
-        this.showTable = true;
+        this.showMap = false;
+        this.showGraph = false;
+        this.showTable = false;
         this.chartData = [];
         this.inputIndicator = decodeURI(this.inputIndicator)
             .replace(/\%2528/g, '(')
@@ -99,6 +101,8 @@ var DetailComponent = (function () {
             _this.indicatorDesc = data.Desc;
             _this.relatedIndicators = data.RelatedIndicators;
             console.log('indicatorDesc service', data);
+            _this.indicatorTitle = data.Desc[0].Dashboard_Chart_Title ? data.Desc[0].Dashboard_Chart_Title : data.Desc[0].Variable;
+            _this.subTitle = data.Desc[0].Dashboard_Chart_Y_Axis_Label ? data.Desc[0].Dashboard_Chart_Y_Axis_Label : '';
         });
         this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];
     };

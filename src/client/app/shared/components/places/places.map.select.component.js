@@ -49,23 +49,20 @@ var PlacesMapSelectComponent = (function () {
         this.selectedSearchResults = [];
     }
     PlacesMapSelectComponent.prototype.onDrop = function (args) {
-        var e = args[0], src = args[1], target = args[2];
-        this.setPlaceBinGroups(e, true);
+        this.setPlaceBinGroups(args[0], true);
         console.log('on drop', args);
         if (args[2] === null) {
             return;
         }
     };
     PlacesMapSelectComponent.prototype.onOver = function (args) {
-        var e = args[0], src = args[1], target = args[2];
-        this.setPlaceBinGroups(e);
+        this.setPlaceBinGroups(args[0]);
     };
     PlacesMapSelectComponent.prototype.onOut = function (args) {
-        var e = args[0], el = args[1], container = args[2];
         console.log('on out', args);
-        this.setPlaceBinGroups(e);
-        if (container.children.length > 0) {
-            this.setPlaceBinGroups(container.children[0]);
+        this.setPlaceBinGroups(args[0]);
+        if (args[2].children.length > 0) {
+            this.setPlaceBinGroups(args[2].children[0]);
         }
     };
     PlacesMapSelectComponent.prototype.onCombineLabelKeyPress = function (evt, dragBin, placeContainer, inpPlace) {
@@ -79,7 +76,6 @@ var PlacesMapSelectComponent = (function () {
             var combine = false;
             for (var i = 0; i < e.parentNode.children.length; i++) {
                 if (e.parentNode.children.length === 1) {
-                    var reg = new RegExp(' combinedPlaces', 'g');
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'false');
                 }
                 else {
@@ -201,14 +197,6 @@ var PlacesMapSelectComponent = (function () {
             console.log('place combined and chekcing dragbin', dragBin);
             console.log(dragBin.getElementsByClassName('place-bin'));
             if (dragBin.getElementsByClassName('place-bin').length === 2) {
-                var unCombine = this.checkCombineGroups().combineArray.forEach(function (group) {
-                    group.forEach(function (gplace) {
-                        if (gplace.GroupName === place.GroupName && gplace.ResID !== place.ResID) {
-                            return gplace;
-                        }
-                    });
-                });
-                console.log('uncombine', unCombine);
             }
         }
         this._selectedPlacesService.remove(place);

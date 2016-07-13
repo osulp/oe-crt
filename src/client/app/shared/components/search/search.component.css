@@ -1,23 +1,23 @@
 .search-wrapper {
-    margin-top: 56px;    
+    margin-top: 56px;
     position:relative;
 }
 
 .search-wrapper.explore{
     margin-top:25px;
-    margin-bottom:-25px;
+    /*margin-bottom:-25px;*/
 }
 
 .search{
     color:#808080;
     position:relative;
     font-weight:400;
-    font-family: 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;   
+    font-family: 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .search-wrapper input{
     width:60%;
-    height:50px;    
+    height:50px;
     border-radius: 4px 0 0 4px;
     border: 1px solid #D1CDC7;
     border-right:none;
@@ -28,12 +28,12 @@
     display: none;
 }
 
-.search-wrapper .fa-search { 
-  position: relative;  
-  left: 40px;  
+.search-wrapper .fa-search {
+  position: relative;
+  left: 40px;
 }
 
-#explore-btn {    
+#explore-btn {
     background: #C34500;
     border: 1px solid #C34500;
     border-radius: 0 4px 4px 0;
@@ -54,11 +54,11 @@
         border: 1px solid #802E01;
     }
 .search .list-group {
-    position: absolute;    
-    width: 59%;    
+    position: absolute;
+    width: 59%;
     background: #FFFFFF;
     box-shadow: 2px 2px 2px 2px rgba(0,0,0,0.30);
-    border-radius: 0 0 0 4px 4px 4px 4px;    
+    border-radius: 0 0 0 4px 4px 4px 4px;
     text-align:left;
     margin-left:17.5%;
     z-index:3;
@@ -69,20 +69,20 @@
     position:relative;
 }
 .search-result-type {
-    position:absolute;  
+    position:absolute;
     -moz-transform: rotate(-90deg);
     -ms-transform: rotate(-90deg);
     -o-transform: rotate(-90deg);
     -webkit-transform: rotate(-90deg);
-    transform: rotate(-90deg);   
+    transform: rotate(-90deg);
     height:30px;
     width:70px;
     text-align:center;
     left:-35px;
     top:8px;
     bottom:-15px;
-    padding:6px;    
-    /*text-transform:uppercase;*/ 
+    padding:6px;
+    /*text-transform:uppercase;*/
     font-size:1em;
     border-right:1px solid #ddd;
 }
@@ -99,7 +99,7 @@
 
 .search-result-type.isIndicator{
      background:#D1CDC7;
-     font-size:.7em;    
+     font-size:.7em;
 }
 
 .search-result-type.isPlace{

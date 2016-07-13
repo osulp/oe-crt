@@ -65,7 +65,7 @@ export class SelectedPlacesService {
                             //updated the groupname attribute for updatedplaces
                             let isPlaceToUpdate = false;
                             updatedPlaces.forEach((up: any) => {
-                                isPlaceToUpdate = up.Name === place.Name && up.ResID == place.ResID ? true : isPlaceToUpdate;
+                                isPlaceToUpdate = up.Name === place.Name && up.ResID === place.ResID ? true : isPlaceToUpdate;
                             });
                             if (isPlaceToUpdate) {
                                 place.GroupName = args[2] ? args[1] : '';

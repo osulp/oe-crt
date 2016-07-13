@@ -65,7 +65,7 @@ var SelectedPlacesService = (function () {
                     .map(function (place) {
                     var isPlaceToUpdate = false;
                     updatedPlaces.forEach(function (up) {
-                        isPlaceToUpdate = up.Name === place.Name && up.ResID == place.ResID ? true : isPlaceToUpdate;
+                        isPlaceToUpdate = up.Name === place.Name && up.ResID === place.ResID ? true : isPlaceToUpdate;
                     });
                     if (isPlaceToUpdate) {
                         place.GroupName = args[2] ? args[1] : '';

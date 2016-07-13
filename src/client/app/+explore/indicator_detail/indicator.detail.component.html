@@ -48,8 +48,9 @@
     <div id="detail-data-view-wrapper" class="row">
         <div class="col-xs-12">
             <div class="row">
-                <div class="col-xs-10">
-                    <h2>{{inputIndicator}}</h2>
+                <div id="indicator-title-wrapper" class="col-xs-10">
+                    <div><h2>{{indicatorTitle}}</h2></div>
+                    <div class="subtitle">{{subTitle !== '' ? '('+subTitle+')' : '&nbsp;'}}</div>
                 </div>
                 <div class="col-xs-2">
                     <div id="share-btns">
@@ -69,7 +70,7 @@
                 <div [ngClass]="!showMap ? 'col-xs-12': 'col-xs-6'">
                     <div #graphView class="detail-tile" [hidden]="!showGraph">
                         <!--GRAPH VIEW-->
-                        <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="detail-tile" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'"></data-tile>
+                        <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'"></data-tile>
                     </div>
                 </div>
                 <div class="col-xs-12">
@@ -131,7 +132,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid" *ngFor="let indicator of relatedIndicators">                    
+                <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid" *ngFor="let indicator of relatedIndicators">
                     <data-tile #dataTile [indicator]="indicator.related_indicators" [tileType]="'graph'" [viewType]="'basic'"></data-tile>
                 </div>
             </div>

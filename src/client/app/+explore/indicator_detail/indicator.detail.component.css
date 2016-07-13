@@ -19,9 +19,11 @@
     margin: 0 auto;
 }
 
+#indicator-title-wrapper {
+    margin-top:-25px;
+}
 #tableView{
-    margin-left:-15px;
-    margin-right:15px;
+    margin:30px 15px 0 -15px;
 }
 
 .toggleView {
@@ -266,4 +268,11 @@
 #related-indicators-wrapper {
     border-top:solid 1.25px #D1CDC7;
     margin-top:40px;
+}
+
+.subtitle{
+    font-size:1.1em;
+    color:rgb(128, 128, 128);
+    font-style:italic;
+    margin: -7px 0 10px 5px;
 }

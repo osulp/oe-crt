@@ -35,6 +35,8 @@ export class DetailComponent implements OnInit {
     indInfo: string = 'desc';
     initialLoad: boolean = true;
     relatedIndicators: any[] = [];
+    indicatorTitle: any = '';
+    subTitle: any = '';
 
     constructor(private _indicatorDescService: IndicatorDescService,
         private _router: Router
@@ -101,9 +103,9 @@ export class DetailComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.showMap = true;
-        this.showGraph = true;
-        this.showTable = true;
+        this.showMap = false;
+        this.showGraph = false;
+        this.showTable = false;
         this.chartData = [];
         this.inputIndicator = decodeURI(this.inputIndicator)
             .replace(/\%2528/g, '(')
@@ -120,6 +122,8 @@ export class DetailComponent implements OnInit {
                 this.indicatorDesc = data.Desc;// IndicatorDescSer
                 this.relatedIndicators = data.RelatedIndicators;
                 console.log('indicatorDesc service', data);
+                this.indicatorTitle = data.Desc[0].Dashboard_Chart_Title ? data.Desc[0].Dashboard_Chart_Title : data.Desc[0].Variable;
+                this.subTitle = data.Desc[0].Dashboard_Chart_Y_Axis_Label ? data.Desc[0].Dashboard_Chart_Y_Axis_Label : '';
             });
 
         this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];

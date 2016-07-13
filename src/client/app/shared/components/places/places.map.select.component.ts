@@ -101,8 +101,8 @@ export class PlacesMapSelectComponent implements OnInit {
     //}
 
     onDrop(args: any) {
-        let [e, src, target] = args;
-        this.setPlaceBinGroups(e,true);
+        //let [e, src, target] = args;
+        this.setPlaceBinGroups(args[0],true);
         console.log('on drop', args);
         if (args[2] === null) {
             return;
@@ -110,17 +110,17 @@ export class PlacesMapSelectComponent implements OnInit {
     }
 
     onOver(args: any) {
-        let [e, src, target] = args;
+        //let [e, src, target] = args;
         //console.log('on over', e, src, target);
-        this.setPlaceBinGroups(e);
+        this.setPlaceBinGroups(args[0]);
     }
 
     onOut(args: any) {
-        let [e, el, container] = args;
+        //let [e, el, container] = args;
         console.log('on out', args);
-        this.setPlaceBinGroups(e);
-        if (container.children.length > 0) {
-            this.setPlaceBinGroups(container.children[0]);
+        this.setPlaceBinGroups(args[0]);
+        if (args[2].children.length > 0) {
+            this.setPlaceBinGroups(args[2].children[0]);
         }
 
     }
@@ -138,7 +138,7 @@ export class PlacesMapSelectComponent implements OnInit {
             for (var i = 0; i < e.parentNode.children.length; i++) {
                 if (e.parentNode.children.length === 1) {
                     //not combined
-                    var reg = new RegExp(' combinedPlaces', 'g');
+                    //var reg = new RegExp(' combinedPlaces', 'g');
                     //e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'false');
                     //find place and remove combined group attr
@@ -273,14 +273,14 @@ export class PlacesMapSelectComponent implements OnInit {
             console.log(dragBin.getElementsByClassName('place-bin'));
             if (dragBin.getElementsByClassName('place-bin').length === 2) {
                 //means that removing one will leave only one in bin, needs to be uncombined
-                let unCombine = this.checkCombineGroups().combineArray.forEach((group: any[]) => {
-                    group.forEach((gplace: SearchResult) => {
-                        if (gplace.GroupName === place.GroupName && gplace.ResID !== place.ResID) {
-                            return gplace;
-                        }
-                    });
-                });
-                console.log('uncombine', unCombine);
+                //let unCombine = this.checkCombineGroups().combineArray.forEach((group: any[]) => {
+                //    group.forEach((gplace: SearchResult) => {
+                //        if (gplace.GroupName === place.GroupName && gplace.ResID !== place.ResID) {
+                //            return gplace;
+                //        }
+                //    });
+                //});
+                //console.log('uncombine', unCombine);
 
                 //panelContainer.parentElement.removeChild(panelContainer);
             }

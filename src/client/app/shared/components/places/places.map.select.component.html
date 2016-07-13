@@ -49,10 +49,12 @@
                     </div>
                     <div id="selected-places-bin" class="col-lg-12 col-md-12 col-xs-12">
                         <div class="row">
-                            <div #placeContainer class="col-lg-4 col-md-6 col-xs-12 place-bin-wrapper" *ngFor="let place of selectedSearchResults; let idx = index;" [attr.orig_container]="translatePlaceTypes(place.TypeCategory,place.Name)" [attr.editView]="false" >
+                            <div #placeContainer class="col-lg-4 col-md-6 col-xs-12 place-bin-wrapper" *ngFor="let place of selectedSearchResults; let idx = index;" [attr.orig_container]="translatePlaceTypes(place.TypeCategory,place.Name)" [attr.editView]="false">
                                 <div class="placePanelWrapper" [ngClass]="placeContainer.getAttribute('editView') === 'true' ? 'editPanel' : ''">
                                     <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editView') === 'true'">
-                                        <span class="editPanelHeading">Edit Custom Set<img (click)="updateCustomSetName(dragBin, placeContainer, inpPlace)" src="assets/img/closeX.png" alt="close edit combined set" /></span>
+                                        <div title="Set combined settings."  class="editHeader" (click)="updateCustomSetName(dragBin, placeContainer, inpPlace)">
+                                            <span class="editPanelHeading">Edit Combined</span><span class="glyphicon glyphicon-check spanCheck" >&nbsp;</span>
+                                        </div>
                                         <input #inpPlace type="text" placeholder="Enter a name for custom group" (keypress)="onCombineLabelKeyPress($event, dragBin, placeContainer, inpPlace)" value="{{place.GroupName}}" (click)="inpPlace.value = ''" />
                                     </div>
                                     <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editView') === 'false'" title="Edit combined communities" class="combinedLabel" (click)="placeContainer.setAttribute('editView','true')">

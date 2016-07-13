@@ -30,7 +30,7 @@ export class PlaceBinGroupCombinePipe implements PipeTransform {
             returnArray.push(groupArray);
         }
         console.log('pb return', returnArray);
-        return returnArray
+        return returnArray;
     }
 }
 
