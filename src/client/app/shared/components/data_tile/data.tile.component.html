@@ -1,4 +1,4 @@
-<div id="data-tile-wrapper" class="row" [ngClass]="viewType">
+<div id="data-tile-wrapper" (window:resize)="onResize($event)" class="row" [ngClass]="viewType">
     <div class="col-xs-12" id="chart-div">
         <div *ngIf="tileType === 'graph'">
             <chart #highchart [options]="defaultChartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
@@ -18,6 +18,25 @@
                 </button>
             </div>
             <div id="dateSlider"></div>
+        </div>
+    </div>
+    <div *ngIf="tileType === 'graph' && viewType === 'advanced'">
+        <div id="chart_footer_wrapper" class="row">
+            <div id="chart_notices" class="col-xs-6">
+                <div *ngIf="(isCountyLevel && (placeTypes.indexOf('Places') !== -1 || placeTypes.indexOf('Tracts') !== -1)) || isStatewide || isNotCombinable">
+                    <span class="glyphicon glyphicon-flag"></span>
+                    <span *ngIf="isStatewide">Statewide Data Only</span>
+                    <span *ngIf="isCountyLevel && (placeTypes.indexOf('Places') !== -1 || placeTypes.indexOf('Tracts') !== -1)">County Level Data</span>
+                    <span *ngIf="isNotCombinable">Data is not able to be combined</span>
+                </div>
+            </div>
+            <div id="chart_controls" class="col-xs-6">
+                <div *ngIf="isCountyLevel && false" id="showAll">Show All</div>
+                <div *ngIf="hasMOEs" id="showMOEs">
+                    <span><input id="chkBoxShowMOE" type="checkbox" [checked]="showMOES" (click)="toggleMOEs()" /></span>
+                    <span><label for="chkBoxShowMOE">Show <a href="">Margin of Error</a> Bars</label></span>
+                </div>
+            </div>
         </div>
     </div>
     <div [hidden]="viewType !== 'basic'" class="col-xs-12" id="view-data" (click)="gotoDetails()">

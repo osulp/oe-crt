@@ -29,6 +29,8 @@ var DetailComponent = (function () {
         this.relatedIndicators = [];
         this.indicatorTitle = '';
         this.subTitle = '';
+        this.isStatewide = false;
+        this.isCountyLevel = false;
     }
     DetailComponent.prototype.onSelectedSearchResult = function (results) {
         this.selectedSearchResult = results;
@@ -66,6 +68,9 @@ var DetailComponent = (function () {
             default:
                 break;
         }
+        this.windowRefresh();
+    };
+    DetailComponent.prototype.windowRefresh = function () {
         var runInterval = setInterval(runCheck, 50);
         function runCheck() {
             window.dispatchEvent(new Event('resize'));
@@ -83,8 +88,8 @@ var DetailComponent = (function () {
     };
     DetailComponent.prototype.ngOnInit = function () {
         var _this = this;
-        this.showMap = false;
-        this.showGraph = false;
+        this.showMap = true;
+        this.showGraph = true;
         this.showTable = false;
         this.chartData = [];
         this.inputIndicator = decodeURI(this.inputIndicator)
@@ -95,15 +100,19 @@ var DetailComponent = (function () {
             .replace(/\%252C/g, ',')
             .replace(/\%2C/g, ',')
             .replace(/\%2524/g, '$')
-            .replace(/\%24/g, '$')
-            .replace(/\%2B/g, '+');
+            .replace(/\%24/g, '$');
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(function (data) {
+            var indicator_info = data.Desc[0];
             _this.indicatorDesc = data.Desc;
             _this.relatedIndicators = data.RelatedIndicators;
             console.log('indicatorDesc service', data);
-            _this.indicatorTitle = data.Desc[0].Dashboard_Chart_Title ? data.Desc[0].Dashboard_Chart_Title : data.Desc[0].Variable;
-            _this.subTitle = data.Desc[0].Dashboard_Chart_Y_Axis_Label ? data.Desc[0].Dashboard_Chart_Y_Axis_Label : '';
+            _this.indicatorTitle = indicator_info.Dashboard_Chart_Title ? indicator_info.Dashboard_Chart_Title : indicator_info.Variable;
+            _this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
+            _this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
+            _this.isCountyLevel = indicator_info.CountyLevel;
+            _this.windowRefresh();
         });
+        this.inputIndicator = this.inputIndicator.replace(/\%2B/g, '+');
         this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];
     };
     __decorate([

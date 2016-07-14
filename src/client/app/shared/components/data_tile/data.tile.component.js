@@ -24,7 +24,7 @@ angular2_highcharts_1.Highcharts.setOptions({
 Highchmap(angular2_highcharts_1.Highcharts);
 HighchartsMore(angular2_highcharts_1.Highcharts);
 var DataTileComponent = (function () {
-    function DataTileComponent(elementRef, _dataService, _selectedPlacesService, _router, _geoStore, _geoService, _selectedDataService, _placeTypesService) {
+    function DataTileComponent(elementRef, _dataService, _selectedPlacesService, _router, _geoStore, _geoService, _selectedDataService, _placeTypesService, _indicatorDescService) {
         this._dataService = _dataService;
         this._selectedPlacesService = _selectedPlacesService;
         this._router = _router;
@@ -32,6 +32,7 @@ var DataTileComponent = (function () {
         this._geoService = _geoService;
         this._selectedDataService = _selectedDataService;
         this._placeTypesService = _placeTypesService;
+        this._indicatorDescService = _indicatorDescService;
         this.onChartDataUpdate = new core_1.EventEmitter();
         this.geoJSONStore = [];
         this.places = new Array();
@@ -44,12 +45,17 @@ var DataTileComponent = (function () {
         this._tickLabelsTime = [];
         this._tickArrayTime = [];
         this.hasDrillDowns = false;
+        this.showMOES = true;
         this.county_no_data = [];
         this.county_map_no_data = [];
         this.animationCounter = -1;
         this.sliderState = 'play';
         this.isHandheld = false;
         this.isSliderInit = false;
+        this.isCountyLevel = false;
+        this.isStatewide = false;
+        this.isNotCombinable = false;
+        this.hasCombined = false;
         this.xAxisCategories = {};
         this.defaultChartOptions = {
             chart: {
@@ -77,14 +83,6 @@ var DataTileComponent = (function () {
                         }
                     }
                 }
-            },
-            legend: {
-                itemStyle: {
-                    color: '#4d4d4d'
-                },
-                title: {
-                    text: 'LEGEND: <span style="font-size: 9px; color: #666; font-weight: normal">(Click to hide series in chart)</span>'
-                },
             },
             title: {},
             xAxis: {
@@ -165,21 +163,28 @@ var DataTileComponent = (function () {
             this.mapChart = chartInstance;
         }
         this.checkScreenSize();
-        this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(function (data) {
-            console.log('selected places subscribe throwing event');
-            console.log(data);
-            _this.onPlacesChanged(data);
-        }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
-        if (this.tileType === 'map') {
-            this.geoSubscription = this._geoStore.selectionChanged$.subscribe(function (data) {
-                _this.geoJSONStore = data;
-                console.log('new geojson file loaded');
+        this._indicatorDescService.getIndicator(this.indicator).subscribe(function (indicatorDesc) {
+            var indicator_info = indicatorDesc.Desc[0];
+            if (indicator_info) {
+                _this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
+                _this.isCountyLevel = indicator_info.CountyLevel;
+            }
+            _this.subscription = _this._selectedPlacesService.selectionChanged$.subscribe(function (data) {
+                console.log('selected places subscribe throwing event');
                 console.log(data);
-            }, function (err) { return console.error(err); }, function () { return console.log('done loading geojson'); });
-        }
-        this.dataSubscription = this._selectedDataService.selectionChanged$.subscribe(function (data) {
-            _this.onSelectedDataChanged(data);
-        }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
+                _this.onPlacesChanged(data);
+            }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
+            if (_this.tileType === 'map') {
+                _this.geoSubscription = _this._geoStore.selectionChanged$.subscribe(function (data) {
+                    _this.geoJSONStore = data;
+                    console.log('new geojson file loaded');
+                    console.log(data);
+                }, function (err) { return console.error(err); }, function () { return console.log('done loading geojson'); });
+            }
+            _this.dataSubscription = _this._selectedDataService.selectionChanged$.subscribe(function (data) {
+                _this.onSelectedDataChanged(data);
+            }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
+        }, function (err) { return console.log('error getting indicator description', err); }, function () { return console.log('loaded the indicator description in data tile'); });
         var chartScope = this;
         angular2_highcharts_1.Highcharts.wrap(angular2_highcharts_1.Highcharts.Point.prototype, 'select', function (proceed) {
             proceed.apply(this, Array.prototype.slice.call(arguments, 1));
@@ -233,12 +238,23 @@ var DataTileComponent = (function () {
     DataTileComponent.prototype.checkDataStateForCharts = function (source) {
         console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
         var loadingGeoJSON = this.tileType === 'map' ? this.checkLoadGeoJSON() : false;
+        if (this.tileType === 'graph') {
+            var temp = this.getPlaceTypes('graph');
+            console.log('testing placeTypes', this.placeTypes);
+        }
         var loadMoreData = this.tileType === 'graph' ? true : this.checkUpdateData();
         if (!loadingGeoJSON && loadMoreData) {
             console.log('need to load data.  chart type: ', this.tileType);
             if (window.location.href.indexOf('indicator=') !== -1) {
                 console.log('on indicator detail page', this.indicator, window.location.href);
-                if (decodeURI(window.location.href).replace('%28', '(').replace('%29', ')').indexOf(this.indicator) !== -1) {
+                console.log('decode for data call', decodeURI(window.location.href).replace('%28', '(').replace('%29', ')'));
+                if (decodeURI(window.location.href)
+                    .replace(/\%28/g, '(')
+                    .replace(/\%29/g, ')')
+                    .replace(/\%2C/g, ',')
+                    .replace(/\%24/g, '$')
+                    .replace(/\%2B/g, '+')
+                    .indexOf(this.indicator) !== -1) {
                     console.log('yes siree');
                     this.getData();
                 }
@@ -299,9 +315,7 @@ var DataTileComponent = (function () {
             }
         }
     };
-    DataTileComponent.prototype.checkLoadGeoJSON = function () {
-        var _this = this;
-        var loadingGeoJSON = false;
+    DataTileComponent.prototype.getPlaceTypes = function (source) {
         var geoJSON_to_load = [];
         for (var x = 0; x < this.places.length; x++) {
             var placeTypeLoaded = false;
@@ -315,9 +329,15 @@ var DataTileComponent = (function () {
             }
             if (!placeTypeLoaded) {
                 geoJSON_to_load.push(this.places[x].TypeCategory);
-                this.placeTypes.push(this.places[x].TypeCategory);
+                this.placeTypes.push(source ? this.translatePlaceTypes(this.places[x].TypeCategory) : this.places[x].TypeCategory);
             }
         }
+        return geoJSON_to_load;
+    };
+    DataTileComponent.prototype.checkLoadGeoJSON = function () {
+        var _this = this;
+        var loadingGeoJSON = false;
+        var geoJSON_to_load = this.getPlaceTypes();
         var selPTCheck = geoJSON_to_load.filter(function (layer) { return _this.translatePlaceTypes(layer) === _this.selectedPlaceType; });
         if (selPTCheck.length === 0) {
             console.log('Selected place type not in the geoJSON to load queue based on selected places');
@@ -417,8 +437,13 @@ var DataTileComponent = (function () {
         }
         else {
             var combinedGroups = this.checkCombineGroups();
+            var indicatorForService = this.indicator.replace(/\%28/g, '(')
+                .replace(/\%29/g, ')')
+                .replace(/\%2C/g, ',')
+                .replace(/\%24/g, '$')
+                .replace(/\+/g, '%2B');
             if (combinedGroups.length > 0) {
-                this._dataService.getIndicatorDetailDataWithMetadata(geoids, this.indicator).subscribe(function (data) {
+                this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
                     var combinedData = _this.processCombinedData(data);
                     _this.updateDataStore([combinedData], 'indicator');
                     _this.onChartDataUpdate.emit(combinedData);
@@ -426,7 +451,8 @@ var DataTileComponent = (function () {
                 });
             }
             else {
-                this._dataService.getIndicatorDataWithMetadata(geoids, this.indicator).subscribe(function (data) {
+                console.log('indicatorForService', indicatorForService);
+                this._dataService.getIndicatorDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
                     console.log('regular indicator data', data);
                     _this.updateDataStore([data], 'indicator');
                     _this.onChartDataUpdate.emit(data);
@@ -461,6 +487,7 @@ var DataTileComponent = (function () {
             }
         });
         console.log('combined array', combineArray);
+        this.hasCombined = groupNames.length > 0 ? true : false;
         return combineArray;
     };
     DataTileComponent.prototype.processCombinedData = function (data) {
@@ -574,13 +601,17 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.updateDataStore = function (data, dataType) {
-        console.log('SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS');
-        console.log(data);
-        console.log(dataType);
+        console.log('SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS', data, dataType);
         if (dataType === 'indicator') {
             for (var d = 0; d < data.length; d++) {
                 var indicatorData = {};
                 indicatorData[this.indicator] = { crt_db: data[d] };
+                if (data[d].Metadata.length > 0) {
+                    var metadata = data[d].Metadata[0];
+                    this.isStatewide = metadata.Variable_Geog_Desc === 'State' ? true : false;
+                    this.isCountyLevel = metadata.CountyLevel;
+                    this.isNotCombinable = metadata.isPreCalc && !this.isStatewide && this.hasCombined;
+                }
                 if (this.tileType === 'map') {
                     if (this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData[this.indicator] === undefined) {
                         this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData = indicatorData;
@@ -762,8 +793,7 @@ var DataTileComponent = (function () {
             cursor: 'pointer',
             states: {
                 select: {
-                    borderColor: 'red',
-                    borderWidth: '2px',
+                    color: '#BADA55',
                 },
                 hover: {
                     color: '#BADA55'
@@ -816,6 +846,7 @@ var DataTileComponent = (function () {
                     }
                 }
             });
+            this.chart.legend.update(this.setLegendOptions());
             this.chart.tooltip.options.shared = false;
             this.chart.tooltip.options.useHTML = true;
             this.chart.tooltip.options.formatter = function () {
@@ -892,18 +923,23 @@ var DataTileComponent = (function () {
             isSelected = placeData.geoid === '' ? true : isSelected;
             return isSelected;
         });
-        for (var x = 0; x < selectedPlaceData.length; x++) {
-            var isOregon = selectedPlaceData[x]['geoid'] === '41' ? true : false;
-            var isCalifornia = selectedPlaceData[x]['geoid'] === '06' ? true : false;
+        var oregonGeoids = ['41', '41r', '41u'];
+        var californiaGeoids = ['06', '06r', '06u'];
+        var statewideGeoids = oregonGeoids.concat(californiaGeoids);
+        var sortedPlaceData = selectedPlaceData.sort(function (a, b) { return b.geoid.localeCompare(a.geoid); });
+        sortedPlaceData.forEach(function (pd) {
+            var isOregon = oregonGeoids.indexOf(pd.geoid) !== -1 ? true : false;
+            var isCalifornia = californiaGeoids.indexOf(pd.geoid) !== -1 ? true : false;
             var isState = isOregon || isCalifornia ? true : false;
-            this.chart.addSeries({
-                id: selectedPlaceData[x]['community'] + selectedPlaceData[x]['geoid'],
-                name: selectedPlaceData[x]['community'],
+            var isCombined = pd.geoid === '';
+            _this.chart.addSeries({
+                id: pd.community + pd.geoid,
+                name: pd.community + (pd.geoid.length === 5 ? ' County' : ''),
                 type: 'line',
                 lineWidth: isState ? 4 : 2,
-                lineColor: '#A3A3A4',
+                lineColor: isState ? '#A3A3A4' : null,
                 lineOpacity: 1.0,
-                data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[selectedPlaceData[x].community].data,
+                data: _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years[pd.community].data,
                 connectNulls: true,
                 threshold: 0,
                 fillOpacity: 0.85,
@@ -912,36 +948,71 @@ var DataTileComponent = (function () {
                 },
                 marker: {
                     fillColor: isState ? '#FFFFFF' : null,
-                    lineWidth: isState ? 4 : 1,
-                    lineColor: this.placeTypeData.Metadata[0].Color_hex,
-                    radius: isState ? 4 : 2,
+                    lineWidth: isState ? 4 : 2,
+                    lineColor: isOregon ? '#244068' : isCalifornia ? '#C34500' : isCombined ? '#98BD85' : null,
+                    radius: isState ? 4 : (_this.placeTypeData.Years.length > 10 ? 3.5 : 2),
                     symbol: 'circle'
                 }
             }, true);
-            if (this.hasMOEs) {
-                this.chart.addSeries({
-                    name: selectedPlaceData[x]['community'] + selectedPlaceData[x]['geoid'] + ' Margin of Error',
+            if (_this.hasMOEs) {
+                _this.chart.addSeries({
+                    name: pd.community + pd.geoid + ' Margin of Error',
                     whiskerLength: 10,
+                    whiskerColor: 'gray',
+                    stemColor: 'gray',
+                    stemDashStyle: 'Dash',
                     type: 'errorbar',
-                    data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[selectedPlaceData[x].community].data,
-                    linkedTo: selectedPlaceData[x]['community'] + selectedPlaceData[x]['geoid'],
+                    data: _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data,
+                    linkedTo: pd.community + pd.geoid,
+                    visible: _this.showMOES
                 }, false);
-                var maxMoe = this.getMaxMOE(this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[selectedPlaceData[x].community].data);
-                var minMoe = this.getMinMOE(this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[selectedPlaceData[x].community].data);
+                var maxMoe = _this.getMaxMOE(_this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data);
+                var minMoe = _this.getMinMOE(_this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data);
                 if (maxMoe !== undefined) {
-                    var extremes = this.chart.yAxis[0].getExtremes();
+                    var extremes = _this.chart.yAxis[0].getExtremes();
                     maxMoe = maxMoe < extremes.max ? extremes.max : maxMoe;
                     minMoe = minMoe > 0 ? 0 : minMoe;
-                    this.chart.yAxis[0].setExtremes(minMoe, maxMoe);
+                    _this.chart.yAxis[0].setExtremes(minMoe, maxMoe);
                 }
-                this.chart.redraw();
+                _this.chart.redraw();
             }
-        }
+        });
+    };
+    DataTileComponent.prototype.toggleMOEs = function () {
+        var _this = this;
+        this.showMOES = !this.showMOES;
+        this.chart.series.forEach(function (series, idx) {
+            console.log('series', idx, series);
+            if (series.options.type === 'errorbar' && _this.showMOES) {
+                console.log('should show errorbars');
+                series.show();
+            }
+            if (series.options.type === 'errorbar' && !_this.showMOES) {
+                console.log('should hide errorbars');
+                series.hide();
+            }
+        });
     };
     DataTileComponent.prototype.checkScreenSize = function () {
         if ($(window).width() < 481) {
             this.isHandheld = true;
         }
+    };
+    DataTileComponent.prototype.onResize = function (event) {
+        this.chart.legend.update(this.setLegendOptions());
+    };
+    DataTileComponent.prototype.setLegendOptions = function () {
+        return {
+            width: this.viewType === 'basic' ? this.elementRef.nativeElement.offsetWidth - 140 : 400,
+            itemWidth: this.viewType === 'basic' ? this.elementRef.nativeElement.offsetWidth - 40 : 200,
+            itemStyle: {
+                width: this.viewType === 'basic' ? this.elementRef.nativeElement.offsetWidth - 60 : 180,
+                color: '#4d4d4d'
+            },
+            title: {
+                text: this.isStatewide ? null : 'LEGEND: <span style="font-size: 9px; color: #666; font-weight: normal">(Click to hide series in chart)</span>'
+            }
+        };
     };
     DataTileComponent.prototype.getMaxMOE = function (data) {
         var max = 0;
@@ -1029,8 +1100,8 @@ var DataTileComponent = (function () {
                 data: year_data_moe
             };
         }
-        console.log(this.dataStore);
-        console.log(this.tileType);
+        console.log('HEEET', this.dataStore);
+        console.log('HEEET 2', this.tileType);
         var chart_data = {
             place_data: place_data,
             place_data_years: place_data_years,
@@ -1125,20 +1196,22 @@ var DataTileComponent = (function () {
         var chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
         var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
         $.each(pdy, function () {
-            var arr = $.grep(this.data, function (n) { return (n); });
-            if (chartType && arr.length !== this.data.length) {
-                notLogrithmic = true;
-            }
-            var PlaceMin = isMap ? arr.sort(function (a, b) { return a - b; })[0] : this.hasMOEs ? arr.sort(function (a, b) { return a[1] - b[1]; })[0] : null;
-            min = min === undefined ? isMap ? PlaceMin : this.hasMOEs ? PlaceMin[0] : min : min;
-            if (isMap) {
-                min = min > PlaceMin ? PlaceMin : min;
-            }
-            else if (this.hasMOEs) {
-                min = min > PlaceMin[0] ? PlaceMin[0] : min;
-            }
-            else {
-                min = min > PlaceMin ? PlaceMin : min;
+            if (this.geoid.length > 4) {
+                var arr = $.grep(this.data, function (n) { return (n); });
+                if (chartType && arr.length !== this.data.length) {
+                    notLogrithmic = true;
+                }
+                var PlaceMin = isMap ? arr.sort(function (a, b) { return a - b; })[0] : this.hasMOEs ? arr.sort(function (a, b) { return a[1] - b[1]; })[0] : null;
+                min = min === undefined ? isMap ? PlaceMin : this.hasMOEs ? PlaceMin[0] : min : min;
+                if (isMap) {
+                    min = min > PlaceMin ? PlaceMin : min;
+                }
+                else if (this.hasMOEs) {
+                    min = min > PlaceMin[0] ? PlaceMin[0] : min;
+                }
+                else {
+                    min = min > PlaceMin ? PlaceMin : min;
+                }
             }
         });
         return notLogrithmic ? 0 : min < 10 ? 0 : min;
@@ -1148,18 +1221,20 @@ var DataTileComponent = (function () {
         var chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
         var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
         $.each(pdy, function () {
-            var arr = $.grep(this.data, function (n) { return (n); });
-            var PlaceMax = isMap ? arr.sort(function (a, b) { return b - a; })[0] : this.hasMOEs ? arr.sort(function (a, b) {
-                return b[1] - a[1];
-            })[0] : null;
-            if (isMap) {
-                max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
-            }
-            else if (this.hasMOEs) {
-                max = parseFloat(max) < parseFloat(PlaceMax[1]) ? parseFloat(PlaceMax[1]) : parseFloat(max);
-            }
-            else {
-                max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
+            if (this.geoid.length > 4) {
+                var arr = $.grep(this.data, function (n) { return (n); });
+                var PlaceMax = isMap ? arr.sort(function (a, b) { return b - a; })[0] : this.hasMOEs ? arr.sort(function (a, b) {
+                    return b[1] - a[1];
+                })[0] : null;
+                if (isMap) {
+                    max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
+                }
+                else if (this.hasMOEs) {
+                    max = parseFloat(max) < parseFloat(PlaceMax[1]) ? parseFloat(PlaceMax[1]) : parseFloat(max);
+                }
+                else {
+                    max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
+                }
             }
         });
         return max;
@@ -1298,14 +1373,20 @@ var DataTileComponent = (function () {
             templateUrl: 'data.tile.component.html',
             styleUrls: ['data.tile.component.css'],
             directives: [angular2_highcharts_1.CHART_DIRECTIVES, hmap_menu_component_1.HmapMenuComponent],
-            providers: [http_1.JSONP_PROVIDERS, index_1.DataService, index_1.GeoJSONStoreService, index_1.GetGeoJSONService, index_1.SelectedDataService, index_1.PlaceTypeService]
+            providers: [http_1.JSONP_PROVIDERS, index_1.DataService, index_1.GeoJSONStoreService, index_1.GetGeoJSONService, index_1.SelectedDataService, index_1.PlaceTypeService, index_1.IndicatorDescService]
         }),
         __param(0, core_1.Inject(core_1.ElementRef)), 
-        __metadata('design:paramtypes', [core_1.ElementRef, index_1.DataService, index_1.SelectedPlacesService, router_1.Router, index_1.GeoJSONStoreService, index_1.GetGeoJSONService, index_1.SelectedDataService, index_1.PlaceTypeService])
+        __metadata('design:paramtypes', [core_1.ElementRef, index_1.DataService, index_1.SelectedPlacesService, router_1.Router, index_1.GeoJSONStoreService, index_1.GetGeoJSONService, index_1.SelectedDataService, index_1.PlaceTypeService, index_1.IndicatorDescService])
     ], DataTileComponent);
     return DataTileComponent;
 })();
 exports.DataTileComponent = DataTileComponent;
+angular2_highcharts_1.Highcharts.Legend.prototype.update = function (options) {
+    this.options = angular2_highcharts_1.Highcharts.merge(this.options, options);
+    this.chart.isDirtyLegend = true;
+    this.chart.isDirtyBox = true;
+    this.chart.redraw();
+};
 (function (H) {
     H.wrap(H.Chart.prototype, 'init', function (proceed) {
         proceed.apply(this, Array.prototype.slice.call(arguments, 1));

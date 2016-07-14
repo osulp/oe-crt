@@ -7,10 +7,10 @@
     position:relative
 }
 #data-tile-wrapper.advanced{
-    height:680px;    
+    height:680px;
 }
 
-#view-data, #slider_wrapper{
+#view-data, #slider_wrapper, #chart_footer_wrapper{
     background-color:#E7E7EB;
     height:40px;
     text-align:center;
@@ -27,6 +27,26 @@
         color:white;
         text-decoration:underline;
     }
+
+#chart_footer_wrapper {
+    cursor:pointer;
+    text-align:left;
+    height:60px;
+    padding: 20px 10px 10px 10px;
+    width: 100%;
+}
+
+#chart_notices span {
+    padding-right:10px;
+}
+#chart_controls label{
+    font-size:.9em;
+    padding-left:5px;
+}
+
+#chart_controls a {
+    font-size:1.1em !important;
+}
 
 #chart-div{
     position:relative;
@@ -49,7 +69,7 @@
     clear:both;
 }*/
 #slider_wrapper
-{      
+{
     height:60px;
     padding: 20px 40px 10px 65px;
     width: 100%;
@@ -58,9 +78,9 @@
 #dateSlider
 {
     display: inline-block;
-    font-size: .8em;    
+    font-size: .8em;
 }
-    
+
 /*#play_wrapper
 {
     float: left;
