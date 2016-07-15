@@ -61,7 +61,7 @@
     border-radius: 0 0 0 4px 4px 4px 4px;
     text-align:left;
     margin-left:17.5%;
-    z-index:3;
+    z-index:300;
     /*max-height:400px;
     overflow:scroll;*/
 }
@@ -111,6 +111,10 @@
 
 .search .list-group-item{
     height:70px;
+}
+
+.list-group-item.tabHover {
+    background-color:rgba(111, 124, 130, 0.39);
 }
 .search-result-content{
     margin-left:35px;

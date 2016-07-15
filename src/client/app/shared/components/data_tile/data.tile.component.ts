@@ -92,7 +92,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     private isStatewide: boolean = false;
     private isNotCombinable: boolean = false;
     private hasCombined: boolean = false;
-    private chartLegendOptions: Object;
+
     //private school_dist_no_data: any = [];
     //private school_dist_map_no_data: any = [];
 
@@ -127,6 +127,11 @@ export class DataTileComponent implements OnInit, OnDestroy {
             }
         },
         title: {},
+        credits: {
+            enabled: false,
+            text: 'Maps and Charts provided by Oregon Explorer and OSU Rural Studies Program',
+            href: 'http://oregonexplorer.info/rural'
+        },
         xAxis: {
             categories: [0, 1]
         },
@@ -337,8 +342,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         let loadingGeoJSON = this.tileType === 'map' ? this.checkLoadGeoJSON() : false;
         if (this.tileType === 'graph') {
             //sets placetypes for graph knowing about county level data warnings, etc.
-            let temp: any[] = this.getPlaceTypes('graph');
-            console.log('testing placeTypes', this.placeTypes);
+            this.getPlaceTypes('graph');
         }
         //console.log(this.tileType);
         //console.log(this.placeTypeData);
@@ -871,6 +875,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 value: this.placeTypeData.Years.length - 1,
                 tickInterval: 1,
                 step: 1,
+                autoScaleSlider: false,
                 tickArray: this._tickArray,
                 tickLabels: this._tickLabelsTime,
                 change: function (event: any, ui: any) {
@@ -1215,7 +1220,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         //pull out statewide layers and add first then add the rest
         let oregonGeoids = ['41', '41r', '41u'];
         let californiaGeoids = ['06', '06r', '06u'];
-        let statewideGeoids = oregonGeoids.concat(californiaGeoids);
+        //let statewideGeoids = oregonGeoids.concat(californiaGeoids);
         let sortedPlaceData = selectedPlaceData.sort((a: any, b: any) => b.geoid.localeCompare(a.geoid));
 
         //process data series
@@ -1243,7 +1248,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     fillColor: isState ? '#FFFFFF' : null,
                     lineWidth: isState ? 4 : 2,
                     lineColor: isOregon ? '#244068' : isCalifornia ? '#C34500' : isCombined ? '#98BD85' : null,
-                    radius: isState ? 4 : (this.placeTypeData.Years.length > 10 ? 3.5 : 2),
+                    radius: this.placeTypeData.Years.length > 10 ? 3.5 : 4,
                     symbol: 'circle'
                 }
             }, true);
@@ -1293,8 +1298,18 @@ export class DataTileComponent implements OnInit, OnDestroy {
         }
     }
 
-    onResize(event:any) {
-        this.chart.legend.update(this.setLegendOptions());
+    onResize(event: any) {
+        if (this.chart) {
+            this.chart.legend.update(this.setLegendOptions());
+            console.log('yep', $('.map-chart').width(), this.elementRef.nativeElement.offsetWidth);
+            var runInterval = setInterval(runCheck, 1050);
+            var resizeScope = this;
+            function runCheck() {
+                let newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $('.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $('.map-chart').width();
+                $('.ui-slider-wrapper').css('width', newWidth - 80 + 'px');
+                clearInterval(runInterval);
+            }
+        }
     }
 
     setLegendOptions() {

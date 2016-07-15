@@ -7,7 +7,7 @@
                 Explore
             </div>
             <div *ngIf="searchTerms" class="list-group">
-                <a *ngFor="let item of items | async" href="javascript:void(0);" class="list-group-item" [attr.data-search-item]="item | json" (keypress)="eventHandler($event, item)" (click)="eventHandler($event, item)">
+                <a *ngFor="let item of tempResults" href="javascript:void(0);" class="list-group-item" [attr.data-search-item]="item | json" (keypress)="eventHandler($event, item)" (click)="eventHandler($event, item)" [ngClass]="item.hovered ? 'tabHover' : ''">
                     <div class="search-result-wrapper">
                         <div [ngClass]="{isPlace: item.Type == 'Place', isIndicator: item.Type == 'Indicator'}" class="search-result-type">
                             {{item.Type}}
@@ -25,5 +25,5 @@
                 </a>
             </div>
         </div>
-    </div>    
+    </div>
 </div>

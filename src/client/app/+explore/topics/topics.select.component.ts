@@ -4,7 +4,7 @@ import {IndicatorsTopicListComponent}  from '../../shared/components/index';
 import {Topic, Indicator} from '../../shared/data_models/index';
 import {TopicsService, IndicatorsService} from '../../shared/services/index';
 //import {Subscription}   from 'rxjs/Subscription';
-import {SelectedTopicsPipe, IndicatorTopicFilterPipe,SelectedIndicatorByTopicsCountPipe} from './pipes/index';
+import {SelectedTopicsPipe, IndicatorTopicFilterPipe,SelectedIndicatorByTopicsCountPipe, SortAlphaTopicPipe} from './pipes/index';
 //import {SelectedIndicatorsService} from '../../shared/services/indicators/selected-indicators.service';
 
 import 'rxjs/add/operator/map';
@@ -16,7 +16,7 @@ import 'rxjs/add/operator/share';
     templateUrl: 'topics.select.component.html',
     styleUrls: ['topics.select.component.css'],
     directives: [IndicatorsTopicListComponent],
-    pipes: [IndicatorTopicFilterPipe, SelectedTopicsPipe, SelectedIndicatorByTopicsCountPipe],
+    pipes: [IndicatorTopicFilterPipe, SelectedTopicsPipe, SelectedIndicatorByTopicsCountPipe, SortAlphaTopicPipe],
     providers: [JSONP_PROVIDERS, TopicsService, IndicatorsService]
 })
 

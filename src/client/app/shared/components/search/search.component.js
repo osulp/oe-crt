@@ -28,6 +28,7 @@ var SearchComponent = (function () {
         this.selSearchResultEvt = new core_1.EventEmitter();
         this.term = new common_1.Control();
         this.filter = '%';
+        this.tempTabIndex = -1;
         this.filter = this.filterType !== undefined ? this.filterType : this.filter;
         this.items = this.term.valueChanges
             .debounceTime(200)
@@ -50,9 +51,11 @@ var SearchComponent = (function () {
         this.searchTerms = '';
     };
     SearchComponent.prototype.inputKeypressHandler = function (event) {
-        if (event.keyCode === 13) {
+        var _this = this;
+        var code = event.keyCode || event.which;
+        if (code === 13) {
             if (this.tempResults.length > 0) {
-                var firstItem = this.tempResults[0];
+                var firstItem = this.tempResults[this.tempTabIndex === -1 ? 0 : this.tempTabIndex];
                 var selected = {
                     Name: firstItem['Name'].replace(/\,/g, '%2C'),
                     ResID: firstItem['ResID'],
@@ -66,10 +69,38 @@ var SearchComponent = (function () {
             else {
                 alert('Please select a valid search term.');
             }
+            this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
+            this.searchTerms = '';
+        }
+        else if (code === 40 || code === 9) {
+            if (this.tempTabIndex !== this.tempResults.length) {
+                this.tempTabIndex++;
+            }
+            else {
+                this.tempTabIndex = 0;
+            }
+        }
+        else if (code === 38) {
+            if (this.tempTabIndex !== -1) {
+                this.tempTabIndex--;
+            }
+            else {
+                this.tempTabIndex = 0;
+            }
+        }
+        else {
+            this.tempTabIndex = -1;
+        }
+        this.tempResults.forEach(function (result, idx) {
+            _this.tempResults[idx].hovered = _this.tempTabIndex === idx ? true : false;
+        });
+        if (code === 9) {
+            event.preventDefault();
         }
     };
     SearchComponent.prototype.blurHandler = function (event) {
         var searchScope = this;
+        console.log('blur', event);
         setTimeout(function () {
             if (document.activeElement.classList.toString() === 'list-group-item') {
                 var attr = 'data-search-item';
@@ -85,7 +116,7 @@ var SearchComponent = (function () {
             }
             else if (document.activeElement.id === 'explore-btn') {
                 if (searchScope.tempResults.length > 0) {
-                    var firstItem = searchScope.tempResults[0];
+                    var firstItem = searchScope.tempResults[searchScope.tempTabIndex];
                     var selected = {
                         Name: firstItem['Name'].replace(/\,/g, '%2C'),
                         ResID: firstItem['ResID'],

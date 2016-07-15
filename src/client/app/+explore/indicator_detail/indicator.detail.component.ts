@@ -20,8 +20,7 @@ export class DetailComponent implements OnInit {
     @Input() inputIndicator: any;
     @Input() inputPlaces: any;
     @ViewChild(PlacesMapSelectComponent) placeMap: PlacesMapSelectComponent;
-    //@ViewChild(TableViewComponent) tableView: TableViewComponent;
-    //SelectedData: CommunityData;
+    @ViewChild(DataTileComponent) dataTile: DataTileComponent;
     indicatorDesc: any = [];
     _chartData: any = [];
     showMap: boolean;
@@ -93,6 +92,8 @@ export class DetailComponent implements OnInit {
             window.dispatchEvent(new Event('resize'));
             clearInterval(runInterval);
         }
+        //let temp: any = '';
+        //this.dataTile.onResize(temp);
     }
 
     goBack() {

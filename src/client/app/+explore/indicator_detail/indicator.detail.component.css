@@ -17,6 +17,7 @@
 #detail-data-view-wrapper {
     max-width: 1170px;
     margin: 0 auto;
+    padding-left: 30px;
 }
 
 #indicator-title-wrapper {

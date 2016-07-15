@@ -31,6 +31,7 @@ export class SearchComponent {
     selectedSearchResult: SearchResult;
     tempResults: any[];
     items: Observable<any[]>;
+    tempTabIndex: number = -1;
 
     constructor(
         private _searchService: SearchTopicsPlacesService,
@@ -52,7 +53,6 @@ export class SearchComponent {
     }
 
     selectResult(searchItem: SearchResult) {
-        //console.log('madeleine', searchItem);
         if (searchItem.Type === 'Place') {
             this._selectedPlacesService.add(searchItem, 'map');
         }
@@ -64,10 +64,12 @@ export class SearchComponent {
         this.searchTerms = '';
     }
     inputKeypressHandler(event: any) {
-        if (event.keyCode === 13) {
+        var code = event.keyCode || event.which;
+
+        if (code === 13) {
             //get tempResult values
             if (this.tempResults.length > 0) {
-                var firstItem: any = this.tempResults[0];
+                var firstItem: any = this.tempResults[this.tempTabIndex === -1 ? 0 : this.tempTabIndex];
                 var selected: SearchResult = {
                     Name: firstItem['Name'].replace(/\,/g, '%2C'),
                     ResID: firstItem['ResID'],
@@ -80,12 +82,38 @@ export class SearchComponent {
             } else {
                 alert('Please select a valid search term.');
             }
+            this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
+            this.searchTerms = '';
+        } else if (code === 40 || code === 9) {
+            //tab or down arro
+            if (this.tempTabIndex !== this.tempResults.length) {
+                this.tempTabIndex++;
+            } else {
+                this.tempTabIndex = 0;
+            }
+        } else if (code === 38) {
+            //up arrow
+            if (this.tempTabIndex !== -1) {
+                this.tempTabIndex--;
+            } else {
+                this.tempTabIndex = 0;
+            }
+        } else {
+            this.tempTabIndex = -1;
+        }
+        this.tempResults.forEach((result: any, idx: number) => {
+            this.tempResults[idx].hovered = this.tempTabIndex === idx ? true : false;
+        });
+        if (code === 9) {
+            event.preventDefault();
         }
     }
+
     blurHandler(event: any) {
         var searchScope = this;
+        console.log('blur', event);
         setTimeout(function () {
-            //if tabbing on list result set input box to match the Name property, but don't clear.           
+            //if tabbing on list result set input box to match the Name property, but don't clear.
             if (document.activeElement.classList.toString() === 'list-group-item') {
                 var attr: any = 'data-search-item';
                 var listItem: any = JSON.parse(document.activeElement.attributes[attr].value);
@@ -101,7 +129,7 @@ export class SearchComponent {
             } else if (document.activeElement.id === 'explore-btn') {
                 //get tempResult values
                 if (searchScope.tempResults.length > 0) {
-                    var firstItem: any = searchScope.tempResults[0];
+                    var firstItem: any = searchScope.tempResults[searchScope.tempTabIndex];
                     var selected: SearchResult = {
                         Name: firstItem['Name'].replace(/\,/g, '%2C'),
                         ResID: firstItem['ResID'],

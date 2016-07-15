@@ -188,7 +188,7 @@ var TopicsComponent = (function () {
             templateUrl: 'topics.select.component.html',
             styleUrls: ['topics.select.component.css'],
             directives: [index_1.IndicatorsTopicListComponent],
-            pipes: [index_3.IndicatorTopicFilterPipe, index_3.SelectedTopicsPipe, index_3.SelectedIndicatorByTopicsCountPipe],
+            pipes: [index_3.IndicatorTopicFilterPipe, index_3.SelectedTopicsPipe, index_3.SelectedIndicatorByTopicsCountPipe, index_3.SortAlphaTopicPipe],
             providers: [http_1.JSONP_PROVIDERS, index_2.TopicsService, index_2.IndicatorsService]
         }), 
         __metadata('design:paramtypes', [index_2.TopicsService, index_2.IndicatorsService])

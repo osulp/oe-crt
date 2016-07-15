@@ -127,6 +127,10 @@ var DetailComponent = (function () {
         core_1.ViewChild(index_1.PlacesMapSelectComponent), 
         __metadata('design:type', index_1.PlacesMapSelectComponent)
     ], DetailComponent.prototype, "placeMap", void 0);
+    __decorate([
+        core_1.ViewChild(index_1.DataTileComponent), 
+        __metadata('design:type', index_1.DataTileComponent)
+    ], DetailComponent.prototype, "dataTile", void 0);
     DetailComponent = __decorate([
         core_1.Component({
             moduleId: module.id,

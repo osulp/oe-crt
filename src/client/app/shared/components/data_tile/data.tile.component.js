@@ -85,6 +85,11 @@ var DataTileComponent = (function () {
                 }
             },
             title: {},
+            credits: {
+                enabled: false,
+                text: 'Maps and Charts provided by Oregon Explorer and OSU Rural Studies Program',
+                href: 'http://oregonexplorer.info/rural'
+            },
             xAxis: {
                 categories: [0, 1]
             },
@@ -239,8 +244,7 @@ var DataTileComponent = (function () {
         console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
         var loadingGeoJSON = this.tileType === 'map' ? this.checkLoadGeoJSON() : false;
         if (this.tileType === 'graph') {
-            var temp = this.getPlaceTypes('graph');
-            console.log('testing placeTypes', this.placeTypes);
+            this.getPlaceTypes('graph');
         }
         var loadMoreData = this.tileType === 'graph' ? true : this.checkUpdateData();
         if (!loadingGeoJSON && loadMoreData) {
@@ -671,6 +675,7 @@ var DataTileComponent = (function () {
             value: this.placeTypeData.Years.length - 1,
             tickInterval: 1,
             step: 1,
+            autoScaleSlider: false,
             tickArray: this._tickArray,
             tickLabels: this._tickLabelsTime,
             change: function (event, ui) {
@@ -925,7 +930,6 @@ var DataTileComponent = (function () {
         });
         var oregonGeoids = ['41', '41r', '41u'];
         var californiaGeoids = ['06', '06r', '06u'];
-        var statewideGeoids = oregonGeoids.concat(californiaGeoids);
         var sortedPlaceData = selectedPlaceData.sort(function (a, b) { return b.geoid.localeCompare(a.geoid); });
         sortedPlaceData.forEach(function (pd) {
             var isOregon = oregonGeoids.indexOf(pd.geoid) !== -1 ? true : false;
@@ -950,7 +954,7 @@ var DataTileComponent = (function () {
                     fillColor: isState ? '#FFFFFF' : null,
                     lineWidth: isState ? 4 : 2,
                     lineColor: isOregon ? '#244068' : isCalifornia ? '#C34500' : isCombined ? '#98BD85' : null,
-                    radius: isState ? 4 : (_this.placeTypeData.Years.length > 10 ? 3.5 : 2),
+                    radius: _this.placeTypeData.Years.length > 10 ? 3.5 : 4,
                     symbol: 'circle'
                 }
             }, true);
@@ -999,7 +1003,17 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.onResize = function (event) {
-        this.chart.legend.update(this.setLegendOptions());
+        if (this.chart) {
+            this.chart.legend.update(this.setLegendOptions());
+            console.log('yep', $('.map-chart').width(), this.elementRef.nativeElement.offsetWidth);
+            var runInterval = setInterval(runCheck, 1050);
+            var resizeScope = this;
+            function runCheck() {
+                var newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $('.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $('.map-chart').width();
+                $('.ui-slider-wrapper').css('width', newWidth - 80 + 'px');
+                clearInterval(runInterval);
+            }
+        }
     };
     DataTileComponent.prototype.setLegendOptions = function () {
         return {
