@@ -1868,6 +1868,11 @@ export class DataTileComponent implements OnInit, OnDestroy {
         }
     }
 
+    zoomToPlace(evt: any, point: any) {
+        console.log('point', point);
+        this.mapChart.get(point).zoomTo();
+    }
+
     ngOnInit() {
         this.defaultChartOptions.title = { text: this.indicator };
         this.defaultChartOptions.chart.spacingTop = this.viewType === 'advanced' ? 50 : this.defaultChartOptions.chart.spacingTop;

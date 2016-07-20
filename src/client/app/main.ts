@@ -20,8 +20,8 @@ bootstrap(AppComponent, [
     HTTP_PROVIDERS,
     ROUTER_PROVIDERS,
     //DND_PROVIDERS,
-    provide(APP_BASE_HREF, { useValue: '<%= APP_BASE %>' })
-    //provide(APP_BASE_HREF, { useValue: '/' })
+    //provide(APP_BASE_HREF, { useValue: '<%= APP_BASE %>' })
+    provide(APP_BASE_HREF, { useValue: '/' })
 ]);
 
 // In order to start the Service Worker located at "./worker.js"

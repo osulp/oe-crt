@@ -10,6 +10,6 @@ if ('<%= ENV %>' === 'prod') {
 platform_browser_dynamic_1.bootstrap(app_component_1.AppComponent, [
     http_1.HTTP_PROVIDERS,
     router_1.ROUTER_PROVIDERS,
-    core_1.provide(common_1.APP_BASE_HREF, { useValue: '<%= APP_BASE %>' })
+    core_1.provide(common_1.APP_BASE_HREF, { useValue: '/' })
 ]);
 //# sourceMappingURL=main.js.map

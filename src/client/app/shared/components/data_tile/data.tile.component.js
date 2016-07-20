@@ -1420,6 +1420,10 @@ var DataTileComponent = (function () {
             this.chart.reflow();
         }
     };
+    DataTileComponent.prototype.zoomToPlace = function (evt, point) {
+        console.log('point', point);
+        this.mapChart.get(point).zoomTo();
+    };
     DataTileComponent.prototype.ngOnInit = function () {
         this.defaultChartOptions.title = { text: this.indicator };
         this.defaultChartOptions.chart.spacingTop = this.viewType === 'advanced' ? 50 : this.defaultChartOptions.chart.spacingTop;

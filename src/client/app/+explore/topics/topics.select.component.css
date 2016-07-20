@@ -10,7 +10,7 @@
     }
 
 #topics-wrapper{
-    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;    
+    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
     border-radius: 0 0 4px 4px;
     /*min-height:350px;*/
     max-width:1170px;
@@ -35,7 +35,7 @@
 }
 .find_header .toggle-topics{
     float:right;
-    margin:10px; 
+    margin:10px;
     height:30px;
     width:30px;
     background-color:rgba(255,255,255,.30);
@@ -73,7 +73,7 @@
 }
 
     #topic-col-list div {
-        min-height: 40px;
+        min-height: 42px;
         padding: 10px 10px 10px 16px;
         border-radius: 4px;
         margin-bottom:10px;
@@ -118,14 +118,14 @@
         margin: 0;
         -webkit-border-radius: 4px;
         -moz-border-radius: 4px;
-        border-radius: 4px;       
+        border-radius: 4px;
         display: inline-block;
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
         cursor: pointer;
     }*/
-    
+
 
 /*/* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
@@ -137,19 +137,19 @@
     font-style:italic;
     color:#808080;
 }
-.topic-header-indicator-filter p:after{    
+.topic-header-indicator-filter p:after{
     font-family:'Glyphicons Halflings';
     font-style:normal;
     content: '\\e259';
     font-size:14px;
-    color:#C34500; 
+    color:#C34500;
     width:25px;
     height:25px;
     margin:20px;
     background:white;
     border: solid 1px #C34500;
     border-radius:4px;
-    padding: 4px 4px 2px 4px;     
+    padding: 4px 4px 2px 4px;
     pointer-events: none;
 }
 
@@ -159,22 +159,22 @@
     font-style:normal;
 }
 
-/*.selectBox:after {    
+/*.selectBox:after {
     font-family:'Glyphicons Halflings';
     content: '\e259';
     font-size:16px;
-    color: white;    
+    color: white;
     right: 12px;
     top: 10px;
-    padding: 0 0 2px;    
+    padding: 0 0 2px;
     position: absolute;
     pointer-events: none;
 }
 .selectBox:before {
     content:'';
-    right:0; 
+    right:0;
     top:0;
-    width:40px; 
+    width:40px;
     height:40px;
     background:#C34500;
     position:absolute;
@@ -234,7 +234,7 @@
     border-radius:35%;
     min-width:20px;
     min-height:20px;
-    border:solid 1px #C34500;    
+    border:solid 1px #C34500;
     font-size:.8em;
     display:inline-block;
     text-align:center;
@@ -248,6 +248,6 @@
 
     .find_header, #topics-wrapper {
         margin: 0 auto;
-    }    
+    }
 }
 
