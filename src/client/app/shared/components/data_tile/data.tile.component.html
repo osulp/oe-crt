@@ -1,20 +1,39 @@
-<div id="data-tile-wrapper" (window:resize)="onResize($event)" class="row" [ngClass]="viewType">
-    <div class="col-xs-12" id="chart-div">
-        <div *ngIf="tileType === 'graph'">
-            <chart #highchart [options]="defaultChartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
+<div id="data-tile-wrapper" (window:resize)="onResize($event)" class="row" [ngClass]="{'advanced':viewType === 'advanced','mapChart':tileType === 'map'}">
+    <div class="col-xs-12" id="chart-div" [ngClass]="tileType === 'map' ? 'mapChartDiv' : 'graphChartDiv'">
+        <div *ngIf="(isTOP || is10yr) && tileType === 'graph'" class="collection-icon-wrapper">
+            <span *ngIf="isTOP" class="collectionIcon">
+                <img src="assets/img/top_icon.svg" alt="Tracking Oregon's Progress Indicator" title="This indicator is part of the Tracking Oregon's Progress Collection" />
+            </span>
+            <!--<span *ngIf="is10yr" class="collectionIcon">
+                <img src="assets/img/top_icon.svg" alt="Tracking Oregon's Progress Indicator'" title="This indicator is part of the Tracking Oregon's Progress Collection" />
+            </span>-->
         </div>
-        <div class="mapchart" *ngIf="tileType === 'map'">
+        <div *ngIf="tileType === 'graph'">
+            <chart #highchart [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
+        </div>
+        <div id="map-chart-wrapper" *ngIf="tileType === 'map'">
             <div id="map-view-wrapper">
                 <hmap-menu [(mapView)]="selectedPlaceType" (selMapView)="onSelectedMapViewChange($event)"></hmap-menu>
             </div>
-            <chart #highmap id="highmap" type="Map" [options]="mapOptions" (load)="saveInstance($event.context)" class="graph"></chart>
+            <div id="map-controls">
+                <span>Zoom:</span>
+                <span (click)="mapChart.mapZoom();" class="glyphicon glyphicon-home full-zoom"></span><span (click)="mapChart.mapZoom();" class="full-zoom">Full Extent</span>
+                <span *ngIf="selectedMapPoints.length > 0" class="selectedMapDrpDwn">Selected:
+                    <select class="map-chart-zoom-select">
+                        <option *ngFor="let point of selectedMapPoints | mapChartPlaceZoomPipe: selectedPlaceType" (click)="mapChart.get(point.id).zoomTo();">
+                            {{point.name}}
+                        </option>
+                    </select>
+                </span>
+            </div>
+            <chart #highmap id="highmap" type="Map" [options]="mapOptions" (load)="saveInstance($event.context)" class="graph map-chart"></chart>
         </div>
     </div>
     <div [hidden]="tileType !== 'map'">
         <div id="slider_wrapper">
             <div id="play_wrapper">
                 <button id="play" type="button" (click)="onPlayBtnClick($event);" class="btn btn-default" aria-label="Left Align">
-                    <span [ngClass]="'glyphicon-' + sliderState" class="glyphicon" aria-hidden="true" title="Play/pause data view by years." ></span>
+                    <span [ngClass]="'glyphicon-' + sliderState" class="glyphicon" aria-hidden="true" title="Play/pause data view by years."></span>
                 </button>
             </div>
             <div id="dateSlider"></div>
@@ -22,7 +41,7 @@
     </div>
     <div *ngIf="tileType === 'graph' && viewType === 'advanced'">
         <div id="chart_footer_wrapper" class="row">
-            <div id="chart_notices" class="col-xs-6">
+            <div class="chart_notices col-xs-6">
                 <div *ngIf="isCountyLevel || isStatewide || isNotCombinable">
                     <span class="glyphicon glyphicon-flag"></span>
                     <span *ngIf="isStatewide">Statewide Data Only</span>

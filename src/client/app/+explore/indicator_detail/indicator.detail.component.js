@@ -31,6 +31,7 @@ var DetailComponent = (function () {
         this.subTitle = '';
         this.isStatewide = false;
         this.isCountyLevel = false;
+        this.isTOP = false;
     }
     DetailComponent.prototype.onSelectedSearchResult = function (results) {
         this.selectedSearchResult = results;
@@ -110,6 +111,7 @@ var DetailComponent = (function () {
             _this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
             _this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
             _this.isCountyLevel = indicator_info.CountyLevel;
+            _this.isTOP = indicator_info.isTOP;
             _this.windowRefresh();
         });
         this.inputIndicator = this.inputIndicator.replace(/\%2B/g, '+');

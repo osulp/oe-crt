@@ -49,7 +49,14 @@
         <div class="col-xs-12">
             <div class="row">
                 <div id="indicator-title-wrapper" class="col-xs-10">
-                    <div><h2>{{indicatorTitle}}</h2></div>
+                    <div>
+                        <h2 [innerHTML]="indicatorTitle">
+                            <!--<span *ngIf="isTOP" class="collectionIcon">
+                             <img src="assets/img/top_icon.svg" alt="Tracking Oregon's Progress Indicator" title="This indicator is part of the Tracking Oregon's Progress Collection" />
+                            </span>-->
+                        </h2>
+
+                    </div>
                     <div class="subtitle">{{subTitle !== '' ? '('+subTitle+')' : '&nbsp;'}}</div>
                 </div>
                 <div class="col-xs-2">

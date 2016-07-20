@@ -8,6 +8,12 @@
 }
 #data-tile-wrapper.advanced{
     height:680px;
+    padding:15px;
+}
+
+#data-tile-wrapper.mapChart{
+    padding:0;
+    padding-top:15px;
 }
 
 #view-data, #slider_wrapper, #chart_footer_wrapper{
@@ -20,7 +26,10 @@
     bottom:0;
     color:#6F7C82;
     padding-top:10px;
-    margin-left:-15px;
+    /*margin-left:-15px;*/
+}
+#view-data{
+    left:0;
 }
     #view-data:hover {
         background-color: #244068;
@@ -36,7 +45,7 @@
     width: 100%;
 }
 
-#chart_notices span {
+.chart_notices span {
     padding-right:10px;
 }
 #chart_controls label{
@@ -62,7 +71,11 @@
 }
 
 #data-tile-wrapper.advanced .graph{
-    height: 600px;
+     height: 600px;
+}
+
+#data-tile-wrapper.mapChart .graph{
+    height: 575px;
 }
 
 /*#slider_wrapper:before{
@@ -101,13 +114,50 @@
     background: #e6e6e6 url("") 50% 50% repeat-x;
 }*/
 
-#mapchart {
+#map-chart-wrapper {
     position:relative;
 }
 
 #map-view-wrapper{
     position:absolute;
-    right:0;
+    right:15px;
     top:0;
     z-index:10;
+}
+#map-controls {
+    position: absolute;
+    left:25px;
+    top: 5px;
+    z-index: 10;
+}
+
+#map-controls span{
+    padding-right:5px;
+    font-size:.8em;
+    color:#6F7C82;
+}
+.full-zoom:hover {
+    cursor:pointer;
+    text-decoration:underline;
+}
+.map-chart {
+    margin-top:30px;
+}
+.collection-icon-wrapper {
+    position:absolute;
+    top:0;
+    right:0;
+    z-index:100;
+}
+.mapChartDiv {
+    padding: 0;
+}
+
+.map-chart-zoom-select {
+    min-width:150px;
+}
+
+.selectedMapDrpDwn {
+    border-left: solid 1px #6F7C82;
+    padding-left:5px;
 }

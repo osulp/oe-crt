@@ -38,6 +38,7 @@ export class DetailComponent implements OnInit {
     subTitle: any = '';
     isStatewide: boolean = false;
     isCountyLevel: boolean = false;
+    isTOP: boolean = false;
 
     constructor(private _indicatorDescService: IndicatorDescService,
         private _router: Router
@@ -134,6 +135,7 @@ export class DetailComponent implements OnInit {
                 this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
                 this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
                 this.isCountyLevel = indicator_info.CountyLevel;
+                this.isTOP = indicator_info.isTOP;
                 this.windowRefresh();
             });
         this.inputIndicator = this.inputIndicator.replace(/\%2B/g, '+');
