@@ -1084,11 +1084,12 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.setLegendOptions = function () {
+        var domTileWidth = $('#data-tile-wrapper').width();
         return {
-            width: this.viewType === 'basic' ? this.elementRef.nativeElement.offsetWidth - 100 : 400,
-            itemWidth: this.viewType === 'basic' ? this.elementRef.nativeElement.offsetWidth - 40 : 200,
+            width: this.viewType === 'basic' ? domTileWidth - 80 : 400,
+            itemWidth: this.viewType === 'basic' ? domTileWidth - 20 : 200,
             itemStyle: {
-                width: this.viewType === 'basic' ? this.elementRef.nativeElement.offsetWidth - 60 : 180,
+                width: this.viewType === 'basic' ? domTileWidth - 40 : 180,
                 color: '#4d4d4d'
             },
             title: {

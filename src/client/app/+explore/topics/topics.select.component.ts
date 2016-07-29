@@ -30,6 +30,7 @@ export class TopicsComponent implements OnInit {
     @Output() allIndicatorsFromComp = new EventEmitter();
     @Input() inputTopics: string;
     @Input() inputIndicators: string;
+    @Input() inputCollection: string;
 
     //selectedIndicators = new EventEmitter();
     Indicators: any;
@@ -223,11 +224,12 @@ export class TopicsComponent implements OnInit {
         this._selectedIndicators = this._inputIndicators;
         this.getTopics();
         this._collectionService.get().subscribe((results: any) => {
-            let all = { collection: 'Show All', selected: true };
+            let selectedCollection = this.inputCollection !== 'undefined' ? this.inputCollection : 'Show All';
+            let all = { collection: 'Show All', selected: selectedCollection === 'Show All' ? true : false };
             this.collections = results
                 .filter((coll: any) => { return coll.collection_name !== 'Partner with us'; })
                 .map((result: any) => {
-                    return { collection: result.collection_name, icon_path: result.collection_icon_path, selected: false };
+                    return { collection: result.collection_name, icon_path: result.collection_icon_path, selected: selectedCollection === result.collection_name ? true : false };
                 });
             this.collections.push(all);
             this.selectedCollectionsFromComp.emit(this.collections);

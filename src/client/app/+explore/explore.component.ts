@@ -33,11 +33,12 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     //export class ExploreComponent implements OnInit {
     @ViewChild(DataComponent) dataComp: DataComponent;
     @ViewChild(TopicsComponent) topicsComp: TopicsComponent;
+    urlCollection: any = 'Show All';
     selectedTopics: any;
     selectedIndicators: any;
     selectedIndicator: any;
     selectedPlaces: any;
-    selectedCollections: any;
+    selectedCollection: any;
     allIndicators: Indicator[];
     allTopics: Topic[] = [];
     indicatorDetailView: boolean = false;
@@ -58,6 +59,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         this.selectedIndicator = decodeURI(curr.getParam('indicator'));
         this.selectedIndicators = decodeURI(curr.getParam('indicators'));
         this.selectedPlaces = decodeURI(curr.getParam('places'));
+        this.urlCollection = decodeURI(curr.getParam('collection'));
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
     }
 
@@ -114,7 +116,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     }
 
     onGetSelectedCollectionsFromComp(results: any) {
-        this.selectedCollections = results;
+        this.selectedCollection = results;
         this.dataComp.collections = results;
         this.dataComp.selectedCollection = results.filter((coll: any) => coll.selected)[0].collection;
         this.dataComp.indTopListComps.toArray().forEach((child: any) => child.selCollections = results);
@@ -171,7 +173,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     };
 
     onBlurExplorePage(evt: any) {
-        console.log('getting blurry', evt);
+        //hide select dropdowns if showing.
         if (!$(evt.target).closest('.selectBox').length) {
             this.topicsComp.chkBoxVisibile = false;
         }

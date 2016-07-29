@@ -19,6 +19,7 @@ var ExploreComponent = (function () {
     function ExploreComponent(_selectedPlacesService, _router) {
         this._selectedPlacesService = _selectedPlacesService;
         this._router = _router;
+        this.urlCollection = 'Show All';
         this.allTopics = [];
         this.indicatorDetailView = false;
         this.initialIndicator = true;
@@ -28,6 +29,7 @@ var ExploreComponent = (function () {
         this.selectedIndicator = decodeURI(curr.getParam('indicator'));
         this.selectedIndicators = decodeURI(curr.getParam('indicators'));
         this.selectedPlaces = decodeURI(curr.getParam('places'));
+        this.urlCollection = decodeURI(curr.getParam('collection')) ? decodeURI(curr.getParam('collection')) : 'Show All';
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
     };
     ExploreComponent.prototype.onSelectedSearchResult = function (results) {
@@ -77,7 +79,7 @@ var ExploreComponent = (function () {
         this.allIndicators = results;
     };
     ExploreComponent.prototype.onGetSelectedCollectionsFromComp = function (results) {
-        this.selectedCollections = results;
+        this.selectedCollection = results;
         this.dataComp.collections = results;
         this.dataComp.selectedCollection = results.filter(function (coll) { return coll.selected; })[0].collection;
         this.dataComp.indTopListComps.toArray().forEach(function (child) { return child.selCollections = results; });
@@ -128,7 +130,6 @@ var ExploreComponent = (function () {
     };
     ;
     ExploreComponent.prototype.onBlurExplorePage = function (evt) {
-        console.log('getting blurry', evt);
         if (!$(evt.target).closest('.selectBox').length) {
             this.topicsComp.chkBoxVisibile = false;
         }

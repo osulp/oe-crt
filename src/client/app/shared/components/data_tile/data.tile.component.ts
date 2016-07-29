@@ -214,6 +214,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     constructor(
         @Inject(ElementRef) elementRef: ElementRef,
+        //public _renderer: Renderer,
         private _dataService: DataService,
         private _selectedPlacesService: SelectedPlacesService,
         private _router: Router,
@@ -221,7 +222,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         private _geoService: GetGeoJSONService,
         private _selectedDataService: SelectedDataService,
         private _placeTypesService: PlaceTypeService,
-        private _indicatorDescService: IndicatorDescService
+        private _indicatorDescService: IndicatorDescService,
     ) {
         this.elementRef = elementRef;
         this.tempPlaces = new Array<SearchResult>();
@@ -1420,11 +1421,13 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     setLegendOptions() {
+        //console.log('legendOptions', $('#data-tile-wrapper').width(), this.elementRef.nativeElement.offsetWidth, $(this.elementRef.nativeElement).width());
+        let domTileWidth = $('#data-tile-wrapper').width();
         return {
-            width: this.viewType === 'basic' ? this.elementRef.nativeElement.offsetWidth - 100 : 400,
-            itemWidth: this.viewType === 'basic' ? this.elementRef.nativeElement.offsetWidth - 40 : 200,
+            width: this.viewType === 'basic' ? domTileWidth - 80 : 400,
+            itemWidth: this.viewType === 'basic' ? domTileWidth - 20 : 200,
             itemStyle: {
-                width: this.viewType === 'basic' ? this.elementRef.nativeElement.offsetWidth - 60 : 180,
+                width: this.viewType === 'basic' ? domTileWidth - 40 : 180,
                 color: '#4d4d4d'
             },
             title: {

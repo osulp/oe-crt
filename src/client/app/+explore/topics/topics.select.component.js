@@ -167,11 +167,12 @@ var TopicsComponent = (function () {
         this._selectedIndicators = this._inputIndicators;
         this.getTopics();
         this._collectionService.get().subscribe(function (results) {
-            var all = { collection: 'Show All', selected: true };
+            var selectedCollection = _this.inputCollection !== 'undefined' ? _this.inputCollection : 'Show All';
+            var all = { collection: 'Show All', selected: selectedCollection === 'Show All' ? true : false };
             _this.collections = results
                 .filter(function (coll) { return coll.collection_name !== 'Partner with us'; })
                 .map(function (result) {
-                return { collection: result.collection_name, icon_path: result.collection_icon_path, selected: false };
+                return { collection: result.collection_name, icon_path: result.collection_icon_path, selected: selectedCollection === result.collection_name ? true : false };
             });
             _this.collections.push(all);
             _this.selectedCollectionsFromComp.emit(_this.collections);
@@ -206,6 +207,10 @@ var TopicsComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', String)
     ], TopicsComponent.prototype, "inputIndicators", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', String)
+    ], TopicsComponent.prototype, "inputCollection", void 0);
     TopicsComponent = __decorate([
         core_1.Component({
             moduleId: module.id,
