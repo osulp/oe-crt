@@ -11,15 +11,61 @@ var core_1 = require('@angular/core');
 var index_1 = require('../../shared/components/index');
 var PlacesWrapperComponent = (function () {
     function PlacesWrapperComponent() {
+        this.selectedPlaceTypes = [];
         this.urlPlaces = [];
+        this.california = {
+            Name: 'California',
+            ResID: '06',
+            Type: 'Place',
+            TypeCategory: 'State',
+            Desc: 'California'
+        };
+        this.oregon = {
+            Name: 'Oregon',
+            ResID: '41',
+            Type: 'Place',
+            TypeCategory: 'State',
+            Desc: 'Oregon'
+        };
     }
     PlacesWrapperComponent.prototype.getClass = function () {
         return this.selectedPlaceType === 'CountiesCitiesTracts' ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
     };
     PlacesWrapperComponent.prototype.toggleSelection = function (tab) {
-        this.selectedPlaceType = tab;
+        var addPlace = false;
+        if (this.selectedPlaceTypes.indexOf(tab) === -1) {
+            addPlace = true;
+            this.selectedPlaceTypes.push(tab);
+        }
+        else {
+            this.selectedPlaceTypes = this.selectedPlaceTypes.filter(function (spt) { return spt !== tab; });
+        }
         if (tab === 'CountiesCitiesTracts') {
             this.placeMap.leafletMap.refreshMap();
+        }
+        if (addPlace) {
+            switch (tab) {
+                case 'Oregon':
+                    this.placeMap.addPlace(this.oregon);
+                    break;
+                case 'California':
+                    this.placeMap.addPlace(this.california);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else {
+            switch (tab) {
+                case 'Oregon':
+                    this.placeMap.removePlace(this.oregon);
+                    break;
+                case 'California':
+                    this.placeMap.removePlace(this.california);
+                    break;
+                default:
+                    break;
+            }
         }
     };
     PlacesWrapperComponent.prototype.ngOnInit = function () {
@@ -27,6 +73,7 @@ var PlacesWrapperComponent = (function () {
         var isOregon = false;
         var isCalifornia = false;
         var hasNoStatewide = false;
+        console.log('url places:', this.urlPlaces);
         for (var x = 0; x < this.urlPlaces.length; x++) {
             var place = this.urlPlaces[x];
             switch (place.ResID) {
@@ -41,7 +88,19 @@ var PlacesWrapperComponent = (function () {
                     break;
             }
         }
+        if (this.urlPlaces.length === 0) {
+            isOregon = true;
+        }
         this.selectedPlaceType = this.urlPlaces.length > 0 ? (hasNoStatewide ? 'CountiesCitiesTracts' : (isOregon ? 'Oregon' : 'California')) : 'Oregon';
+        if (hasNoStatewide) {
+            this.selectedPlaceTypes.push('CountiesCitiesTracts');
+        }
+        if (isCalifornia) {
+            this.selectedPlaceTypes.push('California');
+        }
+        if (isOregon) {
+            this.selectedPlaceTypes.push('Oregon');
+        }
     };
     __decorate([
         core_1.Input(), 

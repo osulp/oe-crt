@@ -76,6 +76,12 @@ var ExploreComponent = (function () {
     ExploreComponent.prototype.onGetAllIndicatorsFromComp = function (results) {
         this.allIndicators = results;
     };
+    ExploreComponent.prototype.onGetSelectedCollectionsFromComp = function (results) {
+        this.selectedCollections = results;
+        this.dataComp.collections = results;
+        this.dataComp.selectedCollection = results.filter(function (coll) { return coll.selected; })[0].collection;
+        this.dataComp.indTopListComps.toArray().forEach(function (child) { return child.selCollections = results; });
+    };
     ExploreComponent.prototype.onPlacesChanged = function (selectedPlaces) {
         console.log('place added via explore comp', selectedPlaces);
         var qsParams = [];
@@ -135,6 +141,10 @@ var ExploreComponent = (function () {
             this.subscription.unsubscribe();
         }
     };
+    __decorate([
+        core_1.ViewChild(data_wrapper_component_1.DataComponent), 
+        __metadata('design:type', data_wrapper_component_1.DataComponent)
+    ], ExploreComponent.prototype, "dataComp", void 0);
     ExploreComponent = __decorate([
         core_1.Component({
             moduleId: module.id,

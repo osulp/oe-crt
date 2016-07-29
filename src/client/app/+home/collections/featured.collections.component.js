@@ -16,7 +16,7 @@ var FeaturedCollectionsComponent = (function () {
         this._collectionsService = _collectionsService;
     }
     FeaturedCollectionsComponent.prototype.search = function (term) {
-        this.items = this._collectionsService.search(term);
+        this.items = this._collectionsService.get();
     };
     FeaturedCollectionsComponent.prototype.ngOnInit = function () {
         this.search('');

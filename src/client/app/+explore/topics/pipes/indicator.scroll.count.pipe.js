@@ -12,6 +12,7 @@ var IndicatorScrollCountPipe = (function () {
     function IndicatorScrollCountPipe() {
     }
     IndicatorScrollCountPipe.prototype.transform = function (indicators, scrollCount) {
+        console.log('scrollcount', scrollCount);
         if (indicators !== undefined) {
             return indicators.slice(0, scrollCount);
         }

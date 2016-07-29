@@ -20,8 +20,8 @@ export class FeaturedCollectionsComponent implements OnInit {
     constructor(private _collectionsService: CollectionsService) { }
 
     search(term: string) {
-        //this._topicService.search(term).then(items => this.items = items);        
-        this.items = this._collectionsService.search(term);
+        //this._topicService.search(term).then(items => this.items = items);
+        this.items = this._collectionsService.get();
     }
 
     ngOnInit() {

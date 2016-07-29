@@ -261,9 +261,9 @@ export class PlacesMapSelectComponent implements OnInit {
         }, 1);
         //event.preventDefault();
     }
-    removePlace(place: SearchResult, placeBin: any, dragBin: any, panelContainer: any) {
-        //var indexPlace = this.selectedSearchResults.indexOf(place);
-        //this.selectedSearchResults.splice(indexPlace, 1);
+    removePlace(place: SearchResult, placeBin?: any, dragBin?: any, panelContainer?: any) {
+        var indexPlace = this.selectedSearchResults.indexOf(place);
+        this.selectedSearchResults.splice(indexPlace, 1);
         //broadcast out to application
         this.selPlacesEvt.emit(this.selectedSearchResults);
         console.log('removing place', place);

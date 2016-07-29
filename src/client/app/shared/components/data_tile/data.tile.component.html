@@ -1,13 +1,15 @@
 <div id="data-tile-wrapper" (window:resize)="onResize($event)" class="row" [ngClass]="{'advanced':viewType === 'advanced','mapChart':tileType === 'map'}">
     <div class="col-xs-12" id="chart-div" [ngClass]="tileType === 'map' ? 'mapChartDiv' : 'graphChartDiv'">
-        <div *ngIf="(isTOP || is10yr) && tileType === 'graph'" class="collection-icon-wrapper">
+        <div  *ngIf="tileType === 'graph'" class="collection-icon-wrapper">
+            <span *ngFor="let collection of indicator_collections"  class="collectionIcon">
+                <img *ngIf="getCollectionIcon(collection) !== ''" [src]="getCollectionIcon(collection)" [alt]="collection" [title]="'This indicator is part of the '+collection+' collection.'" />
+            </span>
+        </div>
+        <!--<div *ngIf="(isTOP || is10yr) && tileType === 'graph'" class="collection-icon-wrapper">
             <span *ngIf="isTOP" class="collectionIcon">
                 <img src="assets/img/top_icon.svg" alt="Tracking Oregon's Progress Indicator" title="This indicator is part of the Tracking Oregon's Progress Collection" />
             </span>
-            <!--<span *ngIf="is10yr" class="collectionIcon">
-                <img src="assets/img/top_icon.svg" alt="Tracking Oregon's Progress Indicator'" title="This indicator is part of the Tracking Oregon's Progress Collection" />
-            </span>-->
-        </div>
+        </div>-->
         <div *ngIf="tileType === 'graph'">
             <chart #highchart [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
         </div>

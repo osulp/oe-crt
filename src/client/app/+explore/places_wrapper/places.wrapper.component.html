@@ -14,26 +14,26 @@
         <div class="col-xs-12 place-col">
             <div id="places-wrapper" class="row">
                 <div class="row" id="place_type_select">
-                    <div class="col-md-4 place_type" (click)="toggleSelection('Oregon')" [ngClass]="selectedPlaceType === 'Oregon' ? 'selected' : ''">
-                        <img *ngIf="selectedPlaceType === 'Oregon'" src="assets/img/icn-ore-light.svg" />
-                        <img *ngIf="selectedPlaceType !== 'Oregon'" src="assets/img/icn-ore.svg" />
+                    <div class="col-md-4 place_type" (click)="toggleSelection('Oregon')" [ngClass]="selectedPlaceTypes.indexOf('Oregon') !== -1 ? 'selected' : ''">
+                        <img *ngIf="selectedPlaceTypes.indexOf('Oregon') !== -1" src="assets/img/icn-ore-light.svg" />
+                        <img *ngIf="selectedPlaceTypes.indexOf('Oregon') === -1" src="assets/img/icn-ore.svg" />
                         Oregon (Statewide)
                     </div>
-                    <div class="col-md-4 col-md-push-4 place_type" (click)="toggleSelection('California')" [ngClass]="selectedPlaceType === 'California' ? 'selected' : '' ">
-                        <img *ngIf="selectedPlaceType === 'California'" src="assets/img/icn-cal-light.svg" />
-                        <img *ngIf="selectedPlaceType !== 'California'" src="assets/img/icn-cal.svg" />
+                    <div class="col-md-4 col-md-push-4 place_type" (click)="toggleSelection('California')" [ngClass]="selectedPlaceTypes.indexOf('California') !== -1 ? 'selected' : ''">
+                        <img *ngIf="selectedPlaceTypes.indexOf('California') !== -1" src="assets/img/icn-cal-light.svg" />
+                        <img *ngIf="selectedPlaceTypes.indexOf('California') === -1" src="assets/img/icn-cal.svg" />
                         California (Statewide)
                     </div>
-                    <div class="col-md-4 col-md-pull-4 place_type" (click)="toggleSelection('CountiesCitiesTracts')" [ngClass]="selectedPlaceType === 'CountiesCitiesTracts' ? 'selected' : ''">
-                        <img *ngIf="selectedPlaceType === 'CountiesCitiesTracts'" src="assets/img/icn-layers-light.svg" />
-                        <img *ngIf="selectedPlaceType !== 'CountiesCitiesTracts'" src="assets/img/icn-layers.svg" />Counties, Cities, Census Tracts
+                    <div class="col-md-4 col-md-pull-4 place_type" (click)="toggleSelection('CountiesCitiesTracts')" [ngClass]="selectedPlaceTypes.indexOf('CountiesCitiesTracts') !== -1 ? 'selected' : ''">
+                        <img *ngIf="selectedPlaceTypes.indexOf('CountiesCitiesTracts') !== -1" src="assets/img/icn-layers-light.svg" />
+                        <img *ngIf="selectedPlaceTypes.indexOf('CountiesCitiesTracts') === -1" src="assets/img/icn-layers.svg" />Counties, Cities, Census Tracts
                         <div class="toggle-places">
                             <div [ngClass]="getClass()" aria-hidden="true"></div>
                         </div>
                     </div>
                 </div>
-                <div class="row place-select" [hidden]="selectedPlaceType !== 'CountiesCitiesTracts'">
-                    <places-map-select [selectedPlaceType]="selectedPlaceType" [viewType]="'explore'" [selectedPlaces]="urlPlaces"></places-map-select>
+                <div class="row place-select" [hidden]="selectedPlaceTypes.indexOf('CountiesCitiesTracts') === -1 ">
+                    <places-map-select [selectedPlaceType]="selectedPlaceType" [viewType]="'explore'" [(selectedPlaces)]="urlPlaces"></places-map-select>
                 </div>
             </div>
         </div>

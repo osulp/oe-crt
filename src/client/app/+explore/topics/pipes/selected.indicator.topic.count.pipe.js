@@ -11,13 +11,16 @@ var core_1 = require('@angular/core');
 var SelectedIndicatorByTopicsCountPipe = (function () {
     function SelectedIndicatorByTopicsCountPipe() {
     }
-    SelectedIndicatorByTopicsCountPipe.prototype.transform = function (indicators, topic) {
+    SelectedIndicatorByTopicsCountPipe.prototype.transform = function (indicators, topic, collections) {
+        var selCollection = collections.filter(function (coll) { return coll.selected; });
         if (indicators !== undefined) {
-            if (topic.topic === 'all') {
-                return indicators.filter(function (indicator) { return indicator.selected; }).length;
+            if (topic === 'all') {
+                return indicators.filter(function (indicator) { return indicator.selected && (indicator.collections ? (indicator.collections.split(', ').indexOf(selCollection[0].collection) !== -1 || selCollection[0].collection === 'Show All') : selCollection[0].collection === 'Show All' ? true : false); }).length;
             }
             else {
-                return indicators.filter(function (indicator) { return indicator.selected && indicator.topics.split(', ').indexOf(topic.topic) !== -1; }).length;
+                return indicators.filter(function (indicator) {
+                    return indicator.selected && indicator.topics.split(', ').indexOf(topic.topic) !== -1 && (indicator.collections ? (indicator.collections.split(', ').indexOf(selCollection[0].collection) !== -1 || selCollection[0].collection === 'Show All') : selCollection[0].collection === 'Show All' ? true : false);
+                }).length;
             }
         }
     };

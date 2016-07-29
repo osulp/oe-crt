@@ -11,11 +11,13 @@ var core_1 = require('@angular/core');
 var SelectedTopicsPipe = (function () {
     function SelectedTopicsPipe() {
     }
-    SelectedTopicsPipe.prototype.transform = function (topics) {
-        if (topics !== undefined) {
-            var selectedTopics = topics.filter(function (topic) { return topic.selected; });
+    SelectedTopicsPipe.prototype.transform = function (topics, collection) {
+        if (topics !== undefined && collection) {
+            var selectedCollection = collection.filter(function (coll) { return coll.selected; });
+            var selectedTopics = topics.filter(function (topic) { return topic.selected && (selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true); });
+            console.log('selectedCRTTOPICs', topics, collection, selectedCollection, selectedTopics);
             if (selectedTopics.length === 0) {
-                return topics;
+                return topics.filter(function (topic) { return selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true; });
             }
             else {
                 return selectedTopics;

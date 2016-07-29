@@ -11,34 +11,29 @@ var core_1 = require('@angular/core');
 var IndicatorTopicFilterPipe = (function () {
     function IndicatorTopicFilterPipe() {
     }
-    IndicatorTopicFilterPipe.prototype.transform = function (indicators, topics) {
-        if (indicators !== undefined) {
-            var selectedTopics = [];
-            if (topics !== undefined) {
-                for (var x = 0; x < topics.length; x++) {
-                    if (topics[x].selected) {
-                        selectedTopics.push(topics[x].topic);
-                    }
-                }
-            }
-            if (selectedTopics.length > 0) {
-                var filteredIndicators = [];
-                for (var i = 0; i < indicators.length; i++) {
-                    var assocTopics = indicators[i].topics.split(', ');
-                    for (var _i = 0; _i < selectedTopics.length; _i++) {
-                        var t = selectedTopics[_i];
-                        if (assocTopics.indexOf(t) !== -1) {
-                            filteredIndicators.push(indicators[i]);
-                        }
-                    }
-                }
-                return filteredIndicators;
+    IndicatorTopicFilterPipe.prototype.transform = function (indicators, topic, collections) {
+        var selectedCollection = collections ? collections.filter(function (coll) { return coll.selected; }).length > 0 ? collections.filter(function (coll) { return coll.selected; })[0].collection : 'Show All' : 'Show All';
+        var returnIndicators = indicators ? indicators
+            .filter(function (indicator) {
+            if (topic) {
+                var inSelectedTopics = false;
+                inSelectedTopics = indicator.topics ? (indicator.topics.split(', ').indexOf(topic.topic) !== -1 ? true : inSelectedTopics) : false;
+                return inSelectedTopics;
             }
             else {
-                return indicators;
+                return false;
             }
-        }
-        return indicators;
+        })
+            .filter(function (indicator) {
+            var inCollection = selectedCollection === 'Show All' ? true : false;
+            if (!inCollection) {
+                inCollection = indicator.collections ? (indicator.collections.split(', ').indexOf(selectedCollection) !== -1 ? true : false) : false;
+            }
+            return inCollection;
+        })
+            .sort(function (a, b) { return a.indicator.localeCompare(b.indicator); })
+            : [];
+        return returnIndicators;
     };
     IndicatorTopicFilterPipe = __decorate([
         core_1.Pipe({

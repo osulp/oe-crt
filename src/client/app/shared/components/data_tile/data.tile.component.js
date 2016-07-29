@@ -59,6 +59,8 @@ var DataTileComponent = (function () {
         this.hasCombined = false;
         this.isTOP = false;
         this.is10yr = false;
+        this.collections = [];
+        this.indicator_collections = [];
         this.xAxisCategories = {};
         this.defaultChartOptions = {
             chart: {
@@ -194,7 +196,9 @@ var DataTileComponent = (function () {
                 enabled: true,
                 text: 'Maps and Charts provided by Oregon Explorer and OSU Rural Studies Program',
                 href: 'http://oregonexplorer.info/rural',
-                align: 'center'
+                position: {
+                    align: 'center'
+                }
             },
             mapNavigation: {
                 enabled: true,
@@ -233,9 +237,11 @@ var DataTileComponent = (function () {
         console.log('saving chart instance');
         if (this.tileType === 'graph') {
             this.chart = chartInstance;
+            this.chart.showLoading();
         }
         else {
             this.mapChart = chartInstance;
+            this.mapChart.showLoading();
         }
         this.checkScreenSize();
         this._indicatorDescService.getIndicator(this.indicator).subscribe(function (indicatorDesc) {
@@ -245,6 +251,7 @@ var DataTileComponent = (function () {
                 _this.isCountyLevel = indicator_info.CountyLevel;
                 _this.isTOP = indicator_info.isTOP;
                 _this.is10yr = indicator_info.is10yrPlan;
+                _this.indicator_collections = indicator_info.collections ? indicator_info.collections.split(', ') : [];
             }
             _this.subscription = _this._selectedPlacesService.selectionChanged$.subscribe(function (data) {
                 console.log('selected places subscribe throwing event');
@@ -673,7 +680,6 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.updateDataStore = function (data, dataType) {
-        console.log('SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS', data, dataType);
         if (dataType === 'indicator') {
             for (var d = 0; d < data.length; d++) {
                 var indicatorData = {};
@@ -695,16 +701,12 @@ var DataTileComponent = (function () {
             }
         }
         if (dataType === 'mapData') {
-            console.log('hlaskjdf;ldskjf;ldasjflk;sdjf;jsdafkjsdakjfdj');
             var mapData = {};
             mapData = data;
-            console.log(data.layerId);
             this.dataStore[this.pluralize(data.layerId)].mapData = mapData;
         }
-        console.log(this.dataStore);
     };
     DataTileComponent.prototype.getPlaceData = function () {
-        console.log('Checking on place data', this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data);
         if (this.tileType === 'map') {
             return this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data;
         }
@@ -714,7 +716,6 @@ var DataTileComponent = (function () {
     };
     DataTileComponent.prototype.getSelectedMapData = function () {
         var _this = this;
-        console.log(this.selectedPlaceType);
         var selectedGeoJSONType = this.geoJSONStore.filter(function (data) { return data.layerId === _this.pluralize(_this.selectedPlaceType); });
         var selectedYearGeoJSONIndex = 0;
         for (var y = 0; y < selectedGeoJSONType[0].features.length; y++) {
@@ -726,9 +727,6 @@ var DataTileComponent = (function () {
                 selectedYearGeoJSONIndex = parseInt(year.Year) <= parseInt(this.selectedYear.Year) ? y : selectedYearGeoJSONIndex;
             }
         }
-        console.log('que pasa');
-        console.log(selectedGeoJSONType);
-        console.log(selectedGeoJSONType[0].features[selectedYearGeoJSONIndex]);
         return selectedGeoJSONType[0].features[selectedYearGeoJSONIndex];
     };
     DataTileComponent.prototype.setupTimeSlider = function () {
@@ -747,7 +745,6 @@ var DataTileComponent = (function () {
             tickArray: this._tickArray,
             tickLabels: this._tickLabelsTime,
             change: function (event, ui) {
-                console.log('slider changed');
                 sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value];
                 sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];
                 sliderScope.processDataYear();
@@ -798,7 +795,6 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.initMapChart = function () {
-        console.log('CREATIN MAP CHART');
         var mapScope = this;
         this.mapChart.legend.title.attr({ text: this.placeTypeData.Metadata[0]['Y-Axis'] ? this.placeTypeData.Metadata[0]['Y-Axis'] : '' });
         this.mapChart.tooltip.options.formatter = function () {
@@ -900,7 +896,6 @@ var DataTileComponent = (function () {
         this.selectedYearIndex = this._tickArray.length - this.offsetYear;
         this.Data = this.placeTypeData.Data;
         if (this.placeTypeData.Metadata.length > 0) {
-            console.log('making graph chart');
             var chartScope = this;
             this.chart.xAxis[0].setCategories(this._tickLabels);
             this.chart.xAxis[0].update({
@@ -992,14 +987,13 @@ var DataTileComponent = (function () {
                 useHTML: true
             });
             this.addSeriesDataToGraphChart();
+            this.chart.hideLoading();
         }
         else {
-            console.log('no chart for' + this.indicator);
         }
     };
     DataTileComponent.prototype.addSeriesDataToGraphChart = function (mapPlaces) {
         var _this = this;
-        console.log('this.Data at addSeries...', this.Data, this.tileType);
         while (this.chart.series.length > 0) {
             this.chart.series[0].remove(false);
         }
@@ -1190,8 +1184,6 @@ var DataTileComponent = (function () {
                 data: year_data_moe
             };
         }
-        console.log('HEEET', this.dataStore);
-        console.log('HEEET 2', this.tileType);
         var chart_data = {
             place_data: place_data,
             place_data_years: place_data_years,
@@ -1282,7 +1274,6 @@ var DataTileComponent = (function () {
     DataTileComponent.prototype.getMinData = function (isMap, chartType) {
         var min;
         var notLogrithmic = false;
-        console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
         var chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
         var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
         $.each(pdy, function () {
@@ -1406,7 +1397,6 @@ var DataTileComponent = (function () {
         window.scrollTo(0, 0);
     };
     DataTileComponent.prototype.onTimeSliderChange = function (evt) {
-        console.log('well hot digity dog');
     };
     DataTileComponent.prototype.onSelectedMapViewChange = function (evt) {
         if (this.selectedPlaceType !== this.translatePlaceTypes(evt)) {
@@ -1421,10 +1411,14 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.zoomToPlace = function (evt, point) {
-        console.log('point', point);
         this.mapChart.get(point).zoomTo();
     };
+    DataTileComponent.prototype.getCollectionIcon = function (collection) {
+        var collInfo = this.collections.filter(function (coll) { return coll.collection === collection; });
+        return collInfo.length > 0 ? collInfo[0].icon_path : '';
+    };
     DataTileComponent.prototype.ngOnInit = function () {
+        console.log(this.defaultAdvChartOptions);
         this.defaultChartOptions.title = { text: this.indicator };
         this.defaultChartOptions.chart.spacingTop = this.viewType === 'advanced' ? 50 : this.defaultChartOptions.chart.spacingTop;
         if (this.tileType === 'map') {
@@ -1432,6 +1426,9 @@ var DataTileComponent = (function () {
                 this.dataStore[pt].indicatorData = {};
                 this.dataStore[pt].mapData = {};
             }
+        }
+        else {
+            this.collections = window.crt_collections;
         }
     };
     DataTileComponent.prototype.ngOnDestroy = function () {

@@ -19,9 +19,11 @@ export class IndicatorsTopicListComponent implements OnInit {
     @Input() topic: Topic;
     @Input() inputIndicators: Indicator[];
     @Input() inputTopics: Topic[];
+    @Input() inputCollections: any = [];
     @Input() allTopicsView: boolean;
     @Output() filteredIndicatorsFromComp = new EventEmitter();
     selTopics: Topic[] = [];
+    selCollections: any[] = [];
     //public Indicators: Indicator[] = [];
     public _selectedIndicators: any;
 
@@ -51,6 +53,7 @@ export class IndicatorsTopicListComponent implements OnInit {
     ngOnInit() {
         console.log('this is the input topics for checkbox display', this.inputTopics);
         this.selTopics = this.inputTopics;
+        this.selCollections = this.inputCollections;
         //console.log(this.inputTopics);
         //if (this.topic !== undefined) {
         //    this.selTopics.push(this.topic);
@@ -64,7 +67,7 @@ export class IndicatorsTopicListComponent implements OnInit {
 
         //} else {
         //    this.selTopics.push(this.topic);
-        //}       
+        //}
     }
 }
 

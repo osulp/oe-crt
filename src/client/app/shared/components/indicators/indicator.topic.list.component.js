@@ -15,8 +15,10 @@ var index_3 = require('../../../shared/services/index');
 var IndicatorsTopicListComponent = (function () {
     function IndicatorsTopicListComponent(_indicatorService) {
         this._indicatorService = _indicatorService;
+        this.inputCollections = [];
         this.filteredIndicatorsFromComp = new core_1.EventEmitter();
         this.selTopics = [];
+        this.selCollections = [];
     }
     IndicatorsTopicListComponent.prototype.toggleIndicator = function (indicator, value) {
         if (value) {
@@ -40,6 +42,7 @@ var IndicatorsTopicListComponent = (function () {
     IndicatorsTopicListComponent.prototype.ngOnInit = function () {
         console.log('this is the input topics for checkbox display', this.inputTopics);
         this.selTopics = this.inputTopics;
+        this.selCollections = this.inputCollections;
     };
     __decorate([
         core_1.Input(), 
@@ -53,6 +56,10 @@ var IndicatorsTopicListComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', Array)
     ], IndicatorsTopicListComponent.prototype, "inputTopics", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], IndicatorsTopicListComponent.prototype, "inputCollections", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Boolean)

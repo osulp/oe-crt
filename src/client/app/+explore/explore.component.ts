@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
 import {Router, RouteSegment, RouteTree, OnActivate} from '@angular/router';
 //import {Router, RouteParams} from '@angular/router-deprecated';
 import {Subscription}   from 'rxjs/Subscription';
@@ -29,10 +29,12 @@ interface QueryStringParams {
 
 export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     //export class ExploreComponent implements OnInit {
+    @ViewChild(DataComponent) dataComp: DataComponent;
     selectedTopics: any;
     selectedIndicators: any;
     selectedIndicator: any;
     selectedPlaces: any;
+    selectedCollections: any;
     allIndicators: Indicator[];
     allTopics: Topic[] = [];
     indicatorDetailView: boolean = false;
@@ -106,6 +108,13 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     onGetAllIndicatorsFromComp(results: any) {
         //console.log('Got All Indicators From COMP!');
         this.allIndicators = results;
+    }
+
+    onGetSelectedCollectionsFromComp(results: any) {
+        this.selectedCollections = results;
+        this.dataComp.collections = results;
+        this.dataComp.selectedCollection = results.filter((coll: any) => coll.selected)[0].collection;
+        this.dataComp.indTopListComps.toArray().forEach((child: any) => child.selCollections = results);
     }
 
     onPlacesChanged(selectedPlaces: SearchResult[]) {

@@ -17,41 +17,47 @@
                         <div id="all-topics" [ngClass]="showAllSelected ? 'selected' : ''" (click)="toggleAllTopics($event)">All Topics</div>
                         <div (click)="toggleTopic(topic)"
                              [ngClass]="topic.selected ? 'selected' : ''"
-                             *ngFor="let topic of Topics | SortAlphaTopicPipe">
+                             *ngFor="let topic of Topics | SortAlphaTopicPipe:collections">
                             {{topic.topic}}
                         </div>
                     </div>
                     <div>
-                        <div class="multiselect">
-                            <div class="selectBox" (click)="chkBoxVisibile = !chkBoxVisibile;">
-                                <div [ngClass]="chkBoxVisibile ? 'open' : ''" class="topic-header-indicator-filter">
-                                    <p>Filter Indicators</p>
+                        <div class="multiselect row">
+                            <div class="col-lg-2 col-md-3 col-xs-12">
+                                <div class="selectBox" (click)="chkBoxVisibile = !chkBoxVisibile;">
+                                    <div [ngClass]="chkBoxVisibile ? 'open' : ''" class="topic-header-indicator-filter">
+                                        <p>Filter Indicators</p>
+                                    </div>
+                                </div>
+                                <div id="checkboxes" [hidden]="!chkBoxVisibile">
+                                    <label *ngFor="let indicator of Indicators | indicatorTopicFilterPipe : Topics:collections; let i = index" attr.for={{i}}><input type="checkbox" [checked]="indicator.selected" id="{{i}}" (click)="toggleIndicator(indicator)" />{{indicator.indicator}}</label>
                                 </div>
                             </div>
-                            <div id="checkboxes" [hidden]="!chkBoxVisibile">
-                                <label *ngFor="let indicator of Indicators | indicatorTopicFilterPipe : Topics; let i = index" attr.for={{i}}><input type="checkbox" [checked]="indicator.selected" id="{{i}}" (click)="toggleIndicator(indicator)" />{{indicator.indicator}}</label>
+                            <div id="collection-filter" class="col-lg-10 col-md-9 col-xs-12">
+                                <div class="row">
+                                    <div class="col-lg-2 col-md-3 col-xs-12 collection-filter-label">
+                                        <span>Filter by Collection(s):</span>
+                                    </div>
+                                    <div class="col-lg-10 col-md-9 col-xs-12">
+                                        <span *ngFor="let collection of collections; let i = index" class="col-lg-4 col-md-6 col-xs-12">
+                                            <label attr.for={{i}} (click)="toggleCollection(collection);">
+                                                <input name="collections" type="radio" [checked]="collection.selected" id="{{i}}" />
+                                                <img width="20px" *ngIf="collection.icon_path" [src]="collection.icon_path" /> {{collection.collection}}
+                                            </label>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <!--<div class="multiselect">
-                            <div class="selectBox" [ngClass]="chkBoxVisibile ? 'open' : ''" (click)="chkBoxVisibile = !chkBoxVisibile;">
-                                <select>
-                                    <option>Filter Indicators</option>
-                                </select>
-                                <div class="overSelect"></div>
-                            </div>
-                            <div id="checkboxes" [hidden]="!chkBoxVisibile">
-                                <label *ngFor="#indicator of Indicators | indicatorTopicFilterPipe : Topics; #i = index" attr.for={{i}}><input type="checkbox" [checked]="indicator.selected" id="{{i}}" (click)="toggleIndicator(indicator)" />{{indicator.indicator}}</label>
-                            </div>
-                        </div>-->
                     </div>
                 </div>
                 <div id="selectedTopicsIndicators" [hidden]="visible">
                     <div *ngIf="showAllSelected">
-                        <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsCountPipe: 'all'}}</span></div>
+                        <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsCountPipe: 'all':collections}}</span></div>
                     </div>
-                    <div *ngFor="let topic of Topics | SelectedTopicsPipe" (click)="toggleTopic(topic)"><span>{{topic.topic}}</span><div class="indicatorCount">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic}}</div><img src="assets/img/closeX.png" /></div>
-
-
+                    <div *ngIf="!showAllSelected">
+                        <div *ngFor="let topic of Topics | SelectedTopicsPipe:collections" (click)="toggleTopic(topic)"><span>{{topic.topic}}</span><div class="indicatorCount">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic:collections}}</div><img src="assets/img/closeX.png" /></div>
+                    </div>
                 </div>
             </div>
 

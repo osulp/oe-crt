@@ -191,6 +191,8 @@ var PlacesMapSelectComponent = (function () {
         }, 1);
     };
     PlacesMapSelectComponent.prototype.removePlace = function (place, placeBin, dragBin, panelContainer) {
+        var indexPlace = this.selectedSearchResults.indexOf(place);
+        this.selectedSearchResults.splice(indexPlace, 1);
         this.selPlacesEvt.emit(this.selectedSearchResults);
         console.log('removing place', place);
         if (place.Combined) {

@@ -2,7 +2,7 @@ import {Component, OnInit, Input, Output, EventEmitter}   from '@angular/core';
 import {JSONP_PROVIDERS}  from '@angular/http';
 import {IndicatorsTopicListComponent}  from '../../shared/components/index';
 import {Topic, Indicator} from '../../shared/data_models/index';
-import {TopicsService, IndicatorsService} from '../../shared/services/index';
+import {TopicsService, IndicatorsService, CollectionsService} from '../../shared/services/index';
 //import {Subscription}   from 'rxjs/Subscription';
 import {SelectedTopicsPipe, IndicatorTopicFilterPipe,SelectedIndicatorByTopicsCountPipe, SortAlphaTopicPipe} from './pipes/index';
 //import {SelectedIndicatorsService} from '../../shared/services/indicators/selected-indicators.service';
@@ -17,7 +17,7 @@ import 'rxjs/add/operator/share';
     styleUrls: ['topics.select.component.css'],
     directives: [IndicatorsTopicListComponent],
     pipes: [IndicatorTopicFilterPipe, SelectedTopicsPipe, SelectedIndicatorByTopicsCountPipe, SortAlphaTopicPipe],
-    providers: [JSONP_PROVIDERS, TopicsService, IndicatorsService]
+    providers: [JSONP_PROVIDERS, TopicsService, IndicatorsService, CollectionsService]
 })
 
 
@@ -25,29 +25,33 @@ import 'rxjs/add/operator/share';
 export class TopicsComponent implements OnInit {
     @Output() selectedTopicsFromComp = new EventEmitter();
     @Output() selectedIndicatorsFromComp = new EventEmitter();
+    @Output() selectedCollectionsFromComp = new EventEmitter();
     @Output() allTopicsFromComp = new EventEmitter();
     @Output() allIndicatorsFromComp = new EventEmitter();
     @Input() inputTopics: string;
     @Input() inputIndicators: string;
 
-    //selectedIndicators = new EventEmitter();    
-    public Indicators: any;
-    public Topics: any;
-    public _selectedIndicators: any;
-    public _selectedTopics: any;
-    public _inputTopics: any;
-    public _inputIndicators: any;
+    //selectedIndicators = new EventEmitter();
+    Indicators: any;
+    Topics: any;
+    _selectedIndicators: any;
+    _selectedTopics: any;
+    _inputTopics: any;
+    _inputIndicators: any;
 
     visible: boolean;
     chkBoxVisibile: boolean;
+    chkBoxCollectVisibile: boolean = false;
     showAllSelected: boolean;
     selected: string[];
     initialLoad: boolean = true;
+    collections: any[] = [];
     //private subscription: Subscription;
 
     constructor(
         public _topicService: TopicsService,
-        public _indicatorService: IndicatorsService
+        public _indicatorService: IndicatorsService,
+        private _collectionService: CollectionsService
         //private _selectedIndicatorsService: SelectedIndicatorsService
     ) {
         this.visible = true;
@@ -89,7 +93,7 @@ export class TopicsComponent implements OnInit {
             (data: any) => {
                 this.Topics = data;
                 this.allTopicsFromComp.emit(this.Topics);
-                //console.log('input topics = ', this._inputTopics);                
+                //console.log('input topics = ', this._inputTopics);
                 //console.log('all topics', this.Topics);
                 this.getIndicators();
             },
@@ -165,6 +169,15 @@ export class TopicsComponent implements OnInit {
         this.allIndicatorsFromComp.emit(this.Indicators);
     }
 
+    toggleCollection(toggled_collection: any) {
+        //toggled_collection.selected = true;
+        this.collections = this.collections.map((coll: any) => {
+            coll.selected = coll.collection === toggled_collection.collection ? true : false;
+            return coll;
+        });
+        this.selectedCollectionsFromComp.emit(this.collections);
+    }
+
     getIndicators() {
         this._indicatorService.getIndicators().subscribe(
             (data: any) => {
@@ -174,7 +187,7 @@ export class TopicsComponent implements OnInit {
                 if (this.Indicators.length > 0) {
                     for (var x = 0; x < this.Indicators.length; x++) {
                         if (this._inputIndicators[0] !== '') {
-                            //turn on individual indicator from input url/selection                              
+                            //turn on individual indicator from input url/selection
                             if (this._inputIndicators.indexOf(this.Indicators[x].indicator) !== -1) {
                                 this.toggleIndicator(this.Indicators[x]);
                             }
@@ -203,18 +216,24 @@ export class TopicsComponent implements OnInit {
     }
 
     ngOnInit() {
-        //console.log('Input Topics: ' + this.inputTopics);
         this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
 
         this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['All Topics'] : this._inputTopics;
-        console.log('input topics after replaces', this._inputTopics);
-        console.log('seletected topics after assessment', this._selectedTopics);
-        //console.log('Input Indicators: ' + this.inputIndicators);
         this._inputIndicators = this.inputIndicators.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(';');
         this._selectedIndicators = this._inputIndicators;
-        //console.log('Selected Indicators: ' + this._selectedIndicators);
-
         this.getTopics();
+        this._collectionService.get().subscribe((results: any) => {
+            let all = { collection: 'Show All', selected: true };
+            this.collections = results
+                .filter((coll: any) => { return coll.collection_name !== 'Partner with us'; })
+                .map((result: any) => {
+                    return { collection: result.collection_name, icon_path: result.collection_icon_path, selected: false };
+                });
+            this.collections.push(all);
+            this.selectedCollectionsFromComp.emit(this.collections);
+            //set global for use in all tiles without having to import/dupe service calls etc
+            window.crt_collections = this.collections;
+        });
     }
 }
 

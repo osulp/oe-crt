@@ -8,28 +8,33 @@
 export class MapChartPlaceZoomPipe implements PipeTransform {
     transform(places: any[], selectedPlaceType: any): any {
         console.log('pipecheck', places, selectedPlaceType);
-        return places.filter((place: any) => { return place.placeType === this.translatePlaceTypes(selectedPlaceType) });
+        return places.filter((place: any) => { return place.placeType === this.translatePlaceTypes(selectedPlaceType);});
     }
 
     translatePlaceTypes(placeType: string) {
+        let returnPT = placeType;
         switch (placeType) {
             case 'County':
             case 'Counties':
             case 'State':
-                return 'Counties';
+                returnPT = 'Counties';
+                break;
             case 'Census Designated Place':
             case 'Incorporated City':
             case 'Incorporated Town':
             case 'City':
             case 'Cities':
-                return 'Places';
+                returnPT = 'Places';
+                break;
             case 'Census Tract':
             case 'Census Tracts':
             case 'Unicorporated Place':
-                return 'Tracts';
+                returnPT = 'Tracts';
+                break;
             default:
-                return placeType;
+                break;
         }
+        return returnPT;
     }
 }
 

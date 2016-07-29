@@ -15,14 +15,18 @@ var index_3 = require('./pipes/index');
 require('rxjs/add/operator/map');
 require('rxjs/add/operator/share');
 var TopicsComponent = (function () {
-    function TopicsComponent(_topicService, _indicatorService) {
+    function TopicsComponent(_topicService, _indicatorService, _collectionService) {
         this._topicService = _topicService;
         this._indicatorService = _indicatorService;
+        this._collectionService = _collectionService;
         this.selectedTopicsFromComp = new core_1.EventEmitter();
         this.selectedIndicatorsFromComp = new core_1.EventEmitter();
+        this.selectedCollectionsFromComp = new core_1.EventEmitter();
         this.allTopicsFromComp = new core_1.EventEmitter();
         this.allIndicatorsFromComp = new core_1.EventEmitter();
+        this.chkBoxCollectVisibile = false;
         this.initialLoad = true;
+        this.collections = [];
         this.visible = true;
         this.showAllSelected = false;
         this.chkBoxVisibile = false;
@@ -115,6 +119,13 @@ var TopicsComponent = (function () {
         }
         this.allIndicatorsFromComp.emit(this.Indicators);
     };
+    TopicsComponent.prototype.toggleCollection = function (toggled_collection) {
+        this.collections = this.collections.map(function (coll) {
+            coll.selected = coll.collection === toggled_collection.collection ? true : false;
+            return coll;
+        });
+        this.selectedCollectionsFromComp.emit(this.collections);
+    };
     TopicsComponent.prototype.getIndicators = function () {
         var _this = this;
         this._indicatorService.getIndicators().subscribe(function (data) {
@@ -149,13 +160,23 @@ var TopicsComponent = (function () {
         }, function (err) { return console.error(err); }, function () { return console.log('done loading indicators'); });
     };
     TopicsComponent.prototype.ngOnInit = function () {
+        var _this = this;
         this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
         this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['All Topics'] : this._inputTopics;
-        console.log('input topics after replaces', this._inputTopics);
-        console.log('seletected topics after assessment', this._selectedTopics);
         this._inputIndicators = this.inputIndicators.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(';');
         this._selectedIndicators = this._inputIndicators;
         this.getTopics();
+        this._collectionService.get().subscribe(function (results) {
+            var all = { collection: 'Show All', selected: true };
+            _this.collections = results
+                .filter(function (coll) { return coll.collection_name !== 'Partner with us'; })
+                .map(function (result) {
+                return { collection: result.collection_name, icon_path: result.collection_icon_path, selected: false };
+            });
+            _this.collections.push(all);
+            _this.selectedCollectionsFromComp.emit(_this.collections);
+            window.crt_collections = _this.collections;
+        });
     };
     __decorate([
         core_1.Output(), 
@@ -165,6 +186,10 @@ var TopicsComponent = (function () {
         core_1.Output(), 
         __metadata('design:type', Object)
     ], TopicsComponent.prototype, "selectedIndicatorsFromComp", void 0);
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', Object)
+    ], TopicsComponent.prototype, "selectedCollectionsFromComp", void 0);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', Object)
@@ -189,9 +214,9 @@ var TopicsComponent = (function () {
             styleUrls: ['topics.select.component.css'],
             directives: [index_1.IndicatorsTopicListComponent],
             pipes: [index_3.IndicatorTopicFilterPipe, index_3.SelectedTopicsPipe, index_3.SelectedIndicatorByTopicsCountPipe, index_3.SortAlphaTopicPipe],
-            providers: [http_1.JSONP_PROVIDERS, index_2.TopicsService, index_2.IndicatorsService]
+            providers: [http_1.JSONP_PROVIDERS, index_2.TopicsService, index_2.IndicatorsService, index_2.CollectionsService]
         }), 
-        __metadata('design:paramtypes', [index_2.TopicsService, index_2.IndicatorsService])
+        __metadata('design:paramtypes', [index_2.TopicsService, index_2.IndicatorsService, index_2.CollectionsService])
     ], TopicsComponent);
     return TopicsComponent;
 })();

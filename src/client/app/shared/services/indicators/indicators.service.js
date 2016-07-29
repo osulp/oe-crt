@@ -26,7 +26,7 @@ var IndicatorsService = (function () {
             var result = [];
             if (indicators) {
                 indicators.forEach(function (indicator) {
-                    result.push(new indicator_model_1.Indicator(indicator.Indicator, indicator.topics, false));
+                    result.push(new indicator_model_1.Indicator(indicator.Indicator, indicator.topics, indicator.collections, false));
                 });
             }
             return result;

@@ -1,6 +1,6 @@
 #places-row-wrapper{
     padding-right:0;
-    padding-left:0;    
+    padding-left:0;
     margin-top:30px;
 }
 
@@ -23,7 +23,7 @@
     min-height:270px;
     margin: 0 auto;
     padding:0;
-    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;    
+    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
     border-radius: 0 0 4px 4px;
 }
 .find_header{
@@ -41,9 +41,9 @@
     float:left;
 }
 .toggle-places{
-    float:right;    
+    float:right;
     height:30px;
-    width:30px;    
+    width:30px;
 }
 
 #place_type_select {
@@ -51,7 +51,7 @@
     min-height:60px;
     padding:10px;
     margin:0 auto;
-    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;    
+    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
     border-radius: 0 0 4px 4px;
 }
 #place_type_select .place_type{
@@ -61,19 +61,19 @@
     font-weight:bold;
     padding-top:9px;
     text-align:center;
-    cursor:pointer;       
+    cursor:pointer;
 }
 
 #place_type_select .place_type:hover{
     text-decoration:underline;
 }
 
-#place_type_select .place_type:nth-child(1){
+#place_type_select .place_type:nth-child(1), #place_type_select .place_type:nth-child(1).selected {
     border-radius: 4px 0 0 4px;
     border-right:none;
 }
 
-#place_type_select .place_type:nth-child(2){
+#place_type_select .place_type:nth-child(2), #place_type_select .place_type:nth-child(2).selected {
     border-radius: 0 4px 4px 0;
     border-left:none;
 }
@@ -86,6 +86,8 @@
 #place_type_select .place_type.selected{
     background-color:#C34500;
     color:white;
+    border-left:1px solid white;
+    border-right:1px solid white;
 }
 
 .place-select {
@@ -104,7 +106,7 @@
     color:#808080;
     position:relative;
     font-weight:400;
-    font-family: 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;     
+    font-family: 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     /*margin-right: -55px;*/
 }
 
@@ -117,18 +119,18 @@
     border-radius:4px;
     padding:0 10px;
     text-indent:20px;
-    margin-left:-15px; 
+    margin-left:-15px;
 }
 #search input::-ms-clear {
     display: none;
 }
 
-#search .fa-search { 
-  position: relative;  
-  left: 15px;  
+#search .fa-search {
+  position: relative;
+  left: 15px;
 }
 
-#add-btn {    
+#add-btn {
     background: #C34500;
     border: 1px solid #C34500;
     border-radius: 0 4px 4px 0;
@@ -146,38 +148,38 @@
 }
     #add-btn:hover {
         background: #802E01;
-        cursor: pointer;        
+        cursor: pointer;
         border: 1px solid #802E01;
     }
 #search .list-group {
-    position: absolute;    
-    /*width: 65%;*/    
+    position: absolute;
+    /*width: 65%;*/
     background: #FFFFFF;
     box-shadow: 2px 2px 2px 2px rgba(0,0,0,0.30);
-    border-radius: 0 0 0 4px 4px 4px 4px;    
-    text-align:left;    
+    border-radius: 0 0 0 4px 4px 4px 4px;
+    text-align:left;
     z-index:3;
     margin-left:15px;
-   
+
 }
 .search-result-wrapper{
     position:relative;
 }
 .search-result-type {
-    position:absolute;  
+    position:absolute;
     -moz-transform: rotate(-90deg);
     -ms-transform: rotate(-90deg);
     -o-transform: rotate(-90deg);
     -webkit-transform: rotate(-90deg);
-    transform: rotate(-90deg);   
+    transform: rotate(-90deg);
     height:30px;
     width:70px;
     text-align:center;
     left:-35px;
     top:8px;
     bottom:-15px;
-    padding:6px;    
-    text-transform:uppercase; 
+    padding:6px;
+    text-transform:uppercase;
     border-right:1px solid #ddd;
 }
 .search-result-content .search-result-name{
@@ -193,7 +195,7 @@
 
 .search-result-type.isIndicator{
      background:#D1CDC7;
-     font-size:.7em;    
+     font-size:.7em;
 }
 
 .search-result-type.isPlace{
@@ -244,16 +246,16 @@
     color:#802E01;
 }
 .add-place-btn span:hover{
-    text-decoration:none;    
+    text-decoration:none;
 }
 #selected-places-bin {
     background-color:#F3F2ED;
     border-radius:4px;
     border:1px solid #D1CDC7;
     min-height:140px;
-    margin-top:10px;   
-    margin-left:15px;  
-    padding:10px;  
+    margin-top:10px;
+    margin-left:15px;
+    padding:10px;
     width:88%;
 }
 
@@ -287,8 +289,8 @@
     color:white;
     font-size:.8em;
     padding:10px 25px 10px 8px ;
-    border-radius:4px;  
-    width:100%; 
+    border-radius:4px;
+    width:100%;
     margin-left:15px;
     position:relative;
 }
@@ -330,7 +332,7 @@
     {
         margin-right:0;
     }
-    #go-report-button{        
+    #go-report-button{
         top:0;
         right:13.5%;
         bottom:auto;

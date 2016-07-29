@@ -18,7 +18,7 @@ export class IndicatorsService {
                 let result: Array<Indicator> = [];
                 if (indicators) {
                     indicators.forEach((indicator) => {
-                        result.push(new Indicator(indicator.Indicator, indicator.topics, false));
+                        result.push(new Indicator(indicator.Indicator, indicator.topics, indicator.collections, false));
                     });
                 }
                 return result;

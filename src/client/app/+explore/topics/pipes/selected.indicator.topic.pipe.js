@@ -11,14 +11,18 @@ var core_1 = require('@angular/core');
 var SelectedIndicatorByTopicsPipe = (function () {
     function SelectedIndicatorByTopicsPipe() {
     }
-    SelectedIndicatorByTopicsPipe.prototype.transform = function (indicators, topic) {
+    SelectedIndicatorByTopicsPipe.prototype.transform = function (indicators, topic, collections) {
         if (indicators !== undefined) {
             if (topic.topic === 'all') {
-                console.log('gummy');
                 return indicators.filter(function (indicator) { return indicator.selected; }).length;
             }
             else {
-                return indicators.filter(function (indicator) { return indicator.selected && indicator.topics.split(', ').indexOf(topic.topic) !== -1; });
+                var selectedCollection = collections.filter(function (collection) { return collection.selected; });
+                return indicators.filter(function (indicator) {
+                    var returnIndicator = indicator.selected && indicator.topics.split(', ').indexOf(topic.topic) !== -1 &&
+                        (selectedCollection[0].collection === 'Show All' ? true : (indicator.collections ? indicator.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false));
+                    return returnIndicator;
+                });
             }
         }
     };

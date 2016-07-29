@@ -37,6 +37,8 @@ interface Chart {
     getSelectedPoints: any;
     reflow: any;
     legend: any;
+    showLoading: any;
+    hideLoading: any;
 }
 
 @Component({
@@ -96,6 +98,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
     private hasCombined: boolean = false;
     private isTOP: boolean = false;
     private is10yr: boolean = false;
+    private collections: any[] = [];
+    private indicator_collections: any[] = [];
     //private school_dist_no_data: any = [];
     //private school_dist_map_no_data: any = [];
 
@@ -255,7 +259,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 enabled: true,
                 text: 'Maps and Charts provided by Oregon Explorer and OSU Rural Studies Program',
                 href: 'http://oregonexplorer.info/rural',
-                align: 'center'
+                position: {
+                    align: 'center'
+                }
             },
             mapNavigation: {
                 enabled: true,
@@ -302,8 +308,10 @@ export class DataTileComponent implements OnInit, OnDestroy {
         console.log('saving chart instance');
         if (this.tileType === 'graph') {
             this.chart = chartInstance;
+            this.chart.showLoading();
         } else {
             this.mapChart = chartInstance;
+            this.mapChart.showLoading();
         }
         this.checkScreenSize();
 
@@ -315,6 +323,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     this.isCountyLevel = indicator_info.CountyLevel;
                     this.isTOP = indicator_info.isTOP;
                     this.is10yr = indicator_info.is10yrPlan;
+                    this.indicator_collections = indicator_info.collections ? indicator_info.collections.split(', ') : [];
                 }
                 this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
                     data => {
@@ -863,7 +872,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     updateDataStore(data: any, dataType?: string) {
         //identify what type of data and add to proper place type object
-        console.log('SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS', data, dataType);
+        //console.log('SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS', data, dataType);
         if (dataType === 'indicator') {
             //check if data is statewide, county or not combinable
             for (var d = 0; d < data.length; d++) {
@@ -897,18 +906,18 @@ export class DataTileComponent implements OnInit, OnDestroy {
             }
         }
         if (dataType === 'mapData') {
-            console.log('hlaskjdf;ldskjf;ldasjflk;sdjf;jsdafkjsdakjfdj');
+            //console.log('hlaskjdf;ldskjf;ldasjflk;sdjf;jsdafkjsdakjfdj');
             let mapData: any = {};
             mapData = data;
-            console.log(data.layerId);
+            //console.log(data.layerId);
             this.dataStore[this.pluralize(data.layerId)].mapData = mapData;
 
         }
-        console.log(this.dataStore);
+        //console.log(this.dataStore);
     }
 
     getPlaceData() {
-        console.log('Checking on place data', this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data);
+        //console.log('Checking on place data', this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data);
         if (this.tileType === 'map') {
             return this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data;
         } else {
@@ -918,7 +927,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     getSelectedMapData() {
         //identify the array to check
-        console.log(this.selectedPlaceType);
+        //console.log(this.selectedPlaceType);
         let selectedGeoJSONType: any = this.geoJSONStore.filter(data => { return data.layerId === this.pluralize(this.selectedPlaceType); });
         //check the selected year and get layer accordingly
         var selectedYearGeoJSONIndex: any = 0;
@@ -930,9 +939,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 selectedYearGeoJSONIndex = parseInt(year.Year) <= parseInt(this.selectedYear.Year) ? y : selectedYearGeoJSONIndex;
             }
         }
-        console.log('que pasa');
-        console.log(selectedGeoJSONType);
-        console.log(selectedGeoJSONType[0].features[selectedYearGeoJSONIndex]);
+        //console.log('que pasa');
+        //console.log(selectedGeoJSONType);
+        //console.log(selectedGeoJSONType[0].features[selectedYearGeoJSONIndex]);
         return selectedGeoJSONType[0].features[selectedYearGeoJSONIndex];
     }
 
@@ -953,7 +962,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 tickArray: this._tickArray,
                 tickLabels: this._tickLabelsTime,
                 change: function (event: any, ui: any) {
-                    console.log('slider changed');
+                    //console.log('slider changed');
                     sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value];
                     sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];//  ui.value;
                     sliderScope.processDataYear();
@@ -1015,7 +1024,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     initMapChart() {
-        console.log('CREATIN MAP CHART');
+        //console.log('CREATIN MAP CHART');
         //this.mapChart.destroy();
         //this.mapChart = new Highcharts.Map(this.mapOptions);
         var mapScope = this;
@@ -1148,7 +1157,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         //check if metadata, if not custom chart, need to do other stuff
         //TODO catch custom chart scenarios
         if (this.placeTypeData.Metadata.length > 0) {
-            console.log('making graph chart');
+            //console.log('making graph chart');
             var chartScope = this;
             this.chart.xAxis[0].setCategories(this._tickLabels);
 
@@ -1278,13 +1287,14 @@ export class DataTileComponent implements OnInit, OnDestroy {
             );
 
             this.addSeriesDataToGraphChart();
+            this.chart.hideLoading();
         } else {
-            console.log('no chart for' + this.indicator);
+            //console.log('no chart for' + this.indicator);
         }
     }
 
     addSeriesDataToGraphChart(mapPlaces?: any[]) {
-        console.log('this.Data at addSeries...', this.Data, this.tileType);
+        //console.log('this.Data at addSeries...', this.Data, this.tileType);
         //clear out and add again for sync purposes
         while (this.chart.series.length > 0) {
             this.chart.series[0].remove(false);
@@ -1570,7 +1580,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             var pData: any = this.placeTypeData.Data[d];
             let statewideFilter: any[] = ['Oregon', 'Rural Oregon', 'Urban Oregon', 'California', 'Rural California', 'Urban California'];
             if (statewideFilter.indexOf(pData.community) === -1) {
-            //if (pData.Name !== 'Oregon') {
+                //if (pData.Name !== 'Oregon') {
                 place_data.push({
                     name: pData.community,
                     geoid: pData.geoid,
@@ -1617,8 +1627,6 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 data: year_data_moe
             };
         }
-        console.log('HEEET', this.dataStore);
-        console.log('HEEET 2',this.tileType);
         let chart_data: any = {
             place_data: place_data,
             place_data_years: place_data_years,
@@ -1718,7 +1726,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     getMinData(isMap: boolean, chartType?: boolean) {
         var min: any;
         var notLogrithmic = false;
-        console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
+        //console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
         let chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
         //need to combine data with moes to get proper min/ max
         var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
@@ -1846,12 +1854,13 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     gotoDetails() {
-        this._router.navigate(['Explore', { indicator: encodeURI(this.indicator.replace(/\(/g, '%28').replace(/\)/g, '%29')).replace('%2528','%28').replace('%2529','%29'), places: this.placeNames }]);
+        //console.log('placename', this.placeNames);
+        this._router.navigate(['Explore', { indicator: encodeURI(this.indicator.replace(/\(/g, '%28').replace(/\)/g, '%29')).replace('%2528', '%28').replace('%2529', '%29'), places: this.placeNames }]);
         window.scrollTo(0, 0);
     }
 
     onTimeSliderChange(evt: any) {
-        console.log('well hot digity dog');
+        //console.log('well hot digity dog');
     }
 
     onSelectedMapViewChange(evt: any) {
@@ -1869,11 +1878,17 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     zoomToPlace(evt: any, point: any) {
-        console.log('point', point);
+        //console.log('point', point);
         this.mapChart.get(point).zoomTo();
     }
 
+    getCollectionIcon(collection: any) {
+        let collInfo = this.collections.filter((coll: any) => coll.collection === collection);
+        return collInfo.length > 0 ? collInfo[0].icon_path : '';
+    }
+
     ngOnInit() {
+        console.log(this.defaultAdvChartOptions);
         this.defaultChartOptions.title = { text: this.indicator };
         this.defaultChartOptions.chart.spacingTop = this.viewType === 'advanced' ? 50 : this.defaultChartOptions.chart.spacingTop;
         if (this.tileType === 'map') {
@@ -1882,6 +1897,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 this.dataStore[pt].indicatorData = {};
                 this.dataStore[pt].mapData = {};
             }
+        } else {
+            //gets set in datawrapper
+            this.collections = window.crt_collections;
         }
     }
 

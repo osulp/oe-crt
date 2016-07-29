@@ -11,18 +11,26 @@ var core_1 = require('@angular/core');
 var index_1 = require('../../shared/components/index');
 var indicator_detail_component_1 = require('../indicator_detail/indicator.detail.component');
 var index_2 = require('../topics/pipes/index');
+var index_3 = require('../../shared/pipes/index');
 var angular2_infinite_scroll_1 = require('angular2-infinite-scroll');
 var DataComponent = (function () {
     function DataComponent() {
         this.inputTopics = [];
         this.inputIndicators = [];
+        this.inputCollections = [];
         this.topicIndicatorCount = {};
+        this.collections = [];
+        this.selectedCollection = 'Show All';
         this.processedTopics = 0;
-        this.showIndicatorCount = 10;
-        this.showIncrement = 8;
-        this.scrollDownDistance = 3;
-        this.scrollUpDistance = 3;
+        this.showIndicatorDefault = 6;
+        this.showIndicatorCount = 6;
+        this.showTopicIndicatorCount = 6;
+        this.showIncrement = 3;
+        this.scrollDownDistance = 8;
+        this.scrollUpDistance = 10;
         this.scrolledToBottom = false;
+        this.showTopicMax = 1;
+        this.SelectedTopics = [];
     }
     DataComponent.prototype.toggleResultView = function () {
         console.log('resultview clicked');
@@ -34,64 +42,47 @@ var DataComponent = (function () {
         this.inputIndicators = Indicators;
     };
     DataComponent.prototype.onScrollDown = function () {
-        this.showIndicatorCount += this.showIncrement;
-        console.log('scrolleddown', this.showIndicatorCount);
-        var windowHeight = 'innerHeight' in window ? window.innerHeight : document.documentElement.offsetHeight;
-        var body = document.body, html = document.documentElement;
-        var docHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-        var windowBottom = windowHeight + window.pageYOffset;
-        console.log('window bottom', windowBottom);
-        console.log('docHeight', docHeight);
-        var scrollScope = this;
-        if (windowBottom + 20 >= docHeight) {
-            console.log('bottom reached');
-            scrollScope.scrolledToBottom = true;
-        }
+        var _this = this;
+        var incrementedIndicatorCount = false;
+        this.SelectedTopics.forEach(function (topic, idx) {
+            if ((_this.topicIndicatorCount[topic.topic][_this.selectedCollection].showCount < _this.topicIndicatorCount[topic.topic][_this.selectedCollection].maxCount || _this.topicIndicatorCount[topic.topic][_this.selectedCollection].maxCount < _this.showIndicatorDefault) && !incrementedIndicatorCount) {
+                _this.topicIndicatorCount[topic.topic][_this.selectedCollection].showCount += _this.showIncrement;
+                incrementedIndicatorCount = _this.topicIndicatorCount[topic.topic][_this.selectedCollection].maxCount < _this.showIndicatorDefault ? false : true;
+                _this.showTopicMax = idx + 1;
+            }
+        });
     };
     DataComponent.prototype.onScrollUp = function () {
-        if (this.showIndicatorCount !== this.showIncrement) {
-            this.showIndicatorCount -= this.showIncrement;
-        }
-        if (document.body.scrollTop === 0) {
-            this.showIndicatorCount = 10;
-        }
-        console.log('scrolledup', this.showIndicatorCount);
-    };
-    DataComponent.prototype.showTopic = function (topic, index) {
-        if (this.topicIndicatorCount[topic.topic] !== undefined) {
-            if (index === 0) {
-                return true;
+        var _this = this;
+        var decrementedIndicatorCount = false;
+        this.SelectedTopics.forEach(function (topic, idx) {
+            if (_this.topicIndicatorCount[topic.topic][_this.selectedCollection].showCount < _this.topicIndicatorCount[topic.topic][_this.selectedCollection].maxCount && !decrementedIndicatorCount) {
+                _this.topicIndicatorCount[topic.topic][_this.selectedCollection].showCount -= _this.showIncrement;
+                decrementedIndicatorCount = true;
+                _this.showTopicMax = idx + 1;
             }
-            else {
-                if (this.topicIndicatorCount[topic.topic] < this.showIndicatorCount) {
-                    return true;
-                }
-                else {
-                    if (this.scrolledToBottom) {
-                        this.showIndicatorCount += this.topicIndicatorCount[topic.topic] - (this.showIndicatorCount);
-                        this.scrolledToBottom = false;
-                        return true;
-                    }
-                    else {
-                        return false;
-                    }
-                }
+            if ($(window).scrollTop() === 0) {
+                _this.topicIndicatorCount[topic.topic][_this.selectedCollection].showCount = _this.showIndicatorDefault;
+                _this.showTopicMax = 1;
             }
-        }
-        else {
-            return false;
-        }
+        });
     };
     DataComponent.prototype.createTopicIndicatorObj = function () {
         var _this = this;
-        console.log('creating TopicIndicator Count', this.inputTopics, this.inputIndicators);
+        console.log('creating TopicIndicator Count', this.inputTopics, this.inputIndicators, this.collections);
         for (var t = 0; t < this.inputTopics.length; t++) {
-            var topicIndicatorCount = this.inputIndicators.filter(function (indicator) {
-                return indicator.topics.split(', ').indexOf(_this.inputTopics[t].topic.trim()) !== -1;
-            }).length;
-            this.topicIndicatorCount[this.inputTopics[t].topic] = topicIndicatorCount;
+            this.topicIndicatorCount[this.inputTopics[t].topic] = {};
+            this.collections.forEach(function (coll) {
+                var topicIndicatorCount = _this.inputIndicators.filter(function (indicator) {
+                    return indicator.topics.split(', ').indexOf(_this.inputTopics[t].topic.trim()) !== -1 && (indicator.collections ? (indicator.collections.split(', ').indexOf(coll.collection) !== -1 || coll.collection === 'Show All') : coll.collection === 'Show All' ? true : false);
+                }).length;
+                var collectionInfo = { maxCount: topicIndicatorCount, showCount: _this.showIndicatorDefault };
+                _this.topicIndicatorCount[_this.inputTopics[t].topic][coll.collection] = { maxCount: topicIndicatorCount, showCount: _this.showIndicatorDefault };
+            });
         }
         console.log('here is the lookup', this.topicIndicatorCount);
+    };
+    DataComponent.prototype.resetTopicIndicatorCounts = function () {
     };
     DataComponent.prototype.scrollToTop = function () {
         window.scrollTo(0, 0);
@@ -100,8 +91,7 @@ var DataComponent = (function () {
         var runScope = this;
         var runInterval = setInterval(runCheck, 500);
         function runCheck() {
-            console.log('still checking');
-            if (runScope.inputTopics !== undefined && runScope.inputIndicators !== undefined) {
+            if (runScope.inputTopics !== undefined && runScope.inputIndicators !== undefined && runScope.collections !== undefined) {
                 if (runScope.inputTopics.length > 0 && runScope.inputIndicators.length > 0) {
                     clearInterval(runInterval);
                     runScope.createTopicIndicatorObj();
@@ -111,8 +101,30 @@ var DataComponent = (function () {
     };
     DataComponent.prototype.ngOnInit = function () {
         this.resultView = 'graph';
-        console.log('Data Component: Topics Input ' + this.inputTopics);
         this.checkTopicIndicatorLoaded();
+        var windowWidth = $(window).width();
+        if (windowWidth < 767) {
+            this.scrollDownDistance = 5;
+            this.scrollUpDistance = 5;
+            this.showIncrement = 1;
+        }
+        else if (windowWidth < 991) {
+            this.scrollDownDistance = 3;
+            this.scrollUpDistance = 3;
+            this.showIncrement = 2;
+        }
+    };
+    DataComponent.prototype.ngAfterViewInit = function () {
+        console.log(this.indTopListComps);
+    };
+    DataComponent.prototype.ngOnChanges = function (inputChanges) {
+        console.log('inputChanges in DataWrapper', inputChanges);
+        if (inputChanges.inputTopics) {
+            console.log('yep selected topics changed!', inputChanges.inputTopics);
+            var selectedTopics = inputChanges.inputTopics.currentValue.filter(function (topic) { return topic.selected; });
+            console.log('yep selected topics', selectedTopics);
+            this.SelectedTopics = selectedTopics.length === 0 ? inputChanges.inputTopics.currentValue : selectedTopics;
+        }
     };
     __decorate([
         core_1.Input(), 
@@ -122,6 +134,14 @@ var DataComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', Array)
     ], DataComponent.prototype, "inputIndicators", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Array)
+    ], DataComponent.prototype, "inputCollections", void 0);
+    __decorate([
+        core_1.ViewChildren(index_1.IndicatorsTopicListComponent), 
+        __metadata('design:type', core_1.QueryList)
+    ], DataComponent.prototype, "indTopListComps", void 0);
     DataComponent = __decorate([
         core_1.Component({
             moduleId: module.id,
@@ -129,7 +149,7 @@ var DataComponent = (function () {
             templateUrl: 'data.wrapper.component.html',
             styleUrls: ['data.wrapper.component.css'],
             directives: [index_1.DataTileComponent, indicator_detail_component_1.DetailComponent, index_1.IndicatorsTopicListComponent, angular2_infinite_scroll_1.InfiniteScroll],
-            pipes: [index_2.SelectedTopicsPipe, index_2.SelectedIndicatorByTopicsPipe, index_2.IndicatorScrollCountPipe]
+            pipes: [index_2.SelectedTopicsPipe, index_3.IndicatorTopicFilterPipe, index_2.IndicatorScrollCountPipe]
         }), 
         __metadata('design:paramtypes', [])
     ], DataComponent);

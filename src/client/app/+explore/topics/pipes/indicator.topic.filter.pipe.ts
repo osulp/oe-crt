@@ -6,39 +6,32 @@ import {Indicator, Topic} from '../../../shared/data_models/index';
 })
 
 export class IndicatorTopicFilterPipe implements PipeTransform {
-    transform(indicators: Indicator[], topics: Topic[]): any {
+    transform(indicators: Indicator[], topics: Topic[], collections: any): any {
         //if (indicators !== undefined) {
-        let selectedTopics: any = [];
-        console.log(topics);
-        if (topics !== undefined) {
-            for (var x = 0; x < topics.length; x++) {
-                if (topics[x].selected) {
-                    selectedTopics.push(topics[x].topic);
+        let selectedCollection = collections ? collections.filter((coll: any) => coll.selected).length > 0 ? collections.filter((coll: any) => coll.selected)[0].collection : 'Show All' : 'Show All';
+        let selectedTopics = topics ? topics.filter((topic: Topic) => topic.selected) : [];
+        let returnIndicators = indicators ? indicators
+            .filter((indicator: Indicator) => {
+                if (selectedTopics.length > 0) {
+                    let inSelectedTopics = false;
+                    selectedTopics.forEach((topic: Topic) => {
+                        inSelectedTopics = indicator.topics ? (indicator.topics.split(', ').indexOf(topic.topic) !== -1 ? true : inSelectedTopics) : false;
+                    });
+                    return inSelectedTopics;
+                } else {
+                    return true;
                 }
-            }
-        }
-        console.log('selected topics', selectedTopics);
-        if (selectedTopics.length > 0) {
-            let filteredIndicators: any[] = [];
-            for (var i = 0; i < indicators.length; i++) {
-                //console.log('explore topic filter pipe, indicator', indicators[i]);
-                let assocTopics = indicators[i].topics.split(', ');
-                //console.log(assocTopics);
-                for (let t of selectedTopics) {
-                    //console.log('checking t:', t);
-                    if (assocTopics.indexOf(t) !== -1) {
-                        filteredIndicators.push(indicators[i]);
-                    }
+            })
+            .filter((indicator: Indicator) => {
+                let inCollection = selectedCollection === 'Show All' ? true : false;
+                if (!inCollection) {
+                    inCollection = indicator.collections ? (indicator.collections.split(', ').indexOf(selectedCollection) !== -1 ? true : false) : false;
                 }
-            }
-            //console.log('Filtered Indicators explore filter pipe: ', filteredIndicators);
-            return filteredIndicators;
-        } else {
-            console.log('shouldnt be here');
-            return indicators;
-        }
-        //}
-        //return indicators;
+                return inCollection;
+            })
+            .sort((a: any, b: any) => a.indicator.localeCompare(b.indicator))
+            : [];
+        return returnIndicators;
     }
 }
 

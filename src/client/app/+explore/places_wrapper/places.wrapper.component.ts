@@ -15,16 +15,62 @@ export class PlacesWrapperComponent implements OnInit {
     @Input() inputPlaces: any;
     @ViewChild(PlacesMapSelectComponent) placeMap: PlacesMapSelectComponent;
     selectedPlaceType: string;
+    selectedPlaceTypes: any[] = [];
     urlPlaces: SearchResult[] = [];
+    california: SearchResult = {
+        Name: 'California',
+        ResID: '06',
+        Type: 'Place',
+        TypeCategory: 'State',
+        Desc: 'California'
+    };
+    oregon: SearchResult = {
+        Name: 'Oregon',
+        ResID: '41',
+        Type: 'Place',
+        TypeCategory: 'State',
+        Desc: 'Oregon'
+    };
 
     getClass() {
         return this.selectedPlaceType === 'CountiesCitiesTracts' ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
     }
 
     toggleSelection(tab: any) {
-        this.selectedPlaceType = tab;
+        let addPlace = false;
+        if (this.selectedPlaceTypes.indexOf(tab) === -1) {
+            addPlace = true;
+            this.selectedPlaceTypes.push(tab);
+        } else {
+            this.selectedPlaceTypes = this.selectedPlaceTypes.filter((spt: any) => { return spt !== tab; });
+        }
+        //this.selectedPlaceType = tab;
         if (tab === 'CountiesCitiesTracts') {
             this.placeMap.leafletMap.refreshMap();
+        }
+        if (addPlace) {
+            switch (tab) {
+                case 'Oregon':
+                    this.placeMap.addPlace(this.oregon);
+                    break;
+                case 'California':
+                    this.placeMap.addPlace(this.california);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            //remove
+            switch (tab) {
+                case 'Oregon':
+                    this.placeMap.removePlace(this.oregon);
+                    break;
+                case 'California':
+                    this.placeMap.removePlace(this.california);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -33,7 +79,7 @@ export class PlacesWrapperComponent implements OnInit {
         let isOregon = false;
         let isCalifornia = false;
         let hasNoStatewide = false;
-        //console.log('url places:', this.urlPlaces);
+        console.log('url places:', this.urlPlaces);
         for (var x = 0; x < this.urlPlaces.length; x++) {
             let place: SearchResult = this.urlPlaces[x];
             //console.log('processing place:', place);
@@ -50,8 +96,20 @@ export class PlacesWrapperComponent implements OnInit {
                     break;
             }
         }
-        //console.log('state check', hasNoStatewide);
+        if (this.urlPlaces.length === 0) {
+            isOregon = true;
+        }
         this.selectedPlaceType = this.urlPlaces.length > 0 ? (hasNoStatewide ? 'CountiesCitiesTracts' : (isOregon ? 'Oregon' : 'California')) : 'Oregon';
+
+        if (hasNoStatewide) {
+            this.selectedPlaceTypes.push('CountiesCitiesTracts');
+        }
+        if (isCalifornia) {
+            this.selectedPlaceTypes.push('California');
+        }
+        if (isOregon) {
+            this.selectedPlaceTypes.push('Oregon');
+        }
     }
 }
 
