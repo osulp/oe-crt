@@ -19,6 +19,7 @@ var IndicatorsTopicListComponent = (function () {
         this.filteredIndicatorsFromComp = new core_1.EventEmitter();
         this.selTopics = [];
         this.selCollections = [];
+        this.chkBoxVisibile = false;
     }
     IndicatorsTopicListComponent.prototype.toggleIndicator = function (indicator, value) {
         if (value) {

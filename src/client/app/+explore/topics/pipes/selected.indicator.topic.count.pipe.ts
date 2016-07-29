@@ -21,5 +21,3 @@ export class SelectedIndicatorByTopicsCountPipe implements PipeTransform {
         }
     }
 }
-
-

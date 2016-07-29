@@ -11,7 +11,7 @@ var core_1 = require('@angular/core');
 var IndicatorTopicFilterPipe = (function () {
     function IndicatorTopicFilterPipe() {
     }
-    IndicatorTopicFilterPipe.prototype.transform = function (indicators, topic, collections) {
+    IndicatorTopicFilterPipe.prototype.transform = function (indicators, topic, collections, selectedOnly) {
         var selectedCollection = collections ? collections.filter(function (coll) { return coll.selected; }).length > 0 ? collections.filter(function (coll) { return coll.selected; })[0].collection : 'Show All' : 'Show All';
         var returnIndicators = indicators ? indicators
             .filter(function (indicator) {
@@ -30,6 +30,9 @@ var IndicatorTopicFilterPipe = (function () {
                 inCollection = indicator.collections ? (indicator.collections.split(', ').indexOf(selectedCollection) !== -1 ? true : false) : false;
             }
             return inCollection;
+        })
+            .filter(function (indicator) {
+            return selectedOnly ? indicator.selected : true;
         })
             .sort(function (a, b) { return a.indicator.localeCompare(b.indicator); })
             : [];

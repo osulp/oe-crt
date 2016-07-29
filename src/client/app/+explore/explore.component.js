@@ -127,6 +127,15 @@ var ExploreComponent = (function () {
         return (baseUrl + allParams).replace('?&', '?');
     };
     ;
+    ExploreComponent.prototype.onBlurExplorePage = function (evt) {
+        console.log('getting blurry', evt);
+        if (!$(evt.target).closest('.selectBox').length) {
+            this.topicsComp.chkBoxVisibile = false;
+        }
+        if (!$(evt.target).closest('.multiselect').length) {
+            this.dataComp.indTopListComps.toArray().forEach(function (child) { return child.chkBoxVisibile = false; });
+        }
+    };
     ExploreComponent.prototype.ngOnInit = function () {
         var _this = this;
         console.log('topics from init?', this.selectedTopics);
@@ -145,6 +154,10 @@ var ExploreComponent = (function () {
         core_1.ViewChild(data_wrapper_component_1.DataComponent), 
         __metadata('design:type', data_wrapper_component_1.DataComponent)
     ], ExploreComponent.prototype, "dataComp", void 0);
+    __decorate([
+        core_1.ViewChild(topics_select_component_1.TopicsComponent), 
+        __metadata('design:type', topics_select_component_1.TopicsComponent)
+    ], ExploreComponent.prototype, "topicsComp", void 0);
     ExploreComponent = __decorate([
         core_1.Component({
             moduleId: module.id,

@@ -33,8 +33,6 @@ var DataComponent = (function () {
         this.SelectedTopics = [];
     }
     DataComponent.prototype.toggleResultView = function () {
-        console.log('resultview clicked');
-        console.log(this.resultView);
         this.resultView = this.resultView === 'graph' ? 'map' : 'graph';
     };
     DataComponent.prototype.onFilterIndicator = function (Indicators) {
@@ -69,18 +67,15 @@ var DataComponent = (function () {
     };
     DataComponent.prototype.createTopicIndicatorObj = function () {
         var _this = this;
-        console.log('creating TopicIndicator Count', this.inputTopics, this.inputIndicators, this.collections);
         for (var t = 0; t < this.inputTopics.length; t++) {
             this.topicIndicatorCount[this.inputTopics[t].topic] = {};
             this.collections.forEach(function (coll) {
                 var topicIndicatorCount = _this.inputIndicators.filter(function (indicator) {
                     return indicator.topics.split(', ').indexOf(_this.inputTopics[t].topic.trim()) !== -1 && (indicator.collections ? (indicator.collections.split(', ').indexOf(coll.collection) !== -1 || coll.collection === 'Show All') : coll.collection === 'Show All' ? true : false);
                 }).length;
-                var collectionInfo = { maxCount: topicIndicatorCount, showCount: _this.showIndicatorDefault };
                 _this.topicIndicatorCount[_this.inputTopics[t].topic][coll.collection] = { maxCount: topicIndicatorCount, showCount: _this.showIndicatorDefault };
             });
         }
-        console.log('here is the lookup', this.topicIndicatorCount);
     };
     DataComponent.prototype.resetTopicIndicatorCounts = function () {
     };
@@ -118,11 +113,8 @@ var DataComponent = (function () {
         console.log(this.indTopListComps);
     };
     DataComponent.prototype.ngOnChanges = function (inputChanges) {
-        console.log('inputChanges in DataWrapper', inputChanges);
         if (inputChanges.inputTopics) {
-            console.log('yep selected topics changed!', inputChanges.inputTopics);
             var selectedTopics = inputChanges.inputTopics.currentValue.filter(function (topic) { return topic.selected; });
-            console.log('yep selected topics', selectedTopics);
             this.SelectedTopics = selectedTopics.length === 0 ? inputChanges.inputTopics.currentValue : selectedTopics;
         }
     };

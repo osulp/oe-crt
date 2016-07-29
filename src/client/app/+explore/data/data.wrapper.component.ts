@@ -39,8 +39,8 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     SelectedTopics: Topic[] = [];
 
     toggleResultView() {
-        console.log('resultview clicked');
-        console.log(this.resultView);
+        //console.log('resultview clicked');
+        //console.log(this.resultView);
         this.resultView = this.resultView === 'graph' ? 'map' : 'graph';
     }
 
@@ -77,18 +77,17 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     createTopicIndicatorObj() {
-        console.log('creating TopicIndicator Count', this.inputTopics, this.inputIndicators, this.collections);
+        //console.log('creating TopicIndicator Count', this.inputTopics, this.inputIndicators, this.collections);
         for (var t = 0; t < this.inputTopics.length; t++) {
             this.topicIndicatorCount[this.inputTopics[t].topic] = {};
             this.collections.forEach(coll => {
                 let topicIndicatorCount = this.inputIndicators.filter(indicator => {
                     return indicator.topics.split(', ').indexOf(this.inputTopics[t].topic.trim()) !== -1 && (indicator.collections ? (indicator.collections.split(', ').indexOf(coll.collection) !== -1 || coll.collection === 'Show All') : coll.collection === 'Show All' ? true : false);
                 }).length;
-                let collectionInfo = { maxCount: topicIndicatorCount, showCount: this.showIndicatorDefault };
                 this.topicIndicatorCount[this.inputTopics[t].topic][coll.collection] = { maxCount: topicIndicatorCount, showCount: this.showIndicatorDefault };
             });
         }
-        console.log('here is the lookup', this.topicIndicatorCount);
+        //console.log('here is the lookup', this.topicIndicatorCount);
     }
 
     resetTopicIndicatorCounts() {
@@ -135,16 +134,15 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
         console.log(this.indTopListComps);
     }
 
-    ngOnChanges(inputChanges:any) {
-        console.log('inputChanges in DataWrapper', inputChanges);
+    ngOnChanges(inputChanges: any) {
+        //console.log('inputChanges in DataWrapper', inputChanges);
         if (inputChanges.inputTopics) {
-            console.log('yep selected topics changed!', inputChanges.inputTopics);
+            //console.log('yep selected topics changed!', inputChanges.inputTopics);
             let selectedTopics = inputChanges.inputTopics.currentValue.filter((topic: Topic) => topic.selected);
-            console.log('yep selected topics', selectedTopics);
+            // console.log('yep selected topics', selectedTopics);
             this.SelectedTopics = selectedTopics.length === 0 ? inputChanges.inputTopics.currentValue : selectedTopics;
         }
     }
-
 }
 
 

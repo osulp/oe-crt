@@ -43,7 +43,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid" *ngFor="let indicator of inputIndicators | indicatorTopicFilterPipe:topic:collections; let idx = index">
+                    <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid" *ngFor="let indicator of inputIndicators | indicatorTopicFilterPipe:topic:collections:true; let idx = index">
                         <data-tile *ngIf="idx < topicIndicatorCount[topic.topic][selectedCollection].showCount" #dataTile [indicator]="indicator.indicator" [tileType]="'graph'" [viewType]="'basic'"></data-tile>
                     </div>
                 </div>

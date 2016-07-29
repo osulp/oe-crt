@@ -10,6 +10,8 @@ import {SearchComponent} from '../shared/components/index';
 import {SearchResult, Topic, Indicator} from '../shared/data_models/index';
 import {SelectedPlacesService} from '../shared/services/index';
 
+declare var $: any;
+
 interface QueryStringParams {
     key: string;
     value: string;
@@ -30,6 +32,7 @@ interface QueryStringParams {
 export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     //export class ExploreComponent implements OnInit {
     @ViewChild(DataComponent) dataComp: DataComponent;
+    @ViewChild(TopicsComponent) topicsComp: TopicsComponent;
     selectedTopics: any;
     selectedIndicators: any;
     selectedIndicator: any;
@@ -166,6 +169,16 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         }
         return (baseUrl + allParams).replace('?&', '?');
     };
+
+    onBlurExplorePage(evt: any) {
+        console.log('getting blurry', evt);
+        if (!$(evt.target).closest('.selectBox').length) {
+            this.topicsComp.chkBoxVisibile = false;
+        }
+        if (!$(evt.target).closest('.multiselect').length) {
+            this.dataComp.indTopListComps.toArray().forEach((child: any) => child.chkBoxVisibile = false);
+        }
+    }
 
     ngOnInit() {
         //this.selectedTopics = this._routeParams.getParam('topics');
