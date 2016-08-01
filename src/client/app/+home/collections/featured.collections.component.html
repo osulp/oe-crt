@@ -7,7 +7,7 @@
                     <h3>{{item.collection_name}}</h3>
                     <img src="{{item.collection_image_path}}" />
                     <p class="feat-col-desc">{{item.collection_desc}}</p>
-                    <a *ngIf="item.collection_name !== 'Partner with us'" href="/collections#{{item.collection_name}}">Explore {{item.collection_name}} Data<span class="oe-more glyphicon glyphicon-menu-right"></span></a>
+                    <a *ngIf="item.collection_name !== 'Partner with us'" href="/Explore;collection={{item.collection_name}}">Explore {{item.collection_name}} Data<span class="oe-more glyphicon glyphicon-menu-right"></span></a>
                     <a *ngIf="item.collection_name === 'Partner with us'" href="mailto:vince.adams@oregonstate.edu?subject=Interested in partnering for a Featured Collection on the Communities Reporter Tool">Email our Outreach Coordinator for more information<span class="oe-more glyphicon glyphicon-menu-right"></span></a>
                 </div>
             </div>
