@@ -23,6 +23,7 @@ var MapLeafletComponent = (function () {
         this.map.setView(initialCoords, initialZoom);
         if (this.viewType === 'detail') {
             var mapScope_1 = this;
+            console.log('leaflet', $('#find-compare-combine').width(), $(window).width());
             this.map.on('resize', function () {
                 var mapCoords = mapScope_1.map.getCenter();
                 mapScope_1.map.panToOffset(mapScope_1.currentCoords, [mapScope_1.detailViewOffset, 0]);
@@ -144,10 +145,10 @@ var MapLeafletComponent = (function () {
         var cityBtn = this.createLayerBtn('Cities', 1);
         L.easyBar([countyBtn, tractBtn, cityBtn]).addTo(this.map);
         if (this.viewType === 'detail') {
-            console.log('leaflet left', $('.leaflet-left').css('left'), $('.crt-logo').css('padding-left'));
             var leftPadding = $('.crt-logo').css('padding-left');
             $('.leaflet-left').css('left', leftPadding);
-            console.log('leaflet left', $('.leaflet-left').css('left'));
+            var rightPadding = (530 + parseInt(leftPadding.replace('px', ''))) + 'px';
+            $('.leaflet-right').css('right', rightPadding);
         }
         this.crt_layers.bindPopup(function (error, featureCollection, resp) {
             if (error || featureCollection.features.length === 0) {
