@@ -377,3 +377,116 @@ a.a-nav {
         font-family: AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     }*/
 }
+
+
+/*LEAFLET MAP STYLES*/
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+.leaflet-bar button,
+.leaflet-bar button:hover {
+  background-color: rgba(255, 255, 255, 0.56);
+  border: none;
+  border-bottom: 1px solid #ccc;
+  /*width: 26px;*/
+  width:60px;
+  height: 26px;
+  line-height: 26px;
+  /*display: block;*/
+  float:left;
+  text-align: center;
+  text-decoration: none;
+  color: #244068;
+  font-size:.9em;
+}
+
+.leaflet-bar button {
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  display: block;
+  border:solid 1px #244068;
+}
+
+.leaflet-bar button:hover {
+  background-color: #f4f4f4;
+}
+
+.leaflet-bar button:first-of-type {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  border-right:none;
+
+}
+
+.leaflet-bar button:last-of-type {
+  border-bottom-right-radius: 4px;
+  border-top-right-radius: 4px;
+  border-left:none;
+}
+
+.leaflet-bar.disabled,
+.leaflet-bar button.disabled {
+  cursor: default;
+  pointer-events: none;
+  opacity: .4;
+}
+
+.easy-button-button .button-state{
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+
+.leaflet-touch .leaflet-bar button {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+}
+
+.leaflet-control a{
+    color: #244068 !important;
+}
+
+.easy-button-button.leaflet-bar-part.leaflet-interactive.layer-active-active {
+    background:rgba(36, 64, 104, 0.80);
+    color:white;
+}
+.easy-button-button.leaflet-bar-part.leaflet-interactive.layer-active-inactive {
+    background: rgba(255, 255, 255, 0.80);
+    color: #244068;
+}
+
+.identLayersPopup{
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.ptHeading {
+    font-size:.9em;
+    color:#6F7C82;
+}
+.ptPlaceWrapper{
+    padding:5px;
+    border-radius:4px;
+}
+.ptPlaceWrapper:hover{
+    background-color:#F3F2ED;
+    cursor:pointer;
+}
+.ptPlace{
+    font-size:1.1em;
+    color:#292E31;
+    margin-left: 10px;
+}
+.ptContainsPartOf {
+    font-size: .8em;
+    font-style: italic;
+    margin-left: 15px;
+}
+    .ptContainsPartOf span {
+        display:inline-block;
+    }
