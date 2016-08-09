@@ -41,7 +41,15 @@ var PlacesWrapperComponent = (function () {
             this.selectedPlaceTypes = this.selectedPlaceTypes.filter(function (spt) { return spt !== tab; });
         }
         if (tab === 'CountiesCitiesTracts') {
-            this.placeMap.leafletMap.refreshMap();
+            try {
+                this.placeMap.leafletMap.refreshMap();
+            }
+            catch (ex) {
+                console.log('IE fails here');
+                var mapScope = this;
+                console.log(mapScope.placeMap.leafletMap.refreshMap());
+                mapScope.placeMap.leafletMap.refreshMap();
+            }
         }
         if (addPlace) {
             switch (tab) {

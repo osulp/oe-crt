@@ -316,6 +316,10 @@ export class PlacesMapSelectComponent implements OnInit {
         }
     }
 
+    onPlaceSelectedMap(place: any) {        
+        this.addPlace(place);
+    }
+
     onSelectedPlacesChanged(places: any[]) {
         console.log('this one gets it', places);
         this.selectedSearchResults = [];

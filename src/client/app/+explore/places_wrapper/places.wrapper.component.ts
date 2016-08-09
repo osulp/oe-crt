@@ -46,7 +46,16 @@ export class PlacesWrapperComponent implements OnInit {
         }
         //this.selectedPlaceType = tab;
         if (tab === 'CountiesCitiesTracts') {
-            this.placeMap.leafletMap.refreshMap();
+            try {
+                this.placeMap.leafletMap.refreshMap();
+            } catch (ex) {
+                console.log('IE fails here');
+                let mapScope = this;
+                //window.setTimeout(function () {
+                console.log(mapScope.placeMap.leafletMap.refreshMap());
+                mapScope.placeMap.leafletMap.refreshMap()
+                //}, 500);
+            }
         }
         if (addPlace) {
             switch (tab) {

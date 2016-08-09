@@ -33,7 +33,7 @@
                     </div>
                 </div>
                 <div class="row place-select" [hidden]="selectedPlaceTypes.indexOf('CountiesCitiesTracts') === -1 ">
-                    <places-map-select [selectedPlaceType]="selectedPlaceType" [viewType]="'explore'" [(selectedPlaces)]="urlPlaces"></places-map-select>
+                    <places-map-select [selectedPlaceType]="selectedPlaceType" [viewType]="'explore'" [selectedPlaces]="urlPlaces"></places-map-select>
                 </div>
             </div>
         </div>

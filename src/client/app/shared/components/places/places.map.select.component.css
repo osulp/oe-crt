@@ -436,6 +436,11 @@
     filter: alpha(opacity=20);
 }
 
+@media (max-width:1200px) {
+     .indicatorDetailFindCombComp {
+        right:3%;
+    }
+}
 
 
 /* Small Devices, Tablets */

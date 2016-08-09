@@ -222,6 +222,10 @@ var PlacesMapSelectComponent = (function () {
             this._selectedPlacesService.add(compareResult, 'map');
         }
     };
+    PlacesMapSelectComponent.prototype.onPlaceSelectedMap = function (place) {
+        console.log('map selected place', place);
+        this.addPlace(place);
+    };
     PlacesMapSelectComponent.prototype.onSelectedPlacesChanged = function (places) {
         console.log('this one gets it', places);
         this.selectedSearchResults = [];
