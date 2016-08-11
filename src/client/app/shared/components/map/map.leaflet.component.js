@@ -23,6 +23,20 @@ var MapLeafletComponent = (function () {
         this.processedCity = false;
         this.processedCounty = false;
         this.processedTract = false;
+        this.oregon = {
+            Name: 'Oregon',
+            ResID: '41',
+            Type: 'Oregon',
+            TypeCategory: 'State',
+            Desc: 'Oregon'
+        };
+        this.california = {
+            Name: 'California',
+            ResID: '06',
+            Type: 'California',
+            TypeCategory: 'State',
+            Desc: 'California'
+        };
     }
     MapLeafletComponent.prototype.loadMap = function () {
         console.log('start loadmap');
@@ -30,29 +44,34 @@ var MapLeafletComponent = (function () {
             this.map = L.map('map', {
                 zoomControl: false
             });
-            var initialCoords = [44, -121.5];
-            var initialZoom = this.viewType === 'indicatorDetail' ? 6 : 5.5;
-            this.map.setView(initialCoords, initialZoom);
+            this.setInitialMapView();
             var mapScope = this;
-            if (this.viewType === 'indicatorDetail') {
-                console.log('leaflet', $('#find-compare-combine').width(), $(window).width());
-                this.map.on('resize', function () {
-                    var mapCoords = mapScope.map.getCenter();
-                    mapScope.map.panToOffset(mapScope.currentCoords, [mapScope.detailViewOffset, 0]);
-                });
-            }
             this.map.on('popupopen', function (evt) {
                 console.log('map clicked', evt);
                 $('.ptPlaceWrapper').on('click', function (feature) {
                     console.log('clicked on popup value', feature);
                     console.log('data val?', $(feature.currentTarget).data('feature'));
                     var place = $(feature.currentTarget).data('feature');
-                    place = encodeURIComponent(JSON.stringify(place));
                     if (!mapScope.viewType) {
-                        mapScope._router.navigate(['Explore', { places: place }]);
+                        var places = '';
+                        if (place.ResID.indexOf('41') === 0) {
+                            places = encodeURIComponent(JSON.stringify(mapScope.oregon));
+                        }
+                        else {
+                            places = encodeURIComponent(JSON.stringify(mapScope.california));
+                        }
+                        place = encodeURIComponent(JSON.stringify(place));
+                        places += ',' + place;
+                        mapScope._router.navigate(['Explore', { places: places }]);
                         window.scrollTo(0, 0);
                     }
                     else {
+                        var identLayer = mapScope.identifiedLayer.getLayers().filter(function (layer) {
+                            return layer.feature.properties.GEOID10 ? layer.feature.properties.GEOID10 === $(feature.currentTarget).data('feature').ResID : layer.feature.properties.geoid === $(feature.currentTarget).data('feature').ResID;
+                        });
+                        console.log('removing layer', identLayer);
+                        mapScope.identifiedLayer.removeLayer(identLayer[0]);
+                        console.log('identLayer', mapScope.identifiedLayer.getLayers());
                         mapScope.onPlaceSelected.emit($(feature.currentTarget).data('feature'));
                     }
                 });
@@ -73,12 +92,12 @@ var MapLeafletComponent = (function () {
             this.crt_layers = L.esri.dynamicMapLayer({
                 url: this.crt_layers_url,
                 opacity: 0.7,
-                layers: [this.crt_layer_cities_id, this.crt_layer_tracts_id, this.crt_layer_counties_id],
+                layers: [this.crt_layer_cities_id, this.crt_layer_counties_id],
                 useCors: true
             }).addTo(this.map);
             baseMapLabels.bringToFront();
             var identifiedGeoJsonStyle = {
-                'color': '#244068',
+                'color': '#C34500',
                 'opacity': 0.2
             };
             var selectedLayerStyle = {
@@ -91,6 +110,9 @@ var MapLeafletComponent = (function () {
             this.selectedLayer = L.geoJson(null, {
                 style: selectedLayerStyle
             }).addTo(this.map);
+            this.map.on('popupclose', function (e) {
+                mapScope.identifiedLayer.clearLayers();
+            });
             L.Control.zoomHome = L.Control.extend({
                 options: {
                     position: 'topright',
@@ -166,7 +188,8 @@ var MapLeafletComponent = (function () {
                 position: 'topright',
                 icon: 'fa fa-location-arrow',
                 setView: 'once',
-            }).addTo(this.map);
+            });
+            locate.addTo(this.map);
             function onLocationFound(e) {
                 if (mapScope.viewType === 'indicatorDetail') {
                     mapScope.map.panToOffset(e.latlng, [mapScope.detailViewOffset, 100]);
@@ -177,14 +200,9 @@ var MapLeafletComponent = (function () {
             var tractBtn = this.createLayerBtn('Tracts', 2);
             var cityBtn = this.createLayerBtn('Cities', 1);
             L.easyBar([countyBtn, tractBtn, cityBtn]).addTo(this.map);
-            if (this.viewType === 'indicatorDetail') {
-                var leftPadding = $('.crt-logo').css('padding-left');
-                $('.leaflet-left').css('left', leftPadding);
-                var rightPadding = (530 + parseInt(leftPadding.replace('px', ''))) + 'px';
-                $('.leaflet-right').css('right', rightPadding);
-            }
+            tractBtn.state('layer-inactive');
+            this.setDetailView();
             this.crt_layers.bindPopup(function (error, featureCollection, resp) {
-                console.log('resp', error, featureCollection, resp);
                 if (error || featureCollection.features.length === 0) {
                     mapScope.identifiedLayer.clearLayers();
                     return false;
@@ -195,7 +213,6 @@ var MapLeafletComponent = (function () {
                     if (featureCollection.features.length > 0) {
                         mapScope.identifiedLayer.addData(featureCollection.features);
                         if (mapScope.viewType === 'indicatorDetail') {
-                            var mapCoords = mapScope.identifiedLayer.getBounds().getCenter();
                             mapScope.map.fitBounds(mapScope.identifiedLayer.getBounds(), {
                                 paddingTopLeft: new L.Point(mapScope.detailViewOffset - 100, 100)
                             });
@@ -210,7 +227,7 @@ var MapLeafletComponent = (function () {
                             returnText += '<div class="ptHeading">County</div>';
                             counties.forEach(function (feature) {
                                 var featProp = mapScope.createDataFeature('County', feature.properties);
-                                returnText += "<div class='ptPlaceWrapper' data-feature='" + featProp + "'>";
+                                returnText += '<div class="ptPlaceWrapper" data-feature=\'' + featProp + '\'>';
                                 returnText += '<div class="ptPlace">' + feature.properties.NAMELSAD10 + '</div>';
                                 returnText += '</div>';
                             });
@@ -219,7 +236,7 @@ var MapLeafletComponent = (function () {
                             returnText += '<div class="ptHeading">Census Tract</div>';
                             tracts.forEach(function (feature) {
                                 var featProp = mapScope.createDataFeature('Tract', feature.properties);
-                                returnText += "<div class='ptPlaceWrapper' data-feature='" + featProp + "'>";
+                                returnText += '<div class="ptPlaceWrapper" data-feature=\'' + featProp + '\'>';
                                 returnText += '<div class="ptPlace">' + feature.properties.NAMELSAD10 + '</div>';
                                 returnText += '<div class="ptContainsPartOf">';
                                 returnText += feature.properties.CONTAINS_A !== '' ? '<span><b>Contains:</b> ' + feature.properties.CONTAINS_A + '</span>' : '';
@@ -232,7 +249,7 @@ var MapLeafletComponent = (function () {
                             returnText += '<div class="ptHeading">City</div>';
                             cities.forEach(function (feature) {
                                 var featProp = mapScope.createDataFeature('City', feature.properties);
-                                returnText += "<div class='ptPlaceWrapper' data-feature='" + featProp + "'>";
+                                returnText += '<div class="ptPlaceWrapper" data-feature=\'' + featProp + '\'>';
                                 returnText += '<div class="ptPlace">' + feature.properties.name + '</div>';
                                 returnText += '</div>';
                             });
@@ -245,6 +262,40 @@ var MapLeafletComponent = (function () {
                 minWidth: 100,
                 maxHeight: 200,
                 className: 'identLayersPopup',
+            });
+        }
+    };
+    MapLeafletComponent.prototype.setDetailView = function () {
+        if (this.viewType === 'indicatorDetail') {
+            var leftPadding = $('.crt-logo').css('padding-left');
+            $('.leaflet-left').css('left', leftPadding);
+            var rightPadding = (530 + parseInt(leftPadding.replace('px', ''))) + 'px';
+            $('.leaflet-right').css('right', rightPadding);
+        }
+    };
+    MapLeafletComponent.prototype.setInitialMapView = function () {
+        var initialCoords = [44, -121.5];
+        var initialZoom = this.viewType === 'indicatorDetail' ? 6 : 5.5;
+        this.map.setView(initialCoords, initialZoom);
+        var mapScope = this;
+        if (this.viewType === 'indicatorDetail') {
+            window.setTimeout(function () {
+                mapScope.map.panToOffset(mapScope.map.getCenter(), [mapScope.detailViewOffset, 0]);
+            }, 500);
+            var timeOut;
+            this.map.on('resize', function () {
+                console.log('mapresizing');
+                clearTimeout(timeOut);
+                timeOut = setTimeout(function () {
+                    if (mapScope.selectedLayer.getLayers().length > 0) {
+                        var center = mapScope.selectedLayer.getBounds().getCenter();
+                        mapScope.map.panToOffset(center, [mapScope.detailViewOffset, 0]);
+                    }
+                    else {
+                        mapScope.map.panToOffset(mapScope.map.getCenter(), [mapScope.detailViewOffset, 0]);
+                    }
+                }, 500);
+                mapScope.setDetailView();
             });
         }
     };
@@ -286,9 +337,6 @@ var MapLeafletComponent = (function () {
         console.log('json', returnData);
         return returnData;
     };
-    MapLeafletComponent.prototype.addPlaceToSelectedBin = function (place) {
-        console.log('got to place add', place);
-    };
     MapLeafletComponent.prototype.createLayerBtn = function (layerName, layerId) {
         var mapScope = this;
         var btn = L.easyButton({
@@ -298,7 +346,13 @@ var MapLeafletComponent = (function () {
                     title: 'Turn ' + layerName + ' layer off',
                     onClick: function (btn, map) {
                         var currLayers = mapScope.crt_layers.getLayers();
-                        currLayers.indexOf(layerId) === -1 ? currLayers.push(layerId) : currLayers.splice(currLayers.indexOf(layerId), 1);
+                        console.log('currlayers', currLayers);
+                        if (currLayers.length === 1) {
+                            currLayers = [];
+                        }
+                        else {
+                            currLayers.indexOf(layerId) === -1 ? currLayers.push(layerId) : currLayers.splice(currLayers.indexOf(layerId), 1);
+                        }
                         mapScope.crt_layers.setLayers(currLayers);
                         btn.state('layer-inactive');
                     }
@@ -332,9 +386,11 @@ var MapLeafletComponent = (function () {
     MapLeafletComponent.prototype.ngOnChanges = function (changes) {
         console.log('map input changed', changes);
         if (!this.map) {
+            console.log('map not loaded');
             this.loadMap();
         }
         if (changes.selectedPlaces) {
+            console.log('selectedPlaces', changes.selectedPlaces);
             var selPlaces = changes.selectedPlaces.currentValue;
             this.runSelectedPlaceQueries(selPlaces);
         }
@@ -343,9 +399,8 @@ var MapLeafletComponent = (function () {
         this.processedCity = false;
         this.processedCounty = false;
         this.processedTract = false;
-        var observableBatch = [];
         var selectedCities = selPlaces.filter(function (place) {
-            return place.TypeCategory === 'Incorporated City' || place.TypeCategory === 'Incorporated Town' || place.TypeCategory === 'Census Designated Place';
+            return place.TypeCategory === 'Incorporated City' || place.TypeCategory === 'Incorporated Town' || place.TypeCategory === 'Census Designated Place' || place.TypeCategory === 'Places';
         });
         var selectedCounties = selPlaces.filter(function (place) { return place.TypeCategory === 'Counties' || place.TypeCategory === 'County'; });
         var selectedTracts = selPlaces.filter(function (place) {
@@ -353,15 +408,13 @@ var MapLeafletComponent = (function () {
         });
         this.selectedLayer.clearLayers();
         var mapScope = this;
-        var allPromise = {};
         if (selectedCities.length > 0) {
-            console.log('selected cities', selectedCities);
             var cityGeoids = '';
             selectedCities.forEach(function (city) {
                 cityGeoids += '\'' + city.ResID + '\',';
             });
             cityGeoids = cityGeoids.substring(0, cityGeoids.length - 1);
-            var cityQuery = this.crt_layers.query()
+            this.crt_layers.query()
                 .layer(this.crt_layer_cities_id)
                 .where('geoid in (' + cityGeoids + ')')
                 .simplify(this.map, 0)
@@ -379,7 +432,7 @@ var MapLeafletComponent = (function () {
                 geoids += '\'' + county.ResID + '\',';
             });
             geoids = geoids.substring(0, geoids.length - 1);
-            var countyQuery = this.crt_layers.query()
+            this.crt_layers.query()
                 .layer(this.crt_layer_counties_id)
                 .where('GEOID10 in (' + geoids + ')')
                 .simplify(this.map, 0)
@@ -393,16 +446,17 @@ var MapLeafletComponent = (function () {
         }
         if (selectedTracts.length > 0) {
             var geoids = '';
-            selectedCounties.forEach(function (tract) {
+            selectedTracts.forEach(function (tract) {
                 geoids += '\'' + tract.ResID + '\',';
             });
             geoids = geoids.substring(0, geoids.length - 1);
-            var tractQuery = this.crt_layers.query()
+            this.crt_layers.query()
                 .layer(this.crt_layer_tracts_id)
                 .where('GEOID10 in (' + geoids + ')')
                 .simplify(this.map, 0)
                 .run(function (err, featureCollection, response) {
                 mapScope.selectedLayer.addData(featureCollection.features);
+                mapScope.processedTract = true;
             });
         }
         else {
@@ -413,7 +467,18 @@ var MapLeafletComponent = (function () {
             if (mapScope.processedCity && mapScope.processedCounty && mapScope.processedTract) {
                 console.log('finished getting query results');
                 clearInterval(runInterval);
-                mapScope.map.fitBounds(mapScope.selectedLayer.getBounds());
+                if (mapScope.selectedLayer.getLayers().length > 0) {
+                    var center = mapScope.selectedLayer.getBounds().getCenter();
+                    if (mapScope.viewType === 'indicatorDetail') {
+                        mapScope.map.panToOffset(center, [mapScope.detailViewOffset, 0]);
+                    }
+                    else {
+                        mapScope.map.fitBounds(mapScope.selectedLayer.getBounds());
+                    }
+                }
+                else {
+                    mapScope.setInitialMapView();
+                }
             }
             else {
                 console.log('still waiting for query finish');
@@ -422,6 +487,16 @@ var MapLeafletComponent = (function () {
     };
     MapLeafletComponent.prototype.refreshMap = function () {
         window.dispatchEvent(new Event('resize'));
+        this.setInitialMapView();
+        if (this.selectedLayer.getLayers().length > 0) {
+            var mapScope = this;
+            window.setTimeout(function () {
+                mapScope.map.fitBounds(mapScope.selectedLayer.getBounds());
+                if (mapScope.viewType === 'indicatorDetail') {
+                    mapScope.map.panToOffset(mapScope.map.getCenter(), [mapScope.detailViewOffset, 0]);
+                }
+            }, 500);
+        }
     };
     __decorate([
         core_1.Input(), 

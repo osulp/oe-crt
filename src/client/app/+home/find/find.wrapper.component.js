@@ -15,6 +15,20 @@ var router_1 = require('@angular/router');
 var FindWrapperComponent = (function () {
     function FindWrapperComponent(_router) {
         this._router = _router;
+        this.oregon = {
+            Name: 'Oregon',
+            ResID: '41',
+            Type: 'Oregon',
+            TypeCategory: 'State',
+            Desc: 'Oregon'
+        };
+        this.california = {
+            Name: 'California',
+            ResID: '06',
+            Type: 'California',
+            TypeCategory: 'State',
+            Desc: 'California'
+        };
     }
     FindWrapperComponent.prototype.goto = function (page) {
         this._router.navigate([page]);
@@ -28,7 +42,16 @@ var FindWrapperComponent = (function () {
                     }]);
             }
             else {
-                this._router.navigate(['Explore', { places: encodeURI(JSON.stringify(results)) }]);
+                var places = '';
+                if (results.ResID.indexOf('41') === 0) {
+                    places = encodeURIComponent(JSON.stringify(this.oregon));
+                }
+                else {
+                    places = encodeURIComponent(JSON.stringify(this.california));
+                }
+                var place = encodeURIComponent(JSON.stringify(results));
+                places += ',' + place;
+                this._router.navigate(['Explore', { places: places }]);
             }
         }
     };

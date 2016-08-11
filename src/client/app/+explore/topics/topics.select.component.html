@@ -42,7 +42,7 @@
                                         <span *ngFor="let collection of collections; let i = index" class="col-lg-4 col-md-6 col-xs-12">
                                             <label attr.for={{i}} (click)="toggleCollection(collection);">
                                                 <input name="collections" type="radio" [checked]="collection.selected" id="{{i}}" />
-                                                <img width="20px" *ngIf="collection.icon_path" [src]="collection.icon_path" /> {{collection.collection}}
+                                                <img width="20px" *ngIf="collection.icon_path" [src]="collection.icon_path" /> {{collection.collection === 'Show All' ? 'No filter' : collection.collection}}
                                             </label>
                                         </span>
                                     </div>

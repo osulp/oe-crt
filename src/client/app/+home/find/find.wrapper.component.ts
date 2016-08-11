@@ -17,6 +17,20 @@ import {Router} from '@angular/router';
 export class FindWrapperComponent {
     selectedSearchResult: SearchResult;
     page: string;
+    oregon: any = {
+        Name: 'Oregon',
+        ResID: '41',
+        Type: 'Oregon',
+        TypeCategory: 'State',
+        Desc: 'Oregon'
+    };
+    california: any = {
+        Name: 'California',
+        ResID: '06',
+        Type: 'California',
+        TypeCategory: 'State',
+        Desc: 'California'
+    };
 
     constructor(private _router: Router
     ) { }
@@ -34,8 +48,16 @@ export class FindWrapperComponent {
                     indicator: encodeURIComponent(results.Name.replace('(', '%28').replace(')', '%29'))
                 }]);
             } else {
-                this._router.navigate(['Explore', { places: encodeURI(JSON.stringify(results)) }]);
-                //this._router.navigate(['Explore', { topics: 'All Topics' }]);
+                //on home add to url and go to explore page
+                let places = '';
+                if (results.ResID.indexOf('41') === 0) {
+                    places = encodeURIComponent(JSON.stringify(this.oregon));
+                } else {
+                    places = encodeURIComponent(JSON.stringify(this.california));
+                }
+                let place = encodeURIComponent(JSON.stringify(results));
+                places += ',' + place;
+                this._router.navigate(['Explore', { places: places }]);                //this._router.navigate(['Explore', { topics: 'All Topics' }]);
             }
         }
     }

@@ -14,6 +14,20 @@ export class SelectedPlacesService {
     updatePlaces: Subject<[any[],string,boolean]> = new Subject<any>();
     _setAllByPlaceType: Subject<[any, string]> = new Subject<any>();
     getAll: Subject<any> = new Subject<any>();
+    //oregon: any = {
+    //    Name: 'Oregon',
+    //    ResID: '41',
+    //    Type: 'Oregon',
+    //    TypeCategory: 'State',
+    //    Desc: 'Oregon'
+    //};
+    //california: any = {
+    //    Name: 'California',
+    //    ResID: '06',
+    //    Type: 'California',
+    //    TypeCategory: 'State',
+    //    Desc: 'California'
+    //};
 
     constructor() {
         this.updates
@@ -29,6 +43,16 @@ export class SelectedPlacesService {
                 return (state: any) => {
                     console.log('adding place service array', state);
                     console.log('adding concated place', state.concat(place));
+                    //add state if nothing else in bin
+                    //if (state.length === 0) {
+                    //    console.log('adding place', place.ResID.indexOf('41'));
+                    //    if (place.ResID.indexOf('41') === 0 && place.Name !== 'Oregon') {
+                    //        console.log('should be adding Oregon...');
+                    //        state.concat(this.oregon);
+                    //    } else if (place.Name !== 'California'){
+                    //        state.concat(this.california);
+                    //    }
+                    //}
                     return state.concat(place);
                 };
             })

@@ -291,8 +291,8 @@ export class PlacesMapSelectComponent implements OnInit {
         //check if already added
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
         if (indexPos === -1) {
-            //this.selectedSearchResults.push(place);
-            //this.selPlacesEvt.emit(this.selectedSearchResults);
+            this.selectedSearchResults.push(place);
+            this.selPlacesEvt.emit(this.selectedSearchResults);
             this._selectedPlacesService.add(place, 'map');
         }
     }
@@ -316,7 +316,7 @@ export class PlacesMapSelectComponent implements OnInit {
         }
     }
 
-    onPlaceSelectedMap(place: any) {        
+    onPlaceSelectedMap(place: any) {
         this.addPlace(place);
     }
 

@@ -53,7 +53,7 @@ export class PlacesWrapperComponent implements OnInit {
                 let mapScope = this;
                 //window.setTimeout(function () {
                 console.log(mapScope.placeMap.leafletMap.refreshMap());
-                mapScope.placeMap.leafletMap.refreshMap()
+                mapScope.placeMap.leafletMap.refreshMap();
                 //}, 500);
             }
         }
