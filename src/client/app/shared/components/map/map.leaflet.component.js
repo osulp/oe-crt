@@ -37,6 +37,7 @@ var MapLeafletComponent = (function () {
             TypeCategory: 'State',
             Desc: 'California'
         };
+        this.labels = {};
     }
     MapLeafletComponent.prototype.loadMap = function () {
         console.log('start loadmap');
@@ -47,34 +48,8 @@ var MapLeafletComponent = (function () {
             this.setInitialMapView();
             var mapScope = this;
             this.map.on('popupopen', function (evt) {
-                console.log('map clicked', evt);
-                $('.ptPlaceWrapper').on('click', function (feature) {
-                    console.log('clicked on popup value', feature);
-                    console.log('data val?', $(feature.currentTarget).data('feature'));
-                    var place = $(feature.currentTarget).data('feature');
-                    if (!mapScope.viewType) {
-                        var places = '';
-                        if (place.ResID.indexOf('41') === 0) {
-                            places = encodeURIComponent(JSON.stringify(mapScope.oregon));
-                        }
-                        else {
-                            places = encodeURIComponent(JSON.stringify(mapScope.california));
-                        }
-                        place = encodeURIComponent(JSON.stringify(place));
-                        places += ',' + place;
-                        mapScope._router.navigate(['Explore', { places: places }]);
-                        window.scrollTo(0, 0);
-                    }
-                    else {
-                        var identLayer = mapScope.identifiedLayer.getLayers().filter(function (layer) {
-                            return layer.feature.properties.GEOID10 ? layer.feature.properties.GEOID10 === $(feature.currentTarget).data('feature').ResID : layer.feature.properties.geoid === $(feature.currentTarget).data('feature').ResID;
-                        });
-                        console.log('removing layer', identLayer);
-                        mapScope.identifiedLayer.removeLayer(identLayer[0]);
-                        console.log('identLayer', mapScope.identifiedLayer.getLayers());
-                        mapScope.onPlaceSelected.emit($(feature.currentTarget).data('feature'));
-                    }
-                });
+                console.log('popup', evt);
+                mapScope.handlePopupPlaceClick(mapScope);
             });
             this.map.createPane('labels');
             this.map.getPane('labels').style.zIndex = 650;
@@ -108,7 +83,10 @@ var MapLeafletComponent = (function () {
                 style: identifiedGeoJsonStyle
             }).addTo(this.map);
             this.selectedLayer = L.geoJson(null, {
-                style: selectedLayerStyle
+                style: selectedLayerStyle,
+                onEachFeature: function (feature, layer) {
+                    var id = feature.id;
+                }
             }).addTo(this.map);
             this.map.on('popupclose', function (e) {
                 mapScope.identifiedLayer.clearLayers();
@@ -265,6 +243,33 @@ var MapLeafletComponent = (function () {
             });
         }
     };
+    MapLeafletComponent.prototype.handlePopupPlaceClick = function (mapScope) {
+        $('.ptPlaceWrapper').on('click', function (feature) {
+            var place = $(feature.currentTarget).data('feature');
+            if (!mapScope.viewType) {
+                var places = '';
+                if (place.ResID.indexOf('41') === 0) {
+                    places = encodeURIComponent(JSON.stringify(mapScope.oregon));
+                }
+                else {
+                    places = encodeURIComponent(JSON.stringify(mapScope.california));
+                }
+                place = encodeURIComponent(JSON.stringify(place));
+                places += ',' + place;
+                mapScope._router.navigate(['Explore', { places: places }]);
+                window.scrollTo(0, 0);
+            }
+            else {
+                var identLayer = mapScope.identifiedLayer.getLayers().filter(function (layer) {
+                    return layer.feature.properties.GEOID10 ? layer.feature.properties.GEOID10 === $(feature.currentTarget).data('feature').ResID : layer.feature.properties.geoid === $(feature.currentTarget).data('feature').ResID;
+                });
+                console.log('removing layer', identLayer);
+                mapScope.identifiedLayer.removeLayer(identLayer[0]);
+                console.log('identLayer', mapScope.identifiedLayer.getLayers());
+                mapScope.onPlaceSelected.emit($(feature.currentTarget).data('feature'));
+            }
+        });
+    };
     MapLeafletComponent.prototype.setDetailView = function () {
         if (this.viewType === 'indicatorDetail') {
             var leftPadding = $('.crt-logo').css('padding-left');
@@ -406,8 +411,12 @@ var MapLeafletComponent = (function () {
         var selectedTracts = selPlaces.filter(function (place) {
             return place.TypeCategory === 'Census Tract' || place.TypeCategory === 'Unincorporated Place';
         });
-        this.selectedLayer.clearLayers();
         var mapScope = this;
+        this.selectedLayer.clearLayers();
+        for (var id in this.labels) {
+            console.log('clearing labels', this, id);
+            mapScope.map.removeLayer(mapScope.labels[id]);
+        }
         if (selectedCities.length > 0) {
             var cityGeoids = '';
             selectedCities.forEach(function (city) {

@@ -213,7 +213,7 @@ var PlacesMapSelectComponent = (function () {
     };
     PlacesMapSelectComponent.prototype.addPlaceCompare = function (compareType) {
         var compareResult = {
-            Name: compareType,
+            Name: compareType !== 'Oregon' ? compareType + ' Oregon' : compareType,
             ResID: compareType === 'Oregon' ? '41' : compareType === 'Rural' ? '41r' : '41u',
             Type: compareType,
             TypeCategory: 'State',
@@ -221,6 +221,8 @@ var PlacesMapSelectComponent = (function () {
         };
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name; }).indexOf(compareType);
         if (indexPos === -1) {
+            this.selectedSearchResults.push(compareResult);
+            this.selPlacesEvt.emit(this.selectedSearchResults);
             this._selectedPlacesService.add(compareResult, 'map');
         }
     };

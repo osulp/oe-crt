@@ -122,20 +122,24 @@ export class DetailComponent implements OnInit {
             .replace(/\%252C/g, ',')
             .replace(/\%2C/g, ',')
             .replace(/\%2524/g, '$')
-            .replace(/\%24/g, '$');
-            //.replace(/\%2B/g, '+');
-        //console.log('DECODED!', this.inputIndicator);
+            .replace(/\%24/g, '$')
+            .replace(/\+/g, '%2B');
+                    //.replace(/\%2B/g, '+');
+        console.log('DECODED!', this.inputIndicator);
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(
             (data: any) => {
+                console.log('DECODED!', data);
                 let indicator_info = data.Desc[0];
-                this.indicatorDesc = data.Desc;// IndicatorDescSer
-                this.relatedIndicators = data.RelatedIndicators;
-                console.log('indicatorDesc service', data);
-                this.indicatorTitle = indicator_info.Dashboard_Chart_Title ? indicator_info.Dashboard_Chart_Title : indicator_info.Variable;
-                this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
-                this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
-                this.isCountyLevel = indicator_info.CountyLevel;
-                this.isTOP = indicator_info.isTOP;
+                if (indicator_info) {
+                    this.indicatorDesc = data.Desc;// IndicatorDescSer
+                    this.relatedIndicators = data.RelatedIndicators;
+                    console.log('indicatorDesc service', data);
+                    this.indicatorTitle = indicator_info.Dashboard_Chart_Title ? indicator_info.Dashboard_Chart_Title : indicator_info.Variable;
+                    this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
+                    this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
+                    this.isCountyLevel = indicator_info.CountyLevel;
+                    this.isTOP = indicator_info.isTOP;
+                }
                 this.windowRefresh();
             });
         this.inputIndicator = this.inputIndicator.replace(/\%2B/g, '+');

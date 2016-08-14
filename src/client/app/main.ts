@@ -1,16 +1,69 @@
 import { APP_BASE_HREF } from '@angular/common';
-import { enableProdMode, provide } from '@angular/core';
+import { enableProdMode, provide, ExceptionHandler, Injectable,Injector} from '@angular/core';
 import { bootstrap } from '@angular/platform-browser-dynamic';
-import { ROUTER_PROVIDERS } from '@angular/router';
+import { ROUTER_PROVIDERS, Router } from '@angular/router';
 //import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import {HTTP_PROVIDERS} from '@angular/http';
-//import { TopicsService} from './shared/services/index';
+//import { AppExceptionHandler} from './shared/error-handle/app.exception.handler';
 //import {DND_PROVIDERS} from 'ng2-dnd/ng2-dnd';
 
 
 import { AppComponent } from './app.component';
 
 if ('<%= ENV %>' === 'prod') { enableProdMode(); }
+
+export class _ArrayLogger {
+    res:any = [];
+    log(s: any): void { this.res.push(s); }
+    logError(s: any): void { this.res.push(s); }
+    logGroup(s: any): void { this.res.push(s); }
+    logGroupEnd() { };
+}
+
+@Injectable()
+export class AppExceptionHandler extends ExceptionHandler {
+    private router: Router;
+    //private toaster: ToastsManager;
+
+    constructor(private injector: Injector) {
+        super(new _ArrayLogger(), true);
+    }
+
+    call(exception: any, stackTrace?: any, reason?: string): void {
+        this.getDependencies();
+        console.log('error handler',exception);
+        this.router.navigate(['Error']);
+        //if (exception.status === 401) {
+        //    // Show login
+        //    this.router.navigate(['/Error']);
+        //}
+
+        // Get error messages if http exception
+        //let msgs = [];
+        //if (exception instanceof Response) {
+        //    msgs = this.getMessagesFromResponse(exception);
+        //} else {
+
+        //    // Otherwise show generic error
+        //    msgs.push('Something went wrong');
+        //}
+
+        //// Show messages
+        //msgs.forEach((msg) => this.toaster.error(msg));
+
+        super.call(exception, stackTrace, reason);
+    }
+
+    private getDependencies() {
+        if (!this.router) {
+            this.router = this.injector.get(Router);
+        }
+        //if (!this.toaster) {
+        //    this.toaster = this.injector.get(ToastsManager);
+        //}
+    }
+
+}
 
 /**
  * Bootstraps the application and makes the ROUTER_PROVIDERS and the APP_BASE_HREF available to it.
@@ -21,7 +74,9 @@ bootstrap(AppComponent, [
     ROUTER_PROVIDERS,
     //DND_PROVIDERS,
     //provide(APP_BASE_HREF, { useValue: '<%= APP_BASE %>' })
-    provide(APP_BASE_HREF, { useValue: '/' })
+    //provide(APP_BASE_HREF, { useValue: '/' }),
+    //{ provide: ExceptionHandler, useClass: AppExceptionHandler }
+    provide(ExceptionHandler, { useClass: AppExceptionHandler })
 ]);
 
 // In order to start the Service Worker located at "./worker.js"

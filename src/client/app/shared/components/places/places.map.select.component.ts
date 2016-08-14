@@ -299,7 +299,7 @@ export class PlacesMapSelectComponent implements OnInit {
 
     addPlaceCompare(compareType: string) {
         var compareResult: SearchResult = {
-            Name: compareType,
+            Name: compareType !== 'Oregon' ? compareType + ' Oregon' : compareType,
             ResID: compareType === 'Oregon' ? '41' : compareType === 'Rural' ? '41r' : '41u',
             Type: compareType,
             TypeCategory: 'State',
@@ -310,8 +310,8 @@ export class PlacesMapSelectComponent implements OnInit {
         //console.log(indexPos);
         //console.log('index position is: ' + indexPos);
         if (indexPos === -1) {
-            //this.selectedSearchResults.push(compareResult);
-            //this.selPlacesEvt.emit(this.selectedSearchResults);
+            this.selectedSearchResults.push(compareResult);
+            this.selPlacesEvt.emit(this.selectedSearchResults);
             this._selectedPlacesService.add(compareResult, 'map');
         }
     }

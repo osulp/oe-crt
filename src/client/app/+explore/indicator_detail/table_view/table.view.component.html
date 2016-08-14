@@ -4,10 +4,10 @@
             <td></td>
             <td class="theading" align="center" *ngFor="let data of tableData">{{data.community}}</td>
         </tr>
-        <tr *ngFor="let year of tableYears">
+        <tr *ngFor="let year of tableYears | TableDataFilterPipe : tableData">
             <td align="center" class="tableYear">{{year.Year}}</td>
             <td align="center" *ngFor="let data of tableData">
-                <span class="dataVal">{{data[year.Year]}}</span>                
+                <span class="dataVal">{{data[year.Year]}}</span>
                 <div *ngIf="data[year.Year+'_MOE']">
                     <span class="dataValMoe">(+/- {{data[year.Year+'_MOE']}})</span>
                 </div>

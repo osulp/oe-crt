@@ -101,17 +101,22 @@ var DetailComponent = (function () {
             .replace(/\%252C/g, ',')
             .replace(/\%2C/g, ',')
             .replace(/\%2524/g, '$')
-            .replace(/\%24/g, '$');
+            .replace(/\%24/g, '$')
+            .replace(/\+/g, '%2B');
+        console.log('DECODED!', this.inputIndicator);
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(function (data) {
+            console.log('DECODED!', data);
             var indicator_info = data.Desc[0];
-            _this.indicatorDesc = data.Desc;
-            _this.relatedIndicators = data.RelatedIndicators;
-            console.log('indicatorDesc service', data);
-            _this.indicatorTitle = indicator_info.Dashboard_Chart_Title ? indicator_info.Dashboard_Chart_Title : indicator_info.Variable;
-            _this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
-            _this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
-            _this.isCountyLevel = indicator_info.CountyLevel;
-            _this.isTOP = indicator_info.isTOP;
+            if (indicator_info) {
+                _this.indicatorDesc = data.Desc;
+                _this.relatedIndicators = data.RelatedIndicators;
+                console.log('indicatorDesc service', data);
+                _this.indicatorTitle = indicator_info.Dashboard_Chart_Title ? indicator_info.Dashboard_Chart_Title : indicator_info.Variable;
+                _this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
+                _this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
+                _this.isCountyLevel = indicator_info.CountyLevel;
+                _this.isTOP = indicator_info.isTOP;
+            }
             _this.windowRefresh();
         });
         this.inputIndicator = this.inputIndicator.replace(/\%2B/g, '+');

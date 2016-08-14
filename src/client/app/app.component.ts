@@ -8,6 +8,7 @@ import { ExploreComponent } from './+explore/explore.component';
 import { HomeComponent } from './+home/home.component';
 import { MyPinsComponent } from './+mypins/index';
 import { HowToComponent} from './+howto/index';
+import { ErrorComponent} from './+error/index';
 import { SelectedPlacesService } from './shared/services/index';
 //import { d } from './shared/index';
 
@@ -47,6 +48,10 @@ import { SelectedPlacesService } from './shared/services/index';
     {
         path: '/My Pins',
         component: MyPinsComponent
+    },
+    {
+        path: '/Error',
+        component: ErrorComponent
     }
 ])
 //@RouteConfig([
