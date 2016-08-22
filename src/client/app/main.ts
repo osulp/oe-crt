@@ -12,12 +12,12 @@ import { AppComponent } from './app.component';
 
 if ('<%= ENV %>' === 'prod') { enableProdMode(); }
 
-export class _ArrayLogger {
+export class ArrayLogger {
     res:any = [];
     log(s: any): void { this.res.push(s); }
     logError(s: any): void { this.res.push(s); }
     logGroup(s: any): void { this.res.push(s); }
-    logGroupEnd() { };
+    logGroupEnd() { ; };
 }
 
 @Injectable()
@@ -26,7 +26,7 @@ export class AppExceptionHandler extends ExceptionHandler {
     //private toaster: ToastsManager;
 
     constructor(private injector: Injector) {
-        super(new _ArrayLogger(), true);
+        super(new ArrayLogger(), true);
     }
 
     call(exception: any, stackTrace?: any, reason?: string): void {
@@ -73,7 +73,7 @@ bootstrap(AppComponent, [
     HTTP_PROVIDERS,
     ROUTER_PROVIDERS,
     //DND_PROVIDERS,
-    //provide(APP_BASE_HREF, { useValue: '<%= APP_BASE %>' })
+    provide(APP_BASE_HREF, { useValue: '<%= ENV %>' === 'prod' ? '<%= APP_BASE %>' : '/' }),
     //provide(APP_BASE_HREF, { useValue: '/' }),
     //{ provide: ExceptionHandler, useClass: AppExceptionHandler }
     provide(ExceptionHandler, { useClass: AppExceptionHandler })

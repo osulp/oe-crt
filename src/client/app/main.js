@@ -12,6 +12,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var common_1 = require('@angular/common');
 var core_1 = require('@angular/core');
 var platform_browser_dynamic_1 = require('@angular/platform-browser-dynamic');
 var router_1 = require('@angular/router');
@@ -20,22 +21,22 @@ var app_component_1 = require('./app.component');
 if ('<%= ENV %>' === 'prod') {
     core_1.enableProdMode();
 }
-var _ArrayLogger = (function () {
-    function _ArrayLogger() {
+var ArrayLogger = (function () {
+    function ArrayLogger() {
         this.res = [];
     }
-    _ArrayLogger.prototype.log = function (s) { this.res.push(s); };
-    _ArrayLogger.prototype.logError = function (s) { this.res.push(s); };
-    _ArrayLogger.prototype.logGroup = function (s) { this.res.push(s); };
-    _ArrayLogger.prototype.logGroupEnd = function () { };
+    ArrayLogger.prototype.log = function (s) { this.res.push(s); };
+    ArrayLogger.prototype.logError = function (s) { this.res.push(s); };
+    ArrayLogger.prototype.logGroup = function (s) { this.res.push(s); };
+    ArrayLogger.prototype.logGroupEnd = function () { ; };
     ;
-    return _ArrayLogger;
+    return ArrayLogger;
 })();
-exports._ArrayLogger = _ArrayLogger;
+exports.ArrayLogger = ArrayLogger;
 var AppExceptionHandler = (function (_super) {
     __extends(AppExceptionHandler, _super);
     function AppExceptionHandler(injector) {
-        _super.call(this, new _ArrayLogger(), true);
+        _super.call(this, new ArrayLogger(), true);
         this.injector = injector;
     }
     AppExceptionHandler.prototype.call = function (exception, stackTrace, reason) {
@@ -59,6 +60,7 @@ exports.AppExceptionHandler = AppExceptionHandler;
 platform_browser_dynamic_1.bootstrap(app_component_1.AppComponent, [
     http_1.HTTP_PROVIDERS,
     router_1.ROUTER_PROVIDERS,
+    core_1.provide(common_1.APP_BASE_HREF, { useValue: '<%= ENV %>' === 'prod' ? '<%= APP_BASE %>' : '/' }),
     core_1.provide(core_1.ExceptionHandler, { useClass: AppExceptionHandler })
 ]);
 //# sourceMappingURL=main.js.map

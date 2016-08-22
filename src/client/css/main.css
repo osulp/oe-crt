@@ -543,3 +543,8 @@ a.a-nav {
 .leaflet-label-left:after {
 	content: "";
 }
+
+
+.highcharts-loading {
+    left:20px !important;
+}

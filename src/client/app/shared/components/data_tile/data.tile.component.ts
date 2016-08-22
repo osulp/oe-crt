@@ -77,7 +77,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     private selectedYear: Year;
     private selectedYearIndex: number;
     private selectedYearIndexArray: any = {};
-    private offsetYear: number;
+    //private offsetYear: number;
     private _tickArray: number[] = [];
     private _tickLabels: any[] = [];
     private _tickLabelsTime: any[] = [];
@@ -85,6 +85,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     private hasDrillDowns: boolean = false;
     private hasMOEs: boolean;
     private showMOES: boolean = true;
+
     private county_no_data: any = [];
     private county_map_no_data: any = [];
     private animationCounter: number = -1;
@@ -101,6 +102,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     private collections: any[] = [];
     private indicator_collections: any[] = [];
     private yearStartOffset: number = 0;
+    private yearEndOffset: number = 0;
     //private school_dist_no_data: any = [];
     //private school_dist_map_no_data: any = [];
 
@@ -136,7 +138,17 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 }
             }
         },
-        title: {},
+        title: {
+            style: {
+                align: this.viewType === 'basic' ? 'left' : null,
+                style: {
+                    fontSize: '1.25em',
+                    fontWeight: '200'
+                },
+                widthAdjust: -10,
+                x: -30
+            }
+        },
         credits: {
             enabled: false,
         },
@@ -317,7 +329,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         }
         this.checkScreenSize();
 
-        this._indicatorDescService.getIndicator(this.indicator.replace(/\+/g, '%2B')).subscribe(
+        this._indicatorDescService.getIndicator(this.indicator.replace(/\+/g, '%2B').replace(/\&/g, '%26').replace(/\=/g, '%3D')).subscribe(
             (indicatorDesc: any) => {
                 let indicator_info = indicatorDesc.Desc[0];
                 if (indicator_info) {
@@ -326,37 +338,50 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     this.isTOP = indicator_info.isTOP;
                     this.is10yr = indicator_info.is10yrPlan;
                     this.indicator_collections = indicator_info.collections ? indicator_info.collections.split(', ') : [];
-                }
-                this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
-                    data => {
-                        console.log('selected places subscribe throwing event');
-                        console.log(data);
-                        this.onPlacesChanged(data);
-                    },
-                    err => console.error(err),
-                    () => console.log('done with subscribe event places selected')
-                );
-                if (this.tileType === 'map'  && !this.isStatewide) {
-                    this.geoSubscription = this._geoStore.selectionChanged$.subscribe(
-                        data => {
-                            this.geoJSONStore = data;
-                            console.log('new geojson file loaded');
-                            console.log(data);
-                            //this.onGeoJSONChanged(data);
-                        },
-                        err => console.error(err),
-                        () => console.log('done loading geojson')
-                    );
-                }
+                    if (indicator_info.Represented_ID === 10 && this.tileType === 'graph') {
+                        this.chart.showLoading('Chart not available. See map and table view');
+                        this.chart.setTitle({
+                            text: this.viewType === 'basic' ? this.indicator.replace('<br>', ' ') : null,
+                            align: this.viewType === 'basic' ? 'left' : null,
+                            style: {
+                                fontSize: '1.25em',
+                                fontWeight: '200'
+                            },
+                            widthAdjust: -10,
+                            x: -30
+                        });
+                        this.chart.legend.update(this.setLegendOptions(false));
+                    } else {
+                        this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
+                            data => {
+                                console.log('selected places subscribe throwing event');
+                                console.log(data);
+                                this.onPlacesChanged(data);
+                            },
+                            err => console.error(err),
+                            () => console.log('done with subscribe event places selected')
+                        );
+                        if (this.tileType === 'map' && !this.isStatewide) {
+                            this.geoSubscription = this._geoStore.selectionChanged$.subscribe(
+                                data => {
+                                    this.geoJSONStore = data;
+                                    console.log('new geojson file loaded', data);
+                                    //this.onGeoJSONChanged(data);
+                                },
+                                err => console.error(err),
+                                () => console.log('done loading geojson')
+                            );
+                        }
 
-                this.dataSubscription = this._selectedDataService.selectionChanged$.subscribe(
-                    data => {
-                        this.onSelectedDataChanged(data);
-                    },
-                    err => console.error(err),
-                    () => console.log('done with subscribe event places selected')
-                );
-
+                        this.dataSubscription = this._selectedDataService.selectionChanged$.subscribe(
+                            data => {
+                                this.onSelectedDataChanged(data);
+                            },
+                            err => console.error(err),
+                            () => console.log('done with subscribe event places selected')
+                        );
+                    }
+                }
             },
             (err: any) => console.log('error getting indicator description', err),
             () => console.log('loaded the indicator description in data tile')
@@ -447,6 +472,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     .replace(/\%2C/g, ',')
                     .replace(/\%24/g, '$')
                     .replace(/\%2B/g, '+')
+                    .replace(/\%3D/g, '=')
+                    .replace(/\%26/g, '&')
+                    .replace(/\%3D/g,'=')
                     .indexOf(this.indicator) !== -1) {
                     console.log('yes siree');
                     this.getData();
@@ -646,7 +674,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     placeTypes += this.selectedPlaceType === 'Counties' ? 'County' : this.selectedPlaceType;
                 }
             }
-            //console.log('GET DATA HOT DIGIDIGDIGIDGIG I');
+            console.log('GET DATA HOT DIGIDIGDIGIDGIG I', placeTypes);
             //console.log(placeTypes);
             if (placeTypes === 'State' || placeTypes === '' || this.isCountyLevel) {
                 placeTypes = 'County,State';
@@ -667,7 +695,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 .replace(/\%29/g, ')')
                 .replace(/\%2C/g, ',')
                 .replace(/\%24/g, '$')
-                .replace(/\+/g, '%2B');
+                .replace(/\+/g, '%2B')
+                .replace(/\=/g, '%3D')
+                .replace(/\&/g, '%26')
             if (combinedGroups.length > 0) {
                 this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(
                     (data: any) => {
@@ -683,18 +713,32 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 this._dataService.getIndicatorDataWithMetadata(geoids, indicatorForService).subscribe(
                     (data: any) => {
                         console.log('regular indicator data', data);
-                        this.updateDataStore([data], 'indicator');
-                        ////this.placeTypeData = data;
-                        //this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
-                        ////this.Data = data.length > 0 ? data : [];
-                        //this.offsetYear = this.offsetYear === undefined ? this.getDefaultYear() : this.offsetYear;
-                        //this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.offsetYear];
-                        //this.processDataYear();
-                        //this.processYearTicks();
-                        //this.selectedYearIndex = this._tickArray.length - this.offsetYear;
-                        //this.Data = this.placeTypeData.Data;
-                        this.onChartDataUpdate.emit(data);
-                        this.createGraphChart();
+                        if (data.Data.length > 0) {
+                            this.updateDataStore([data], 'indicator');
+                            ////this.placeTypeData = data;
+                            //this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
+                            ////this.Data = data.length > 0 ? data : [];
+                            //this.offsetYear = this.offsetYear === undefined ? this.getDefaultYear() : this.offsetYear;
+                            //this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.offsetYear];
+                            //this.processDataYear();
+                            //this.processYearTicks();
+                            //this.selectedYearIndex = this._tickArray.length - this.offsetYear;
+                            //this.Data = this.placeTypeData.Data;
+                            this.onChartDataUpdate.emit(data);
+                            this.createGraphChart();
+                        } else {
+                            this.chart.showLoading('Sorry, indicator data is not available for this place.  Please select a community.');
+                            this.chart.setTitle({
+                                text: this.viewType === 'basic' ? this.indicator.replace('<br>', ' ') : null,
+                                align: this.viewType === 'basic' ? 'left' : null,
+                                style: {
+                                    fontSize: '1.25em',
+                                    fontWeight: '200'
+                                },
+                                widthAdjust: -10,
+                                x: -30
+                            });
+                        }
                     },
                     (err: any) => console.error(err),
                     () => console.log('done loading data for graph')
@@ -840,18 +884,16 @@ export class DataTileComponent implements OnInit, OnDestroy {
             console.log(this.selectedPlaceType);
             this.placeTypeData = this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].crt_db;
             //need to set to last year which has data, not last year that might have data
-            this.offsetYear = this.getDefaultYear();//retrieve offset value from end
-            this.selectedYear = this.placeTypeData.Years[data[0].Years.length - this.offsetYear];
+            this.yearEndOffset = this.getEndYear();
+            //this.offsetYear = this.getDefaultYear();//retrieve offset value from end
+            this.selectedYear = this.placeTypeData.Years[data[0].Years.length - (this.yearEndOffset + 1)];
             if (this.tileType === 'map' && !this.isStatewide) {
-                //TODO make contextual to actual place type selection--defaulting to County
-                console.log('on selected data changed', this.isStatewide);
-                console.log(this.geoJSONStore);
                 this.selectedMapData = this.getSelectedMapData();
             }
             //Process the data for it to work with Highmaps
             this.processDataYear();
             this.processYearTicks();
-            this.selectedYearIndex = this._tickArray.length - this.offsetYear;
+            this.selectedYearIndex = this._tickArray.length;// - 1;// this.yearEndOffset -1;
             this.hasDrillDowns = this.placeTypeData.Metadata[0].Sub_Topic_Name !== 'none' ? true : false;
             if (this.tileType === 'map' && !this.isStatewide) {
                 this.initMapChart();
@@ -888,8 +930,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 }
                 if (this.tileType === 'map' && !this.isStatewide) {
                     //console.log('problem data', data[d]);
+                    console.log('say what', data[d].GeoTypes[0].geoType);
                     if (this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData[this.indicator] === undefined) {
-                        //console.log(data[d].GeoTypes[0].geoType);
+                        console.log('say what',data[d].GeoTypes[0].geoType);
                         //let chart_data = {};
                         //let add_back_chart_data = false;
                         //if (this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData[this.indicator].chart_data !== undefined) {
@@ -956,8 +999,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
         $(this.elementRef.nativeElement).find('#dateSlider').labeledslider(
             {
                 min: 0,
-                max: this.placeTypeData.Years.length - 1,
-                value: this.placeTypeData.Years.length - 1,
+                max: this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
+                value: this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
                 tickInterval: 1,
                 step: 1,
                 autoScaleSlider: false,
@@ -965,7 +1008,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 tickLabels: this._tickLabelsTime,
                 change: function (event: any, ui: any) {
                     //console.log('slider changed');
-                    sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value];
+                    sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value + sliderScope.yearStartOffset];
                     sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];//  ui.value;
                     sliderScope.processDataYear();
                     sliderScope.mapChart.setTitle(null, {
@@ -1025,6 +1068,25 @@ export class DataTileComponent implements OnInit, OnDestroy {
         }
     }
 
+    getDataClasses() {
+        let returnClasses: any[] = [];
+        let chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
+        chart_data.forEach((pdata: any) => {
+            console.log('pdata!', pdata);
+        });
+        return [{
+            from: -100,
+            to: 0,
+            color: '#C40401',
+            name: 'Romney'
+        }, {
+                from: 0,
+                to: 100,
+                color: '#0200D0',
+                name: 'Obama'
+            }];
+    }
+
     initMapChart() {
         //console.log('CREATIN MAP CHART');
         //this.mapChart.destroy();
@@ -1038,6 +1100,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 return '<span>' + this.point.properties.name + ' County</span><br/><span style="font-size: 10px">Not Available or Insufficient Data</span>';
             } else {
                 if (this.point.year !== undefined) {
+                   console.log('mouseover', mapScope.selectedYearIndexArray, this.point.year, mapScope.dataStore[mapScope.selectedPlaceType].indicatorData[mapScope.indicator].chart_data.place_data_years_moe[this.point.id]);
                     if (this.point.year.match('-')) {
                         let chart_data = mapScope.dataStore[mapScope.selectedPlaceType].indicatorData[mapScope.indicator].chart_data;
                         displayValue += '<span style="font-size:8px">  (+/- ';
@@ -1057,20 +1120,26 @@ export class DataTileComponent implements OnInit, OnDestroy {
         };
         var colorAxis = this.mapChart.colorAxis[0];
         //set legend/chloropleth settings
-        colorAxis.update({
-            type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,// 'logarithmic',
-            //min: 0,//null,//0,
-            min: this.getMinData(true),
-            max: this.getMaxData(true),
-            endOnTick: false,
-            startOnTick: true,
-            //maxColor: this.placeTypeData.Metadata[0].Color_hex,
-            labels: {
-                formatter: function () {
-                    return mapScope.formatValue(this.value, true);
+        if (this.placeTypeData.Metadata[0].Represented_ID === 10) {
+            colorAxis.update({
+                dataClasses: this.getDataClasses()
+            });
+        } else {
+            colorAxis.update({
+                type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,// 'logarithmic',
+                //min: 0,//null,//0,
+                min: this.getMinData(true),
+                max: this.getMaxData(true),
+                endOnTick: false,
+                startOnTick: true,
+                //maxColor: this.placeTypeData.Metadata[0].Color_hex,
+                labels: {
+                    formatter: function () {
+                        return mapScope.formatValue(this.value, true);
+                    }
                 }
-            }
-        });
+            });
+        }
         //clear out and add again for sync purposes
         //while (this.mapChart.series.length > 1) {
         //    this.mapChart.series[0].remove(false);
@@ -1108,7 +1177,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             data: this.getPlaceData(),//this.place_data
             mapData: this.getSelectedMapData(),//selectedMapData,
             //index: 0,//bowser.msie ? 1 : 0,
-            joinBy: ['NAME', 'name'],
+            joinBy: this.selectedPlaceType === 'Tracts' ? ['GEOID','geoid'] :  ['NAME', 'name'],
             name: this.indicator + this.selectedPlaceType + ' (' + this.selectedYear.Year + ')',
             allowPointSelect: true,
             cursor: 'pointer',
@@ -1149,11 +1218,11 @@ export class DataTileComponent implements OnInit, OnDestroy {
         //this.placeTypeData = data;
         this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
         //this.Data = data.length > 0 ? data : [];
-        this.offsetYear = this.offsetYear === undefined ? this.getDefaultYear() : this.offsetYear;
-        this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.offsetYear];
+        //this.offsetYear = this.offsetYear === undefined ? this.getDefaultYear() : this.offsetYear;
+        this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
         this.processDataYear();
         this.processYearTicks();
-        this.selectedYearIndex = this._tickArray.length - this.offsetYear;
+        this.selectedYearIndex = this._tickArray.length -1;// - this.yearEndOffset;
         this.Data = this.placeTypeData.Data;
         //this.onChartDataUpdate.emit(data);
         //check if metadata, if not custom chart, need to do other stuff
@@ -1165,8 +1234,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
             this.chart.xAxis[0].update({
                 min: 0,
-                max: this._tickArray.length - 1,
-                tickInterval: this._tickArray.length > 10 ? 2 : null,
+                max: this._tickArray.length -1,// - (chartScope.yearEndOffset + 1),
+                tickInterval: this._tickArray.length -(chartScope.yearStartOffset + chartScope.yearEndOffset) > 10 ? 2 : null,
                 plotLines: [{
                     color: 'gray',
                     dashStyle: 'longdashdot',
@@ -1190,7 +1259,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 }
             });
 
-            this.chart.legend.update(this.setLegendOptions());
+            this.chart.legend.update(this.setLegendOptions(true));
 
             this.chart.tooltip.options.shared = false;
             this.chart.tooltip.options.useHTML = true;
@@ -1410,7 +1479,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     onResize(event: any) {
         if (this.chart) {
-            this.chart.legend.update(this.setLegendOptions());
+            this.chart.legend.update(this.setLegendOptions(true));
             var runInterval = setInterval(runCheck, 1050);
             var resizeScope = this;
             function runCheck() {
@@ -1421,7 +1490,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         }
     }
 
-    setLegendOptions() {
+    setLegendOptions(show?:boolean) {
         //console.log('legendOptions', $('#data-tile-wrapper').width(), this.elementRef.nativeElement.offsetWidth, $(this.elementRef.nativeElement).width());
         let domTileWidth = $('#data-tile-wrapper').width();
         return {
@@ -1432,7 +1501,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 color: '#4d4d4d'
             },
             title: {
-                text: this.isStatewide ? null : 'LEGEND: <span style="font-size: 9px; color: #666; font-weight: normal">(Click to hide series in chart)</span>'
+                text: this.isStatewide || !show ? null : 'LEGEND: <span style="font-size: 9px; color: #666; font-weight: normal">(Click to hide series in chart)</span>'
             }
         };
     }
@@ -1577,11 +1646,15 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     processDataYear() {
-        this.yearStartOffset = 0;
+        this.yearStartOffset = this.getStartYear();
+        this.yearEndOffset = this.getEndYear();
+        //this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
+        console.log('year-stuff', this.placeTypeData.Years, this.yearStartOffset, this.yearEndOffset, this.selectedYear);
         let place_data = [{}];
         let place_data_years: any = {};
         let place_data_years_moe: any = {};
         let hasData = false;
+        console.log('place_data check',this.placeTypeData);
         for (var d = 0; d < this.placeTypeData.Data.length; d++) {
             var pData: any = this.placeTypeData.Data[d];
             //FOR MAP VIEW
@@ -1603,30 +1676,28 @@ export class DataTileComponent implements OnInit, OnDestroy {
             var prevYear: string;
             for (var y = 0; y < this.placeTypeData.Years.length; y++) {
                 var _year = this.placeTypeData.Years[y].Year;
-                var yearsToAdd = 0;
-                if (prevYear) {
-                    var firstYr = prevYear.split('-')[0];
-                    var secondYr = _year.split('-')[0];
-                    yearsToAdd = parseInt(secondYr) - parseInt(firstYr);
-                }
-                if (hasData) {
+                if (y >= this.yearStartOffset && y <= this.placeTypeData.Years.length - this.yearEndOffset) {
+                    var yearsToAdd = 0;
+                    if (prevYear) {
+                        var firstYr = prevYear.split('-')[0];
+                        var secondYr = _year.split('-')[0];
+                        yearsToAdd = parseInt(secondYr) - parseInt(firstYr);
+                    }
                     for (var x = 0; x < yearsToAdd - 1; x++) {//add in between values for chart display
                         year_data.push(null);
                         year_data_moe.push(null);
                     }
-                } else {
-                    hasData = $.isNumeric(pData[_year]) ? true : hasData;
-                    this.yearStartOffset = !hasData ? this.yearStartOffset + 1 : this.yearStartOffset;
-                }
-                if (hasData) {
+
+                    //check to see if data for end offset
+                    //this.yearEndOffset = $.isNumeric(pData[_year]) ? 0 : this.yearEndOffset + 1;
                     year_data.push($.isNumeric(pData[_year]) ? parseFloat(pData[_year]) : null);
                     if (_year.match('-')) {
                         year_data_moe.push([parseFloat(pData[_year]) - parseFloat(pData[_year + '_MOE']), parseFloat(pData[_year]) + parseFloat(pData[_year + '_MOE'])]);
                     } else {
                         year_data_moe.push(null);
                     }
+                    prevYear = _year;
                 }
-                prevYear = _year;
             }
             place_data_years[pData.community] = {
                 id: pData.community,
@@ -1640,6 +1711,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 geoid: pData.geoid,
                 data: year_data_moe
             };
+            console.log('place_data', place_data_years);
         }
         let chart_data: any = {
             place_data: place_data,
@@ -1654,41 +1726,42 @@ export class DataTileComponent implements OnInit, OnDestroy {
         //console.log('funions');
         //console.log(this.dataStore);
         //add a dataset for no data MAP DISPLAY ONLY
-        //if (this.tileType === 'map') {
-        //    for (var x = 0; x < this.selectedMapData.features.length; x++) {
-        //        var mData: any = this.selectedMapData.features[x];
-        //        var lookupResult = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data.place_data.filter((place: any) => {
-        //            return place.geoid === mData.properties.GEOID && place.value === null;
-        //        });
-        //        if (lookupResult.length === 1) {
-        //            this.county_map_no_data.push(mData);
-        //            //add to place_data for empty results.
-        //            this.county_no_data.push({
-        //                geoid: mData.properties.GEOID,
-        //                id: mData.properties.GEOID,
-        //                name: mData.properties.NAME,
-        //                value: 0,
-        //                year: this.selectedYear.Year
-        //            });
-        //        }
-        //    }
-        //}
+        if (this.tileType === 'map') {
+            for (var x = 0; x < this.selectedMapData.features.length; x++) {
+                var mData: any = this.selectedMapData.features[x];
+                var lookupResult = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data.place_data.filter((place: any) => {
+                    return place.geoid === mData.properties.GEOID && place.value === null;
+                });
+                if (lookupResult.length === 1) {
+                    this.county_map_no_data.push(mData);
+                    //add to place_data for empty results.
+                    this.county_no_data.push({
+                        geoid: mData.properties.GEOID,
+                        id: mData.properties.GEOID,
+                        name: mData.properties.NAME,
+                        value: 0,
+                        year: this.selectedYear.Year
+                    });
+                }
+            }
+        }
     }
 
     processYearTicks() {
-        console.log('yearStartOffset', this.yearStartOffset, this.tileType);
         var counter = 0;// this.yearStartOffset;
         var counterTime = 0;// this.yearStartOffset;
+        //var overallCounter = 0;
         var prevYear: any;
-        var labelEveryYear = this.placeTypeData.Years.length - this.yearStartOffset > 10 ? false : true;
-        var labelEveryThirdYear = this.placeTypeData.Years.length - this.yearStartOffset > 20 ? true : false;
+        var labelEveryYear = this.placeTypeData.Years.length - (this.yearStartOffset + this.yearEndOffset) > 10 ? false : true;
+        var labelEveryThirdYear = this.placeTypeData.Years.length - (this.yearStartOffset + this.yearEndOffset) > 20 ? true : false;
         var labelYear = true;
         var labelThirdYear = true;
         var labelYearCounter = 1;
+        console.log('yearStartOffset', this.yearEndOffset, this.placeTypeData.Years);
         this._tickArray = [];
         this._tickLabels = [];
         this._tickLabelsTime = [];
-        for (var y = this.yearStartOffset; y < this.placeTypeData.Years.length; y++) {
+        for (var y = 0; y < this.placeTypeData.Years.length; y++) {
             var yearsToAdd = 0;
             var Year = this.placeTypeData.Years[y].Year;
             if (prevYear) {
@@ -1697,32 +1770,87 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 yearsToAdd = parseInt(secondYr) - parseInt(firstYr);
             }
             for (var x = 1; x < yearsToAdd; x++) {//add in between values for chart display
-                this._tickLabels[counter] = (parseInt(prevYear.split('-')[0]) + x).toString();
+                if (y > this.yearStartOffset && y <= this.placeTypeData.Years.length  - (this.yearEndOffset + 1)) {
+                    //console.log('adding year', (parseInt(prevYear.split('-')[0]) + x).toString(), 'y is:', y, 'and placedata is:', this.placeTypeData.Years.length - (this.yearEndOffset + 1) );
+                    this._tickLabels[counter] = (parseInt(prevYear.split('-')[0]) + x).toString();
+                    this._tickArray.push(counter);
+                    counter++;
+                }
+                //overallCounter++;
+            }
+            if (y >= this.yearStartOffset && y <= this.placeTypeData.Years.length - (this.yearEndOffset + 1)) {
+                //console.log('adding year2', Year, 'y is:', y, 'and placedata is:', this.placeTypeData.Years.length - (this.yearEndOffset + 1));
+                this._tickLabels[counter] = Year;
                 this._tickArray.push(counter);
+                this._tickLabelsTime[counterTime] = labelEveryThirdYear ? (labelYearCounter === 3 || counter === 0 ? Year : ' ') : (labelEveryYear ? Year : (labelYear ? Year : ' '));
+                if (Year.match('-')) {
+                    this.hasMOEs = true;
+                }
+
+                labelYearCounter = (labelThirdYear && labelYearCounter === 3) ? 1 : labelYearCounter + 1;
+                this.selectedYearIndexArray[Year] = counter;// overallCounter;
                 counter++;
+                counterTime++;
             }
-            this._tickLabels[counter] = Year;
-            this._tickArray.push(counter);
-            this.selectedYearIndexArray[Year] = counter;
-            this._tickLabelsTime[counterTime] = labelEveryThirdYear ? (labelYearCounter === 3 || counter === 0 ? Year : '') : (labelEveryYear ? Year : (labelYear ? Year : ''));
-            this._tickArrayTime.push(labelEveryThirdYear ? (labelYearCounter === 3 || counter === 0 ? counterTime : '') : (labelEveryYear ? counterTime : (labelYear ? counterTime : '')));
-            counter++;
-            counterTime++;
-            if (Year.match('-')) {
-                this.hasMOEs = true;
-            }
+
+            //overallCounter++;
             prevYear = Year;
             labelYear = !labelYear;
-            labelYearCounter = (labelThirdYear && labelYearCounter === 3) ? 1 : labelYearCounter + 1;
+            //this._tickArrayTime.push(labelEveryThirdYear ? (labelYearCounter === 3 || counter === 0 ? counterTime : '') : (labelEveryYear ? counterTime : (labelYear ? counterTime : '')));
+
         }
+        console.log('labelyear', this._tickArray, this._tickLabels, this.selectedYearIndexArray);
     }
 
-    getDefaultYear() {
+    //getDefaultYear() {
+    //    //start at the end and move back until you find data
+    //    //console.log('looking for year data');
+    //    let counter = 0;
+    //    for (var y = this.placeTypeData.Years.length - 1; y > 0; y--) {
+    //        counter++;
+    //        let hasData = false;
+    //        for (var d = 0; d < this.placeTypeData.Data.length; d++) {
+    //            //console.log(this.placeTypeData.Data[d][this.placeTypeData.Years[y].Year]);
+    //            if (this.placeTypeData.Data[d][this.placeTypeData.Years[y].Year] !== null) {
+    //                hasData = true;
+    //                break;
+    //            }
+    //        }
+    //        if (hasData) {
+    //            break;
+    //        }
+    //    }
+    //    return counter;
+    //}
+
+    getStartYear() {
+        //start at the beggining and move forward until you find data
+        //console.log('looking for year data');
+        let counter = 0;
+        for (var y = 0; y < this.placeTypeData.Years.length; y++) {
+            let hasData = false;
+            for (var d = 0; d < this.placeTypeData.Data.length; d++) {
+                //$.isNumeric(pData[_year])
+                console.log(this.placeTypeData.Data[d][this.placeTypeData.Years[y].Year]);
+                if (this.placeTypeData.Data[d][this.placeTypeData.Years[y].Year] !== null) {
+                    hasData = true;
+                    break;
+                }
+            }
+            if (hasData) {
+                break;
+            } else {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    getEndYear() {
         //start at the end and move back until you find data
         //console.log('looking for year data');
         let counter = 0;
         for (var y = this.placeTypeData.Years.length - 1; y > 0; y--) {
-            counter++;
             let hasData = false;
             for (var d = 0; d < this.placeTypeData.Data.length; d++) {
                 //console.log(this.placeTypeData.Data[d][this.placeTypeData.Years[y].Year]);
@@ -1733,6 +1861,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
             }
             if (hasData) {
                 break;
+            } else {
+                counter++;
             }
         }
         return counter;
@@ -1791,41 +1921,43 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     formatValue(val: any, isLegend: boolean) {
         var returnVal = val;
-        switch (this.placeTypeData.Metadata[0].Variable_Represent.trim()) {
-            case '%':
-                returnVal = Math.round(parseFloat(val) * 100) / 100 + '%';
-                break;
-            case '%1':
-                returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
-                break;
-            case '%Tenth':
-                returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
-                break;
-            case '0':
-                returnVal = isLegend ? this.formatAbvNumbers(val, true, 0) : this.addCommas(Math.round(parseInt(val)).toString());
-                //isLegend ? (val > 999 ? addCommas((val / 1000).toFixed(0)) + 'k' : val) : addCommas(Math.round(parseInt(val)));
-                break;
-            case '2':
-                returnVal = this.addCommas((Math.round(parseFloat(val) * 100) / 100).toString());
-                break;
-            case '$':
-                returnVal = '$' + this.formatAbvNumbers(val, isLegend, 1);
-                //addCommas(Math.round(parseFloat(val) * 10) / 10)
-                break;
-            case '$0':
-                returnVal = '$' + this.formatAbvNumbers(val, isLegend, 0);
-                break;
-            case '$Thousand':
-                returnVal = '$' + this.formatAbvNumbers((val * 1000), isLegend, 2);
-                break;
-            case '$Bill2009':
-                returnVal = '$' + Math.round(parseFloat(val) * 100) / 100 + 'bn';
-                break;
-            case '#Jobs':
-                returnVal = val > 999 ? (val / 1000).toFixed(0) + 'k Jobs' : val;
-                break;
-            default:
-                break;
+        if (this.placeTypeData.Metadata[0].Variable_Represent !== null) {
+            switch (this.placeTypeData.Metadata[0].Variable_Represent.trim()) {
+                case '%':
+                    returnVal = Math.round(parseFloat(val) * 100) / 100 + '%';
+                    break;
+                case '%1':
+                    returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
+                    break;
+                case '%Tenth':
+                    returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
+                    break;
+                case '0':
+                    returnVal = isLegend ? this.formatAbvNumbers(val, true, 0) : this.addCommas(Math.round(parseInt(val)).toString());
+                    //isLegend ? (val > 999 ? addCommas((val / 1000).toFixed(0)) + 'k' : val) : addCommas(Math.round(parseInt(val)));
+                    break;
+                case '2':
+                    returnVal = this.addCommas((Math.round(parseFloat(val) * 100) / 100).toString());
+                    break;
+                case '$':
+                    returnVal = '$' + this.formatAbvNumbers(val, isLegend, 1);
+                    //addCommas(Math.round(parseFloat(val) * 10) / 10)
+                    break;
+                case '$0':
+                    returnVal = '$' + this.formatAbvNumbers(val, isLegend, 0);
+                    break;
+                case '$Thousand':
+                    returnVal = '$' + this.formatAbvNumbers((val * 1000), isLegend, 2);
+                    break;
+                case '$Bill2009':
+                    returnVal = '$' + Math.round(parseFloat(val) * 100) / 100 + 'bn';
+                    break;
+                case '#Jobs':
+                    returnVal = val > 999 ? (val / 1000).toFixed(0) + 'k Jobs' : val;
+                    break;
+                default:
+                    break;
+            }
         }
         return returnVal;
     }
@@ -1840,7 +1972,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             case '':
                 return 'Counties';
             case 'Census Tract':
-                return 'Census Tracts';
+                return 'Tracts';
             case 'Incorpor':
             case 'Incorporated City':
             case 'Place':
@@ -1870,7 +2002,17 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     gotoDetails() {
         //console.log('placename', this.placeNames);
-        this._router.navigate(['Explore', { indicator: encodeURI(this.indicator.replace(/\(/g, '%28').replace(/\)/g, '%29')).replace('%2528', '%28').replace('%2529', '%29').replace(/\+/g, '%2B'), places: this.placeNames }]);
+        this._router.navigate(['Explore', {
+            indicator: encodeURI(this.indicator
+                .replace(/\(/g, '%28')
+                .replace(/\)/g, '%29'))
+                .replace('%2528', '%28')
+                .replace('%2529', '%29')
+                .replace(/\+/g, '%2B')
+                .replace(/\&/g, '%26')
+                //.replace(/\=/g, '%3D')
+            , places: this.placeNames
+        }]);
         window.scrollTo(0, 0);
     }
 
@@ -1904,7 +2046,11 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         console.log(this.defaultAdvChartOptions);
-        this.defaultChartOptions.title = { text: this.indicator };
+        //this.defaultChartOptions.title = {
+        //    text: this.indicator ? this.indicator : null,
+        //    align: this.viewType === 'basic' ? 'left' : null
+        //};
+
         this.defaultChartOptions.chart.spacingTop = this.viewType === 'advanced' ? 50 : this.defaultChartOptions.chart.spacingTop;
         if (this.tileType === 'map' && !this.isStatewide) {
             for (var pt in this.dataStore) {

@@ -17,8 +17,7 @@
                                 <span>{{item.Name}}</span>
                                 <span *ngIf="item.TypeCategory" class="typeCategory">({{item.TypeCategory}})</span>
                             </div>
-                            <div *ngIf="item.Desc" class="search-result-desc">
-                                {{item.Desc}}
+                            <div *ngIf="item.Desc" class="search-result-desc" [innerHTML]="item.Desc">
                             </div>
                         </div>
                     </div>
