@@ -24,7 +24,15 @@ export class GeoJSONStoreService {
             .subscribe(this.selectionChanged$);
         this.addLayer
             .map((layer: any) => {
-                return (state: any) => { return state.concat(layer); };
+                return (state: any) => {
+                    //check for dupes
+                    let hasLayer = state.filter((_layer: any) => _layer.layerId === layer.layerId);
+                    if (hasLayer.length > 0) {
+                        return state;
+                    } else {
+                        return state.concat(layer);
+                    }
+                };
             })
             .subscribe(this.updates);
 
@@ -55,8 +63,8 @@ export class GeoJSONStoreService {
 
 
     add(layer: any): void {
-        console.log('adding layer to geojsonstore');
-        //this.selectedPlaces.push(place);
+        console.log('adding layer to geojsonstore', layer);
+                //this.selectedPlaces.push(place);
         this.addLayer.next(layer);
     }
 

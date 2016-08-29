@@ -56,6 +56,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     routerOnActivate(curr: RouteSegment, prev?: RouteSegment,
         currTree?: RouteTree, prevTree?: RouteTree): void {
         this.selectedTopics = decodeURI(curr.getParam('topics'));
+        this.selectedTopics = this.selectedTopics ? this.selectedTopics : 'All Topics';
         this.selectedIndicator = decodeURI(curr.getParam('indicator'));
         this.selectedIndicators = decodeURI(curr.getParam('indicators'));
         this.selectedPlaces = decodeURI(curr.getParam('places'));
@@ -69,9 +70,6 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
                 this._router.navigate(['/Explore', { indicator: encodeURI(results.Name).replace('(', '%28').replace(')', '%29') }]);
-            } else {
-                //this._router.navigate(['/Explore', { places: encodeURI(results.Name), topics: 'All Topics' }]);
-                this._router.navigate(['/Explore', { topics: 'All Topics' }]);
             }
         }
     }
@@ -127,7 +125,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         var qsParams: QueryStringParams[] = [];
         var places: string = '';
         for (var x = 0; x < selectedPlaces.length; x++) {
-            //console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
+            console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
             places += encodeURIComponent(JSON.stringify(selectedPlaces[x]));
             //places += selectedPlaces[x].Name;
             if (x !== selectedPlaces.length - 1) {
@@ -195,6 +193,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
             err => console.error(err),
             () => console.log('done with subscribe event places selected')
         );
+        //window.history.pushState({}, '', window.location.href);
         //Sthis._selectedPlacesService
     }
 

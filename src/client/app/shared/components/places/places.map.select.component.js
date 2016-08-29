@@ -204,6 +204,7 @@ var PlacesMapSelectComponent = (function () {
         this._selectedPlacesService.remove(place);
     };
     PlacesMapSelectComponent.prototype.addPlace = function (place) {
+        place.Desc = '';
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);

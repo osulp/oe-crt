@@ -15,6 +15,10 @@ var sponsors_component_1 = require('./sponsors/sponsors.component');
 var HomeComponent = (function () {
     function HomeComponent() {
     }
+    HomeComponent.prototype.ngOnInit = function () {
+        console.log('pushState', window.location.href, window.history.state);
+        window.history.pushState({}, 'CRT Home', window.location.href);
+    };
     HomeComponent = __decorate([
         core_1.Component({
             moduleId: module.id,

@@ -159,7 +159,7 @@ export class SelectedPlacesService {
                 return 'Places';
             case 'Census Tract':
             case 'Census Tracts':
-            case 'Unicorporated Place':
+            case 'Unincorporated Place':
                 return 'Tracts';
             default:
                 return placeType;

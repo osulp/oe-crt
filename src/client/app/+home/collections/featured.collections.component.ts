@@ -1,4 +1,5 @@
 import {Component, OnInit}  from '@angular/core';
+import {ROUTER_DIRECTIVES} from '@angular/router';
 import {JSONP_PROVIDERS}  from '@angular/http';
 import {Observable}       from 'rxjs/Observable';
 import {CollectionsService} from '../../shared/services/collections/collections.service';
@@ -9,7 +10,8 @@ import 'rxjs/add/operator/map';
     selector: 'featured-collections',
     templateUrl: 'featured.collections.component.html',
     styleUrls: ['featured.collections.component.css'],
-    providers: [JSONP_PROVIDERS, CollectionsService]
+    providers: [JSONP_PROVIDERS, CollectionsService],
+    directives: [ROUTER_DIRECTIVES]
 })
 
 

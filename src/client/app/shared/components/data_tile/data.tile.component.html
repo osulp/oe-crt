@@ -15,7 +15,7 @@
         </div>
         <div id="map-chart-wrapper" *ngIf="tileType === 'map'">
             <div id="map-view-wrapper">
-                <hmap-menu [(mapView)]="selectedPlaceType" (selMapView)="onSelectedMapViewChange($event)"></hmap-menu>
+                <hmap-menu [(mapView)]="selectedPlaceType" [showMenuLeft]="showMenuLeft" (selMapView)="onSelectedMapViewChange($event)"></hmap-menu>
             </div>
             <div id="map-controls">
                 <!--<span>Zoom:</span>-->

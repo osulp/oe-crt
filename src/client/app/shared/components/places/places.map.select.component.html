@@ -39,8 +39,14 @@
                                             <span>{{result.Name}}</span>
                                             <span *ngIf="result.TypeCategory" class="typeCategory">({{result.TypeCategory}})</span>
                                         </div>
-                                        <div *ngIf="result.Desc" class="search-result-desc">
-                                            {{result.Desc}}
+                                        <div *ngIf="result.Desc" class="search-result-desc" [innerHTML]="result.Desc.split('~').length > 1 ? result.Desc.split('~')[1] : ''">
+                                        </div>
+                                        <div>
+                                            <span *ngIf="result.Desc" class="glyphicon glyphicon-flag ct-tag-flag">
+                                            </span>
+                                            <span *ngIf="result.Desc" class="ct-tag">
+                                                <b *ngIf="result.Desc.split('~').length > 0">Data shown for {{result.Desc.split('~')[0]}}</b>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -52,8 +58,8 @@
                             <div #placeContainer class="col-lg-4 col-md-6 col-xs-12 place-bin-wrapper" *ngFor="let place of selectedSearchResults; let idx = index;" [attr.orig_container]="translatePlaceTypes(place.TypeCategory,place.Name)" [attr.editView]="false">
                                 <div class="placePanelWrapper" [ngClass]="placeContainer.getAttribute('editView') === 'true' ? 'editPanel' : ''">
                                     <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editView') === 'true'">
-                                        <div title="Set combined settings."  class="editHeader" (click)="updateCustomSetName(dragBin, placeContainer, inpPlace)">
-                                            <span class="editPanelHeading">Edit Combined</span><span class="glyphicon glyphicon-check spanCheck" >&nbsp;</span>
+                                        <div title="Set combined settings." class="editHeader" (click)="updateCustomSetName(dragBin, placeContainer, inpPlace)">
+                                            <span class="editPanelHeading">Edit Combined</span><span class="glyphicon glyphicon-check spanCheck">&nbsp;</span>
                                         </div>
                                         <input #inpPlace type="text" placeholder="Enter a name for custom group" (keypress)="onCombineLabelKeyPress($event, dragBin, placeContainer, inpPlace)" value="{{place.GroupName}}" (click)="inpPlace.value = ''" />
                                     </div>

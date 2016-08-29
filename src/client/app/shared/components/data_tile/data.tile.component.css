@@ -124,6 +124,10 @@
     top:0;
     z-index:10;
 }
+#map-view-wrapper.showMenuLeft {
+    left:150px;
+    right:0;
+}
 #map-controls {
     position: absolute;
     left:25px;

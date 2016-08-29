@@ -289,6 +289,7 @@ export class PlacesMapSelectComponent implements OnInit {
     }
     addPlace(place: SearchResult) {
         //check if already added
+        place.Desc = '';
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);

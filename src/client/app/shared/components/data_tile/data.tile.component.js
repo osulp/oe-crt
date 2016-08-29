@@ -44,7 +44,6 @@ var DataTileComponent = (function () {
         this._tickArray = [];
         this._tickLabels = [];
         this._tickLabelsTime = [];
-        this._tickArrayTime = [];
         this.hasDrillDowns = false;
         this.showMOES = true;
         this.county_no_data = [];
@@ -61,8 +60,11 @@ var DataTileComponent = (function () {
         this.is10yr = false;
         this.collections = [];
         this.indicator_collections = [];
+        this.indicator_geo = 'County';
         this.yearStartOffset = 0;
         this.yearEndOffset = 0;
+        this.showMap = true;
+        this.showMenuLeft = false;
         this.xAxisCategories = {};
         this.defaultChartOptions = {
             chart: {
@@ -94,6 +96,7 @@ var DataTileComponent = (function () {
                 }
             },
             title: {
+                text: '',
                 style: {
                     align: this.viewType === 'basic' ? 'left' : null,
                     style: {
@@ -152,7 +155,9 @@ var DataTileComponent = (function () {
                     }
                 }
             },
-            title: {},
+            title: {
+                text: ''
+            },
             credits: {
                 enabled: false,
             },
@@ -257,14 +262,19 @@ var DataTileComponent = (function () {
         }
         this.checkScreenSize();
         this._indicatorDescService.getIndicator(this.indicator.replace(/\+/g, '%2B').replace(/\&/g, '%26').replace(/\=/g, '%3D')).subscribe(function (indicatorDesc) {
-            var indicator_info = indicatorDesc.Desc[0];
-            if (indicator_info) {
-                _this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
-                _this.isCountyLevel = indicator_info.CountyLevel;
-                _this.isTOP = indicator_info.isTOP;
-                _this.is10yr = indicator_info.is10yrPlan;
-                _this.indicator_collections = indicator_info.collections ? indicator_info.collections.split(', ') : [];
-                if (indicator_info.Represented_ID === 10 && _this.tileType === 'graph') {
+            _this.indicator_info = indicatorDesc.Desc[0];
+            if (_this.indicator_info) {
+                _this.isStatewide = _this.indicator_info.Geog_ID === 8 ? true : false;
+                _this.showMap = _this.isStatewide || _this.indicator_info.ScriptName !== null ? false : true;
+                _this.isCountyLevel = _this.indicator_info.CountyLevel;
+                _this.isTOP = _this.indicator_info.isTOP;
+                _this.is10yr = _this.indicator_info.is10yrPlan;
+                _this.indicator_geo = _this.indicator_info.indicator_geo;
+                if (_this.hMapMenu) {
+                    _this.hMapMenu.setIndicatorGeoFilter(_this.indicator_geo);
+                }
+                _this.indicator_collections = _this.indicator_info.collections ? _this.indicator_info.collections.split(', ') : [];
+                if (_this.indicator_info.Represented_ID === 10 && _this.tileType === 'graph') {
                     _this.chart.showLoading('Chart not available. See map and table view');
                     _this.chart.setTitle({
                         text: _this.viewType === 'basic' ? _this.indicator.replace('<br>', ' ') : null,
@@ -284,7 +294,7 @@ var DataTileComponent = (function () {
                         console.log(data);
                         _this.onPlacesChanged(data);
                     }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
-                    if (_this.tileType === 'map' && !_this.isStatewide) {
+                    if (_this.tileType === 'map' && _this.showMap) {
                         _this.geoSubscription = _this._geoStore.selectionChanged$.subscribe(function (data) {
                             _this.geoJSONStore = data;
                             console.log('new geojson file loaded', data);
@@ -299,7 +309,7 @@ var DataTileComponent = (function () {
         var chartScope = this;
         angular2_highcharts_1.Highcharts.wrap(angular2_highcharts_1.Highcharts.Point.prototype, 'select', function (proceed) {
             proceed.apply(this, Array.prototype.slice.call(arguments, 1));
-            if (chartScope.tileType === 'map' && !chartScope.isStatewide) {
+            if (chartScope.tileType === 'map' && chartScope.showMap) {
                 var points = chartScope.mapChart.getSelectedPoints();
                 chartScope.selectedMapPoints = points;
                 var pointsAsPlacesForBin = [];
@@ -329,16 +339,12 @@ var DataTileComponent = (function () {
         });
     };
     DataTileComponent.prototype.onPlacesChanged = function (selectedPlaces) {
-        console.log('adding DataTile place change', selectedPlaces);
         this.places = selectedPlaces;
         this.placeNames = '';
         if (this.tempPlaces.length !== this.places.length) {
-            console.log('temp place not the same as place length, adding ...');
             for (var x = 0; x < this.places.length; x++) {
-                console.log('place: ', this.places[x]);
                 if (this.tempPlaces.indexOf(this.places[x]) === -1) {
                     this.selectedPlaceType = this.isCountyLevel ? 'Counties' : this.translatePlaceTypes(this.places[x].TypeCategory);
-                    console.log('selectedPlaceType set:', this.selectedPlaceType);
                 }
                 this.tempPlaces.push(this.places[x]);
                 this.placeNames += encodeURIComponent(JSON.stringify(this.places[x]));
@@ -348,8 +354,8 @@ var DataTileComponent = (function () {
         this.checkDataStateForCharts();
     };
     DataTileComponent.prototype.checkDataStateForCharts = function (source) {
-        console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
-        var loadingGeoJSON = this.tileType === 'map' && !this.isStatewide ? this.checkLoadGeoJSON() : false;
+        console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbb', this.indicator_info);
+        var loadingGeoJSON = this.tileType === 'map' && this.showMap ? this.checkLoadGeoJSON() : false;
         if (this.tileType === 'graph') {
             this.getPlaceTypes('graph');
         }
@@ -382,7 +388,7 @@ var DataTileComponent = (function () {
         }
         else if (!loadingGeoJSON) {
             console.log('NEED TO UPDATE MAP/CHART');
-            if (this.tileType === 'map' && !this.isStatewide) {
+            if (this.tileType === 'map' && this.showMap) {
                 var selectedPlaces = this.mapChart.getSelectedPoints();
                 for (var s = 0; s < selectedPlaces.length; s++) {
                     console.log('checking selected place');
@@ -432,17 +438,9 @@ var DataTileComponent = (function () {
     DataTileComponent.prototype.getPlaceTypes = function (source) {
         var geoJSON_to_load = [];
         for (var x = 0; x < this.places.length; x++) {
-            var placeTypeLoaded = false;
-            for (var g = 0; g < this.geoJSONStore.length; g++) {
-                if (this.places[x].TypeCategory !== 'State') {
-                    placeTypeLoaded = this.translatePlaceTypes(this.places[x].TypeCategory) === this.geoJSONStore[g].layerId ? true : placeTypeLoaded;
-                }
-                else {
-                    placeTypeLoaded = true;
-                }
-            }
+            var placeTypeLoaded = this.geoJSONStore.indexOf(this.translatePlaceTypes(this.places[x].TypeCategory)) !== -1 || this.places[x].TypeCategory === 'State' ? true : false;
             if (!placeTypeLoaded && ((this.isCountyLevel && this.places[x].TypeCategory === 'County') || !this.isCountyLevel)) {
-                geoJSON_to_load.push(this.places[x].TypeCategory);
+                geoJSON_to_load.push(this.translatePlaceTypes(this.places[x].TypeCategory));
                 this.placeTypes.push(source ? this.translatePlaceTypes(this.places[x].TypeCategory) : this.places[x].TypeCategory);
             }
         }
@@ -452,7 +450,7 @@ var DataTileComponent = (function () {
         var _this = this;
         var loadingGeoJSON = false;
         var geoJSON_to_load = this.getPlaceTypes();
-        var selPTCheck = geoJSON_to_load.filter(function (layer) { return _this.translatePlaceTypes(layer) === _this.selectedPlaceType; });
+        var selPTCheck = geoJSON_to_load.filter(function (layer) { return _this.translatePlaceTypes(layer) === _this.translatePlaceTypes(_this.selectedPlaceType); });
         if (selPTCheck.length === 0) {
             console.log('Selected place type not in the geoJSON to load queue based on selected places');
             console.log(this.selectedPlaceType);
@@ -465,10 +463,11 @@ var DataTileComponent = (function () {
         }
         var bndryChk = geoJSON_to_load.filter(function (layer) { return _this.translatePlaceTypes(layer) === 'Places'; });
         if (bndryChk.length > 0) {
-            console.log('PLACE TYPE NOT LAODED');
             geoJSON_to_load.push('oregon_siskiyou_boundary');
         }
         if (geoJSON_to_load.length > 0) {
+            geoJSON_to_load = $.unique(geoJSON_to_load);
+            console.log('geojson to load', geoJSON_to_load);
             if (this.placeTypeGeoYears === undefined) {
                 this._placeTypesService.get().subscribe(function (data) {
                     _this.placeTypeGeoYears = data;
@@ -484,10 +483,11 @@ var DataTileComponent = (function () {
     };
     DataTileComponent.prototype.getGeoJSON = function (placeTypeToLoad) {
         var _this = this;
+        console.log('spew', placeTypeToLoad);
         for (var _i = 0; _i < placeTypeToLoad.length; _i++) {
             var pt = placeTypeToLoad[_i];
             this._geoService.getByPlaceType(this.translatePlaceTypes(pt), this.placeTypeGeoYears).subscribe(function (data) {
-                console.log('got response from NEWWWWWWWWWWWWWWWWWWWWWWW geoservice');
+                console.log('got response from NEWWWWWWWWWWWWWWWWWWWWWWW geoservice', _this.translatePlaceTypes(pt), pt);
                 console.log(data);
                 if (data.length > 0) {
                     var mapData = { layerId: data[0].layerType, features: data };
@@ -517,7 +517,7 @@ var DataTileComponent = (function () {
         else {
             geoids = '41';
         }
-        if (this.tileType === 'map' && !this.isStatewide) {
+        if (this.tileType === 'map' && this.showMap) {
             var placeTypes = '';
             for (var p = 0; p < this.places.length; p++) {
                 if (this.dataStore[this.translatePlaceTypes(this.places[p].TypeCategory)] !== undefined) {
@@ -541,12 +541,12 @@ var DataTileComponent = (function () {
             if (placeTypes === 'State' || placeTypes === '' || this.isCountyLevel) {
                 placeTypes = 'County,State';
             }
+            placeTypes = placeTypes.replace(/,\s*$/, '').replace(/\,,/g, ',');
             this._dataService.getAllbyGeoType(placeTypes, this.indicator).subscribe(function (data) {
                 _this._selectedDataService.add(data);
             }, function (err) { return console.error(err); }, function () { return console.log('done loading data for map'); });
         }
         else {
-            var combinedGroups = this.checkCombineGroups();
             var indicatorForService = this.indicator.replace(/\%28/g, '(')
                 .replace(/\%29/g, ')')
                 .replace(/\%2C/g, ',')
@@ -554,37 +554,43 @@ var DataTileComponent = (function () {
                 .replace(/\+/g, '%2B')
                 .replace(/\=/g, '%3D')
                 .replace(/\&/g, '%26');
-            if (combinedGroups.length > 0) {
-                this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
-                    var combinedData = _this.processCombinedData(data);
-                    _this.updateDataStore([combinedData], 'indicator');
-                    _this.onChartDataUpdate.emit(combinedData);
-                    _this.createGraphChart();
-                });
+            if (this.indicator_info.ScriptName !== null) {
+                console.log('Custom Chart!', this.indicator_info.ScriptName);
             }
             else {
-                console.log('geoids for data service', geoids);
-                this._dataService.getIndicatorDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
-                    console.log('regular indicator data', data);
-                    if (data.Data.length > 0) {
-                        _this.updateDataStore([data], 'indicator');
-                        _this.onChartDataUpdate.emit(data);
+                var combinedGroups = this.checkCombineGroups();
+                if (combinedGroups.length > 0) {
+                    this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
+                        var combinedData = _this.processCombinedData(data);
+                        _this.updateDataStore([combinedData], 'indicator');
+                        _this.onChartDataUpdate.emit(combinedData);
                         _this.createGraphChart();
-                    }
-                    else {
-                        _this.chart.showLoading('Sorry, indicator data is not available for this place.  Please select a community.');
-                        _this.chart.setTitle({
-                            text: _this.viewType === 'basic' ? _this.indicator.replace('<br>', ' ') : null,
-                            align: _this.viewType === 'basic' ? 'left' : null,
-                            style: {
-                                fontSize: '1.25em',
-                                fontWeight: '200'
-                            },
-                            widthAdjust: -10,
-                            x: -30
-                        });
-                    }
-                }, function (err) { return console.error(err); }, function () { return console.log('done loading data for graph'); });
+                    });
+                }
+                else {
+                    console.log('geoids for data service', geoids);
+                    this._dataService.getIndicatorDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
+                        console.log('regular indicator data', data);
+                        if (data.Data.length > 0) {
+                            _this.updateDataStore([data], 'indicator');
+                            _this.onChartDataUpdate.emit(data);
+                            _this.createGraphChart();
+                        }
+                        else {
+                            _this.chart.showLoading('Sorry, indicator data is not available for this place.  Please select a community.');
+                            _this.chart.setTitle({
+                                text: _this.viewType === 'basic' ? _this.indicator.replace('<br>', ' ') : null,
+                                align: _this.viewType === 'basic' ? 'left' : null,
+                                style: {
+                                    fontSize: '1.25em',
+                                    fontWeight: '200'
+                                },
+                                widthAdjust: -10,
+                                x: -30
+                            });
+                        }
+                    }, function (err) { return console.error(err); }, function () { return console.log('done loading data for graph'); });
+                }
             }
         }
     };
@@ -680,12 +686,12 @@ var DataTileComponent = (function () {
         for (var d = 0; d < this.places.length; d++) {
             console.log('Check UpdateData', this.places[d].TypeCategory);
             if (this.places[d].TypeCategory !== 'State') {
-                if (this.dataStore[this.pluralize(this.places[d].TypeCategory)].indicatorData !== undefined) {
-                    console.log('already have this type data');
-                    console.log(this.dataStore[this.pluralize(this.places[d].TypeCategory)]);
+                console.log('is this where', this.dataStore);
+                try {
+                    loadMoreData = this.dataStore[this.pluralize(this.places[d].TypeCategory)].indicatorData ? false : true;
                 }
-                else {
-                    loadMoreData = true;
+                catch (ex) {
+                    console.log('yep, guess so', ex);
                 }
             }
         }
@@ -706,14 +712,14 @@ var DataTileComponent = (function () {
             this.placeTypeData = this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].crt_db;
             this.yearEndOffset = this.getEndYear();
             this.selectedYear = this.placeTypeData.Years[data[0].Years.length - (this.yearEndOffset + 1)];
-            if (this.tileType === 'map' && !this.isStatewide) {
+            if (this.tileType === 'map' && this.showMap) {
                 this.selectedMapData = this.getSelectedMapData();
             }
             this.processDataYear();
             this.processYearTicks();
             this.selectedYearIndex = this._tickArray.length;
             this.hasDrillDowns = this.placeTypeData.Metadata[0].Sub_Topic_Name !== 'none' ? true : false;
-            if (this.tileType === 'map' && !this.isStatewide) {
+            if (this.tileType === 'map' && this.showMap) {
                 this.initMapChart();
                 if (!this.isSliderInit) {
                     this.setupTimeSlider();
@@ -734,12 +740,11 @@ var DataTileComponent = (function () {
                     var metadata = data[d].Metadata[0];
                     this.isStatewide = metadata.Variable_Geog_Desc === 'State' ? true : false;
                     this.isCountyLevel = metadata.CountyLevel;
-                    this.isNotCombinable = metadata.isPreCalc && !this.isStatewide && this.hasCombined;
+                    this.isNotCombinable = metadata.isPreCalc && this.isStatewide && this.hasCombined;
                 }
                 if (this.tileType === 'map' && !this.isStatewide) {
-                    console.log('say what', data[d].GeoTypes[0].geoType);
+                    console.log('say what', data[d].GeoTypes[0].geoType, data);
                     if (this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData[this.indicator] === undefined) {
-                        console.log('say what', data[d].GeoTypes[0].geoType);
                         this.dataStore[this.pluralize(data[d].GeoTypes[0].geoType).toString()].indicatorData = indicatorData;
                     }
                 }
@@ -755,7 +760,7 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.getPlaceData = function () {
-        if (this.tileType === 'map' && !this.isStatewide) {
+        if (this.tileType === 'map' && this.showMap) {
             return this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data;
         }
         else {
@@ -832,39 +837,26 @@ var DataTileComponent = (function () {
             case 'Incorporated City':
             case 'Incorporated Town':
             case 'City':
+            case 'Places':
             case 'Cities':
                 return 'Places';
             case 'Census Tract':
             case 'Census Tracts':
-            case 'Unicorporated Place':
+            case 'Unincorporated Place':
                 return 'Tracts';
             default:
                 return placeType;
         }
-    };
-    DataTileComponent.prototype.getDataClasses = function () {
-        var returnClasses = [];
-        var chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
-        chart_data.forEach(function (pdata) {
-            console.log('pdata!', pdata);
-        });
-        return [{
-                from: -100,
-                to: 0,
-                color: '#C40401',
-                name: 'Romney'
-            }, {
-                from: 0,
-                to: 100,
-                color: '#0200D0',
-                name: 'Obama'
-            }];
     };
     DataTileComponent.prototype.initMapChart = function () {
         var mapScope = this;
         this.mapChart.legend.title.attr({ text: this.placeTypeData.Metadata[0]['Y-Axis'] ? this.placeTypeData.Metadata[0]['Y-Axis'] : '' });
         this.mapChart.tooltip.options.formatter = function () {
             var displayValue = mapScope.formatValue(this.point.value, false) + '</b>';
+            console.log('keep select', this.point);
+            if (this.point.selected) {
+                this.point.setState('select');
+            }
             if (this.point.value === undefined) {
                 return '<span>' + this.point.properties.name + ' County</span><br/><span style="font-size: 10px">Not Available or Insufficient Data</span>';
             }
@@ -890,25 +882,18 @@ var DataTileComponent = (function () {
             }
         };
         var colorAxis = this.mapChart.colorAxis[0];
-        if (this.placeTypeData.Metadata[0].Represented_ID === 10) {
-            colorAxis.update({
-                dataClasses: this.getDataClasses()
-            });
-        }
-        else {
-            colorAxis.update({
-                type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,
-                min: this.getMinData(true),
-                max: this.getMaxData(true),
-                endOnTick: false,
-                startOnTick: true,
-                labels: {
-                    formatter: function () {
-                        return mapScope.formatValue(this.value, true);
-                    }
+        colorAxis.update({
+            type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,
+            min: this.getMinData(true),
+            max: this.getMaxData(true),
+            endOnTick: false,
+            startOnTick: true,
+            labels: {
+                formatter: function () {
+                    return mapScope.formatValue(this.value, true);
                 }
-            });
-        }
+            }
+        });
         var seriesLength = this.mapChart.series.length;
         for (var i = seriesLength - 1; i > -1; i--) {
             this.mapChart.series[i].remove();
@@ -920,15 +905,15 @@ var DataTileComponent = (function () {
             var boundarySeries = {
                 name: 'Boundary',
                 enableMouseTracking: false,
-                color: 'rgba(0,128,0,0.1)',
-                negativeColor: 'rgba(128,0,0,0.1)',
+                color: '#FBCF76',
+                negativeColor: '#F6F6F5',
                 mapData: this.dataStore.Boundary.mapData.features[0]
             };
             this.mapChart.addSeries(boundarySeries);
             ptSeriesIndexes.push(this.mapChart.series.length - 1);
         }
         var series = {
-            borderColor: 'white',
+            borderColor: this.selectedPlaceType === 'Places' ? '#a7a7a7' : 'white',
             data: this.getPlaceData(),
             mapData: this.getSelectedMapData(),
             joinBy: this.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : ['NAME', 'name'],
@@ -936,10 +921,10 @@ var DataTileComponent = (function () {
             allowPointSelect: true,
             cursor: 'pointer',
             states: {
-                select: {
-                    color: '#BADA55',
-                },
                 hover: {
+                    color: '#a7a7a7'
+                },
+                select: {
                     color: '#BADA55'
                 }
             }
@@ -1037,7 +1022,8 @@ var DataTileComponent = (function () {
                         color: '#808080'
                     }],
                 floor: 0,
-                min: 0
+                min: 0,
+                max: this.placeTypeData.Metadata[0]['Y-Axis_Max']
             });
             var title = this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator;
             this.chart.setTitle({
@@ -1206,12 +1192,9 @@ var DataTileComponent = (function () {
     DataTileComponent.prototype.processDataYear = function () {
         this.yearStartOffset = this.getStartYear();
         this.yearEndOffset = this.getEndYear();
-        console.log('year-stuff', this.placeTypeData.Years, this.yearStartOffset, this.yearEndOffset, this.selectedYear);
         var place_data = [{}];
         var place_data_years = {};
         var place_data_years_moe = {};
-        var hasData = false;
-        console.log('place_data check', this.placeTypeData);
         for (var d = 0; d < this.placeTypeData.Data.length; d++) {
             var pData = this.placeTypeData.Data[d];
             var statewideFilter = ['Oregon', 'Rural Oregon', 'Urban Oregon', 'California', 'Rural California', 'Urban California'];
@@ -1264,14 +1247,13 @@ var DataTileComponent = (function () {
                 geoid: pData.geoid,
                 data: year_data_moe
             };
-            console.log('place_data', place_data_years);
         }
         var chart_data = {
             place_data: place_data,
             place_data_years: place_data_years,
             place_data_years_moe: place_data_years_moe
         };
-        if (this.tileType === 'map' && !this.isStatewide) {
+        if (this.tileType === 'map' && this.showMap) {
             this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data = chart_data;
         }
         else {
@@ -1478,6 +1460,7 @@ var DataTileComponent = (function () {
             case '':
                 return 'Counties';
             case 'Census Tract':
+            case 'Unincorporated Place':
                 return 'Tracts';
             case 'Incorpor':
             case 'Incorporated City':
@@ -1540,7 +1523,7 @@ var DataTileComponent = (function () {
     DataTileComponent.prototype.ngOnInit = function () {
         console.log(this.defaultAdvChartOptions);
         this.defaultChartOptions.chart.spacingTop = this.viewType === 'advanced' ? 50 : this.defaultChartOptions.chart.spacingTop;
-        if (this.tileType === 'map' && !this.isStatewide) {
+        if (this.tileType === 'map' && this.showMap) {
             for (var pt in this.dataStore) {
                 this.dataStore[pt].indicatorData = {};
                 this.dataStore[pt].mapData = {};
@@ -1573,6 +1556,10 @@ var DataTileComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', Object)
     ], DataTileComponent.prototype, "viewType", void 0);
+    __decorate([
+        core_1.ViewChild(hmap_menu_component_1.HmapMenuComponent), 
+        __metadata('design:type', hmap_menu_component_1.HmapMenuComponent)
+    ], DataTileComponent.prototype, "hMapMenu", void 0);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', Object)

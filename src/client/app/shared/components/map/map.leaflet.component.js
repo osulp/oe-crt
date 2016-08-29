@@ -84,9 +84,6 @@ var MapLeafletComponent = (function () {
             }).addTo(this.map);
             this.selectedLayer = L.geoJson(null, {
                 style: selectedLayerStyle,
-                onEachFeature: function (feature, layer) {
-                    var id = feature.id;
-                }
             }).addTo(this.map);
             this.map.on('popupclose', function (e) {
                 mapScope.identifiedLayer.clearLayers();

@@ -79,7 +79,7 @@
     width:70px;
     text-align:center;
     left:-35px;
-    top:8px;
+    top:14px;
     bottom:-15px;
     padding:6px;
     /*text-transform:uppercase;*/
@@ -111,6 +111,11 @@
 
 .search .list-group-item{
     height:70px;
+   }
+
+.search .list-group-item {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
 }
 
 .list-group-item.tabHover {
@@ -129,6 +134,18 @@
     font-family: 'Lato','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-
+.ct-tag {
+    font-size: .7em;
+    float:right;
+    color: #808080;
+    -ms-text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    margin-left:15px;
+    font-family: 'Lato','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.ct-tag-flag {
+    float:right;
+}
 
 

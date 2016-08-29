@@ -24,7 +24,15 @@ var GeoJSONStoreService = (function () {
             .subscribe(this.selectionChanged$);
         this.addLayer
             .map(function (layer) {
-            return function (state) { return state.concat(layer); };
+            return function (state) {
+                var hasLayer = state.filter(function (_layer) { return _layer.layerId === layer.layerId; });
+                if (hasLayer.length > 0) {
+                    return state;
+                }
+                else {
+                    return state.concat(layer);
+                }
+            };
         })
             .subscribe(this.updates);
         this.getAll
@@ -40,7 +48,7 @@ var GeoJSONStoreService = (function () {
     GeoJSONStoreService.prototype.load = function () {
     };
     GeoJSONStoreService.prototype.add = function (layer) {
-        console.log('adding layer to geojsonstore');
+        console.log('adding layer to geojsonstore', layer);
         this.addLayer.next(layer);
     };
     GeoJSONStoreService = __decorate([

@@ -8,6 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
+var router_1 = require('@angular/router');
 var http_1 = require('@angular/http');
 var collections_service_1 = require('../../shared/services/collections/collections.service');
 require('rxjs/add/operator/map');
@@ -27,7 +28,8 @@ var FeaturedCollectionsComponent = (function () {
             selector: 'featured-collections',
             templateUrl: 'featured.collections.component.html',
             styleUrls: ['featured.collections.component.css'],
-            providers: [http_1.JSONP_PROVIDERS, collections_service_1.CollectionsService]
+            providers: [http_1.JSONP_PROVIDERS, collections_service_1.CollectionsService],
+            directives: [router_1.ROUTER_DIRECTIVES]
         }), 
         __metadata('design:paramtypes', [collections_service_1.CollectionsService])
     ], FeaturedCollectionsComponent);

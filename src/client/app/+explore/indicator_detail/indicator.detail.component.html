@@ -1,4 +1,4 @@
-<div id="indicator-detail-wrapper">
+<div id="indicator-detail-wrapper" (click)="onBlurExplorePage($event);" >
     <div class="row">
         <div class="col-xs-12">
             <div class="find_header row">
@@ -26,7 +26,7 @@
     <div class="row" id="toggleViewRow">
         <div class="col-xs-6">
             <div class="row">
-                <div *ngIf="!isStatewide" class="col-xs-4 toggleView" (click)="setToggleView('map')">
+                <div *ngIf="!isStatewide && !isCustomChart" class="col-xs-4 toggleView" (click)="setToggleView('map')">
                     <div class="toggleViewIcn" [ngClass]="showMap ? 'viewSelected' : ''"></div>
                     <span>Map View</span>
                 </div>
@@ -68,13 +68,13 @@
                 </div>
             </div>
             <div class="row">
-                <div *ngIf="!isStatewide" [ngClass]="!showGraph ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
+                <div *ngIf="!isStatewide && !isCustomChart" [ngClass]="!showGraph ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
                     <div #mapView class="detail-tile map-chart" [hidden]="!showMap">
                         <!--MAP VIEW-->
                         <data-tile [indicator]="inputIndicator" [tileType]="'map'" [viewType]="'advanced'"></data-tile>
                     </div>
                 </div>
-                <div [ngClass]="!showMap || isStatewide ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
+                <div [ngClass]="!showMap || isStatewide || isCustomChart ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
                     <div #graphView class="detail-tile" [hidden]="!showGraph">
                         <!--GRAPH VIEW-->
                         <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'"></data-tile>

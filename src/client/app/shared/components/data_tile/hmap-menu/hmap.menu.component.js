@@ -19,29 +19,56 @@ var HmapMenuComponent = (function () {
         }
     };
     HmapMenuComponent.prototype.ngOnInit = function () {
-        console.log('HMAP MENU INPUT VALUE');
-        console.log(this.mapView);
         this.mapViews = ['Counties', 'Cities', 'Census Tracts', 'School Districts'];
+    };
+    HmapMenuComponent.prototype.setIndicatorGeoFilter = function (filter) {
+        switch (filter) {
+            case 'Place, Tract & County':
+                this.mapViews = ['Counties', 'Cities', 'Census Tracts'];
+                break;
+            case 'County':
+                this.mapViews = ['Counties'];
+                break;
+            case 'School only':
+                this.mapViews = ['School Districts'];
+                break;
+            case 'School and County':
+                this.mapViews = ['Counties', 'School Districts'];
+                break;
+            case 'Place only':
+                this.mapViews = ['Cities'];
+                break;
+            case 'Tract only':
+                this.mapView = ['Census Tracts'];
+                break;
+            default:
+                this.mapViews = ['Counties'];
+                break;
+        }
     };
     HmapMenuComponent.prototype.ngOnChanges = function (changes) {
         console.log('Change detected:', changes);
-        console.log(changes['mapView'].currentValue);
-        if (changes['mapView'].currentValue !== changes['mapView'].previousValue) {
-            switch (changes['mapView'].currentValue) {
-                case 'Counties':
-                    this._translatedMapView = 'Counties';
-                    break;
-                case 'Places':
-                    this._translatedMapView = 'Cities';
-                    break;
-                case 'Tracts':
-                    this._translatedMapView = 'Census Tracts';
-                    break;
-                case 'School District':
-                    this._translatedMapView = 'School Districts';
-                    break;
-                default:
-                    break;
+        if (changes['mapView']) {
+            if (changes['mapView'].currentValue !== changes['mapView'].previousValue) {
+                switch (changes['mapView'].currentValue) {
+                    case 'Counties':
+                        this._translatedMapView = 'Counties';
+                        break;
+                    case 'Places':
+                        this._translatedMapView = 'Cities';
+                        break;
+                    case 'Tracts':
+                    case 'Unicorporated Place':
+                    case 'Census Tract':
+                    case 'Census Tracts':
+                        this._translatedMapView = 'Census Tracts';
+                        break;
+                    case 'School District':
+                        this._translatedMapView = 'School Districts';
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     };
@@ -49,6 +76,10 @@ var HmapMenuComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', Object)
     ], HmapMenuComponent.prototype, "mapView", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Boolean)
+    ], HmapMenuComponent.prototype, "showMenuLeft", void 0);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', Object)

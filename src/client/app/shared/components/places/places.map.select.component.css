@@ -180,13 +180,13 @@
     }
 #search .list-group {
     position: absolute;
-    /*width: 65%;*/
+    width: 79%;
     background: #FFFFFF;
     box-shadow: 2px 2px 2px 2px rgba(0,0,0,0.30);
     border-radius: 0 0 0 4px 4px 4px 4px;
     text-align:left;
-    z-index:3;
-    margin-left:15px;
+    z-index:10000;
+    /*margin-left:15px;*/
 
 }
 .search-result-wrapper{
@@ -434,6 +434,20 @@
     opacity: 0.2;
     -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=20)";
     filter: alpha(opacity=20);
+}
+
+.ct-tag {
+    font-size: .7em;
+    /*float:right;*/
+    color: #808080;
+    -ms-text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    margin-left:10px;
+    font-family: 'Lato','Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.ct-tag-flag {
+   margin-left:20px;
 }
 
 @media (max-width:1200px) {

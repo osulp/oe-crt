@@ -8,6 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
+var common_1 = require('@angular/common');
 var http_1 = require('@angular/http');
 var router_1 = require('@angular/router');
 var index_1 = require('../../shared/components/index');
@@ -15,11 +16,13 @@ var index_2 = require('../../shared/services/index');
 var index_3 = require('../../shared/components/index');
 var table_view_component_1 = require('./table_view/table.view.component');
 var DetailComponent = (function () {
-    function DetailComponent(_indicatorDescService, _router) {
+    function DetailComponent(_indicatorDescService, _router, _location) {
         this._indicatorDescService = _indicatorDescService;
         this._router = _router;
+        this._location = _location;
         this.indicatorDesc = [];
         this._chartData = [];
+        this.isCustomChart = false;
         this.chartData = [];
         this.selectedPlaceType = 'Oregon';
         this.urlPlaces = [];
@@ -56,12 +59,14 @@ var DetailComponent = (function () {
         }
     };
     DetailComponent.prototype.setToggleView = function (viewType) {
+        var _this = this;
         switch (viewType) {
             case 'map':
                 this.showMap = !this.showMap;
                 break;
             case 'graph':
                 this.showGraph = !this.showGraph;
+                this.dataTiles.forEach(function (dt) { return dt.showMenuLeft = !_this.showGraph; });
                 break;
             case 'table':
                 this.showTable = !this.showTable;
@@ -78,14 +83,26 @@ var DetailComponent = (function () {
             clearInterval(runInterval);
         }
     };
-    DetailComponent.prototype.goBack = function () {
-        this._router.navigate(['/Explore']);
+    DetailComponent.prototype.goBack = function (evt) {
+        console.log('going back', this._location, window.history);
+        window.history.back();
         window.scrollTo(0, 0);
+        evt.preventDefault();
     };
     DetailComponent.prototype.onChartDataUpdate = function (data) {
         console.log('Chart data emitted to indicator detail', data);
         this._chartData = data;
         console.log('Chart data', this.chartData);
+    };
+    DetailComponent.prototype.onBlurExplorePage = function (evt) {
+        if (!$(evt.target).closest('#map-menu').length && !$(evt.target).hasClass('hamburger-menu')) {
+            console.log('ree', evt);
+            this.dataTiles.forEach(function (dt) {
+                if (dt.hMapMenu) {
+                    dt.hMapMenu.menuSelected = false;
+                }
+            });
+        }
     };
     DetailComponent.prototype.ngOnInit = function () {
         var _this = this;
@@ -116,6 +133,7 @@ var DetailComponent = (function () {
                 _this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
                 _this.isCountyLevel = indicator_info.CountyLevel;
                 _this.isTOP = indicator_info.isTOP;
+                _this.isCustomChart = indicator_info.ScriptName !== null;
             }
             _this.windowRefresh();
         });
@@ -135,9 +153,9 @@ var DetailComponent = (function () {
         __metadata('design:type', index_1.PlacesMapSelectComponent)
     ], DetailComponent.prototype, "placeMap", void 0);
     __decorate([
-        core_1.ViewChild(index_1.DataTileComponent), 
-        __metadata('design:type', index_1.DataTileComponent)
-    ], DetailComponent.prototype, "dataTile", void 0);
+        core_1.ViewChildren(index_1.DataTileComponent), 
+        __metadata('design:type', core_1.QueryList)
+    ], DetailComponent.prototype, "dataTiles", void 0);
     DetailComponent = __decorate([
         core_1.Component({
             moduleId: module.id,
@@ -147,7 +165,7 @@ var DetailComponent = (function () {
             providers: [http_1.JSONP_PROVIDERS, index_2.IndicatorDescService, index_2.SelectedDataService],
             directives: [index_1.PlacesMapSelectComponent, index_1.DataTileComponent, index_3.SearchComponent, table_view_component_1.TableViewComponent]
         }), 
-        __metadata('design:paramtypes', [index_2.IndicatorDescService, router_1.Router])
+        __metadata('design:paramtypes', [index_2.IndicatorDescService, router_1.Router, common_1.Location])
     ], DetailComponent);
     return DetailComponent;
 })();

@@ -42,6 +42,7 @@ var SearchComponent = (function () {
     };
     SearchComponent.prototype.selectResult = function (searchItem) {
         if (searchItem.Type === 'Place') {
+            searchItem.Desc = '';
             this._selectedPlacesService.add(searchItem, 'map');
         }
         this.selSearchResultEvt.emit(searchItem);
@@ -57,7 +58,7 @@ var SearchComponent = (function () {
             if (this.tempResults.length > 0) {
                 var firstItem = this.tempResults[this.tempTabIndex === -1 ? 0 : this.tempTabIndex];
                 var selected = {
-                    Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                    Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
                     ResID: firstItem['ResID'],
                     Type: firstItem['Type'],
                     TypeCategory: firstItem['TypeCategory'],
@@ -100,13 +101,12 @@ var SearchComponent = (function () {
     };
     SearchComponent.prototype.blurHandler = function (event) {
         var searchScope = this;
-        console.log('blur', event);
         setTimeout(function () {
             if (document.activeElement.classList.toString() === 'list-group-item') {
                 var attr = 'data-search-item';
                 var listItem = JSON.parse(document.activeElement.attributes[attr].value);
                 var selected = {
-                    Name: listItem.Name.replace(/\,/g, '%2C'),
+                    Name: listItem.Name.replace(/\,/g, '%2C').replace(/\./g, '%2E'),
                     ResID: listItem.ResID,
                     Type: listItem.Type,
                     TypeCategory: listItem.TypeCategory,
@@ -118,7 +118,7 @@ var SearchComponent = (function () {
                 if (searchScope.tempResults.length > 0) {
                     var firstItem = searchScope.tempResults[searchScope.tempTabIndex];
                     var selected = {
-                        Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                        Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
                         ResID: firstItem['ResID'],
                         Type: firstItem['Type'],
                         TypeCategory: firstItem['TypeCategory'],
@@ -137,6 +137,17 @@ var SearchComponent = (function () {
                 searchScope.searchTerms = '';
             }
         }, 1);
+    };
+    SearchComponent.prototype.adjustListGroupTags = function () {
+        var results = $('.search-result-type');
+        console.log(results);
+        var parents = $('.list-group-item');
+        $.each(results, function (idx, result) {
+            console.log(idx, result);
+            console.log(this, parent);
+            console.log('parentheight', idx, $(parents[idx]).height());
+            $(result).css('min-width', $(parents[idx]).height() + 25 + 'px !important');
+        });
     };
     __decorate([
         core_1.Input(), 

@@ -16,8 +16,13 @@
                             <div class="search-result-name">
                                 <span>{{item.Name}}</span>
                                 <span *ngIf="item.TypeCategory" class="typeCategory">({{item.TypeCategory}})</span>
+                                <span *ngIf="item.Desc && item.Type === 'Place'" class="ct-tag">
+                                    <b *ngIf="item.Desc.split('~').length > 0">Data shown for {{item.Desc.split('~')[0]}}</b>
+                                </span>
+                                <span *ngIf="item.Desc && item.Type === 'Place'" class="glyphicon glyphicon-flag ct-tag-flag">
+                                </span>
                             </div>
-                            <div *ngIf="item.Desc" class="search-result-desc" [innerHTML]="item.Desc">
+                            <div *ngIf="item.Desc" class="search-result-desc" [innerHTML]="item.Desc.split('~').length > 1 ? item.Desc.split('~')[1] : ''">
                             </div>
                         </div>
                     </div>

@@ -12,6 +12,8 @@ import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/share';
 
+declare var $: any;
+
 @Component({
     moduleId: module.id,
     selector: 'search',
@@ -54,6 +56,7 @@ export class SearchComponent {
 
     selectResult(searchItem: SearchResult) {
         if (searchItem.Type === 'Place') {
+            searchItem.Desc = '';
             this._selectedPlacesService.add(searchItem, 'map');
         }
         this.selSearchResultEvt.emit(searchItem);
@@ -65,13 +68,12 @@ export class SearchComponent {
     }
     inputKeypressHandler(event: any) {
         var code = event.keyCode || event.which;
-
         if (code === 13) {
             //get tempResult values
             if (this.tempResults.length > 0) {
                 var firstItem: any = this.tempResults[this.tempTabIndex === -1 ? 0 : this.tempTabIndex];
                 var selected: SearchResult = {
-                    Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                    Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
                     ResID: firstItem['ResID'],
                     Type: firstItem['Type'],
                     TypeCategory: firstItem['TypeCategory'],
@@ -107,18 +109,19 @@ export class SearchComponent {
         if (code === 9) {
             event.preventDefault();
         }
+        //window.setTimeout(this.adjustListGroupTags, 500);
     }
 
     blurHandler(event: any) {
         var searchScope = this;
-        console.log('blur', event);
+        //console.log('blur', event);
         setTimeout(function () {
             //if tabbing on list result set input box to match the Name property, but don't clear.
             if (document.activeElement.classList.toString() === 'list-group-item') {
                 var attr: any = 'data-search-item';
                 var listItem: any = JSON.parse(document.activeElement.attributes[attr].value);
                 var selected: SearchResult = {
-                    Name: listItem.Name.replace(/\,/g, '%2C'),
+                    Name: listItem.Name.replace(/\,/g, '%2C').replace(/\./g,'%2E'),
                     ResID: listItem.ResID,
                     Type: listItem.Type,
                     TypeCategory: listItem.TypeCategory,
@@ -131,7 +134,7 @@ export class SearchComponent {
                 if (searchScope.tempResults.length > 0) {
                     var firstItem: any = searchScope.tempResults[searchScope.tempTabIndex];
                     var selected: SearchResult = {
-                        Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                        Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
                         ResID: firstItem['ResID'],
                         Type: firstItem['Type'],
                         TypeCategory: firstItem['TypeCategory'],
@@ -150,6 +153,20 @@ export class SearchComponent {
         }, 1);
         //event.preventDefault();
     }
+
+    adjustListGroupTags() {
+        //for each result
+        let results = $('.search-result-type');
+        console.log(results);
+        let parents = $('.list-group-item');
+        $.each(results, function (idx: number, result: any) {
+            console.log(idx, result);
+            console.log(this, parent);
+            console.log('parentheight', idx, $(parents[idx]).height());
+            $(result).css('min-width', $(parents[idx]).height() + 25 + 'px !important');
+        });
+    }
+
     //ngOnInit() {
     //    console.log('searching for shit', this.filterType);
     //    this.filter = this.filterType !== undefined ? this.filterType : this.filter;

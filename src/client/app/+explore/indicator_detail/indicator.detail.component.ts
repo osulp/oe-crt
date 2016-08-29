@@ -1,4 +1,5 @@
-import {Component, Input, ViewChild, OnInit} from '@angular/core';
+import {Component, Input, ViewChild, ViewChildren, QueryList, OnInit} from '@angular/core';
+import {Location} from '@angular/common';
 import {JSONP_PROVIDERS}  from '@angular/http';
 import {Router} from '@angular/router';
 import {DataTileComponent,PlacesMapSelectComponent} from '../../shared/components/index';
@@ -6,6 +7,8 @@ import {IndicatorDescService, SelectedDataService} from '../../shared/services/i
 import {SearchResult} from '../../shared/data_models/index';
 import {SearchComponent} from '../../shared/components/index';
 import {TableViewComponent} from './table_view/table.view.component';
+
+declare var $: any;
 
 @Component({
     moduleId: module.id,
@@ -20,12 +23,13 @@ export class DetailComponent implements OnInit {
     @Input() inputIndicator: any;
     @Input() inputPlaces: any;
     @ViewChild(PlacesMapSelectComponent) placeMap: PlacesMapSelectComponent;
-    @ViewChild(DataTileComponent) dataTile: DataTileComponent;
+    @ViewChildren(DataTileComponent) dataTiles: QueryList<DataTileComponent>;
     indicatorDesc: any = [];
     _chartData: any = [];
     showMap: boolean;
     showGraph: boolean;
     showTable: boolean;
+    isCustomChart: boolean = false;
     chartData: any = [];
     selectedSearchResult: SearchResult;
     selectedPlaceType: any = 'Oregon';
@@ -41,7 +45,7 @@ export class DetailComponent implements OnInit {
     isTOP: boolean = false;
 
     constructor(private _indicatorDescService: IndicatorDescService,
-        private _router: Router
+        private _router: Router, private _location:Location
     ) { }
 
     //emitted from search component
@@ -77,6 +81,7 @@ export class DetailComponent implements OnInit {
                 break;
             case 'graph':
                 this.showGraph = !this.showGraph;
+                this.dataTiles.forEach((dt: any) => dt.showMenuLeft = !this.showGraph);
                 break;
             case 'table':
                 this.showTable = !this.showTable;
@@ -97,9 +102,13 @@ export class DetailComponent implements OnInit {
         //this.dataTile.onResize(temp);
     }
 
-    goBack() {
-        this._router.navigate(['/Explore']);
+    goBack(evt:any) {
+        console.log('going back', this._location, window.history);
+        window.history.back();
+        //this._location.back();
+        //this._router.navigate(['/Explore']);
         window.scrollTo(0, 0);
+        evt.preventDefault();
     }
 
     onChartDataUpdate(data: any) {
@@ -107,6 +116,18 @@ export class DetailComponent implements OnInit {
         this._chartData = data;
         console.log('Chart data', this.chartData);
         //this.tableView.tableData = data;
+    }
+
+    onBlurExplorePage(evt: any) {
+        //hide select dropdowns if showing.
+        if (!$(evt.target).closest('#map-menu').length && !$(evt.target).hasClass('hamburger-menu')) {
+            console.log('ree', evt);
+            this.dataTiles.forEach((dt: any) => {
+                if (dt.hMapMenu) {
+                    dt.hMapMenu.menuSelected = false
+                }
+            });
+        }
     }
 
     ngOnInit() {
@@ -139,11 +160,13 @@ export class DetailComponent implements OnInit {
                     this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
                     this.isCountyLevel = indicator_info.CountyLevel;
                     this.isTOP = indicator_info.isTOP;
+                    this.isCustomChart = indicator_info.ScriptName !== null;
                 }
                 this.windowRefresh();
             });
         this.inputIndicator = this.inputIndicator.replace(/\%2B/g, '+');
         this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];
+
         //var urlQueryString = document.location.search;
         //var keyRegex = new RegExp('([\?&])places([^&]*|[^,]*)');
         //// If param exists already, update it

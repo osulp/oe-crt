@@ -13,9 +13,21 @@ var SortAlphaTopicPipe = (function () {
     }
     SortAlphaTopicPipe.prototype.transform = function (topics, collections) {
         if (topics !== undefined) {
-            var selectedCollection = collections.filter(function (coll) { return coll.selected; });
-            var selectedTopics = topics.sort(function (a, b) { return a.topic.localeCompare(b.topic); }).filter(function (topic) { return (selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true); });
-            return selectedTopics;
+            if (collections) {
+                var selectedCollection = collections.filter(function (coll) { return coll.selected; });
+                var selectedTopics = topics.sort(function (a, b) { return a.topic.localeCompare(b.topic); }).filter(function (topic) {
+                    if (selectedCollection.length > 0) {
+                        return (selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true);
+                    }
+                    else {
+                        return true;
+                    }
+                });
+                return selectedTopics;
+            }
+            else {
+                return topics.sort(function (a, b) { return a.topic.localeCompare(b.topic); });
+            }
         }
     };
     SortAlphaTopicPipe = __decorate([

@@ -26,10 +26,11 @@ var ExploreComponent = (function () {
     }
     ExploreComponent.prototype.routerOnActivate = function (curr, prev, currTree, prevTree) {
         this.selectedTopics = decodeURI(curr.getParam('topics'));
+        this.selectedTopics = this.selectedTopics ? this.selectedTopics : 'All Topics';
         this.selectedIndicator = decodeURI(curr.getParam('indicator'));
         this.selectedIndicators = decodeURI(curr.getParam('indicators'));
         this.selectedPlaces = decodeURI(curr.getParam('places'));
-        this.urlCollection = decodeURI(curr.getParam('collection')) ? decodeURI(curr.getParam('collection')) : 'Show All';
+        this.urlCollection = decodeURI(curr.getParam('collection'));
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
     };
     ExploreComponent.prototype.onSelectedSearchResult = function (results) {
@@ -37,9 +38,6 @@ var ExploreComponent = (function () {
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
                 this._router.navigate(['/Explore', { indicator: encodeURI(results.Name).replace('(', '%28').replace(')', '%29') }]);
-            }
-            else {
-                this._router.navigate(['/Explore', { topics: 'All Topics' }]);
             }
         }
     };
@@ -89,6 +87,7 @@ var ExploreComponent = (function () {
         var qsParams = [];
         var places = '';
         for (var x = 0; x < selectedPlaces.length; x++) {
+            console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
             places += encodeURIComponent(JSON.stringify(selectedPlaces[x]));
             if (x !== selectedPlaces.length - 1) {
                 places += ',';
