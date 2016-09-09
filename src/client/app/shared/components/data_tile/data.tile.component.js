@@ -64,6 +64,7 @@ var DataTileComponent = (function () {
         this.yearStartOffset = 0;
         this.yearEndOffset = 0;
         this.showMap = true;
+        this.customChartYears = [];
         this.isCustomChart = false;
         this.xAxisCategories = {};
         this.defaultChartOptions = {
@@ -347,6 +348,7 @@ var DataTileComponent = (function () {
             for (var x = 0; x < this.places.length; x++) {
                 if (this.tempPlaces.indexOf(this.places[x]) === -1) {
                     this.selectedPlaceType = this.isCountyLevel ? 'Counties' : this.translatePlaceTypes(this.places[x].TypeCategory);
+                    this.selectedPlaceCustomChart = this.places[x];
                 }
                 this.tempPlaces.push(this.places[x]);
                 this.placeNames += encodeURIComponent(JSON.stringify(this.places[x]));
@@ -828,28 +830,36 @@ var DataTileComponent = (function () {
             console.log(temp);
         }
         var sliderScope = this;
+        console.log('slider', this.customChartYears, this._tickArray, this._tickLabelsTime);
         $(this.elementRef.nativeElement).find('#dateSlider').labeledslider({
             min: 0,
-            max: this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
-            value: this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
+            max: this.isCustomChart ? this.customChartYears.length - 1 : this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
+            value: this.isCustomChart ? this.customChartYears.length - 1 : this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
             tickInterval: 1,
             step: 1,
             autoScaleSlider: false,
             tickArray: this._tickArray,
             tickLabels: this._tickLabelsTime,
             change: function (event, ui) {
-                sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value + sliderScope.yearStartOffset];
-                sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];
-                sliderScope.processDataYear();
-                sliderScope.mapChart.setTitle(null, {
-                    text: sliderScope.selectedPlaceType + ' (' + sliderScope.selectedYear.Year + ')'
-                });
-                var seriesIndex = sliderScope.mapChart.series.length - 1;
-                var mapData = sliderScope.getSelectedMapData();
-                var data = sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data.place_data;
-                sliderScope.mapChart.series[seriesIndex].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
-                sliderScope.mapChart.series[seriesIndex].mapData = mapData;
-                sliderScope.mapChart.series[seriesIndex].setData(data);
+                console.log('slider changed');
+                if (sliderScope.isCustomChart) {
+                    sliderScope.selectedCustomChartYear = sliderScope.customChartYears[ui.value];
+                    sliderScope.processCustomChart();
+                }
+                else {
+                    sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value + sliderScope.yearStartOffset];
+                    sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];
+                    sliderScope.processDataYear();
+                    sliderScope.mapChart.setTitle(null, {
+                        text: sliderScope.selectedPlaceType + ' (' + sliderScope.selectedYear.Year + ')'
+                    });
+                    var seriesIndex = sliderScope.mapChart.series.length - 1;
+                    var mapData = sliderScope.getSelectedMapData();
+                    var data = sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data.place_data;
+                    sliderScope.mapChart.series[seriesIndex].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
+                    sliderScope.mapChart.series[seriesIndex].mapData = mapData;
+                    sliderScope.mapChart.series[seriesIndex].setData(data);
+                }
             }
         });
     };
@@ -858,7 +868,12 @@ var DataTileComponent = (function () {
         var runInterval = setInterval(runCheck, 2000);
         function runCheck() {
             if (runScope.sliderState === 'pause') {
-                runScope.animationCounter = runScope.animationCounter < (runScope.placeTypeData.Years.length - 1) ? ++runScope.animationCounter : 0;
+                if (runScope.isCustomChart) {
+                    runScope.animationCounter = runScope.animationCounter < (runScope.customChartYears.length - 1) ? ++runScope.animationCounter : 0;
+                }
+                else {
+                    runScope.animationCounter = runScope.animationCounter < (runScope.placeTypeData.Years.length - 1) ? ++runScope.animationCounter : 0;
+                }
                 $(runScope.elementRef.nativeElement).find('#dateSlider').labeledslider({ value: runScope.animationCounter });
             }
             else {
@@ -1098,24 +1113,28 @@ var DataTileComponent = (function () {
             }
         }
     };
-    DataTileComponent.prototype.onSelectedPlaceChangedCustomChart = function (evt, select) {
-        console.log('place changed', select.value);
-        this.selectedPlaceCustomChart = { Name: select.value };
+    DataTileComponent.prototype.onSelectedPlaceChangedCustomChart = function (selected) {
+        console.log('place changed', selected);
+        this.selectedPlaceCustomChart = selected;
         this.processCustomChart();
     };
     DataTileComponent.prototype.processCustomChart = function () {
         var chartScope = this;
         switch (this.indicator_info.ScriptName) {
             case 'PopulationPyramid':
+            case 'PopulationPyramidEstimate':
                 console.log('pyramid', this.selectedCustomChartYear);
                 var categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories;
                 var pyramidOptions = {
                     chart: {
-                        renderTo: 'highchart',
+                        renderTo: 'highchart' + this.indicator,
                         type: 'bar'
                     },
                     title: {
-                        text: ''
+                        text: null
+                    },
+                    subtitle: {
+                        text: this.viewType === 'advanced' ? this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear : this.selectedCustomChartYear
                     },
                     xAxis: [{
                             categories: categories,
@@ -1144,12 +1163,14 @@ var DataTileComponent = (function () {
                     },
                     plotOptions: {
                         series: {
-                            stacking: 'normal'
+                            stacking: 'normal',
+                            animation: false
                         }
                     },
                     tooltip: {
                         formatter: function () {
-                            return '<b>' + chartScope.selectedPlaceCustomChart.Name + ' ' + this.series.name + ', age ' + this.point.category + '</b><br/>' +
+                            return '<b>' + this.series.name + ', age ' + this.point.category + '</b><br/>'
+                                + chartScope.selectedPlaceCustomChart.Name + ': ' + chartScope.selectedCustomChartYear + '<br/>' +
                                 '% of Population: ' + angular2_highcharts_1.Highcharts.numberFormat(Math.abs(this.point.y), 2) + '%';
                         }
                     },
@@ -1161,8 +1182,11 @@ var DataTileComponent = (function () {
                             data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.female[this.selectedCustomChartYear].data
                         }]
                 };
+                console.log('pyramid before destroy');
                 this.chart.destroy();
+                console.log('pyramid after destroy', pyramidOptions);
                 this.chart = new angular2_highcharts_1.Highcharts.Chart(pyramidOptions);
+                console.log('pyramid created');
                 break;
             case 'Other':
                 break;
@@ -1171,12 +1195,20 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.createCustomChart = function () {
+        var _this = this;
         console.log('creating custom chart!', this.indicator_info.ScriptName, this.dataStore);
         this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
         this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
         this.processDataYear();
-        this.selectedPlaceCustomChart = this.places[0];
+        var placeSelected = false;
+        this.places.forEach(function (place) {
+            placeSelected = _this.selectedPlaceCustomChart.Name === place.Name ? true : placeSelected;
+        });
+        this.selectedPlaceCustomChart = placeSelected ? this.selectedPlaceCustomChart : this.places[0];
         this.processCustomChart();
+        if (this.viewType === 'advanced') {
+            this.setupTimeSlider();
+        }
     };
     DataTileComponent.prototype.addSeriesDataToGraphChart = function (mapPlaces) {
         var _this = this;
@@ -1269,7 +1301,7 @@ var DataTileComponent = (function () {
             var runInterval = setInterval(runCheck, 1050);
             var resizeScope = this;
             function runCheck() {
-                var newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $('.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $('.map-chart').width();
+                var newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
                 $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
                 clearInterval(runInterval);
             }
@@ -1349,7 +1381,7 @@ var DataTileComponent = (function () {
         var place_data_years_moe = {};
         if (this.indicator_info.ScriptName !== null) {
             console.log('stuck here', this.places, this.placeTypeData);
-            this.places.forEach(function (place) {
+            this.places.forEach(function (place, pidx) {
                 var placeDataMale = _this.placeTypeData.Data
                     .filter(function (data) {
                     return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Males') !== -1 : false;
@@ -1362,10 +1394,16 @@ var DataTileComponent = (function () {
                 var dataYears = [];
                 var categories = [];
                 if (placeDataMale.length > 0) {
+                    var counter = 0;
                     for (var col in placeDataMale[0]) {
-                        if ($.isNumeric(col.substring(0, 1))) {
+                        if ($.isNumeric(col.substring(0, 1)) && col.indexOf('MOE') === -1) {
                             if (placeDataMale[0][col] !== null) {
+                                if (pidx === 0) {
+                                    _this._tickLabelsTime.push(col);
+                                    _this._tickArray.push(counter);
+                                }
                                 dataYears.push(col);
+                                counter++;
                             }
                         }
                     }
@@ -1385,7 +1423,7 @@ var DataTileComponent = (function () {
                         placeDataMale.forEach(function (pdm) {
                             yearDataMale.data.push(-Math.abs(parseFloat(pdm[year])));
                             if (idx === 1) {
-                                categories.push(pdm['Variable'].replace('Males Age ', '').replace(' count', ''));
+                                categories.push(pdm['Variable'].replace('Males Age ', '').replace(' count', '').replace(' estimate', ''));
                             }
                         });
                         placeDataFemale.forEach(function (pdm) {
@@ -1406,11 +1444,11 @@ var DataTileComponent = (function () {
                         male: placeDataMaleYears,
                         female: placeDataFemaleYears
                     },
-                    years: dataYears,
+                    years: _this._tickLabelsTime,
                     categories: categories
                 };
                 _this.selectedCustomChartYear = dataYears[dataYears.length - 1];
-                console.log('male data', placeDataMaleYears, placeDataFemaleYears);
+                _this.customChartYears = dataYears;
             });
             var chart_data = {
                 place_data_years: place_data_years
@@ -1752,7 +1790,6 @@ var DataTileComponent = (function () {
         return collInfo.length > 0 ? collInfo[0].icon_path : '';
     };
     DataTileComponent.prototype.ngOnInit = function () {
-        console.log(this.defaultAdvChartOptions);
         this.defaultChartOptions.chart.spacingTop = this.viewType === 'advanced' ? 50 : this.defaultChartOptions.chart.spacingTop;
         if (this.tileType === 'map' && this.showMap) {
             for (var pt in this.dataStore) {

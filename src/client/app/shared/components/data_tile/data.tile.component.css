@@ -87,6 +87,9 @@
     padding: 20px 40px 10px 65px;
     width: 100%;
 }
+#slider_wrapper.custom{
+    margin-left:-15px;
+}
 
 #dateSlider
 {

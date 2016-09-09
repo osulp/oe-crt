@@ -1,7 +1,7 @@
 <div id="data-tile-wrapper" (window:resize)="onResize($event)" class="row" [ngClass]="{'advanced':viewType === 'advanced','mapChart':tileType === 'map'}">
     <div class="col-xs-12" id="chart-div" [ngClass]="tileType === 'map' ? 'mapChartDiv' : 'graphChartDiv'">
-        <div  *ngIf="tileType === 'graph'" class="collection-icon-wrapper">
-            <span *ngFor="let collection of indicator_collections"  class="collectionIcon">
+        <div *ngIf="tileType === 'graph'" class="collection-icon-wrapper">
+            <span *ngFor="let collection of indicator_collections" class="collectionIcon">
                 <img *ngIf="getCollectionIcon(collection) !== ''" [src]="getCollectionIcon(collection)" [alt]="collection" [title]="'This indicator is part of the '+collection+' collection.'" />
             </span>
         </div>
@@ -12,13 +12,14 @@
         </div>-->
         <div *ngIf="tileType === 'graph'">
             <div *ngIf="isCustomChart">
-                <select #selPlace class="chart-place-select" (change)="onSelectedPlaceChangedCustomChart($event,selPlace)">
-                    <option *ngFor="let place of places" [value]="place.Name">
+                <span>Select community:</span>
+                <select #selPlace class="chart-place-select" [ngModel]="selectedPlaceCustomChart" (ngModelChange)="onSelectedPlaceChangedCustomChart($event)">
+                    <option *ngFor="let place of places" [ngValue]="place">
                         {{place.Name}}
                     </option>
                 </select>
             </div>
-            <chart #highchart id="highchart" [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
+            <chart #highchart [id]="'highchart'+indicator" [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph graph-chart"></chart>
         </div>
         <div id="map-chart-wrapper" *ngIf="tileType === 'map'">
             <div id="map-view-wrapper">
@@ -27,20 +28,21 @@
             <div id="map-controls">
                 <!--<span>Zoom:</span>-->
                 <span (click)="mapChart.mapZoom();" class="glyphicon glyphicon-home full-zoom"></span><span (click)="mapChart.mapZoom();" class="full-zoom">Full Extent</span>
-                <span *ngIf="selectedMapPoints.length > 0" class="selectedMapDrpDwn">Selected:
-                    <select #sel class="map-chart-zoom-select">
+                <span *ngIf="selectedMapPoints.length > 0" class="selectedMapDrpDwn">
+                    Selected:
+                    <select #sel class="map-chart-zoom-select" (change)="mapChart.get(sel.value).zoomTo()">
                         <option *ngFor="let point of selectedMapPoints | mapChartPlaceZoomPipe: selectedPlaceType" [value]="point.id" (click)="mapChart.get(sel.value).zoomTo()">
                             {{point.id}}
                         </option>
                     </select>
-                <span class="glyphicon glyphicon-search zoomBtn" (click)="mapChart.get(sel.value).zoomTo()" title="Find selected community in map."></span>
+                    <span class="glyphicon glyphicon-search zoomBtn" (click)="mapChart.get(sel.value).zoomTo()" title="Find selected community in map."></span>
                 </span>
             </div>
             <chart #highmap id="highmap" type="Map" [options]="mapOptions" (load)="saveInstance($event.context)" class="graph map-chart"></chart>
         </div>
     </div>
     <div *ngIf="tileType === 'map' || (isCustomChart && viewType === 'advanced')">
-        <div id="slider_wrapper">
+        <div id="slider_wrapper" [ngClass]="isCustomChart ? 'custom': ''">
             <div id="play_wrapper">
                 <button id="play" type="button" (click)="onPlayBtnClick($event);" class="btn btn-default" aria-label="Left Align">
                     <span [ngClass]="'glyphicon-' + sliderState" class="glyphicon" aria-hidden="true" title="Play/pause data view by years."></span>
@@ -49,7 +51,7 @@
             <div id="dateSlider"></div>
         </div>
     </div>
-    <div *ngIf="tileType === 'graph' && viewType === 'advanced'">
+    <div *ngIf="tileType === 'graph' && viewType === 'advanced' && !isCustomChart">
         <div id="chart_footer_wrapper" class="row">
             <div class="chart_notices col-xs-6">
                 <div *ngIf="isCountyLevel || isStatewide || isNotCombinable">

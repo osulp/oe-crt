@@ -136,9 +136,9 @@ export class DetailComponent implements OnInit {
         this.showTable = false;
         this.chartData = [];
         this.inputIndicator = decodeURI(this.inputIndicator)
-            .replace(/\%2528/g, '(')
+            //.replace(/\%2528/g, '(')
             .replace(/\%28/g, '(')
-            .replace(/\%2529/g, ')')
+            //.replace(/\%2529/g, ')')
             .replace(/\%29/g, ')')
             .replace(/\%252C/g, ',')
             .replace(/\%2C/g, ',')

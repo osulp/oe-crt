@@ -11,6 +11,7 @@ import {SelectedDataService, DataService, GeoJSONStoreService, GetGeoJSONService
 import {MapChartPlaceZoomPipe} from '../../pipes/index';
 
 declare var $: any;
+declare var window: any;
 
 Highcharts.setOptions({
     colors: ['#058DC7', '#50B432', '#ED561B']
@@ -104,7 +105,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     private indicator_info: any;
     private showMap: boolean = true;
     private selectedCustomChartYear: string;
-    //private customChartYears: any[] = [];
+    private customChartYears: any[] = [];
     private isCustomChart: boolean = false;
     private selectedPlaceCustomChart: any;
 
@@ -453,6 +454,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 if (this.tempPlaces.indexOf(this.places[x]) === -1) {
                     //is the new addition
                     this.selectedPlaceType = this.isCountyLevel ? 'Counties' : this.translatePlaceTypes(this.places[x].TypeCategory);
+
+                    this.selectedPlaceCustomChart = this.places[x];
                     //console.log('selectedPlaceType set:', this.selectedPlaceType);
                 }
                 this.tempPlaces.push(this.places[x]);
@@ -1058,38 +1061,44 @@ export class DataTileComponent implements OnInit, OnDestroy {
             console.log(temp);
         }
         var sliderScope = this;
+        console.log('slider', this.customChartYears, this._tickArray, this._tickLabelsTime);
         $(this.elementRef.nativeElement).find('#dateSlider').labeledslider(
             {
                 min: 0,
-                max: this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
-                value: this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
+                max: this.isCustomChart ? this.customChartYears.length -1 : this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
+                value: this.isCustomChart ? this.customChartYears.length - 1 : this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
                 tickInterval: 1,
                 step: 1,
                 autoScaleSlider: false,
                 tickArray: this._tickArray,
                 tickLabels: this._tickLabelsTime,
                 change: function (event: any, ui: any) {
-                    //console.log('slider changed');
-                    sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value + sliderScope.yearStartOffset];
-                    sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];//  ui.value;
-                    sliderScope.processDataYear();
-                    sliderScope.mapChart.setTitle(null, {
-                        text: sliderScope.selectedPlaceType + ' (' + sliderScope.selectedYear.Year + ')'
-                    });
-                    let seriesIndex = sliderScope.mapChart.series.length - 1;
-                    let mapData = sliderScope.getSelectedMapData();
-                    let data: any = sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data.place_data;
-                    sliderScope.mapChart.series[seriesIndex].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
-                    sliderScope.mapChart.series[seriesIndex].mapData = mapData;
-                    sliderScope.mapChart.series[seriesIndex].setData(data);
-                    //detailChart.xAxis[0].removePlotLine('plot-line-1');
-                    //detailChart.xAxis[0].addPlotLine({
-                    //    value: selectedYearIndex,
-                    //    color: 'gray',
-                    //    dashStyle: 'longdashdot',
-                    //    width: 2,
-                    //    id: 'plot-line-1'
-                    //});
+                    console.log('slider changed');
+                    if (sliderScope.isCustomChart) {
+                        sliderScope.selectedCustomChartYear = sliderScope.customChartYears[ui.value];
+                        sliderScope.processCustomChart();
+                    } else {
+                        sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value + sliderScope.yearStartOffset];
+                        sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];//  ui.value;
+                        sliderScope.processDataYear();
+                        sliderScope.mapChart.setTitle(null, {
+                            text: sliderScope.selectedPlaceType + ' (' + sliderScope.selectedYear.Year + ')'
+                        });
+                        let seriesIndex = sliderScope.mapChart.series.length - 1;
+                        let mapData = sliderScope.getSelectedMapData();
+                        let data: any = sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data.place_data;
+                        sliderScope.mapChart.series[seriesIndex].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
+                        sliderScope.mapChart.series[seriesIndex].mapData = mapData;
+                        sliderScope.mapChart.series[seriesIndex].setData(data);
+                        //detailChart.xAxis[0].removePlotLine('plot-line-1');
+                        //detailChart.xAxis[0].addPlotLine({
+                        //    value: selectedYearIndex,
+                        //    color: 'gray',
+                        //    dashStyle: 'longdashdot',
+                        //    width: 2,
+                        //    id: 'plot-line-1'
+                        //});
+                    }
                 }
             });
     }
@@ -1099,7 +1108,11 @@ export class DataTileComponent implements OnInit, OnDestroy {
         var runInterval = setInterval(runCheck, 2000);
         function runCheck() {
             if (runScope.sliderState === 'pause') {
-                runScope.animationCounter = runScope.animationCounter < (runScope.placeTypeData.Years.length - 1) ? ++runScope.animationCounter : 0;
+                if (runScope.isCustomChart) {
+                    runScope.animationCounter = runScope.animationCounter < (runScope.customChartYears.length - 1) ? ++runScope.animationCounter : 0;
+                } else {
+                    runScope.animationCounter = runScope.animationCounter < (runScope.placeTypeData.Years.length - 1) ? ++runScope.animationCounter : 0;
+                }
                 $(runScope.elementRef.nativeElement).find('#dateSlider').labeledslider({ value: runScope.animationCounter });
             } else {
                 clearInterval(runInterval);
@@ -1423,9 +1436,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
         }
     }
 
-    onSelectedPlaceChangedCustomChart(evt: any, select: any) {
-        console.log('place changed', select.value);
-        this.selectedPlaceCustomChart = { Name: select.value };
+    onSelectedPlaceChangedCustomChart(selected: any) {
+        console.log('place changed', selected);
+        this.selectedPlaceCustomChart = selected; // { Name: select.value };
         this.processCustomChart();
     }
 
@@ -1433,16 +1446,20 @@ export class DataTileComponent implements OnInit, OnDestroy {
         let chartScope = this;
         switch (this.indicator_info.ScriptName) {
             case 'PopulationPyramid':
+            case 'PopulationPyramidEstimate':
                 console.log('pyramid', this.selectedCustomChartYear);
                 //let categories = ['0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90 +'];
                 let categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories;
                 let pyramidOptions = {
                     chart: {
-                        renderTo: 'highchart',
+                        renderTo: 'highchart'+ this.indicator,
                         type: 'bar'
                     },
                     title: {
-                        text: ''
+                        text: null
+                    },
+                    subtitle: {
+                        text: this.viewType === 'advanced' ? this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear : this.selectedCustomChartYear
                     },
                     xAxis: [{
                         categories: categories,
@@ -1472,13 +1489,15 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
                     plotOptions: {
                         series: {
-                            stacking: 'normal'
+                            stacking: 'normal',
+                            animation: false
                         }
                     },
 
                     tooltip: {
                         formatter: function () {
-                            return '<b>' + chartScope.selectedPlaceCustomChart.Name + ' ' + this.series.name + ', age ' + this.point.category + '</b><br/>' +
+                            return '<b>' + this.series.name + ', age ' + this.point.category + '</b><br/>'
+                                + chartScope.selectedPlaceCustomChart.Name + ': ' + chartScope.selectedCustomChartYear + '<br/>' +
                                 '% of Population: ' + Highcharts.numberFormat(Math.abs(this.point.y), 2) + '%';
                         }
                     },
@@ -1492,8 +1511,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
                         }]
                 };
+                console.log('pyramid before destroy');
+
                 this.chart.destroy();
+                console.log('pyramid after destroy', pyramidOptions);
                 this.chart = new Highcharts.Chart(pyramidOptions);
+                console.log('pyramid created');
                 break;
             case 'Other':
                 break;
@@ -1507,8 +1530,15 @@ export class DataTileComponent implements OnInit, OnDestroy {
         this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
         this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
         this.processDataYear();
-        this.selectedPlaceCustomChart = this.places[0];
+        let placeSelected: boolean = false;
+        this.places.forEach((place: any) => {
+            placeSelected = this.selectedPlaceCustomChart.Name === place.Name ? true : placeSelected;
+        });
+        this.selectedPlaceCustomChart = placeSelected ?  this.selectedPlaceCustomChart : this.places[0];
         this.processCustomChart();
+        if (this.viewType === 'advanced') {
+            this.setupTimeSlider();
+        }
     }
 
     addSeriesDataToGraphChart(mapPlaces?: any[]) {
@@ -1636,7 +1666,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
             var runInterval = setInterval(runCheck, 1050);
             var resizeScope = this;
             function runCheck() {
-                let newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $('.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $('.map-chart').width();
+
+                let newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
                 $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
                 clearInterval(runInterval);
             }
@@ -1834,7 +1865,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             console.log('stuck here', this.places, this.placeTypeData);
 
             //pop pyramid need data filtered by place (36 rows for each place), then arranged by year and gender
-            this.places.forEach((place: any) => {
+            this.places.forEach((place: any, pidx:number) => {
                 let placeDataMale = this.placeTypeData.Data
                     .filter((data: any) => {
                         return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Males') !== -1: false;
@@ -1850,10 +1881,16 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
                 //get years from data
                 if (placeDataMale.length > 0) {
+                    let counter = 0;
                     for (var col in placeDataMale[0]) {
-                        if ($.isNumeric(col.substring(0, 1))) {
+                        if ($.isNumeric(col.substring(0, 1)) && col.indexOf('MOE') === -1) {
                             if (placeDataMale[0][col] !== null) {
+                                if (pidx === 0) {
+                                    this._tickLabelsTime.push(col);
+                                    this._tickArray.push(counter);
+                                }
                                 dataYears.push(col);
+                                counter++;
                             }
                         }
                     }
@@ -1873,7 +1910,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         placeDataMale.forEach((pdm: any) => {
                             yearDataMale.data.push(-Math.abs(parseFloat(pdm[year])));
                             if (idx === 1) {
-                                categories.push(pdm['Variable'].replace('Males Age ', '').replace(' count', ''));
+                                categories.push(pdm['Variable'].replace('Males Age ', '').replace(' count', '').replace(' estimate', ''));
                             }
                         });
                         placeDataFemale.forEach((pdm: any) => {
@@ -1881,8 +1918,6 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         });
                         placeDataMaleYears[year] = yearDataMale;
                         placeDataFemaleYears[year] = yearDataFemale;
-                        //placeDataMaleYears.push(yearDataMale);
-                        //placeDataFemaleYears.push(yearDataFemale);
                     });
                 } else {
                     console.log('no data for pyramid');
@@ -1895,11 +1930,11 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         male: placeDataMaleYears,
                         female: placeDataFemaleYears
                     },
-                    years: dataYears,
+                    years: this._tickLabelsTime,
                     categories: categories
                 };
                 this.selectedCustomChartYear = dataYears[dataYears.length - 1];
-                console.log('male data', placeDataMaleYears, placeDataFemaleYears);
+                this.customChartYears = dataYears;
             });
             let chart_data: any = {
                 place_data_years: place_data_years
@@ -2308,7 +2343,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        console.log(this.defaultAdvChartOptions);
+        //console.log(this.defaultAdvChartOptions);
         //this.defaultChartOptions.title = {
         //    text: this.indicator ? this.indicator : null,
         //    align: this.viewType === 'basic' ? 'left' : null
