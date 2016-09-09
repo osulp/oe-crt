@@ -11,7 +11,14 @@
             </span>
         </div>-->
         <div *ngIf="tileType === 'graph'">
-            <chart #highchart [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
+            <div *ngIf="isCustomChart">
+                <select #selPlace class="chart-place-select" (change)="onSelectedPlaceChangedCustomChart($event,selPlace)">
+                    <option *ngFor="let place of places" [value]="place.Name">
+                        {{place.Name}}
+                    </option>
+                </select>
+            </div>
+            <chart #highchart id="highchart" [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph"></chart>
         </div>
         <div id="map-chart-wrapper" *ngIf="tileType === 'map'">
             <div id="map-view-wrapper">
@@ -23,7 +30,7 @@
                 <span *ngIf="selectedMapPoints.length > 0" class="selectedMapDrpDwn">Selected:
                     <select #sel class="map-chart-zoom-select">
                         <option *ngFor="let point of selectedMapPoints | mapChartPlaceZoomPipe: selectedPlaceType" [value]="point.id" (click)="mapChart.get(sel.value).zoomTo()">
-                            {{point.name}}
+                            {{point.id}}
                         </option>
                     </select>
                 <span class="glyphicon glyphicon-search zoomBtn" (click)="mapChart.get(sel.value).zoomTo()" title="Find selected community in map."></span>
@@ -32,7 +39,7 @@
             <chart #highmap id="highmap" type="Map" [options]="mapOptions" (load)="saveInstance($event.context)" class="graph map-chart"></chart>
         </div>
     </div>
-    <div [hidden]="tileType !== 'map'">
+    <div *ngIf="tileType === 'map' || (isCustomChart && viewType === 'advanced')">
         <div id="slider_wrapper">
             <div id="play_wrapper">
                 <button id="play" type="button" (click)="onPlayBtnClick($event);" class="btn btn-default" aria-label="Left Align">

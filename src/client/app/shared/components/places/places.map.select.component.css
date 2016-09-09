@@ -290,6 +290,57 @@
         position:relative;
     }
 
+.place-tooltip {
+    position:absolute;
+    z-index:35;
+    top:41px;
+    left:30px;
+    color:#802E01;
+    font-size:.8em;
+    background-color: #ffffff;
+	border: 1px solid #D1CDC7;
+    box-shadow:rgba(0,0,0,0.3)  0 2px 5px 0;
+    border-radius:4px;
+    padding:10px;
+}
+.place-tooltip:after, .arrow_box:before {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.place-tooltip:after {
+	border-color: rgba(255, 255, 255, 0);
+	border-bottom-color: #ffffff;
+	border-width: 10px;
+	margin-left: -10px;
+}
+.place-tooltip:before {
+	border-color: rgba(209, 205, 199, 0);
+	border-bottom-color: #D1CDC7;
+	border-width: 11px;
+	margin-left: -11px;
+}
+
+    .place-tooltip em {
+        text-align:center;
+        color:#6F7C82;
+        font-size:.8em;
+    }
+.tooltip-partof {
+    color:#808080;
+    font-size:.8em;
+    line-height:normal;
+}
+
+
+
+
 
 #go-report-button{
     background-color:#C34500;
@@ -350,6 +401,10 @@
             top:5px;
             cursor:pointer;
         }
+
+.place-bin:hover {
+    text-decoration:underline;
+}
 
 .editHeader {
     min-height: 25px !important;

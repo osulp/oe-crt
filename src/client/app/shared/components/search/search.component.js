@@ -28,6 +28,7 @@ var SearchComponent = (function () {
         this.selSearchResultEvt = new core_1.EventEmitter();
         this.term = new common_1.Control();
         this.filter = '%';
+        this.tempResults = [];
         this.tempTabIndex = -1;
         this.filter = this.filterType !== undefined ? this.filterType : this.filter;
         this.items = this.term.valueChanges
@@ -42,7 +43,6 @@ var SearchComponent = (function () {
     };
     SearchComponent.prototype.selectResult = function (searchItem) {
         if (searchItem.Type === 'Place') {
-            searchItem.Desc = '';
             this._selectedPlacesService.add(searchItem, 'map');
         }
         this.selSearchResultEvt.emit(searchItem);

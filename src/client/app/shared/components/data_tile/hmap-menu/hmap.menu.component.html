@@ -1,9 +1,9 @@
 <div id="map-menu-wrapper">
     <div class="hamburger-menu" [ngClass]="{'selected':menuSelected}" (click)="menuSelected = !menuSelected">
     </div>
-    <div id="map-menu" *ngIf="menuSelected" [ngClass]="showMenuLeft ? 'showMenuLeft' : ''" >
+    <div id="map-menu" *ngIf="menuSelected" [ngClass]="showMenuLeft ? 'showMenuLeft' : ''">
         <div class="arrow_box">
-            <div class="map-view-title">Select Map View</div>            
+            <div class="map-view-title">Select Map View</div>
             <div *ngFor="let layer of mapViews">
                 <div #switcher [ngSwitch]="_translatedMapView">
                     <div *ngSwitchWhen="layer">

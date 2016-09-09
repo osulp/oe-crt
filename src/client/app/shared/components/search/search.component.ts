@@ -31,7 +31,7 @@ export class SearchComponent {
     filter: string = '%';
     searchTerms: string;
     selectedSearchResult: SearchResult;
-    tempResults: any[];
+    tempResults: any[] = [];
     items: Observable<any[]>;
     tempTabIndex: number = -1;
 
@@ -56,7 +56,7 @@ export class SearchComponent {
 
     selectResult(searchItem: SearchResult) {
         if (searchItem.Type === 'Place') {
-            searchItem.Desc = '';
+            //searchItem.Desc = searchItem.Desc.replace(/\./g, '%2E');
             this._selectedPlacesService.add(searchItem, 'map');
         }
         this.selSearchResultEvt.emit(searchItem);

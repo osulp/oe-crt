@@ -153,6 +153,11 @@ var PlacesMapSelectComponent = (function () {
         this.addPlace(result);
         this.searchTerms = '';
     };
+    PlacesMapSelectComponent.prototype.toggleToolTip = function (event, elem) {
+        console.log('togglin', elem);
+        var curVal = elem.getAttribute('showToolTip');
+        elem.setAttribute('showToolTip', curVal === 'true' ? 'false' : 'true');
+    };
     PlacesMapSelectComponent.prototype.blurHandler = function (event) {
         var searchScope = this;
         setTimeout(function () {
@@ -204,7 +209,6 @@ var PlacesMapSelectComponent = (function () {
         this._selectedPlacesService.remove(place);
     };
     PlacesMapSelectComponent.prototype.addPlace = function (place) {
-        place.Desc = '';
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);

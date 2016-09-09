@@ -46,10 +46,6 @@ import { SelectedPlacesService } from './shared/services/index';
         path: '/How To',
         component: HowToComponent
     },
-    //{
-    //    path: '/My Pins',
-    //    component: MyPinsComponent
-    //},
     {
         path: '/Error',
         component: ErrorComponent

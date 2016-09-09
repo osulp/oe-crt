@@ -96,6 +96,7 @@ var ExploreComponent = (function () {
         var placeParam = { key: 'places', value: places };
         qsParams.push(placeParam);
         var newState = this.updateQueryStringParam(qsParams);
+        console.log('NEW STATE!!!!!!!!!!!', newState);
         window.history.pushState({}, '', newState);
     };
     ExploreComponent.prototype.updateQueryStringParam = function (qsParams) {
@@ -125,7 +126,9 @@ var ExploreComponent = (function () {
             }
             urlQueryString = allParams;
         }
-        return (baseUrl + allParams).replace('?&', '?');
+        var returnVal = (baseUrl + allParams).replace('?&', '?');
+        returnVal = '<%= ENV %>' !== 'prod' ? returnVal.replace(new RegExp('\\.', 'g'), '%2E') : returnVal;
+        return returnVal;
     };
     ;
     ExploreComponent.prototype.onBlurExplorePage = function (evt) {

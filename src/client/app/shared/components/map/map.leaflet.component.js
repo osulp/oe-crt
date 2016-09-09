@@ -40,7 +40,7 @@ var MapLeafletComponent = (function () {
         this.labels = {};
     }
     MapLeafletComponent.prototype.loadMap = function () {
-        console.log('start loadmap');
+        console.log('start loadmap', this.selectedPlaces);
         if (!this.map) {
             this.map = L.map('map', {
                 zoomControl: false
@@ -64,10 +64,12 @@ var MapLeafletComponent = (function () {
                 maxZoom: 8
             });
             baseMapLabels.addTo(this.map);
+            var ctTypes = ['Tracts', 'Unincorporated Place'];
+            var hasCT = this.selectedPlaces ? this.selectedPlaces.filter(function (place) { return ctTypes.indexOf(place.TypeCategory) !== -1; }) : [];
             this.crt_layers = L.esri.dynamicMapLayer({
                 url: this.crt_layers_url,
                 opacity: 0.7,
-                layers: [this.crt_layer_cities_id, this.crt_layer_counties_id],
+                layers: hasCT.length > 0 ? [this.crt_layer_cities_id, this.crt_layer_tracts_id, this.crt_layer_counties_id] : [this.crt_layer_cities_id, this.crt_layer_counties_id],
                 useCors: true
             }).addTo(this.map);
             baseMapLabels.bringToFront();
@@ -171,11 +173,13 @@ var MapLeafletComponent = (function () {
                 }
             }
             this.map.on('locationfound', onLocationFound);
-            var countyBtn = this.createLayerBtn('Counties', 3);
-            var tractBtn = this.createLayerBtn('Tracts', 2);
-            var cityBtn = this.createLayerBtn('Cities', 1);
-            L.easyBar([countyBtn, tractBtn, cityBtn]).addTo(this.map);
-            tractBtn.state('layer-inactive');
+            this.countyBtn = this.createLayerBtn('Counties', 3);
+            this.tractBtn = this.createLayerBtn('Tracts', 2);
+            this.cityBtn = this.createLayerBtn('Cities', 1);
+            L.easyBar([this.countyBtn, this.tractBtn, this.cityBtn]).addTo(this.map);
+            if (hasCT.length === 0) {
+                this.tractBtn.state('layer-inactive');
+            }
             this.setDetailView();
             this.crt_layers.bindPopup(function (error, featureCollection, resp) {
                 if (error || featureCollection.features.length === 0) {
@@ -462,6 +466,10 @@ var MapLeafletComponent = (function () {
                 .simplify(this.map, 0)
                 .run(function (err, featureCollection, response) {
                 mapScope.selectedLayer.addData(featureCollection.features);
+                var currLayers = mapScope.crt_layers.getLayers();
+                currLayers.indexOf(mapScope.crt_layer_tracts_id) === -1 ? currLayers.push(mapScope.crt_layer_tracts_id) : currLayers.splice(currLayers.indexOf(mapScope.crt_layer_tracts_id), 1);
+                mapScope.crt_layers.setLayers(currLayers);
+                mapScope.tractBtn.state('layer-active');
                 mapScope.processedTract = true;
             });
         }

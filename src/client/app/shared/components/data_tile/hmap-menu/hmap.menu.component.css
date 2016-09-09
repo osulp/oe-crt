@@ -143,12 +143,12 @@
     }
 
 /* never forget focus styling */
-[type="radio"]:focus + span:after {
+/*[type="radio"]:focus + span:after {
     content: '\0020\2190';
     font-size: 1.5em;
     line-height: 1;
     vertical-align: -0.125em;
-}
+}*/
 
 .map-view-title{
     font-weight:bold;

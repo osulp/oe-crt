@@ -28,7 +28,7 @@ export class MapChartPlaceZoomPipe implements PipeTransform {
                 break;
             case 'Census Tract':
             case 'Census Tracts':
-            case 'Unicorporated Place':
+            case 'Unincorporated Place':
                 returnPT = 'Tracts';
                 break;
             default:

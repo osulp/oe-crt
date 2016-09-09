@@ -135,7 +135,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         var placeParam: QueryStringParams = { key: 'places', value: places };
         qsParams.push(placeParam);
         var newState = this.updateQueryStringParam(qsParams);
-        //console.log('NEW STATE!!!!!!!!!!!');
+        console.log('NEW STATE!!!!!!!!!!!',newState);
         //console.log(newState);
         window.history.pushState({}, '', newState);
     }
@@ -167,7 +167,9 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
             }
             urlQueryString = allParams;
         }
-        return (baseUrl + allParams).replace('?&', '?');
+        let returnVal = (baseUrl + allParams).replace('?&', '?');
+        returnVal = '<%= ENV %>' !== 'prod' ? returnVal.replace(new RegExp('\\.', 'g'), '%2E') : returnVal;
+        return returnVal;
     };
 
     onBlurExplorePage(evt: any) {

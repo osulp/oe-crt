@@ -223,6 +223,13 @@ export class PlacesMapSelectComponent implements OnInit {
         this.addPlace(result);
         this.searchTerms = '';
     }
+
+    toggleToolTip(event: any, elem: any) {
+        console.log('togglin', elem);
+        let curVal = elem.getAttribute('showToolTip');
+        elem.setAttribute('showToolTip', curVal === 'true' ? 'false' : 'true');
+    }
+
     blurHandler(event: any) {
         var searchScope = this;
         setTimeout(function () {
@@ -289,7 +296,7 @@ export class PlacesMapSelectComponent implements OnInit {
     }
     addPlace(place: SearchResult) {
         //check if already added
-        place.Desc = '';
+        //place.Desc = place.Desc.replace(/\./g, '%2E');
         var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);

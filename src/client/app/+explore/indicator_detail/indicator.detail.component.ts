@@ -124,7 +124,7 @@ export class DetailComponent implements OnInit {
             console.log('ree', evt);
             this.dataTiles.forEach((dt: any) => {
                 if (dt.hMapMenu) {
-                    dt.hMapMenu.menuSelected = false
+                    dt.hMapMenu.menuSelected = false;
                 }
             });
         }
