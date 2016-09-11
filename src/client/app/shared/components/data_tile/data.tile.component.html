@@ -12,14 +12,17 @@
         </div>-->
         <div *ngIf="tileType === 'graph'">
             <div *ngIf="isCustomChart">
-                <span>Select community:</span>
-                <select #selPlace class="chart-place-select" [ngModel]="selectedPlaceCustomChart" (ngModelChange)="onSelectedPlaceChangedCustomChart($event)">
-                    <option *ngFor="let place of places" [ngValue]="place">
-                        {{place.Name}}
-                    </option>
-                </select>
+                <div *ngIf="viewType === 'basic'" class="customChartTitle">{{indicator}}</div>
+                <div [ngClass]="viewType === 'basic' ? 'placeSelectCustomChart' : ''">
+                    <span>Select community:</span>
+                    <select #selPlace class="chart-place-select" [ngModel]="selectedPlaceCustomChart" (ngModelChange)="onSelectedPlaceChangedCustomChart($event)">
+                        <option *ngFor="let place of places" [ngValue]="place">
+                            {{place.Name}}
+                        </option>
+                    </select>
+                </div>
             </div>
-            <chart #highchart [id]="'highchart'+indicator" [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph graph-chart"></chart>
+            <chart #highchart [id]="'highchart'+indicator" [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph graph-chart" [ngClass]="isCustomChart ? 'custom' : ''"></chart>
         </div>
         <div id="map-chart-wrapper" *ngIf="tileType === 'map'">
             <div id="map-view-wrapper">

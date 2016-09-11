@@ -10,6 +10,8 @@ import {SelectedTopicsPipe, IndicatorTopicFilterPipe,SelectedIndicatorByTopicsCo
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/share';
 
+declare var window: any;
+
 @Component({
     moduleId: module.id,
     selector: 'topics',

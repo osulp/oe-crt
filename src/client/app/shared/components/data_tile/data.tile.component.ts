@@ -1432,6 +1432,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         } else {
             if (this.tileType === 'graph') {
                 this.createCustomChart();
+                this.chart.hideLoading();
             }
         }
     }
@@ -1456,12 +1457,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         type: 'bar'
                     },
                     title: {
-                        text: null
+                        text: ''
                     },
                     subtitle: {
                         text: this.viewType === 'advanced' ? this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear : this.selectedCustomChartYear
                     },
-                    xAxis: [{
+                    xAxis: this.viewType === 'advanced' ? [{
                         categories: categories,
                         reversed: false,
                         labels: {
@@ -1474,6 +1475,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
                             linkedTo: 0,
                             labels: {
                                 step: 1
+                            }
+                        }] : [{
+                            categories: categories,
+                            reversed: false,
+                            labels: {
+                                step: 2
                             }
                         }],
                     yAxis: {
@@ -1523,6 +1530,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
             default:
                 break;
         }
+        //this.chart.legend.update(this.setLegendOptions(false));
+        //this.chart.reflow();
     }
 
     createCustomChart() {
@@ -2343,7 +2352,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        //console.log(this.defaultAdvChartOptions);
+        console.log('Leave this so it does not squawk on build', this.defaultAdvChartOptions);
         //this.defaultChartOptions.title = {
         //    text: this.indicator ? this.indicator : null,
         //    align: this.viewType === 'basic' ? 'left' : null

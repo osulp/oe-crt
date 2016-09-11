@@ -1110,6 +1110,7 @@ var DataTileComponent = (function () {
         else {
             if (this.tileType === 'graph') {
                 this.createCustomChart();
+                this.chart.hideLoading();
             }
         }
     };
@@ -1131,12 +1132,12 @@ var DataTileComponent = (function () {
                         type: 'bar'
                     },
                     title: {
-                        text: null
+                        text: ''
                     },
                     subtitle: {
                         text: this.viewType === 'advanced' ? this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear : this.selectedCustomChartYear
                     },
-                    xAxis: [{
+                    xAxis: this.viewType === 'advanced' ? [{
                             categories: categories,
                             reversed: false,
                             labels: {
@@ -1149,6 +1150,12 @@ var DataTileComponent = (function () {
                             linkedTo: 0,
                             labels: {
                                 step: 1
+                            }
+                        }] : [{
+                            categories: categories,
+                            reversed: false,
+                            labels: {
+                                step: 2
                             }
                         }],
                     yAxis: {
@@ -1790,6 +1797,7 @@ var DataTileComponent = (function () {
         return collInfo.length > 0 ? collInfo[0].icon_path : '';
     };
     DataTileComponent.prototype.ngOnInit = function () {
+        console.log('Leave this so it does not squawk on build', this.defaultAdvChartOptions);
         this.defaultChartOptions.chart.spacingTop = this.viewType === 'advanced' ? 50 : this.defaultChartOptions.chart.spacingTop;
         if (this.tileType === 'map' && this.showMap) {
             for (var pt in this.dataStore) {
