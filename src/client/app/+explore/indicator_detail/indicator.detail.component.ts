@@ -26,11 +26,13 @@ export class DetailComponent implements OnInit {
     @ViewChildren(DataTileComponent) dataTiles: QueryList<DataTileComponent>;
     indicatorDesc: any = [];
     _chartData: any = [];
+    chartData: any = [];
     showMap: boolean;
     showGraph: boolean;
     showTable: boolean;
     isCustomChart: boolean = false;
-    chartData: any = [];
+    customChartSelections: any = {};
+    _customChartSelections: any = {};
     selectedSearchResult: SearchResult;
     selectedPlaceType: any = 'Oregon';
     urlPlaces: SearchResult[] = [];
@@ -114,8 +116,6 @@ export class DetailComponent implements OnInit {
     onChartDataUpdate(data: any) {
         console.log('Chart data emitted to indicator detail', data);
         this._chartData = data;
-        console.log('Chart data', this.chartData);
-        //this.tableView.tableData = data;
     }
 
     onBlurExplorePage(evt: any) {

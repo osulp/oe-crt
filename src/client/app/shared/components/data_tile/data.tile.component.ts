@@ -742,7 +742,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         //combine data by group-names
                         let combinedData = this.processCombinedData(data);
                         this.updateDataStore([combinedData], 'indicator');
-                        this.onChartDataUpdate.emit(combinedData);
+                        this.onChartDataUpdate.emit({ data: combinedData, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear });
                         this.createGraphChart();
                     });
             } else {
@@ -752,8 +752,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         console.log('regular indicator data', data);
                         if (data.Data.length > 0) {
                             this.updateDataStore([data], 'indicator');
-                            this.onChartDataUpdate.emit(data);
                             this.createGraphChart();
+                            this.onChartDataUpdate.emit({ data: data, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear });
                         } else {
                             this.chart.showLoading('Sorry, indicator data is not available for this place.  Please select a community.');
                             this.chart.setTitle({
@@ -767,7 +767,6 @@ export class DataTileComponent implements OnInit, OnDestroy {
                                 x: -30
                             });
                         }
-
                     },
                     (err: any) => console.error(err),
                     () => console.log('done loading data for graph')
@@ -1077,6 +1076,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     if (sliderScope.isCustomChart) {
                         sliderScope.selectedCustomChartYear = sliderScope.customChartYears[ui.value];
                         sliderScope.processCustomChart();
+                        sliderScope.onChartDataUpdate.emit({ data: sliderScope.dataStore.indicatorData[sliderScope.indicator].crt_db, customPlace: sliderScope.selectedPlaceCustomChart, customYear: sliderScope.selectedCustomChartYear });
                     } else {
                         sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value + sliderScope.yearStartOffset];
                         sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];//  ui.value;
@@ -1438,22 +1438,24 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     onSelectedPlaceChangedCustomChart(selected: any) {
-        console.log('place changed', selected);
+        console.log('place changed', selected, this.dataStore);
         this.selectedPlaceCustomChart = selected; // { Name: select.value };
         this.processCustomChart();
+        this.onChartDataUpdate.emit({ data: this.dataStore.indicatorData[this.indicator].crt_db, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear });
     }
 
     processCustomChart() {
         let chartScope = this;
+        let categories: any[];
         switch (this.indicator_info.ScriptName) {
             case 'PopulationPyramid':
             case 'PopulationPyramidEstimate':
-                console.log('pyramid', this.selectedCustomChartYear);
+                //console.log('pyramid', this.selectedCustomChartYear);
                 //let categories = ['0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90 +'];
-                let categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories;
+                categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories;
                 let pyramidOptions = {
                     chart: {
-                        renderTo: 'highchart'+ this.indicator,
+                        renderTo: 'highchart' + this.indicator,
                         type: 'bar'
                     },
                     title: {
@@ -1525,6 +1527,73 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 this.chart = new Highcharts.Chart(pyramidOptions);
                 console.log('pyramid created');
                 break;
+            case 'IncomeHistogram':
+                categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories
+                    .filter((cat: any) => {
+                        return this.selectedCustomChartYear !== '1990' ? cat !== '> $150,000' : (cat !== '$150,000 - 199,999' && cat !== '> $200,000');
+                    });
+                console.log('income cat', categories);
+
+                let incomeDistOptions = {
+                    chart: {
+                        type: 'column',
+                        renderTo: 'highchart' + this.indicator
+                    },
+                    title: {
+                        text: ''
+                    },
+                    subtitle: {
+                        text: this.viewType === 'advanced' ? this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear : this.selectedCustomChartYear
+                    },
+                    xAxis: {
+                        categories: categories,
+                        crosshair: true,
+                        labels: {
+                            formatter: function () {
+                                if (chartScope.viewType === 'basic') {
+                                    return this.value.toString().replace(/\,000/g, 'K').replace(/\,999/g, 'K');
+                                } else {
+                                    return this.value;
+                                }
+                            }
+                        }
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: '# of Households'
+                        }
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        },
+                        series: {
+                            animation: false
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                        '<td style="padding:0"><b>{point.y::,.0f} </b></td></tr>',
+                        footerFormat: '</table>',
+                        useHTML: true
+                    },
+
+                    series: [{
+                        name: this.selectedPlaceCustomChart.Name + ' Income Distribution',
+                        data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data
+                            .filter((data: any, idx: number) => {
+                                return this.selectedCustomChartYear !== '1990' ? idx !== 8 : idx !== 7 && idx !== 9;
+                            })
+                    }]
+                };
+                this.chart.destroy();
+                this.chart = new Highcharts.Chart(incomeDistOptions);
+
+                break;
+
             case 'Other':
                 break;
             default:
@@ -1849,102 +1918,173 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
             } else if (this.isCountyLevel && (place.TypeCategory === 'Incorporated City' || place.TypeCategory === 'Incorporated Town' || place.TypeCategory === 'Census Designated Place') && place.Desc.replace(' County','') === pData.community) {
                 //console.log('countylevel translation', pData.community + ' (contains ' + place.Name + ')');
-                returnName = returnName === '' ? pData.community + (pData.geoid.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
+                returnName = returnName === '' ? pData.community + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
             }
         });
         console.log('returnName', returnName);
-        return returnName === '' ? pData.community + (pData.geoid.length === 5 ? ' County' : '') : returnName; // pData.community;
+        return returnName === '' ? pData.community : returnName; // pData.community;
         //return pData.community;
     }
 
     ageSort(a: any, b: any) {
-        return a.Variable.split('-')[0].replace('Males Age ', '').replace('Females Age ', '').replace('+','').replace(' count','') - b.Variable.split('-')[0].replace('Males Age ', '').replace('Females Age ', '').replace('+','').replace(' count','');
+        return a.Variable.split('-')[0].replace('Males Age ', '').replace('Females Age ', '').replace('+', '').replace(' count', '') - b.Variable.split('-')[0].replace('Males Age ', '').replace('Females Age ', '').replace('+', '').replace(' count', '');
+    }
+
+    incomeSort(a: any, b: any) {
+        return parseInt(a.Variable.split(' -')[0].replace('<', '').replace('>', '').replace('$','')) - parseInt(b.Variable.split(' -')[0].replace('<', '').replace('>', '').replace('$',''));
+    }
+
+    processCustomChartData(chartType: any) {
+        let place_data_years: any = {};
+        switch (this.indicator_info.ScriptName) {
+            case 'PopulationPyramid':
+            case 'PopulationPyramidEstimate':
+                //pop pyramid need data filtered by place (36 rows for each place), then arranged by year and gender
+                this.places.forEach((place: any, pidx: number) => {
+                    let placeDataMale = this.placeTypeData.Data
+                        .filter((data: any) => {
+                            return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Males') !== -1 : false;
+                        }).sort(this.ageSort);
+                    let placeDataFemale = this.placeTypeData.Data.filter((data: any) => {
+                        return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Females') !== -1 : false;
+                    }).sort(this.ageSort);
+
+                    let placeDataMaleYears: any[] = [];
+                    let placeDataFemaleYears: any[] = [];
+                    let dataYears: any[] = [];
+                    let categories: any[] = [];
+
+                    //get years from data
+                    if (placeDataMale.length > 0) {
+                        let counter = 0;
+                        for (var col in placeDataMale[0]) {
+                            if ($.isNumeric(col.substring(0, 1)) && col.indexOf('MOE') === -1) {
+                                if (placeDataMale[0][col] !== null) {
+                                    if (pidx === 0) {
+                                        this._tickLabelsTime.push(col);
+                                        this._tickArray.push(counter);
+                                    }
+                                    dataYears.push(col);
+                                    counter++;
+                                }
+                            }
+                        }
+                        dataYears.forEach((year: any, idx: number) => {
+                            let yearDataMale: any = {
+                                year: year,
+                                community: place.Name,
+                                gender: 'Males',
+                                data: []
+                            };
+                            let yearDataFemale: any = {
+                                year: year,
+                                community: place.Name,
+                                gender: 'Females',
+                                data: []
+                            };
+                            placeDataMale.forEach((pdm: any) => {
+                                yearDataMale.data.push(-Math.abs(parseFloat(pdm[year])));
+                                if (idx === 1) {
+                                    categories.push(pdm['Variable'].replace('Males Age ', '').replace(' count', '').replace(' estimate', ''));
+                                }
+                            });
+                            placeDataFemale.forEach((pdm: any) => {
+                                yearDataFemale.data.push(parseFloat(pdm[year]));
+                            });
+                            placeDataMaleYears[year] = yearDataMale;
+                            placeDataFemaleYears[year] = yearDataFemale;
+                        });
+                    } else {
+                        console.log('no data for pyramid');
+                    }
+                    place_data_years[place.Name] = {
+                        id: place.Name,
+                        name: place.Name,
+                        geoid: place.ResID,
+                        data: {
+                            male: placeDataMaleYears,
+                            female: placeDataFemaleYears
+                        },
+                        years: this._tickLabelsTime,
+                        categories: categories
+                    };
+                    this.selectedCustomChartYear = dataYears[dataYears.length - 1];
+                    this.customChartYears = dataYears;
+                });
+                break;
+            case 'IncomeHistogram':
+                this.places.forEach((place: any, pidx: number) => {
+                    let placeData = this.placeTypeData.Data
+                        .filter((data: any) => {
+                            return data.community ? data.community.trim() === place.Name.trim() : false;
+                        })
+                        .sort(this.incomeSort)
+                        .sort((a: any, b: any) => +(!b.Variable.localeCompare('< $10,000')));
+                    let placeDataYears: any[] = [];
+                    let dataYears: any[] = [];
+                    let categories: any[] = [];
+
+                    //get years from data
+                    if (placeData.length > 0) {
+                        let counter = 0;
+                        for (var col in placeData[0]) {
+                            if ($.isNumeric(col.substring(0, 1)) && col.indexOf('MOE') === -1) {
+                                if (placeData[0][col] !== null) {
+                                    if (pidx === 0) {
+                                        this._tickLabelsTime.push(col);
+                                        this._tickArray.push(counter);
+                                    }
+                                    dataYears.push(col);
+                                    counter++;
+                                }
+                            }
+                        }
+                        dataYears.forEach((year: any, idx: number) => {
+                            let yearData: any = {
+                                year: year,
+                                community: place.Name,
+                                data: []
+                            };
+                            placeData.forEach((pdm: any) => {
+                                yearData.data.push(parseInt(pdm[year]));
+                                if (idx === 1) {
+                                    categories.push(pdm['Variable']);
+                                }
+                            });
+                            placeDataYears[year] = yearData;
+                        });
+                    } else {
+                        console.log('no data for income distribution');
+                    }
+                    place_data_years[place.Name] = {
+                        id: place.Name,
+                        name: place.Name,
+                        geoid: place.ResID,
+                        data: placeDataYears,
+                        years: this._tickLabelsTime,
+                        categories: categories
+                    };
+                    this.selectedCustomChartYear = dataYears[dataYears.length - 1];
+                    this.customChartYears = dataYears;
+                });
+                break;
+            default:
+                place_data_years = {};
+                break;
+
+        }
+        return place_data_years;
     }
 
     processDataYear() {
         this.yearStartOffset = this.getStartYear();
-        this.yearEndOffset = this.getEndYear();
-        //this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
-        //console.log('year-stuff', this.placeTypeData.Years, this.yearStartOffset, this.yearEndOffset, this.selectedYear);
+        this.yearEndOffset = this.getEndYear();        
         let place_data = [{}];
         let place_data_years: any = {};
         let place_data_years_moe: any = {};
 
-        if (this.indicator_info.ScriptName !== null) {
-            console.log('stuck here', this.places, this.placeTypeData);
-
-            //pop pyramid need data filtered by place (36 rows for each place), then arranged by year and gender
-            this.places.forEach((place: any, pidx:number) => {
-                let placeDataMale = this.placeTypeData.Data
-                    .filter((data: any) => {
-                        return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Males') !== -1: false;
-                    }).sort(this.ageSort);
-                let placeDataFemale = this.placeTypeData.Data.filter((data: any) => {
-                    return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Females') !== -1 : false;
-                }).sort(this.ageSort);
-
-                let placeDataMaleYears: any[] = [];
-                let placeDataFemaleYears: any[] = [];
-                let dataYears: any[] = [];
-                let categories: any[] = [];
-
-                //get years from data
-                if (placeDataMale.length > 0) {
-                    let counter = 0;
-                    for (var col in placeDataMale[0]) {
-                        if ($.isNumeric(col.substring(0, 1)) && col.indexOf('MOE') === -1) {
-                            if (placeDataMale[0][col] !== null) {
-                                if (pidx === 0) {
-                                    this._tickLabelsTime.push(col);
-                                    this._tickArray.push(counter);
-                                }
-                                dataYears.push(col);
-                                counter++;
-                            }
-                        }
-                    }
-                    dataYears.forEach((year: any, idx: number) => {
-                        let yearDataMale: any = {
-                            year: year,
-                            community: place.Name,
-                            gender: 'Males',
-                            data: []
-                        };
-                        let yearDataFemale: any = {
-                            year: year,
-                            community: place.Name,
-                            gender: 'Females',
-                            data: []
-                        };
-                        placeDataMale.forEach((pdm: any) => {
-                            yearDataMale.data.push(-Math.abs(parseFloat(pdm[year])));
-                            if (idx === 1) {
-                                categories.push(pdm['Variable'].replace('Males Age ', '').replace(' count', '').replace(' estimate', ''));
-                            }
-                        });
-                        placeDataFemale.forEach((pdm: any) => {
-                            yearDataFemale.data.push(parseFloat(pdm[year]));
-                        });
-                        placeDataMaleYears[year] = yearDataMale;
-                        placeDataFemaleYears[year] = yearDataFemale;
-                    });
-                } else {
-                    console.log('no data for pyramid');
-                }
-                place_data_years[place.Name] = {
-                    id: place.Name,
-                    name: place.Name,
-                    geoid: place.ResID,
-                    data: {
-                        male: placeDataMaleYears,
-                        female: placeDataFemaleYears
-                    },
-                    years: this._tickLabelsTime,
-                    categories: categories
-                };
-                this.selectedCustomChartYear = dataYears[dataYears.length - 1];
-                this.customChartYears = dataYears;
-            });
+        if (this.indicator_info.ScriptName !== null) {            
+            place_data_years = this.processCustomChartData(this.indicator.ScriptName);
             let chart_data: any = {
                 place_data_years: place_data_years
             };

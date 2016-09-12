@@ -22,8 +22,10 @@ var DetailComponent = (function () {
         this._location = _location;
         this.indicatorDesc = [];
         this._chartData = [];
-        this.isCustomChart = false;
         this.chartData = [];
+        this.isCustomChart = false;
+        this.customChartSelections = {};
+        this._customChartSelections = {};
         this.selectedPlaceType = 'Oregon';
         this.urlPlaces = [];
         this.visible = false;
@@ -92,7 +94,6 @@ var DetailComponent = (function () {
     DetailComponent.prototype.onChartDataUpdate = function (data) {
         console.log('Chart data emitted to indicator detail', data);
         this._chartData = data;
-        console.log('Chart data', this.chartData);
     };
     DetailComponent.prototype.onBlurExplorePage = function (evt) {
         if (!$(evt.target).closest('#map-menu').length && !$(evt.target).hasClass('hamburger-menu')) {

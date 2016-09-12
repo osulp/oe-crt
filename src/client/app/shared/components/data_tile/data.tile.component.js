@@ -580,7 +580,7 @@ var DataTileComponent = (function () {
                 this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
                     var combinedData = _this.processCombinedData(data);
                     _this.updateDataStore([combinedData], 'indicator');
-                    _this.onChartDataUpdate.emit(combinedData);
+                    _this.onChartDataUpdate.emit({ data: combinedData, customPlace: _this.selectedPlaceCustomChart, customYear: _this.selectedCustomChartYear });
                     _this.createGraphChart();
                 });
             }
@@ -590,8 +590,8 @@ var DataTileComponent = (function () {
                     console.log('regular indicator data', data);
                     if (data.Data.length > 0) {
                         _this.updateDataStore([data], 'indicator');
-                        _this.onChartDataUpdate.emit(data);
                         _this.createGraphChart();
+                        _this.onChartDataUpdate.emit({ data: data, customPlace: _this.selectedPlaceCustomChart, customYear: _this.selectedCustomChartYear });
                     }
                     else {
                         _this.chart.showLoading('Sorry, indicator data is not available for this place.  Please select a community.');
@@ -845,6 +845,7 @@ var DataTileComponent = (function () {
                 if (sliderScope.isCustomChart) {
                     sliderScope.selectedCustomChartYear = sliderScope.customChartYears[ui.value];
                     sliderScope.processCustomChart();
+                    sliderScope.onChartDataUpdate.emit({ data: sliderScope.dataStore.indicatorData[sliderScope.indicator].crt_db, customPlace: sliderScope.selectedPlaceCustomChart, customYear: sliderScope.selectedCustomChartYear });
                 }
                 else {
                     sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value + sliderScope.yearStartOffset];
@@ -1115,17 +1116,19 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.onSelectedPlaceChangedCustomChart = function (selected) {
-        console.log('place changed', selected);
+        console.log('place changed', selected, this.dataStore);
         this.selectedPlaceCustomChart = selected;
         this.processCustomChart();
+        this.onChartDataUpdate.emit({ data: this.dataStore.indicatorData[this.indicator].crt_db, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear });
     };
     DataTileComponent.prototype.processCustomChart = function () {
+        var _this = this;
         var chartScope = this;
+        var categories;
         switch (this.indicator_info.ScriptName) {
             case 'PopulationPyramid':
             case 'PopulationPyramidEstimate':
-                console.log('pyramid', this.selectedCustomChartYear);
-                var categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories;
+                categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories;
                 var pyramidOptions = {
                     chart: {
                         renderTo: 'highchart' + this.indicator,
@@ -1194,6 +1197,70 @@ var DataTileComponent = (function () {
                 console.log('pyramid after destroy', pyramidOptions);
                 this.chart = new angular2_highcharts_1.Highcharts.Chart(pyramidOptions);
                 console.log('pyramid created');
+                break;
+            case 'IncomeHistogram':
+                categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories
+                    .filter(function (cat) {
+                    return _this.selectedCustomChartYear !== '1990' ? cat !== '> $150,000' : (cat !== '$150,000 - 199,999' && cat !== '> $200,000');
+                });
+                console.log('income cat', categories);
+                var incomeDistOptions = {
+                    chart: {
+                        type: 'column',
+                        renderTo: 'highchart' + this.indicator
+                    },
+                    title: {
+                        text: ''
+                    },
+                    subtitle: {
+                        text: this.viewType === 'advanced' ? this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear : this.selectedCustomChartYear
+                    },
+                    xAxis: {
+                        categories: categories,
+                        crosshair: true,
+                        labels: {
+                            formatter: function () {
+                                if (chartScope.viewType === 'basic') {
+                                    return this.value.toString().replace(/\,000/g, 'K').replace(/\,999/g, 'K');
+                                }
+                                else {
+                                    return this.value;
+                                }
+                            }
+                        }
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: '# of Households'
+                        }
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        },
+                        series: {
+                            animation: false
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                            '<td style="padding:0"><b>{point.y::,.0f} </b></td></tr>',
+                        footerFormat: '</table>',
+                        useHTML: true
+                    },
+                    series: [{
+                            name: this.selectedPlaceCustomChart.Name + ' Income Distribution',
+                            data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data
+                                .filter(function (data, idx) {
+                                return _this.selectedCustomChartYear !== '1990' ? idx !== 8 : idx !== 7 && idx !== 9;
+                            })
+                        }]
+                };
+                this.chart.destroy();
+                this.chart = new angular2_highcharts_1.Highcharts.Chart(incomeDistOptions);
                 break;
             case 'Other':
                 break;
@@ -1370,17 +1437,156 @@ var DataTileComponent = (function () {
                 returnName = returnName === '' ? place.Desc + (place.ResID.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
             }
             else if (_this.isCountyLevel && (place.TypeCategory === 'Incorporated City' || place.TypeCategory === 'Incorporated Town' || place.TypeCategory === 'Census Designated Place') && place.Desc.replace(' County', '') === pData.community) {
-                returnName = returnName === '' ? pData.community + (pData.geoid.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
+                returnName = returnName === '' ? pData.community + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
             }
         });
         console.log('returnName', returnName);
-        return returnName === '' ? pData.community + (pData.geoid.length === 5 ? ' County' : '') : returnName;
+        return returnName === '' ? pData.community : returnName;
     };
     DataTileComponent.prototype.ageSort = function (a, b) {
         return a.Variable.split('-')[0].replace('Males Age ', '').replace('Females Age ', '').replace('+', '').replace(' count', '') - b.Variable.split('-')[0].replace('Males Age ', '').replace('Females Age ', '').replace('+', '').replace(' count', '');
     };
-    DataTileComponent.prototype.processDataYear = function () {
+    DataTileComponent.prototype.incomeSort = function (a, b) {
+        return parseInt(a.Variable.split(' -')[0].replace('<', '').replace('>', '').replace('$', '')) - parseInt(b.Variable.split(' -')[0].replace('<', '').replace('>', '').replace('$', ''));
+    };
+    DataTileComponent.prototype.processCustomChartData = function (chartType) {
         var _this = this;
+        var place_data_years = {};
+        switch (this.indicator_info.ScriptName) {
+            case 'PopulationPyramid':
+            case 'PopulationPyramidEstimate':
+                this.places.forEach(function (place, pidx) {
+                    var placeDataMale = _this.placeTypeData.Data
+                        .filter(function (data) {
+                        return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Males') !== -1 : false;
+                    }).sort(_this.ageSort);
+                    var placeDataFemale = _this.placeTypeData.Data.filter(function (data) {
+                        return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Females') !== -1 : false;
+                    }).sort(_this.ageSort);
+                    var placeDataMaleYears = [];
+                    var placeDataFemaleYears = [];
+                    var dataYears = [];
+                    var categories = [];
+                    if (placeDataMale.length > 0) {
+                        var counter = 0;
+                        for (var col in placeDataMale[0]) {
+                            if ($.isNumeric(col.substring(0, 1)) && col.indexOf('MOE') === -1) {
+                                if (placeDataMale[0][col] !== null) {
+                                    if (pidx === 0) {
+                                        _this._tickLabelsTime.push(col);
+                                        _this._tickArray.push(counter);
+                                    }
+                                    dataYears.push(col);
+                                    counter++;
+                                }
+                            }
+                        }
+                        dataYears.forEach(function (year, idx) {
+                            var yearDataMale = {
+                                year: year,
+                                community: place.Name,
+                                gender: 'Males',
+                                data: []
+                            };
+                            var yearDataFemale = {
+                                year: year,
+                                community: place.Name,
+                                gender: 'Females',
+                                data: []
+                            };
+                            placeDataMale.forEach(function (pdm) {
+                                yearDataMale.data.push(-Math.abs(parseFloat(pdm[year])));
+                                if (idx === 1) {
+                                    categories.push(pdm['Variable'].replace('Males Age ', '').replace(' count', '').replace(' estimate', ''));
+                                }
+                            });
+                            placeDataFemale.forEach(function (pdm) {
+                                yearDataFemale.data.push(parseFloat(pdm[year]));
+                            });
+                            placeDataMaleYears[year] = yearDataMale;
+                            placeDataFemaleYears[year] = yearDataFemale;
+                        });
+                    }
+                    else {
+                        console.log('no data for pyramid');
+                    }
+                    place_data_years[place.Name] = {
+                        id: place.Name,
+                        name: place.Name,
+                        geoid: place.ResID,
+                        data: {
+                            male: placeDataMaleYears,
+                            female: placeDataFemaleYears
+                        },
+                        years: _this._tickLabelsTime,
+                        categories: categories
+                    };
+                    _this.selectedCustomChartYear = dataYears[dataYears.length - 1];
+                    _this.customChartYears = dataYears;
+                });
+                break;
+            case 'IncomeHistogram':
+                this.places.forEach(function (place, pidx) {
+                    var placeData = _this.placeTypeData.Data
+                        .filter(function (data) {
+                        return data.community ? data.community.trim() === place.Name.trim() : false;
+                    })
+                        .sort(_this.incomeSort)
+                        .sort(function (a, b) { return +(!b.Variable.localeCompare('< $10,000')); });
+                    var placeDataYears = [];
+                    var dataYears = [];
+                    var categories = [];
+                    if (placeData.length > 0) {
+                        var counter = 0;
+                        for (var col in placeData[0]) {
+                            if ($.isNumeric(col.substring(0, 1)) && col.indexOf('MOE') === -1) {
+                                if (placeData[0][col] !== null) {
+                                    if (pidx === 0) {
+                                        _this._tickLabelsTime.push(col);
+                                        _this._tickArray.push(counter);
+                                    }
+                                    dataYears.push(col);
+                                    counter++;
+                                }
+                            }
+                        }
+                        dataYears.forEach(function (year, idx) {
+                            var yearData = {
+                                year: year,
+                                community: place.Name,
+                                data: []
+                            };
+                            placeData.forEach(function (pdm) {
+                                yearData.data.push(parseInt(pdm[year]));
+                                if (idx === 1) {
+                                    categories.push(pdm['Variable']);
+                                }
+                            });
+                            placeDataYears[year] = yearData;
+                        });
+                    }
+                    else {
+                        console.log('no data for income distribution');
+                    }
+                    place_data_years[place.Name] = {
+                        id: place.Name,
+                        name: place.Name,
+                        geoid: place.ResID,
+                        data: placeDataYears,
+                        years: _this._tickLabelsTime,
+                        categories: categories
+                    };
+                    _this.selectedCustomChartYear = dataYears[dataYears.length - 1];
+                    _this.customChartYears = dataYears;
+                });
+                break;
+            default:
+                place_data_years = {};
+                break;
+        }
+        return place_data_years;
+    };
+    DataTileComponent.prototype.processDataYear = function () {
         this.yearStartOffset = this.getStartYear();
         this.yearEndOffset = this.getEndYear();
         var place_data = [{}];
@@ -1388,75 +1594,7 @@ var DataTileComponent = (function () {
         var place_data_years_moe = {};
         if (this.indicator_info.ScriptName !== null) {
             console.log('stuck here', this.places, this.placeTypeData);
-            this.places.forEach(function (place, pidx) {
-                var placeDataMale = _this.placeTypeData.Data
-                    .filter(function (data) {
-                    return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Males') !== -1 : false;
-                }).sort(_this.ageSort);
-                var placeDataFemale = _this.placeTypeData.Data.filter(function (data) {
-                    return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Females') !== -1 : false;
-                }).sort(_this.ageSort);
-                var placeDataMaleYears = [];
-                var placeDataFemaleYears = [];
-                var dataYears = [];
-                var categories = [];
-                if (placeDataMale.length > 0) {
-                    var counter = 0;
-                    for (var col in placeDataMale[0]) {
-                        if ($.isNumeric(col.substring(0, 1)) && col.indexOf('MOE') === -1) {
-                            if (placeDataMale[0][col] !== null) {
-                                if (pidx === 0) {
-                                    _this._tickLabelsTime.push(col);
-                                    _this._tickArray.push(counter);
-                                }
-                                dataYears.push(col);
-                                counter++;
-                            }
-                        }
-                    }
-                    dataYears.forEach(function (year, idx) {
-                        var yearDataMale = {
-                            year: year,
-                            community: place.Name,
-                            gender: 'Males',
-                            data: []
-                        };
-                        var yearDataFemale = {
-                            year: year,
-                            community: place.Name,
-                            gender: 'Females',
-                            data: []
-                        };
-                        placeDataMale.forEach(function (pdm) {
-                            yearDataMale.data.push(-Math.abs(parseFloat(pdm[year])));
-                            if (idx === 1) {
-                                categories.push(pdm['Variable'].replace('Males Age ', '').replace(' count', '').replace(' estimate', ''));
-                            }
-                        });
-                        placeDataFemale.forEach(function (pdm) {
-                            yearDataFemale.data.push(parseFloat(pdm[year]));
-                        });
-                        placeDataMaleYears[year] = yearDataMale;
-                        placeDataFemaleYears[year] = yearDataFemale;
-                    });
-                }
-                else {
-                    console.log('no data for pyramid');
-                }
-                place_data_years[place.Name] = {
-                    id: place.Name,
-                    name: place.Name,
-                    geoid: place.ResID,
-                    data: {
-                        male: placeDataMaleYears,
-                        female: placeDataFemaleYears
-                    },
-                    years: _this._tickLabelsTime,
-                    categories: categories
-                };
-                _this.selectedCustomChartYear = dataYears[dataYears.length - 1];
-                _this.customChartYears = dataYears;
-            });
+            place_data_years = this.processCustomChartData(this.indicator.ScriptName);
             var chart_data = {
                 place_data_years: place_data_years
             };
