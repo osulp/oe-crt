@@ -48,7 +48,6 @@ export class FindWrapperComponent {
                     indicator: encodeURIComponent(results.Name
                         .replace('(', '%28')
                         .replace(')', '%29')
-                        .replace('%', '%25')
                     )
                 }]);
             } else {

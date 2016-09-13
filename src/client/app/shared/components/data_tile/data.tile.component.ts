@@ -1011,6 +1011,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     //    //console.log('AFTER ADDING INDICATOR DATA FOR PLACETYPE', this.dataStore);
                     //}
                 } else {
+                    console.log('countycheck-2', indicatorData);
                     this.dataStore.indicatorData = indicatorData;
                 }
             }
@@ -1289,6 +1290,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             this.processDataYear();
             this.processYearTicks();
             this.selectedYearIndex = this._tickArray.length - 1;// - this.yearEndOffset;
+            console.log('countycheck-1', this.placeTypeData);
             this.Data = this.placeTypeData.Data;
             //this.onChartDataUpdate.emit(data);
             //check if metadata, if not custom chart, need to do other stuff
@@ -1626,11 +1628,15 @@ export class DataTileComponent implements OnInit, OnDestroy {
             this.chart.series[0].remove(false);
         }
         //show selected places on chart only
+        console.log('countycheck0', this.Data);
         //var selectedPlaceData = this.Data.filter((placeData: any) => {
         //    var isSelected = false;
         //    //selections come from the place selector box, not high-maps
+        //    console.log('countycheck1', placeData);
         //    for (var p = 0; p < this.places.length; p++) {
         //        isSelected = (placeData.community.trim() === this.places[p].Name.replace(' County', '').trim() && placeData.geoid.trim() === this.places[p].ResID.trim()) ? true : isSelected;
+        //        console.log('countycheck', this.places, placeData);
+        //        isSelected = this.isCountyLevel && this.places[p].Desc !== null ? this.places[p].Desc.indexOf(placeData.community.trim()) !== -1 ? true : isSelected : isSelected;
         //        if (isSelected) {
         //            break;
         //        }
@@ -2078,12 +2084,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     processDataYear() {
         this.yearStartOffset = this.getStartYear();
-        this.yearEndOffset = this.getEndYear();        
+        this.yearEndOffset = this.getEndYear();
         let place_data = [{}];
         let place_data_years: any = {};
         let place_data_years_moe: any = {};
 
-        if (this.indicator_info.ScriptName !== null) {            
+        if (this.indicator_info.ScriptName !== null) {
             place_data_years = this.processCustomChartData(this.indicator.ScriptName);
             let chart_data: any = {
                 place_data_years: place_data_years

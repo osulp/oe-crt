@@ -40,8 +40,7 @@ var FindWrapperComponent = (function () {
                 this._router.navigate(['Explore', {
                         indicator: encodeURIComponent(results.Name
                             .replace('(', '%28')
-                            .replace(')', '%29')
-                            .replace('%', '%25'))
+                            .replace(')', '%29'))
                     }]);
             }
             else {
