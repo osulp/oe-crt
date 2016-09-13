@@ -38,7 +38,10 @@ var FindWrapperComponent = (function () {
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
                 this._router.navigate(['Explore', {
-                        indicator: encodeURIComponent(results.Name.replace('(', '%28').replace(')', '%29'))
+                        indicator: encodeURIComponent(results.Name
+                            .replace('(', '%28')
+                            .replace(')', '%29')
+                            .replace('%', '%25'))
                     }]);
             }
             else {

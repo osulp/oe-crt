@@ -32,7 +32,7 @@ export class AppExceptionHandler extends ExceptionHandler {
     call(exception: any, stackTrace?: any, reason?: string): void {
         this.getDependencies();
         console.log('error handler',exception);
-        this.router.navigate(['Error', { error: exception }]);
+        //this.router.navigate(['Error', { error: exception }]);
         //if (exception.status === 401) {
         //    // Show login
         //    this.router.navigate(['/Error']);

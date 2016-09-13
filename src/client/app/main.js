@@ -42,7 +42,6 @@ var AppExceptionHandler = (function (_super) {
     AppExceptionHandler.prototype.call = function (exception, stackTrace, reason) {
         this.getDependencies();
         console.log('error handler', exception);
-        this.router.navigate(['Error', { error: exception }]);
         _super.prototype.call.call(this, exception, stackTrace, reason);
     };
     AppExceptionHandler.prototype.getDependencies = function () {

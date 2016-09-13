@@ -118,10 +118,11 @@ var DetailComponent = (function () {
             .replace(/\%2C/g, ',')
             .replace(/\%2524/g, '$')
             .replace(/\%24/g, '$')
-            .replace(/\+/g, '%2B');
+            .replace(/\+/g, '%2B')
+            .replace(/\%2525/g, '%');
         console.log('DECODED!', this.inputIndicator);
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(function (data) {
-            console.log('DECODED!', data);
+            console.log('DECODED service result!', data);
             var indicator_info = data.Desc[0];
             if (indicator_info) {
                 _this.indicatorDesc = data.Desc;

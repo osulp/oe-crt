@@ -45,7 +45,11 @@ export class FindWrapperComponent {
             if (results.Type.toLowerCase() === 'indicator') {
                 //this._router.navigate(['Explore', { indicator: encodeURIComponent(results.Name), topics: results.TypeCategory.split(';')[1] }]);
                 this._router.navigate(['Explore', {
-                    indicator: encodeURIComponent(results.Name.replace('(', '%28').replace(')', '%29'))
+                    indicator: encodeURIComponent(results.Name
+                        .replace('(', '%28')
+                        .replace(')', '%29')
+                        .replace('%', '%25')
+                    )
                 }]);
             } else {
                 //on home add to url and go to explore page

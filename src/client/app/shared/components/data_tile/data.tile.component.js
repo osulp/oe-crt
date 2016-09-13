@@ -263,7 +263,17 @@ var DataTileComponent = (function () {
             this.mapChart.showLoading();
         }
         this.checkScreenSize();
-        this._indicatorDescService.getIndicator(this.indicator.replace(/\+/g, '%2B').replace(/\&/g, '%26').replace(/\=/g, '%3D')).subscribe(function (indicatorDesc) {
+        var indicatorForservice = this.indicator
+            .replace(/\%28/g, '(')
+            .replace(/\%29/g, ')')
+            .replace(/\%252C/g, ',')
+            .replace(/\%2C/g, ',')
+            .replace(/\%2524/g, '$')
+            .replace(/\%24/g, '$')
+            .replace(/\+/g, '%2B');
+        console.log('indicator for service', indicatorForservice);
+        this._indicatorDescService.getIndicator(indicatorForservice).subscribe(function (indicatorDesc) {
+            console.log('indicator_info response', indicatorDesc);
             _this.indicator_info = indicatorDesc.Desc[0];
             if (_this.indicator_info) {
                 _this.isStatewide = _this.indicator_info.Geog_ID === 8 ? true : false;
@@ -273,7 +283,7 @@ var DataTileComponent = (function () {
                 _this.is10yr = _this.indicator_info.is10yrPlan;
                 _this.isCustomChart = _this.indicator_info.ScriptName !== null;
                 _this.indicator_geo = _this.indicator_info.indicator_geo;
-                if (_this.hMapMenu) {
+                if (_this.hMapMenu && _this.showMap) {
                     _this.hMapMenu.setIndicatorGeoFilter(_this.indicator_geo);
                 }
                 _this.indicator_collections = _this.indicator_info.collections ? _this.indicator_info.collections.split(', ') : [];
@@ -302,10 +312,10 @@ var DataTileComponent = (function () {
                             _this.geoJSONStore = data;
                             console.log('new geojson file loaded', data);
                         }, function (err) { return console.error(err); }, function () { return console.log('done loading geojson'); });
+                        _this.dataSubscription = _this._selectedDataService.selectionChanged$.subscribe(function (data) {
+                            _this.onSelectedDataChanged(data);
+                        }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
                     }
-                    _this.dataSubscription = _this._selectedDataService.selectionChanged$.subscribe(function (data) {
-                        _this.onSelectedDataChanged(data);
-                    }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
                 }
             }
         }, function (err) { return console.log('error getting indicator description', err); }, function () { return console.log('loaded the indicator description in data tile'); });
@@ -574,7 +584,8 @@ var DataTileComponent = (function () {
                 .replace(/\%24/g, '$')
                 .replace(/\+/g, '%2B')
                 .replace(/\=/g, '%3D')
-                .replace(/\&/g, '%26');
+                .replace(/\&/g, '%26')
+                .replace(/\%/g, '%25');
             var combinedGroups = this.checkCombineGroups();
             if (combinedGroups.length > 0) {
                 this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
@@ -1593,7 +1604,6 @@ var DataTileComponent = (function () {
         var place_data_years = {};
         var place_data_years_moe = {};
         if (this.indicator_info.ScriptName !== null) {
-            console.log('stuck here', this.places, this.placeTypeData);
             place_data_years = this.processCustomChartData(this.indicator.ScriptName);
             var chart_data = {
                 place_data_years: place_data_years
@@ -1908,7 +1918,9 @@ var DataTileComponent = (function () {
                     .replace('%2528', '%28')
                     .replace('%2529', '%29')
                     .replace(/\+/g, '%2B')
-                    .replace(/\&/g, '%26'),
+                    .replace(/\&/g, '%26')
+                    .replace(/\%/g, '%25')
+                    .replace(/\=/g, '%3D'),
                 places: this.placeNames
             }]);
         window.scrollTo(0, 0);

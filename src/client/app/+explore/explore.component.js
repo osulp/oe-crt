@@ -37,7 +37,12 @@ var ExploreComponent = (function () {
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
-                this._router.navigate(['/Explore', { indicator: encodeURI(results.Name).replace('(', '%28').replace(')', '%29') }]);
+                this._router.navigate(['/Explore', {
+                        indicator: encodeURI(results.Name)
+                            .replace('(', '%28')
+                            .replace(')', '%29')
+                            .replace('%', '$25')
+                    }]);
             }
         }
     };
