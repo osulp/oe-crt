@@ -14,7 +14,7 @@ declare var $: any;
 declare var window: any;
 
 Highcharts.setOptions({
-    colors: ['#058DC7', '#50B432', '#ED561B']
+    colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4','#705c3b']
 });
 
 Highchmap(Highcharts);
@@ -509,18 +509,21 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 //2. If not in selectedPlaces, then deselect
                 for (var s = 0; s < selectedPlaces.length; s++) {
                     //deselect only if not currently still active
-                    console.log('checking selected place');
+                    console.log('checking selected place',selectedPlaces[s]);
                     console.log(selectedPlaces[s]);
                     let inSelectedPlaces = false;
                     for (var z = 0; z < this.places.length; z++) {
                         inSelectedPlaces = (this.places[z].Name.replace(' County', '') === selectedPlaces[s].id.replace(' County', '') && this.places[z].ResID === selectedPlaces[s].geoid) ? true : inSelectedPlaces;
+                        //inSelectedPlaces = this.isCountyLevel ? this.places[z].Desc.split(', ').length > 1 ? this.places[z].Desc.split(', ')[1].replace(' County', '') === selectedPlaces[s].id.replace(' County', '') : inSelectedPlaces : inSelectedPlaces;
                     }
                     console.log(inSelectedPlaces);
                     if (!inSelectedPlaces) {
                         //deselect
+                        console.log('deselecting!!!!!!!!!!!!!!!!!!!!1', selectedPlaces[s]);
                         selectedPlaces[s].select(false, true);
                     }
                 }
+                console.log('selectedplaces', this.places, this.mapChart.getSelectedPoints());
                 if (this.places.length !== this.mapChart.getSelectedPoints().length) {
                     console.log('Place length is different');
                     //assume a search box entry not showing
@@ -540,8 +543,15 @@ export class DataTileComponent implements OnInit, OnDestroy {
                                     ptIndex = pt;
                                     break;
                                 }
+                                if (this.isCountyLevel && place.Desc.split(', ').length > 1) {
+                                    if (place.Desc.split(', ')[1].replace(' County', '') === this.mapChart.series[0].data[pt].id.replace(' County', '')) {
+                                        ptIndex = pt;
+                                        break;
+                                    }
+                                }
                             }
                             if (ptIndex !== undefined) {
+                                console.log('selecting!!!!!!!!!!!!!!!!!!!!1', this.mapChart.series[0].data[ptIndex]);
                                 this.mapChart.series[0].data[ptIndex].select(true, true);
                             }
                         }
@@ -742,6 +752,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         //combine data by group-names
                         let combinedData = this.processCombinedData(data);
                         this.updateDataStore([combinedData], 'indicator');
+                        //TODO:  check for custom chart and process accordingly
                         this.onChartDataUpdate.emit({ data: combinedData, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear });
                         this.createGraphChart();
                     });
@@ -753,7 +764,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         if (data.Data.length > 0) {
                             this.updateDataStore([data], 'indicator');
                             this.createGraphChart();
-                            this.onChartDataUpdate.emit({ data: data, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear });
+                            this.onChartDataUpdate.emit({ data: this.isCustomChart ? this.dataStore.indicatorData[this.indicator].chart_data : data, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear, metadata:data.Metadata[0] });
                         } else {
                             this.chart.showLoading('Sorry, indicator data is not available for this place.  Please select a community.');
                             this.chart.setTitle({
@@ -1065,7 +1076,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         $(this.elementRef.nativeElement).find('#dateSlider').labeledslider(
             {
                 min: 0,
-                max: this.isCustomChart ? this.customChartYears.length -1 : this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
+                max: this.isCustomChart ? this.customChartYears.length - 1 : this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
                 value: this.isCustomChart ? this.customChartYears.length - 1 : this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
                 tickInterval: 1,
                 step: 1,
@@ -1077,7 +1088,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     if (sliderScope.isCustomChart) {
                         sliderScope.selectedCustomChartYear = sliderScope.customChartYears[ui.value];
                         sliderScope.processCustomChart();
-                        sliderScope.onChartDataUpdate.emit({ data: sliderScope.dataStore.indicatorData[sliderScope.indicator].crt_db, customPlace: sliderScope.selectedPlaceCustomChart, customYear: sliderScope.selectedCustomChartYear });
+                        sliderScope.onChartDataUpdate.emit({
+                            data: sliderScope.isCustomChart ? sliderScope.dataStore.indicatorData[sliderScope.indicator].chart_data : sliderScope.dataStore.indicatorData[sliderScope.indicator].crt_db,
+                            customPlace: sliderScope.selectedPlaceCustomChart,
+                            customYear: sliderScope.selectedCustomChartYear,
+                            metadata: sliderScope.dataStore.indicatorData[sliderScope.indicator].crt_db.Metadata[0]
+                        });
                     } else {
                         sliderScope.selectedYear = sliderScope.placeTypeData.Years[ui.value + sliderScope.yearStartOffset];
                         sliderScope.selectedYearIndex = sliderScope.selectedYearIndexArray[sliderScope.selectedYear.Year];//  ui.value;
@@ -1443,7 +1459,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
         console.log('place changed', selected, this.dataStore);
         this.selectedPlaceCustomChart = selected; // { Name: select.value };
         this.processCustomChart();
-        this.onChartDataUpdate.emit({ data: this.dataStore.indicatorData[this.indicator].crt_db, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear });
+        this.onChartDataUpdate.emit({
+            data: this.isCustomChart ? this.dataStore.indicatorData[this.indicator].chart_data : this.dataStore.indicatorData[this.indicator].crt_db,
+            customPlace: this.selectedPlaceCustomChart,
+            customYear: this.selectedCustomChartYear,
+            metadata: this.dataStore.indicatorData[this.indicator].crt_db.Metadata[0]
+        });
     }
 
     processCustomChart() {
@@ -1452,13 +1473,23 @@ export class DataTileComponent implements OnInit, OnDestroy {
         switch (this.indicator_info.ScriptName) {
             case 'PopulationPyramid':
             case 'PopulationPyramidEstimate':
-                //console.log('pyramid', this.selectedCustomChartYear);
-                //let categories = ['0-9', '10-19', '20-29', '30-39', '40-49', '50-59', '60-69', '70-79', '80-89', '90 +'];
-                categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories;
+            case 'PropOwnByAge':
+            case 'PropOwnByAgeEstimate':
+                let isHousing = this.indicator_info.ScriptName.indexOf('Pyramid') === -1;
+                let maxPadding = isHousing ? 5 : 2;
+                console.log('padding', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].maxVal);
+                categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories
+                    .filter((cat: any) => {
+                        return !isHousing ? true : this.selectedCustomChartYear !== '1990' ? cat !== 'under 25' && cat !== '75+' : (cat !== '85+' && cat !== '75-84' && cat !== '15-24');
+                    });
                 let pyramidOptions = {
                     chart: {
                         renderTo: 'highchart' + this.indicator,
                         type: 'bar'
+                    },
+                    colors: this.indicator_info.ScriptName.indexOf('Pyramid') === -1 ? ['#8bbc21', '#910000', '#1aadce', '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a', '#2f7ed8', '#0d233a', ] : ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4', '#705c3b'],
+                    credits: {
+                        enabled: false
                     },
                     title: {
                         text: ''
@@ -1495,9 +1526,10 @@ export class DataTileComponent implements OnInit, OnDestroy {
                             formatter: function () {
                                 return (Math.abs(this.value)) + '%';
                             }
-                        }
+                        },
+                        max: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].maxVal + maxPadding,
+                        min: -(this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].maxVal) - maxPadding
                     },
-
                     plotOptions: {
                         series: {
                             stacking: 'normal',
@@ -1507,27 +1539,42 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
                     tooltip: {
                         formatter: function () {
+                            //check if year is span year
+                            let moeVal: any = '';
+                            if (chartScope.selectedCustomChartYear.indexOf('-') !== -1) {
+                                let pData = chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years[chartScope.selectedPlaceCustomChart.Name];
+                                //get cat index
+                                let idx: number = 0;
+                                pData.categories.forEach((cat: any, cidx: number) => {
+                                    idx = this.point.category === cat ? cidx : idx;
+                                });
+                                moeVal = pData.data[this.series.name.toLowerCase()][chartScope.selectedCustomChartYear].data_moe[idx] ? chartScope.formatValue(pData.data[this.series.name.toLowerCase()][chartScope.selectedCustomChartYear].data_moe[idx], false) : '';
+                            }
                             return '<b>' + this.series.name + ', age ' + this.point.category + '</b><br/>'
                                 + chartScope.selectedPlaceCustomChart.Name + ': ' + chartScope.selectedCustomChartYear + '<br/>' +
-                                '% of Population: ' + Highcharts.numberFormat(Math.abs(this.point.y), 2) + '%';
+                                '% of Population: ' + Highcharts.numberFormat(Math.abs(this.point.y), 2) + '%' + (!isHousing && moeVal !== '' ? '<span style="font-size:.8em"> (+/- ' + moeVal + ')</span>' : '');
                         }
                     },
 
                     series: [{
-                        name: 'Males',
-                        data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.male[this.selectedCustomChartYear].data
+                        name: isHousing ? 'Owners' : 'Males',
+                        data: isHousing ? this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.owners[this.selectedCustomChartYear].data
+                            .filter((data: any, idx: number) => {
+                                return this.indicator_info.ScriptName.indexOf('Estimate') !== -1 ? true : this.selectedCustomChartYear !== '1990' ? [0, 7].indexOf(idx) === -1 : [1, 8, 9].indexOf(idx) === -1;
+                            })
+                            : this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.males[this.selectedCustomChartYear].data
                     }, {
-                            name: 'Females',
-                            data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.female[this.selectedCustomChartYear].data
-
-                        }]
+                            name: isHousing ? 'Renters' : 'Females',
+                            data: isHousing ? this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.renters[this.selectedCustomChartYear].data
+                                .filter((data: any, idx: number) => {
+                                    return this.indicator_info.ScriptName.indexOf('Estimate') !== -1 ? true : this.selectedCustomChartYear !== '1990' ? [0, 7].indexOf(idx) === -1 : [1, 8, 9].indexOf(idx) === -1;
+                                })
+                                : this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.females[this.selectedCustomChartYear].data
+                        }
+                    ]
                 };
-                console.log('pyramid before destroy');
-
                 this.chart.destroy();
-                console.log('pyramid after destroy', pyramidOptions);
                 this.chart = new Highcharts.Chart(pyramidOptions);
-                console.log('pyramid created');
                 break;
             case 'IncomeHistogram':
                 categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories
@@ -1540,6 +1587,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     chart: {
                         type: 'column',
                         renderTo: 'highchart' + this.indicator
+                    },
+                    credits: {
+                        enabled: false
                     },
                     title: {
                         text: ''
@@ -1576,11 +1626,26 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         }
                     },
                     tooltip: {
-                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-                        '<td style="padding:0"><b>{point.y::,.0f} </b></td></tr>',
-                        footerFormat: '</table>',
-                        useHTML: true
+                        formatter: function () {
+                            //check if year is span year
+                            let moeVal: any = '';
+                            if (chartScope.selectedCustomChartYear.indexOf('-') !== -1) {
+                                let pData = chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years[chartScope.selectedPlaceCustomChart.Name];
+                                //get cat index
+                                let idx: number = 0;
+                                pData.categories.forEach((cat: any, cidx: number) => {
+                                    idx = this.point.category === cat ? cidx : idx;
+                                });
+                                moeVal = chartScope.formatValue(pData.data[chartScope.selectedCustomChartYear].data_moe[idx], false);
+                            }
+                            return chartScope.selectedPlaceCustomChart.Name + ': ' + chartScope.selectedCustomChartYear + '<br/><b>' + this.point.category + '</b><br/>' + chartScope.formatValue(this.point.y, false) + (moeVal !== '' ? '<span style="font-size:.8em"> (+/- ' + moeVal + ')</span>' : '');
+
+                        }
+                        //headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        //pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                        //'<td style="padding:0"><b>{point.y::,.0f} </b></td></tr>',
+                        //footerFormat: '</table>',
+                        //useHTML: true
                     },
 
                     series: [{
@@ -1595,7 +1660,62 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 this.chart = new Highcharts.Chart(incomeDistOptions);
 
                 break;
+            case 'ClientContacts211Info':
+            case 'SocialServiceProviders211Info':
+                //categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories;
+                let _211InfoChartOptions = {
+                    chart: {
 
+                        renderTo: 'highchart' + this.indicator,
+                        type: 'pie'
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    legend: {
+                        enabled: this.viewType === 'basic' ? true : false,
+                        itemStyle: {
+                            fontSize: '.7em',
+                            color:'gray'
+                        }
+                    },
+                    title: {
+                        text: ''
+                    },
+                    subtitle: {
+                        text: this.viewType === 'advanced' ? this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear : this.selectedCustomChartYear
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: this.viewType === 'advanced' ? true : false,
+                                format: '<b>{point.name}</b><br>{point.percentage:.1f} %',
+                                style: {
+                                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'gray',
+                                    fontSize: this.viewType === 'advanced' ? '1em' : '.7em',
+                                    maxWidth: this.viewType === 'advanced' ? '200px' :'75px'
+                                }
+                            },
+                            showInLegend: this.viewType === 'advanced' ? false : true
+                        },
+                        series: {
+                            animation: false
+                        }
+                    },
+                    series: [{
+                        name: this.selectedPlaceCustomChart.Name,
+                        colorByPoint: true,
+                        data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data
+                    }]
+                };
+                this.chart.destroy();
+                this.chart = new Highcharts.Chart(_211InfoChartOptions);
+                break;
             case 'Other':
                 break;
             default:
@@ -1606,18 +1726,25 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     createCustomChart() {
-        console.log('creating custom chart!', this.indicator_info.ScriptName, this.dataStore);
-        this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
-        this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
-        this.processDataYear();
-        let placeSelected: boolean = false;
-        this.places.forEach((place: any) => {
-            placeSelected = this.selectedPlaceCustomChart.Name === place.Name ? true : placeSelected;
-        });
-        this.selectedPlaceCustomChart = placeSelected ?  this.selectedPlaceCustomChart : this.places[0];
-        this.processCustomChart();
-        if (this.viewType === 'advanced') {
-            this.setupTimeSlider();
+        try {
+            console.log('creating custom chart!', this.indicator_info.ScriptName, this.dataStore);
+            this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
+            this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
+            this.processDataYear();
+            let placeSelected: boolean = false;
+            this.places.forEach((place: any) => {
+                placeSelected = this.selectedPlaceCustomChart.Name === place.Name ? true : placeSelected;
+            });
+            this.selectedPlaceCustomChart = placeSelected ? this.selectedPlaceCustomChart : this.places[0];
+            this.processCustomChart();
+            if (this.viewType === 'advanced') {
+                this.setupTimeSlider();
+            }
+        } catch (ex) {
+            console.log('error', ex);
+            if (this.chart) {
+                this.chart.showLoading('Sorry, this chart is not available');
+            }
         }
     }
 
@@ -1743,14 +1870,14 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     onResize(event: any) {
+        console.log('resizing...', this.chart);
         if (this.chart) {
-            if (this.chart.legend) {
+            if (this.chart.legend.options.enabled) {
                 this.chart.legend.update(this.setLegendOptions(true));
             }
             var runInterval = setInterval(runCheck, 1050);
             var resizeScope = this;
             function runCheck() {
-
                 let newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
                 $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
                 clearInterval(runInterval);
@@ -1909,6 +2036,11 @@ export class DataTileComponent implements OnInit, OnDestroy {
         let isSelected = false;
         for (var p = 0; p < this.places.length; p++) {
             isSelected = place.geoid === this.places[p].ResID ? true : isSelected;
+            console.log('countylevel checking', this.places[p], place);
+            if (this.places[p].Desc) {
+                let split: number = this.places[p].ResID.length > 9 ? 1 : 0;
+                isSelected = this.isCountyLevel ? (this.places[p].Desc.split(', ').length > split ? this.places[p].Desc.split(', ')[split].replace(' County', '') === place.community.replace(' County', '').trim() : isSelected) : isSelected;
+            }
         }
         return isSelected;
     }
@@ -1920,24 +2052,44 @@ export class DataTileComponent implements OnInit, OnDestroy {
         this.places.forEach((place: SearchResult) => {
             if (place.TypeCategory === 'Unincorporated Place' && (pData.geoid.split(',').indexOf(place.ResID) !== -1 || place.Desc.replace(' County','').indexOf(pData.community) !== -1)) {
                 //returnName = returnName === '' ? pData.community + (pData.geoid.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
-                returnName = returnName === '' ? place.Desc + (place.ResID.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
+                if (this.isCountyLevel) {
+                    returnName = returnName === '' ? (place.Desc.split(', ').length > 1 ? place.Desc.split(', ')[1].split('~')[0] : place.Desc) + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
+                } else {
+                    returnName = returnName === '' ? place.Desc + (place.ResID.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
+                }
 
             } else if (this.isCountyLevel && (place.TypeCategory === 'Incorporated City' || place.TypeCategory === 'Incorporated Town' || place.TypeCategory === 'Census Designated Place') && place.Desc.replace(' County','') === pData.community) {
                 //console.log('countylevel translation', pData.community + ' (contains ' + place.Name + ')');
-                returnName = returnName === '' ? pData.community + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
+                returnName = returnName === '' ? pData.community + (pData.geoid.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
             }
         });
         console.log('returnName', returnName);
-        return returnName === '' ? pData.community : returnName; // pData.community;
+        return returnName === '' ? pData.community + (pData.geoid.length === 5 ? ' County' : '') : returnName; // pData.community;
         //return pData.community;
     }
 
     ageSort(a: any, b: any) {
-        return a.Variable.split('-')[0].replace('Males Age ', '').replace('Females Age ', '').replace('+', '').replace(' count', '') - b.Variable.split('-')[0].replace('Males Age ', '').replace('Females Age ', '').replace('+', '').replace(' count', '');
+        if (b.Variable.indexOf('under 25') !== -1) {
+            return 1000;
+        } else if (a.Variable.indexOf('under 25') !== -1) {
+            return -1000;
+        } else {
+            let x = a.Variable.split('-')[0].split('+')[0].replace('Males Age ', '').replace('Females Age ', '').replace('+', '').replace(' count', '').replace('owners ', '').replace('renters ', '');
+            let y = b.Variable.split('-')[0].split('+')[0].replace('Males Age ', '').replace('Females Age ', '').replace('+', '').replace(' count', '').replace('owners ', '').replace('renters ', '');
+            return x - y;
+        }
     }
 
     incomeSort(a: any, b: any) {
-        return parseInt(a.Variable.split(' -')[0].replace('<', '').replace('>', '').replace('$','')) - parseInt(b.Variable.split(' -')[0].replace('<', '').replace('>', '').replace('$',''));
+        if (b.Variable.indexOf('< $10,000') !== -1) {
+            return 1000;
+        } else if (a.Variable.indexOf('< $10,000') !== -1) {
+            return -1000;
+        } else {
+            let x = parseInt(a.Variable.split(' -')[0].replace('<', '').replace('>', '').replace('$', ''));
+            let y = parseInt(b.Variable.split(' -')[0].replace('<', '').replace('>', '').replace('$', ''));
+            return x - y;
+        }
     }
 
     processCustomChartData(chartType: any) {
@@ -1945,27 +2097,30 @@ export class DataTileComponent implements OnInit, OnDestroy {
         switch (this.indicator_info.ScriptName) {
             case 'PopulationPyramid':
             case 'PopulationPyramidEstimate':
+            case 'PropOwnByAge':
+            case 'PropOwnByAgeEstimate':
                 //pop pyramid need data filtered by place (36 rows for each place), then arranged by year and gender
                 this.places.forEach((place: any, pidx: number) => {
-                    let placeDataMale = this.placeTypeData.Data
+                    let placeData1 = this.placeTypeData.Data
                         .filter((data: any) => {
-                            return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Males') !== -1 : false;
+                            return data.geoid ? data.geoid === place.ResID && data.Variable.indexOf(this.indicator_info.ScriptName.indexOf('Pyramid') !== -1 ? 'Males' : 'owners') !== -1 : false;
                         }).sort(this.ageSort);
-                    let placeDataFemale = this.placeTypeData.Data.filter((data: any) => {
-                        return data.community ? data.community.trim() === place.Name.trim() && data.Variable.indexOf('Females') !== -1 : false;
+
+                    let placeData2 = this.placeTypeData.Data.filter((data: any) => {
+                        return data.geoid ? data.geoid === place.ResID && data.Variable.indexOf(this.indicator_info.ScriptName.indexOf('Pyramid') !== -1 ? 'Females' : 'renters') !== -1 : false;
                     }).sort(this.ageSort);
 
-                    let placeDataMaleYears: any[] = [];
-                    let placeDataFemaleYears: any[] = [];
+                    let placeData1Years: any[] = [];
+                    let placeData2Years: any[] = [];
                     let dataYears: any[] = [];
                     let categories: any[] = [];
-
+                    let maxValue: number = 0;
                     //get years from data
-                    if (placeDataMale.length > 0) {
+                    if (placeData1.length > 0) {
                         let counter = 0;
-                        for (var col in placeDataMale[0]) {
+                        for (var col in placeData1[0]) {
                             if ($.isNumeric(col.substring(0, 1)) && col.indexOf('MOE') === -1) {
-                                if (placeDataMale[0][col] !== null) {
+                                if (placeData1[0][col] !== null || placeData1[1][col] !== null) {
                                     if (pidx === 0) {
                                         this._tickLabelsTime.push(col);
                                         this._tickArray.push(counter);
@@ -1975,30 +2130,74 @@ export class DataTileComponent implements OnInit, OnDestroy {
                                 }
                             }
                         }
+
                         dataYears.forEach((year: any, idx: number) => {
-                            let yearDataMale: any = {
+                            let yearData1: any = {
                                 year: year,
                                 community: place.Name,
-                                gender: 'Males',
-                                data: []
+                                dataCategory: this.indicator_info.ScriptName.indexOf('Pyramid') !== -1 ? 'Males' : 'Owners',
+                                data: [],
+                                data_moe: []
                             };
-                            let yearDataFemale: any = {
+                            let yearData2: any = {
                                 year: year,
                                 community: place.Name,
-                                gender: 'Females',
-                                data: []
+                                dataCategory: this.indicator_info.ScriptName.indexOf('Pyramid') !== -1 ? 'Females' : 'Renters',
+                                data: [],
+                                data_moe: []
                             };
-                            placeDataMale.forEach((pdm: any) => {
-                                yearDataMale.data.push(-Math.abs(parseFloat(pdm[year])));
-                                if (idx === 1) {
-                                    categories.push(pdm['Variable'].replace('Males Age ', '').replace(' count', '').replace(' estimate', ''));
+                            //for propownbyage need to sum filtered data
+                            let yearData1Sum: number = 0;
+                            let yearData2Sum: number = 0;
+
+                            placeData1.forEach((pdm: any) => {
+                                yearData1Sum += pdm[year] !== null ? parseFloat(pdm[year]) : 0;
+                                yearData1.data.push(-Math.abs(parseFloat(pdm[year])));
+                                if (year.indexOf('-') !== -1) {
+                                    yearData1.data_moe.push(parseFloat(pdm[year + '_MOE']));
+                                }
+                                if (idx === 0) {
+                                    categories.push(pdm['Variable']
+                                        .replace('Males Age ', '')
+                                        .replace(' count', '')
+                                        .replace(' estimate', '')
+                                        .replace('owners ', '')
+                                    );
                                 }
                             });
-                            placeDataFemale.forEach((pdm: any) => {
-                                yearDataFemale.data.push(parseFloat(pdm[year]));
+                            placeData2.forEach((pdm: any) => {
+                                yearData2Sum += pdm[year] !== null ? parseFloat(pdm[year]) : 0;
+                                yearData2.data.push(parseFloat(pdm[year]));
+                                if (year.indexOf('-') !== -1) {
+                                    yearData2.data_moe.push(parseFloat(pdm[year + '_MOE']));
+                                }
                             });
-                            placeDataMaleYears[year] = yearDataMale;
-                            placeDataFemaleYears[year] = yearDataFemale;
+
+                            yearData1.data = yearData1.data.map((data: any) => {
+                                let returnVal: any;
+                                if (this.indicator_info.ScriptName.indexOf('Pyramid') !== -1) {
+                                    returnVal = data;
+                                } else {
+                                    returnVal = (data / yearData1Sum) * 100;
+                                }
+                                maxValue = Math.abs(returnVal) > maxValue ? Math.abs(returnVal) : maxValue;
+                                return returnVal;
+                            });
+
+                            yearData2.data = yearData2.data.map((data: any) => {
+                                let returnVal: any;
+                                if (this.indicator_info.ScriptName.indexOf('Pyramid') !== -1) {
+                                    returnVal = data;
+                                } else {
+                                    returnVal = (data / yearData1Sum) * 100;
+                                }
+                                maxValue = Math.abs(returnVal) > maxValue ? Math.abs(returnVal) : maxValue;
+                                return returnVal;
+                            });
+                            console.log('propown', yearData1, yearData1Sum);
+
+                            placeData1Years[year] = yearData1;
+                            placeData2Years[year] = yearData2;
                         });
                     } else {
                         console.log('no data for pyramid');
@@ -2007,25 +2206,31 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         id: place.Name,
                         name: place.Name,
                         geoid: place.ResID,
-                        data: {
-                            male: placeDataMaleYears,
-                            female: placeDataFemaleYears
-                        },
+                        maxVal: maxValue,
+                        data: this.indicator_info.ScriptName.indexOf('Pyramid') !== -1 ? {
+                            males: placeData1Years,
+                            females: placeData2Years
+                        } : {
+                                owners: placeData1Years,
+                                renters: placeData2Years
+                            },
                         years: this._tickLabelsTime,
                         categories: categories
                     };
+                    console.log('propown2', place_data_years);
                     this.selectedCustomChartYear = dataYears[dataYears.length - 1];
                     this.customChartYears = dataYears;
                 });
                 break;
             case 'IncomeHistogram':
+            case 'ClientContacts211Info':
+            case 'SocialServiceProviders211Info':
                 this.places.forEach((place: any, pidx: number) => {
                     let placeData = this.placeTypeData.Data
                         .filter((data: any) => {
-                            return data.community ? data.community.trim() === place.Name.trim() : false;
+                            return data.geoid ? data.geoid === place.ResID : false;
                         })
-                        .sort(this.incomeSort)
-                        .sort((a: any, b: any) => +(!b.Variable.localeCompare('< $10,000')));
+                        .sort(this.incomeSort);
                     let placeDataYears: any[] = [];
                     let dataYears: any[] = [];
                     let categories: any[] = [];
@@ -2049,10 +2254,21 @@ export class DataTileComponent implements OnInit, OnDestroy {
                             let yearData: any = {
                                 year: year,
                                 community: place.Name,
-                                data: []
+                                data: [],
+                                data_moe: []
                             };
                             placeData.forEach((pdm: any) => {
-                                yearData.data.push(parseInt(pdm[year]));
+                                if (this.indicator_info.ScriptName.indexOf('211') !== -1) {
+                                    yearData.data.push({
+                                        name: pdm.Variable.replace(' Client Contacts', '').replace(' Providers', ''),
+                                        y: parseInt(pdm[year])
+                                    });
+                                } else {
+                                    yearData.data.push(parseInt(pdm[year]));
+                                    if (year.indexOf('-') !== -1) {
+                                        yearData.data_moe.push(parseFloat(pdm[year + '_MOE']));
+                                    }
+                                }
                                 if (idx === 1) {
                                     categories.push(pdm['Variable']);
                                 }
@@ -2060,7 +2276,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                             placeDataYears[year] = yearData;
                         });
                     } else {
-                        console.log('no data for income distribution');
+                        console.log('no data for income or 211 chart');
                     }
                     place_data_years[place.Name] = {
                         id: place.Name,
@@ -2077,7 +2293,6 @@ export class DataTileComponent implements OnInit, OnDestroy {
             default:
                 place_data_years = {};
                 break;
-
         }
         return place_data_years;
     }
@@ -2095,7 +2310,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 place_data_years: place_data_years
             };
             this.dataStore.indicatorData[this.indicator].chart_data = chart_data;
-            console.log('pyramid', chart_data);
+            //console.log('pyramid', chart_data);
         } else {
 
             //console.log('place_data check',this.placeTypeData);
@@ -2343,26 +2558,32 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     getMaxData(isMap: boolean) {
-        var max: any = 0;
-        let chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
-        var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
-        $.each(pdy, function () {
-            //removes statewide data
-            if (this.geoid.length > 4) {
-                var arr = $.grep(this.data, function (n: any) { return (n); });//removes nulls
-                var PlaceMax = isMap ? arr.sort(function (a: any, b: any) { return b - a; })[0] : this.hasMOEs ? arr.sort(function (a: any, b: any) {
-                    return b[1] - a[1];
-                })[0] : null;
-                if (isMap) {
-                    max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
-                } else if (this.hasMOEs) {
-                    max = parseFloat(max) < parseFloat(PlaceMax[1]) ? parseFloat(PlaceMax[1]) : parseFloat(max);
-                } else {
-                    max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
+        //check if set by database else calculate dynamically
+        console.log('yaxismax', this.indicator_info['y-Axis_Max'], this.indicator_info);
+        if (this.indicator_info['Dashboard_Chart_Y_Axis_Max'] !== null) {
+            return parseFloat(this.indicator_info['Dashboard_Chart_Y_Axis_Max']);
+        } else {
+            var max: any = 0;
+            let chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
+            var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
+            $.each(pdy, function () {
+                //removes statewide data
+                if (this.geoid.length > 4) {
+                    var arr = $.grep(this.data, function (n: any) { return (n); });//removes nulls
+                    var PlaceMax = isMap ? arr.sort(function (a: any, b: any) { return b - a; })[0] : this.hasMOEs ? arr.sort(function (a: any, b: any) {
+                        return b[1] - a[1];
+                    })[0] : null;
+                    if (isMap) {
+                        max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
+                    } else if (this.hasMOEs) {
+                        max = parseFloat(max) < parseFloat(PlaceMax[1]) ? parseFloat(PlaceMax[1]) : parseFloat(max);
+                    } else {
+                        max = parseFloat(max) < parseFloat(PlaceMax) ? parseFloat(PlaceMax) : parseFloat(max);
+                    }
                 }
-            }
-        });
-        return max;
+            });
+            return max;
+        }
     }
 
     formatValue(val: any, isLegend: boolean) {

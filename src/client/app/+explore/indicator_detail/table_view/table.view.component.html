@@ -21,10 +21,10 @@
                 <td class="theading" align="center">{{customPlace.Name + ' ('+customYear+')'}}</td>
             </tr>
             <tr *ngFor="let td of tableData">
-                <td align="center" class="tableYear">{{td.category}}</td>
+                <td align="left" class="tableYear">{{td.category}}</td>
                 <td align="center">
                     <span class="dataVal">{{td.data}}</span>
-                    <div *ngIf="customYear.indexOf('-') !== -1">
+                    <div *ngIf="customYear.indexOf('-') !== -1 && showMoes && td.data_moe !== ''">
                         <span class="dataValMoe">(+/- {{td.data_moe}})</span>
                     </div>
                 </td>

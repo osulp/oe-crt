@@ -77,6 +77,9 @@
 #data-tile-wrapper.advanced .graph{
      height: 600px;
 }
+#data-tile-wrapper.advanced .graph.custom{
+     height: 580px;
+}
 
 #data-tile-wrapper.mapChart .graph{
     height: 575px;
