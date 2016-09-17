@@ -339,7 +339,9 @@
 }
 
 
-
+.removePlace {
+    z-index:1000;
+}
 
 
 #go-report-button{

@@ -28,7 +28,6 @@ var DataComponent = (function () {
         this.showIncrement = 3;
         this.scrollDownDistance = 8;
         this.scrollUpDistance = 10;
-        this.scrolledToBottom = false;
         this.showTopicMax = 1;
         this.SelectedTopics = [];
     }
@@ -36,7 +35,6 @@ var DataComponent = (function () {
         this.resultView = this.resultView === 'graph' ? 'map' : 'graph';
     };
     DataComponent.prototype.onFilterIndicator = function (Indicators) {
-        console.log('dope, does this work', Indicators);
         this.inputIndicators = Indicators;
     };
     DataComponent.prototype.onScrollDown = function () {
@@ -49,6 +47,7 @@ var DataComponent = (function () {
                 _this.showTopicMax = idx + 1;
             }
         });
+        console.log('scrollingdown', this.topicIndicatorCount);
     };
     DataComponent.prototype.onScrollUp = function () {
         var _this = this;
@@ -64,6 +63,7 @@ var DataComponent = (function () {
                 _this.showTopicMax = 1;
             }
         });
+        console.log('scollingup', this.topicIndicatorCount);
     };
     DataComponent.prototype.createTopicIndicatorObj = function () {
         var _this = this;
@@ -108,6 +108,9 @@ var DataComponent = (function () {
             this.scrollUpDistance = 3;
             this.showIncrement = 2;
         }
+        var windowHeight = $(window).height();
+        var bodyHeight = $('body').height();
+        console.log('windowHeight', windowHeight, bodyHeight);
     };
     DataComponent.prototype.ngAfterViewInit = function () {
         console.log(this.indTopListComps);

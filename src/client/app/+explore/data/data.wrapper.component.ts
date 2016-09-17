@@ -34,7 +34,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     showIncrement: number = 3;
     scrollDownDistance: number = 8;
     scrollUpDistance: number = 10;
-    scrolledToBottom: boolean = false;
+    //scrolledToBottom: boolean = false;
     showTopicMax: number = 1;
     SelectedTopics: Topic[] = [];
 
@@ -45,7 +45,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     onFilterIndicator(Indicators: Indicator[]) {
-        console.log('dope, does this work', Indicators);
+        //console.log('dope, does this work', Indicators);
         this.inputIndicators = Indicators;
     }
 
@@ -58,6 +58,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
                 this.showTopicMax = idx + 1;
             }
         });
+        console.log('scrollingdown', this.topicIndicatorCount);
     }
 
     onScrollUp() {
@@ -73,7 +74,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
                 this.showTopicMax = 1;
             }
         });
-        //console.log('scollingup', this.topicIndicatorCount);
+        console.log('scollingup', this.topicIndicatorCount);
     }
 
     createTopicIndicatorObj() {
@@ -107,6 +108,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
                 if (runScope.inputTopics.length > 0 && runScope.inputIndicators.length > 0) {
                     clearInterval(runInterval);
                     runScope.createTopicIndicatorObj();
+                    //runScope.onScrollDown();
                 }
             }
         }
@@ -128,6 +130,17 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
             this.scrollUpDistance = 3;
             this.showIncrement = 2;
         }
+        let windowHeight = $(window).height();
+        let bodyHeight = $('body').height();
+        console.log('windowHeight', windowHeight, bodyHeight);
+        //if (windowHeight > 800) {
+        //    this.scrollDownDistance = 12;
+        //    this.scrollUpDistance = 5;
+        //    this.showIncrement = 6;
+        //} else {
+
+        //}
+        //this.onScrollDown();
     }
 
     ngAfterViewInit() {
@@ -139,7 +152,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
         if (inputChanges.inputTopics) {
             //console.log('yep selected topics changed!', inputChanges.inputTopics);
             let selectedTopics = inputChanges.inputTopics.currentValue.filter((topic: Topic) => topic.selected);
-            // console.log('yep selected topics', selectedTopics);
+            //console.log('yep selected topics', selectedTopics);
             this.SelectedTopics = selectedTopics.length === 0 ? inputChanges.inputTopics.currentValue : selectedTopics;
         }
     }

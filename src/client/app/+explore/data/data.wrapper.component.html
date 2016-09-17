@@ -35,7 +35,7 @@
     <div class="row">
         <div class="col-xs-12" *ngFor="let topic of inputTopics | SelectedTopicsPipe:collections; let idx = index">
             <!--<div *ngIf="showTopic(topic, idx)">-->
-            <div *ngIf="idx < showTopicMax && topicIndicatorCount[topic.topic]">
+            <div *ngIf="idx <= showTopicMax && topicIndicatorCount[topic.topic]">
                 <div class="row">
                     <div class="col-xs-12">
                         <indicators-by-topic-list #indicatorList [inputIndicators]="inputIndicators" [inputTopics]="[topic]" [inputCollections]="collections" (filteredIndicatorsFromComp)="onFilterIndicator($event)"></indicators-by-topic-list>

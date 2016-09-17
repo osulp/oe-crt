@@ -90,7 +90,7 @@
                                              class="place-bin"
                                              [ngClass]="place.Combined ? 'combinedPlaces' : ''">
                                             {{place.Name}}
-                                            <span (click)="removePlace(place, placeBin, dragBin, placeContainer)"><img src="assets/img/closeX2.png" alt="remove selected place" />&nbsp;</span>
+                                            <span class="removePlace" (click)="removePlace(place, placeBin, dragBin, placeContainer)"><img src="assets/img/closeX2.png" alt="remove selected place" />&nbsp;</span>
                                         </div>
                                     </div>
                                 </div>

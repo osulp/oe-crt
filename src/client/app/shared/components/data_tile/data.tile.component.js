@@ -603,7 +603,7 @@ var DataTileComponent = (function () {
                         _this.onChartDataUpdate.emit({ data: _this.isCustomChart ? _this.dataStore.indicatorData[_this.indicator].chart_data : data, customPlace: _this.selectedPlaceCustomChart, customYear: _this.selectedCustomChartYear, metadata: data.Metadata[0] });
                     }
                     else {
-                        _this.chart.showLoading('Sorry, indicator data is not available for this place.  Please select a community.');
+                        _this.chart.showLoading('Sorry, indicator data is not available for this place.');
                         _this.chart.setTitle({
                             text: _this.viewType === 'basic' ? _this.indicator.replace('<br>', ' ') : null,
                             align: _this.viewType === 'basic' ? 'left' : null,
@@ -614,6 +614,7 @@ var DataTileComponent = (function () {
                             widthAdjust: -10,
                             x: -30
                         });
+                        _this.chart.legend.enabled = false;
                     }
                 }, function (err) { return console.error(err); }, function () { return console.log('done loading data for graph'); });
             }
@@ -1058,7 +1059,6 @@ var DataTileComponent = (function () {
                 this.chart.tooltip.options.shared = false;
                 this.chart.tooltip.options.useHTML = true;
                 this.chart.tooltip.options.formatter = function () {
-                    console.log('hovering', this);
                     var hoveredPlace = this.series.name
                         .replace(' County', '')
                         .replace(' School District', '')
@@ -1068,7 +1068,8 @@ var DataTileComponent = (function () {
                     }
                     else {
                         var displayValue = chartScope.formatValue(this.y, false) + '</b>';
-                        if (this.x.match('-')) {
+                        var isMoeYear = this.x.match('-') && ['American Community Survey', 'Combined Decennial/ACS', 'County Level Census/ACS', 'MaritalStatusEstimate'].indexOf(chartScope.placeTypeData.Metadata[0].data_source) !== -1;
+                        if (isMoeYear) {
                             var value1 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][1]);
                             var value2 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][0]);
                             var moeValue = (value1 - value2) / 2;
@@ -2050,7 +2051,7 @@ var DataTileComponent = (function () {
                     returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
                     break;
                 case '%Tenth':
-                    returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
+                    returnVal = Math.round(parseFloat(val) * 10000) / 100 + '%';
                     break;
                 case '0':
                     returnVal = isLegend ? this.formatAbvNumbers(val, true, 0) : this.addCommas(Math.round(parseInt(val)).toString());

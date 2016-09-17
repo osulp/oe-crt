@@ -766,7 +766,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                             this.createGraphChart();
                             this.onChartDataUpdate.emit({ data: this.isCustomChart ? this.dataStore.indicatorData[this.indicator].chart_data : data, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear, metadata:data.Metadata[0] });
                         } else {
-                            this.chart.showLoading('Sorry, indicator data is not available for this place.  Please select a community.');
+                            this.chart.showLoading('Sorry, indicator data is not available for this place.');
                             this.chart.setTitle({
                                 text: this.viewType === 'basic' ? this.indicator.replace('<br>', ' ') : null,
                                 align: this.viewType === 'basic' ? 'left' : null,
@@ -777,6 +777,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                                 widthAdjust: -10,
                                 x: -30
                             });
+                            this.chart.legend.enabled = false;
                         }
                     },
                     (err: any) => console.error(err),
@@ -1348,7 +1349,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 this.chart.tooltip.options.shared = false;
                 this.chart.tooltip.options.useHTML = true;
                 this.chart.tooltip.options.formatter = function (): any {
-                    console.log('hovering', this);
+                    //console.log('hovering', this);
                     //highlight corresponding map geography
                     //if (hoveredPlace !== undefined && hoveredPlace !== "Oregon") {
                     //    try { mapChart.get(hoveredPlace).setState(''); } catch (ex) { }
@@ -1370,7 +1371,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         //return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size: 10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><b>+/-' + moe + '</b><br/>';
                     } else {
                         var displayValue = chartScope.formatValue(this.y, false) + '</b>';
-                        if (this.x.match('-')) {
+                        var isMoeYear = this.x.match('-') && ['American Community Survey', 'Combined Decennial/ACS', 'County Level Census/ACS', 'MaritalStatusEstimate'].indexOf(chartScope.placeTypeData.Metadata[0].data_source) !== -1;
+                        if (isMoeYear) {
                             //if (!drilldownShowing) {
                             //console.log('hoevered place: ', hoveredPlace);
                             //console.log('data store', chartScope.dataStore);
@@ -2597,7 +2599,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
                     break;
                 case '%Tenth':
-                    returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
+                    returnVal = Math.round(parseFloat(val) * 10000) /100 + '%';
                     break;
                 case '0':
                     returnVal = isLegend ? this.formatAbvNumbers(val, true, 0) : this.addCommas(Math.round(parseInt(val)).toString());
