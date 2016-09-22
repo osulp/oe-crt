@@ -9,6 +9,10 @@
     margin-left:-15px;
 }
 
+.data-tile-grid {
+    padding: 30px;
+}
+
 @media (max-width:1200px) {
     #featured-data {
         margin-left: 0;

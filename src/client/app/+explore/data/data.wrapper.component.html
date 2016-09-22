@@ -1,4 +1,4 @@
-<div id="data-row-wrapper" infinite-scroll
+<div id="data-row-wrapper" (window:resize)="onResize($event)" infinite-scroll
      [infiniteScrollDistance]="scrollDownDistance"
      [infiniteScrollUpDistance]="scrollUpDistance"
      [infiniteScrollThrottle]="300"
@@ -39,16 +39,20 @@
                 <div class="row">
                     <div class="col-xs-12">
                         <indicators-by-topic-list #indicatorList [inputIndicators]="inputIndicators" [inputTopics]="[topic]" [inputCollections]="collections" (filteredIndicatorsFromComp)="onFilterIndicator($event)"></indicators-by-topic-list>
-                        <div class="back-to-top" *ngIf="idx > 0" (click)="scrollToTop()">Back to Top</div>
+                        <div class="back-to-top" *ngIf="idx > 0" (click)="scrollToTop()"><span class="glyphicon glyphicon-arrow-up"></span><span>&nbsp;Back to Top</span></div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid" *ngFor="let indicator of inputIndicators | indicatorTopicFilterPipe:topic:collections:true; let idx = index">
+                    <div *ngFor="let indicator of inputIndicators | indicatorTopicFilterPipe:topic:collections:true; let idx = index">
+                        <div class="col-xs-12 back-to-top-scroll" *ngIf="idx < topicIndicatorCount[topic.topic][selectedCollection].showCount && idx !== 0 && idx % showScrollUpCount === 0" (click)="scrollToTop()"><span class="glyphicon glyphicon-arrow-up"></span><span>&nbsp;Back to Top</span></div>
+                        <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid">
                         <data-tile *ngIf="idx < topicIndicatorCount[topic.topic][selectedCollection].showCount" #dataTile [indicator]="indicator.indicator" [tileType]="'graph'" [viewType]="'basic'"></data-tile>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
-        <div class="back-to-top-from-bottom" (click)="scrollToTop()">Back to Top</div>
+        <div class="back-to-top-from-bottom" (click)="scrollToTop()"><span class="glyphicon glyphicon-arrow-up"></span><span>&nbsp;Back to Top</span></div>
     </div>
 </div>

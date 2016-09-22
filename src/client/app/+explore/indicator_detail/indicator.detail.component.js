@@ -118,17 +118,16 @@ var DetailComponent = (function () {
             .replace(/\%2C/g, ',')
             .replace(/\%2524/g, '$')
             .replace(/\%24/g, '$')
-            .replace(/\+/g, '%2B')
-            .replace(/\%2525/g, '%');
+            .replace(/\+/g, '%2B');
         console.log('DECODED!', this.inputIndicator);
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(function (data) {
-            console.log('DECODED service result!', data);
+            console.log('DECODED!', data);
             var indicator_info = data.Desc[0];
             if (indicator_info) {
                 _this.indicatorDesc = data.Desc;
                 _this.relatedIndicators = data.RelatedIndicators;
                 console.log('indicatorDesc service', data);
-                _this.indicatorTitle = indicator_info.Dashboard_Chart_Title ? indicator_info.Dashboard_Chart_Title : indicator_info.Variable;
+                _this.indicatorTitle = indicator_info.Sub_Sub_Topic_ID !== null ? indicator_info.Variable : indicator_info.Dashboard_Chart_Title ? indicator_info.Dashboard_Chart_Title : indicator_info.Variable;
                 _this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
                 _this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
                 _this.isCountyLevel = indicator_info.CountyLevel;

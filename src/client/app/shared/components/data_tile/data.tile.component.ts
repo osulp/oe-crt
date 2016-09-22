@@ -58,6 +58,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
     @Input() indicator: any;//Just name pull rest of info from desc service
     @Input() tileType: any;//map/graph/table
     @Input() viewType: any;//basic/advanced
+    @Input() featured: any;//variable and geoids
+    @Input() related: boolean;
     @ViewChild(HmapMenuComponent) hMapMenu: HmapMenuComponent;
     @Output() onChartDataUpdate = new EventEmitter();
     public geoJSONStore: any[] = [];
@@ -335,10 +337,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
             this.mapChart = chartInstance;
             this.mapChart.showLoading();
         }
+
         this.checkScreenSize();
 
         this._indicatorDescService.getIndicator(this.indicator.replace(/\+/g, '%2B').replace(/\&/g, '%26').replace(/\=/g, '%3D')).subscribe(
             (indicatorDesc: any) => {
+                console.log('surely', indicatorDesc);
                 this.indicator_info = indicatorDesc.Desc[0];
                 if (this.indicator_info) {
                     this.isStatewide = this.indicator_info.Geog_ID === 8 ? true : false;
@@ -369,8 +373,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     } else {
                         this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
                             data => {
-                                console.log('selected places subscribe throwing event');
-                                console.log(data);
+                                console.log('selected places subscribe throwing event', data);
                                 this.onPlacesChanged(data);
                             },
                             err => console.error(err),
@@ -395,6 +398,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
                             err => console.error(err),
                             () => console.log('done with subscribe event places selected')
                         );
+
+                        if (this.featured) {
+                            console.log('featured chart', this.featured);
+                            //need to add places to selected places
+                            this.checkDataStateForCharts();
+                        }
                     }
                 }
             },
@@ -490,10 +499,13 @@ export class DataTileComponent implements OnInit, OnDestroy {
                     .replace(/\%24/g, '$')
                     .replace(/\%2B/g, '+')
                     .replace(/\%3D/g, '=')
-                    .replace(/\%26/g, '&')
-                    .replace(/\%3D/g,'=')
+                    //.replace(/\%26/g, '&')
+                    .replace(/\%3D/g, '=')
+                    //.replace(/\%3A/g, ':')
                     .indexOf(this.indicator) !== -1) {
-                    //console.log('yes siree');
+                    console.log('yes siree');
+                    this.getData();
+                } else if (this.related) {
                     this.getData();
                 }
             } else {
@@ -764,6 +776,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         if (data.Data.length > 0) {
                             this.updateDataStore([data], 'indicator');
                             this.createGraphChart();
+
                             this.onChartDataUpdate.emit({ data: this.isCustomChart ? this.dataStore.indicatorData[this.indicator].chart_data : data, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear, metadata:data.Metadata[0] });
                         } else {
                             this.chart.showLoading('Sorry, indicator data is not available for this place.');
@@ -1298,161 +1311,167 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
 
     createGraphChart() {
-        if (this.indicator_info.ScriptName === null) {
-            //this.placeTypeData = data;
-            this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
-            //this.Data = data.length > 0 ? data : [];
-            //this.offsetYear = this.offsetYear === undefined ? this.getDefaultYear() : this.offsetYear;
-            this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
-            this.processDataYear();
-            this.processYearTicks();
-            this.selectedYearIndex = this._tickArray.length - 1;// - this.yearEndOffset;
-            console.log('countycheck-1', this.placeTypeData);
-            this.Data = this.placeTypeData.Data;
-            //this.onChartDataUpdate.emit(data);
-            //check if metadata, if not custom chart, need to do other stuff
-            //TODO catch custom chart scenarios
-            if (this.placeTypeData.Metadata.length > 0) {
-                //console.log('making graph chart');
-                var chartScope = this;
-                this.chart.xAxis[0].setCategories(this._tickLabels);
+        try {
+            if (this.indicator_info.ScriptName === null) {
+                //this.placeTypeData = data;
+                this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
+                //this.Data = data.length > 0 ? data : [];
+                //this.offsetYear = this.offsetYear === undefined ? this.getDefaultYear() : this.offsetYear;
+                this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
+                this.processDataYear();
+                this.processYearTicks();
+                this.selectedYearIndex = this._tickArray.length - 1;// - this.yearEndOffset;
+                console.log('countycheck-1', this.placeTypeData);
+                this.Data = this.placeTypeData.Data;
+                //this.onChartDataUpdate.emit(data);
+                //check if metadata, if not custom chart, need to do other stuff
+                //TODO catch custom chart scenarios
+                if (this.placeTypeData.Metadata.length > 0) {
+                    //console.log('making graph chart');
+                    var chartScope = this;
+                    this.chart.xAxis[0].setCategories(this._tickLabels);
 
-                this.chart.xAxis[0].update({
-                    min: 0,
-                    max: this._tickArray.length - 1,// - (chartScope.yearEndOffset + 1),
-                    tickInterval: this._tickArray.length - (chartScope.yearStartOffset + chartScope.yearEndOffset) > 10 ? 2 : null,
-                    plotLines: [{
-                        color: 'gray',
-                        dashStyle: 'longdashdot',
-                        width: 2,
-                        value: this.selectedYearIndex,
-                        id: 'plot-line-1'
-                    }],
-                    plotOptions: {
-                        series: {
-                            fillOpacity: 0.85,
-                            animation: {
-                                duration: 500
-                            },
-                            marker: {
-                                lineWidth: 1,
-                                symbol: 'circle'
-                            },
-                            connectNulls: true,
-                            threshold: 0
+                    this.chart.xAxis[0].update({
+                        min: 0,
+                        max: this._tickArray.length - 1,// - (chartScope.yearEndOffset + 1),
+                        tickInterval: this._tickArray.length - (chartScope.yearStartOffset + chartScope.yearEndOffset) > 10 ? 2 : null,
+                        plotLines: [{
+                            color: 'gray',
+                            dashStyle: 'longdashdot',
+                            width: 2,
+                            value: this.selectedYearIndex,
+                            id: 'plot-line-1'
+                        }],
+                        plotOptions: {
+                            series: {
+                                fillOpacity: 0.85,
+                                animation: {
+                                    duration: 500
+                                },
+                                marker: {
+                                    lineWidth: 1,
+                                    symbol: 'circle'
+                                },
+                                connectNulls: true,
+                                threshold: 0
+                            }
                         }
-                    }
-                });
+                    });
 
-                this.chart.legend.update(this.setLegendOptions(true));
+                    this.chart.legend.update(this.setLegendOptions(true));
 
-                this.chart.tooltip.options.shared = false;
-                this.chart.tooltip.options.useHTML = true;
-                this.chart.tooltip.options.formatter = function (): any {
-                    //console.log('hovering', this);
-                    //highlight corresponding map geography
-                    //if (hoveredPlace !== undefined && hoveredPlace !== "Oregon") {
-                    //    try { mapChart.get(hoveredPlace).setState(''); } catch (ex) { }
-                    //}
-                    let hoveredPlace = this.series.name
-                        .replace(' County', '')
-                        .replace(' School District', '')
-                        .replace(' Margin of Error', '');
-                    ////if (hoveredPlace !== undefined) {
-                    ////    try {
-                    ////        mapChart.get(hoveredPlace).setState('hover');
-                    ////    }
-                    ////    catch (ex) {
-                    ////    }
-                    ////}
-                    if (this.series.name.match('Error')) {
-                        return false;
-                        //var moe = formatValue((this.point.high - this.point.low) / 2);
-                        //return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size: 10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><b>+/-' + moe + '</b><br/>';
-                    } else {
-                        var displayValue = chartScope.formatValue(this.y, false) + '</b>';
-                        var isMoeYear = this.x.match('-') && ['American Community Survey', 'Combined Decennial/ACS', 'County Level Census/ACS', 'MaritalStatusEstimate'].indexOf(chartScope.placeTypeData.Metadata[0].data_source) !== -1;
-                        if (isMoeYear) {
-                            //if (!drilldownShowing) {
-                            //console.log('hoevered place: ', hoveredPlace);
-                            //console.log('data store', chartScope.dataStore);
-                            let value1 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][1]);
-                            let value2 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][0]);
-                            let moeValue = (value1 - value2) / 2;
-                            //console.log(moeValue);
-                            displayValue += '<span style="font-size:8px">  (+/- ' + chartScope.formatValue(moeValue, false) + ' )</span>';
-                            //}
-                            //else {//only show MOE drill downs for State right now
-                            //    try {
-                            //        displayValue += '<span style="font-size:8px">  (+/- ' + formatValue((drill_data.years_moe[this.series.name].data[selectedYearIndexArray[this.x]][1] - drill_data.years_moe[this.series.name].data[selectedYearIndexArray[this.x]][0]) / 2) + ' )</span>';
-                            //    }
-                            //    catch (ex)
-                            //    { }
-                            //}
+                    this.chart.tooltip.options.shared = false;
+                    this.chart.tooltip.options.useHTML = true;
+                    this.chart.tooltip.options.formatter = function (): any {
+                        //console.log('hovering', this);
+                        //highlight corresponding map geography
+                        //if (hoveredPlace !== undefined && hoveredPlace !== "Oregon") {
+                        //    try { mapChart.get(hoveredPlace).setState(''); } catch (ex) { }
+                        //}
+                        let hoveredPlace = this.series.name
+                            .replace(' County', '')
+                            .replace(' School District', '')
+                            .replace(' Margin of Error', '');
+                        ////if (hoveredPlace !== undefined) {
+                        ////    try {
+                        ////        mapChart.get(hoveredPlace).setState('hover');
+                        ////    }
+                        ////    catch (ex) {
+                        ////    }
+                        ////}
+                        if (this.series.name.match('Error')) {
+                            return false;
+                            //var moe = formatValue((this.point.high - this.point.low) / 2);
+                            //return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size: 10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><b>+/-' + moe + '</b><br/>';
+                        } else {
+                            var displayValue = chartScope.formatValue(this.y, false) + '</b>';
+                            var isMoeYear = this.x.match('-') && ['American Community Survey', 'Combined Decennial/ACS', 'County Level Census/ACS', 'MaritalStatusEstimate'].indexOf(chartScope.placeTypeData.Metadata[0].data_source) !== -1;
+                            if (isMoeYear) {
+                                //if (!drilldownShowing) {
+                                //console.log('hoevered place: ', hoveredPlace);
+                                //console.log('data store', chartScope.dataStore);
+                                let value1 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][1]);
+                                let value2 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][0]);
+                                let moeValue = (value1 - value2) / 2;
+                                //console.log(moeValue);
+                                displayValue += '<span style="font-size:8px">  (+/- ' + chartScope.formatValue(moeValue, false) + ' )</span>';
+                                //}
+                                //else {//only show MOE drill downs for State right now
+                                //    try {
+                                //        displayValue += '<span style="font-size:8px">  (+/- ' + formatValue((drill_data.years_moe[this.series.name].data[selectedYearIndexArray[this.x]][1] - drill_data.years_moe[this.series.name].data[selectedYearIndexArray[this.x]][0]) / 2) + ' )</span>';
+                                //    }
+                                //    catch (ex)
+                                //    { }
+                                //}
+                            }
+
+                            //var drillDownMsg = hasDrillDowns && !drilldownShowing && !isGPI && (isStateDDOnly && this.point.series.name === "Oregon" || !isStateDDOnly) && !hasDrillDownCategories ? '<span style="font-size:10px"><em>(Click on line to see demographics)</em></span>' : "";
+
+                            return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size:10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><span><b>' + displayValue + '</span><br/>';// + drillDownMsg;
                         }
+                    };
 
-                        //var drillDownMsg = hasDrillDowns && !drilldownShowing && !isGPI && (isStateDDOnly && this.point.series.name === "Oregon" || !isStateDDOnly) && !hasDrillDownCategories ? '<span style="font-size:10px"><em>(Click on line to see demographics)</em></span>' : "";
-
-                        return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size:10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><span><b>' + displayValue + '</span><br/>';// + drillDownMsg;
-                    }
-                };
-
-                let indicatorYaxis = this.placeTypeData.Metadata[0]['Y-Axis'] !== null ? this.placeTypeData.Metadata[0]['Y-Axis'] : this.indicator;
-                this.chart.yAxis[0].update({
-                    title: {
-                        text: this.viewType === 'advanced' ? indicatorYaxis : '',
-                        margin: this.viewType === 'advanced' ? indicatorYaxis.length > 30 ? 40 : null : null,
-                        style: { 'line-height': '.8em' }
-                    },
-                    labels: {
-                        formatter: function () {
-                            return chartScope.formatValue(this.value, true);
-                        }
-                    },
-                    plotLines: [{
-                        value: 0,
-                        width: 1,
-                        color: '#808080'
-                    }],
-                    floor: 0,
-                    min: 0,
-                    max: this.placeTypeData.Metadata[0]['Y-Axis_Max']
-                });
-                let title = this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator;
-                this.chart.setTitle(
-                    {
-                        text: this.viewType === 'basic' ? title.replace('<br>', ' ') : null,
-                        align: this.viewType === 'basic' ? 'left' : null,
-                        style: {
-                            fontSize: '1.25em',
-                            fontWeight: '200'
+                    let indicatorYaxis = this.placeTypeData.Metadata[0]['Y-Axis'] !== null ? this.placeTypeData.Metadata[0]['Y-Axis'] : this.indicator;
+                    this.chart.yAxis[0].update({
+                        title: {
+                            text: this.viewType === 'advanced' ? indicatorYaxis : '',
+                            margin: this.viewType === 'advanced' ? indicatorYaxis.length > 30 ? 40 : null : null,
+                            style: { 'line-height': '.8em' }
                         },
-                        widthAdjust: -10,
-                        x: -30
-                        //y: 0
-                    },
-                    {
-                        text: this.viewType === 'basic' ? (this.isCountyLevel ? '<span class="glyphicon glyphicon-flag"></span><span>County Level Data</span>' : this.isStatewide ? '<span class="glyphicon glyphicon-flag"></span><span>Statewide Data Only</span>' : '') : null,
-                        align: 'right',
-                        style: {
-                            fontStyle: 'italic',
-                            fontSize: '.8em',
-                            color: '#a7a7a7'
+                        labels: {
+                            formatter: function () {
+                                return chartScope.formatValue(this.value, true);
+                            }
                         },
-                        //y: title.length > 90 ? 60 : title.length > 50 ? 40 : 20,
-                        useHTML: true
-                    }
-                );
+                        plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }],
+                        floor: 0,
+                        min: 0,
+                        max: this.placeTypeData.Metadata[0]['Y-Axis_Max']
+                    });
+                    let title = this.placeTypeData.Metadata[0]['Sub_Sub_Topic_ID'] !== null ? this.placeTypeData.Metadata[0]['Variable'] : this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator;
+                    this.chart.setTitle(
+                        {
+                            text: this.viewType === 'basic' ? title.replace('<br>', ' ') : null,
+                            align: this.viewType === 'basic' ? 'left' : null,
+                            style: {
+                                fontSize: '1.25em',
+                                fontWeight: '200'
+                            },
+                            widthAdjust: -10,
+                            x: -30
+                            //y: 0
+                        },
+                        {
+                            text: this.viewType === 'basic' ? (this.isCountyLevel ? '<span class="glyphicon glyphicon-flag"></span><span>County Level Data</span>' : this.isStatewide ? '<span class="glyphicon glyphicon-flag"></span><span>Statewide Data Only</span>' : '') : null,
+                            align: 'right',
+                            style: {
+                                fontStyle: 'italic',
+                                fontSize: '.8em',
+                                color: '#a7a7a7'
+                            },
+                            //y: title.length > 90 ? 60 : title.length > 50 ? 40 : 20,
+                            useHTML: true
+                        }
+                    );
 
-                this.addSeriesDataToGraphChart();
-                this.chart.hideLoading();
+                    this.addSeriesDataToGraphChart();
+                    this.chart.hideLoading();
+                } else {
+                    //console.log('no chart for' + this.indicator);
+                }
             } else {
-                //console.log('no chart for' + this.indicator);
+                if (this.tileType === 'graph') {
+                    this.createCustomChart();
+                    this.chart.hideLoading();
+                }
             }
-        } else {
-            if (this.tileType === 'graph') {
-                this.createCustomChart();
-                this.chart.hideLoading();
+        } catch (ex) {
+            if (this.chart) {
+                this.chart.showLoading('Sorry, this chart is not currently available');
             }
         }
     }
@@ -1735,7 +1754,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             this.processDataYear();
             let placeSelected: boolean = false;
             this.places.forEach((place: any) => {
-                placeSelected = this.selectedPlaceCustomChart.Name === place.Name ? true : placeSelected;
+                placeSelected = this.selectedPlaceCustomChart ?  this.selectedPlaceCustomChart.Name === place.Name ? true : placeSelected : false;
             });
             this.selectedPlaceCustomChart = placeSelected ? this.selectedPlaceCustomChart : this.places[0];
             this.processCustomChart();
@@ -1872,9 +1891,9 @@ export class DataTileComponent implements OnInit, OnDestroy {
     }
 
     onResize(event: any) {
-        console.log('resizing...', this.chart);
+        //console.log('resizing...', this.chart);
         if (this.chart) {
-            if (this.chart.legend.options.enabled) {
+            if (this.chart.legend.display) {
                 this.chart.legend.update(this.setLegendOptions(true));
             }
             var runInterval = setInterval(runCheck, 1050);
@@ -1889,7 +1908,11 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     setLegendOptions(show?:boolean) {
         //console.log('legendOptions', $('#data-tile-wrapper').width(), this.elementRef.nativeElement.offsetWidth, $(this.elementRef.nativeElement).width());
-        let domTileWidth = $('#data-tile-wrapper').width();
+        //let domTile = $('#data-tile-wrapper');
+        let domTile = this.related ? $(this.elementRef.nativeElement) : $('#data-tile-wrapper');
+        let domTileWidth = $(domTile).width();
+        //let domTileWidth = $('#highchart' + this.indicator).closest('#data-tile-wrapper').width();
+        //console.log('domtilewidth', domTile, this.elementRef.nativeElement);
         return {
             width: this.viewType === 'basic' ? domTileWidth : 400,
             itemWidth: this.viewType === 'basic' ? (domTileWidth - 20)/2 : 200,
@@ -2038,7 +2061,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
         let isSelected = false;
         for (var p = 0; p < this.places.length; p++) {
             isSelected = place.geoid === this.places[p].ResID ? true : isSelected;
-            console.log('countylevel checking', this.places[p], place);
+            //console.log('countylevel checking', this.places[p], place);
             if (this.places[p].Desc) {
                 let split: number = this.places[p].ResID.length > 9 ? 1 : 0;
                 isSelected = this.isCountyLevel ? (this.places[p].Desc.split(', ').length > split ? this.places[p].Desc.split(', ')[split].replace(' County', '') === place.community.replace(' County', '').trim() : isSelected) : isSelected;
@@ -2096,6 +2119,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     processCustomChartData(chartType: any) {
         let place_data_years: any = {};
+        if (this.places.length === 0) {
+            let Oregon: SearchResult = { Name: 'Oregon', ResID: '41', Type: 'Place', TypeCategory: 'State', Desc: '' };
+            this.places.push(Oregon);
+
+        }
+
         switch (this.indicator_info.ScriptName) {
             case 'PopulationPyramid':
             case 'PopulationPyramidEstimate':

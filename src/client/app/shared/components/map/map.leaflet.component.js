@@ -16,7 +16,7 @@ var MapLeafletComponent = (function () {
         this.currentCoords = [44, -121.5];
         this.currentZoom = 5.5;
         this.detailViewOffset = -300;
-        this.crt_layers_url = 'http://lib-arcgis4.library.oregonstate.edu/arcgis/rest/services/people_communities/oe_crt/MapServer';
+        this.crt_layers_url = 'http://lib-arcgis5.library.oregonstate.edu/arcgis/rest/services/people_communities/oe_crt/MapServer';
         this.crt_layer_cities_id = 1;
         this.crt_layer_tracts_id = 2;
         this.crt_layer_counties_id = 3;
@@ -61,7 +61,7 @@ var MapLeafletComponent = (function () {
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
                 pane: 'labels',
                 minZoom: 1,
-                maxZoom: 8
+                maxZoom: this.viewType === 'indicatorDetail' ? 7 : 8
             });
             baseMapLabels.addTo(this.map);
             var ctTypes = ['Tracts', 'Unincorporated Place'];

@@ -20,7 +20,7 @@ export class IndicatorTopicFilterPipe implements PipeTransform {
                 }
             })
             .filter((indicator: Indicator) => {
-                console.log('filtering for collection', indicator, selectedCollection);
+                //console.log('filtering for collection', indicator, selectedCollection);
                 let inCollection = selectedCollection === 'Show All' ? true : false;
                 if (!inCollection) {
                     inCollection = indicator.collections ? (indicator.collections.split(', ').indexOf(selectedCollection) !== -1 ? true : false) : false;

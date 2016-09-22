@@ -58,6 +58,7 @@ var AppExceptionHandler = (function (_super) {
 exports.AppExceptionHandler = AppExceptionHandler;
 platform_browser_dynamic_1.bootstrap(app_component_1.AppComponent, [
     http_1.HTTP_PROVIDERS,
+    http_1.JSONP_PROVIDERS,
     router_1.ROUTER_PROVIDERS,
     core_1.provide(common_1.APP_BASE_HREF, { useValue: '<%= ENV %>' === 'prod' ? '<%= APP_BASE %>' : '/' }),
     core_1.provide(core_1.ExceptionHandler, { useClass: AppExceptionHandler })

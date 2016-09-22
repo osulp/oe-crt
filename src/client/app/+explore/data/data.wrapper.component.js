@@ -30,6 +30,7 @@ var DataComponent = (function () {
         this.scrollUpDistance = 10;
         this.showTopicMax = 1;
         this.SelectedTopics = [];
+        this.showScrollUpCount = 3;
     }
     DataComponent.prototype.toggleResultView = function () {
         this.resultView = this.resultView === 'graph' ? 'map' : 'graph';
@@ -94,6 +95,20 @@ var DataComponent = (function () {
             }
         }
     };
+    DataComponent.prototype.onResize = function (event) {
+        var windowWidth = $(window).width();
+        if (windowWidth < 767) {
+        }
+        else if (windowWidth < 993) {
+            this.showScrollUpCount = 1;
+        }
+        else if (windowWidth < 1200) {
+            this.showScrollUpCount = 2;
+        }
+        else {
+            this.showScrollUpCount = 3;
+        }
+    };
     DataComponent.prototype.ngOnInit = function () {
         this.resultView = 'graph';
         this.checkTopicIndicatorLoaded();
@@ -103,10 +118,14 @@ var DataComponent = (function () {
             this.scrollUpDistance = 5;
             this.showIncrement = 1;
         }
-        else if (windowWidth < 991) {
+        else if (windowWidth < 993) {
             this.scrollDownDistance = 3;
             this.scrollUpDistance = 3;
             this.showIncrement = 2;
+            this.showScrollUpCount = 1;
+        }
+        else if (windowWidth < 1200) {
+            this.showScrollUpCount = 2;
         }
         var windowHeight = $(window).height();
         var bodyHeight = $('body').height();

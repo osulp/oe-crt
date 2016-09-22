@@ -51,12 +51,15 @@ export class PlacesMapSelectComponent implements OnInit {
     searchResults: Observable<any>;
     mapOptions: any = null;
     urlPlaces: any;
+    //_placeInfoService: PlaceInfoService;
 
     constructor(
         private _searchPlaceService: SearchPlacesService,
         private _selectedPlacesService: SelectedPlacesService,
+        //placeInfoService: PlaceInfoService,
         dragulaService: DragulaService
     ) {
+        //this._placeInfoService = placeInfoService;
         ////setup dragNdrop for creating content
         //dragulaService.setOptions('bag-crt', {
         //    copy: false,
@@ -301,7 +304,11 @@ export class PlacesMapSelectComponent implements OnInit {
         if (indexPos === -1) {
             this.selectedSearchResults.push(place);
             this.selPlacesEvt.emit(this.selectedSearchResults);
+            //this._placeInfoService.getInfo(place.Name).subscribe((pinfo: any) => {
+            //   console.log('pinfo', pinfo);
             this._selectedPlacesService.add(place, 'map');
+            // });
+
         }
     }
 

@@ -16,17 +16,17 @@
                     </header>
                 </div>
             </div>
-            <div id="topics-wrapper" class="row">                
+            <div id="topics-wrapper" class="row">
                 <div id="topic-col-list">
-                    <div class="topic-listing" [ngClass]="i<4?'firstCol':''"  *ngFor="let item of Topics | topicCountPipe; let i=index">
-                        <div  (click)="gotoTopic(item);">
+                    <div class="topic-listing" [ngClass]="i<4?'firstCol':''"  *ngFor="let item of Topics | topicCountPipe; let i=index" (click)="gotoTopic(item);">
+                        <div>
                             <span><img src="assets/img/{{item.icon}}" /></span>
                             <span>
                                 {{item.topic}}
                             </span>
                         </div>
                     </div>
-                </div>                
+                </div>
             </div>
         </div>
     </div>

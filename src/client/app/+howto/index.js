@@ -1,5 +1,5 @@
 function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
-__export(require('./places.map.select.component'));
+__export(require('./howto.component'));
 //# sourceMappingURL=index.js.map

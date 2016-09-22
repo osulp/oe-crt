@@ -3,6 +3,7 @@
  */
 export * from './places.service';
 export * from './selected.places.service';
+export * from './place.info.service';
 
 
 

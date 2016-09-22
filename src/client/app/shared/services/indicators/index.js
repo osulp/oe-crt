@@ -4,4 +4,5 @@ function __export(m) {
 __export(require('./indicator.desc.service'));
 __export(require('./indicators.service'));
 __export(require('./selected.indicators.service'));
+__export(require('./featured.indicators.service'));
 //# sourceMappingURL=index.js.map

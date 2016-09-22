@@ -37,6 +37,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     //scrolledToBottom: boolean = false;
     showTopicMax: number = 1;
     SelectedTopics: Topic[] = [];
+    showScrollUpCount: number = 3;
 
     toggleResultView() {
         //console.log('resultview clicked');
@@ -114,6 +115,24 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
         }
     }
 
+    onResize(event: any) {
+        let windowWidth = $(window).width();
+        if (windowWidth < 767) {
+            //this.scrollDownDistance = 5;
+            //this.scrollUpDistance = 5;
+            //this.showIncrement = 1;
+        } else if (windowWidth < 993) {
+            //this.scrollDownDistance = 3;
+            //this.scrollUpDistance = 3;
+            //this.showIncrement = 2;
+            this.showScrollUpCount = 1;
+        } else if (windowWidth < 1200) {
+            this.showScrollUpCount = 2;
+        } else {
+            this.showScrollUpCount = 3;
+        }
+    }
+
     ngOnInit() {
         //check input topics set all topics to all
         this.resultView = 'graph';
@@ -125,11 +144,15 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
             this.scrollDownDistance = 5;
             this.scrollUpDistance = 5;
             this.showIncrement = 1;
-        } else if (windowWidth < 991) {
+        } else if (windowWidth < 993) {
             this.scrollDownDistance = 3;
             this.scrollUpDistance = 3;
             this.showIncrement = 2;
+            this.showScrollUpCount = 1;
+        } else if (windowWidth < 1200) {
+            this.showScrollUpCount = 2;
         }
+
         let windowHeight = $(window).height();
         let bodyHeight = $('body').height();
         console.log('windowHeight', windowHeight, bodyHeight);

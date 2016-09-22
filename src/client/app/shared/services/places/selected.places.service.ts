@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Subject}    from 'rxjs/Subject';
+import {Jsonp, URLSearchParams} from '@angular/http';
 import {ReplaySubject}    from 'rxjs/Rx';
 
 let initialState: any[] = [];
@@ -29,7 +30,7 @@ export class SelectedPlacesService {
     //    Desc: 'California'
     //};
 
-    constructor() {
+    constructor(private jsonp:Jsonp) {
         this.updates
             .scan((accumulator: Object[], operation: Function) => {
                 return operation(accumulator);
@@ -122,7 +123,18 @@ export class SelectedPlacesService {
 
     add(place: any, source?: any): void {
         console.log('adding place to selectedPlaces', place);
-        //this.selectedPlaces.push(place);
+        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/places';
+        var params = new URLSearchParams();
+        params.set('place', place.Name); // the user's search value
+        params.set('f', 'json');
+        params.set('callback', 'JSONP_CALLBACK');
+            this.jsonp
+                .get(serviceUrl, { search: params })
+                .map((request: any) => {
+                    return <string[]>request.json();
+                }).subscribe((result: any) => {
+                    console.log('jumping jack', result);
+                });
         if (source) {
             place.Source = source;
         }

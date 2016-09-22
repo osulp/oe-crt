@@ -9,11 +9,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var Subject_1 = require('rxjs/Subject');
+var http_1 = require('@angular/http');
 var Rx_1 = require('rxjs/Rx');
 var initialState = [];
 var SelectedPlacesService = (function () {
-    function SelectedPlacesService() {
+    function SelectedPlacesService(jsonp) {
         var _this = this;
+        this.jsonp = jsonp;
         this.selectionChanged$ = new Rx_1.ReplaySubject(1);
         this.updates = new Subject_1.Subject();
         this.addPlace = new Subject_1.Subject();
@@ -92,6 +94,18 @@ var SelectedPlacesService = (function () {
     };
     SelectedPlacesService.prototype.add = function (place, source) {
         console.log('adding place to selectedPlaces', place);
+        var serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/places';
+        var params = new http_1.URLSearchParams();
+        params.set('place', place.Name);
+        params.set('f', 'json');
+        params.set('callback', 'JSONP_CALLBACK');
+        this.jsonp
+            .get(serviceUrl, { search: params })
+            .map(function (request) {
+            return request.json();
+        }).subscribe(function (result) {
+            console.log('jumping jack', result);
+        });
         if (source) {
             place.Source = source;
         }
@@ -132,7 +146,7 @@ var SelectedPlacesService = (function () {
     };
     SelectedPlacesService = __decorate([
         core_1.Injectable(), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [http_1.Jsonp])
     ], SelectedPlacesService);
     return SelectedPlacesService;
 })();

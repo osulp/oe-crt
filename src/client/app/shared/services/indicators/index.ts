@@ -4,4 +4,5 @@
 export * from './indicator.desc.service';
 export * from './indicators.service';
 export * from './selected.indicators.service';
+export * from './featured.indicators.service';
 

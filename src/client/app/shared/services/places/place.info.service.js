@@ -9,25 +9,25 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var http_1 = require('@angular/http');
-var SearchPlacesService = (function () {
-    function SearchPlacesService(jsonp) {
+var PlaceInfoService = (function () {
+    function PlaceInfoService(jsonp) {
         this.jsonp = jsonp;
     }
-    SearchPlacesService.prototype.search = function (term) {
+    PlaceInfoService.prototype.getInfo = function (place) {
         var serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/places';
         var params = new http_1.URLSearchParams();
-        params.set('term', term);
+        params.set('place', place);
         params.set('f', 'json');
         params.set('callback', 'JSONP_CALLBACK');
         return this.jsonp
             .get(serviceUrl, { search: params })
             .map(function (request) { return request.json(); });
     };
-    SearchPlacesService = __decorate([
+    PlaceInfoService = __decorate([
         core_1.Injectable(), 
         __metadata('design:paramtypes', [http_1.Jsonp])
-    ], SearchPlacesService);
-    return SearchPlacesService;
+    ], PlaceInfoService);
+    return PlaceInfoService;
 })();
-exports.SearchPlacesService = SearchPlacesService;
-//# sourceMappingURL=places.service.js.map
+exports.PlaceInfoService = PlaceInfoService;
+//# sourceMappingURL=place.info.service.js.map

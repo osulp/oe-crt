@@ -71,6 +71,11 @@
     text-align: center;
     color: #C34500;
 }
+.back-to-top-scroll{
+    color:#808080;
+    text-align:center;
+    margin:-15px;
+}
 
 .back-to-top {
     position: absolute;
@@ -79,7 +84,7 @@
     color: #C34500;
 }
 
-    .back-to-top:hover, .back-to-top-from-bottom:hover {
+    .back-to-top:hover, .back-to-top-from-bottom:hover, .back-to-top-scroll:hover {
         text-decoration: underline;
         cursor: pointer;
     }

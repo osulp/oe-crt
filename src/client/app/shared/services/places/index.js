@@ -3,4 +3,5 @@ function __export(m) {
 }
 __export(require('./places.service'));
 __export(require('./selected.places.service'));
+__export(require('./place.info.service'));
 //# sourceMappingURL=index.js.map

@@ -3,7 +3,8 @@ import { enableProdMode, provide, ExceptionHandler, Injectable,Injector} from '@
 import { bootstrap } from '@angular/platform-browser-dynamic';
 import { ROUTER_PROVIDERS, Router } from '@angular/router';
 //import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
-import {HTTP_PROVIDERS} from '@angular/http';
+import {HTTP_PROVIDERS,JSONP_PROVIDERS} from '@angular/http';
+//import {PlaceInfoService} from './shared/services/places/index';
 //import { AppExceptionHandler} from './shared/error-handle/app.exception.handler';
 //import {DND_PROVIDERS} from 'ng2-dnd/ng2-dnd';
 
@@ -71,7 +72,9 @@ export class AppExceptionHandler extends ExceptionHandler {
  */
 bootstrap(AppComponent, [
     HTTP_PROVIDERS,
+    JSONP_PROVIDERS,
     ROUTER_PROVIDERS,
+    //PlaceInfoService,
     //DND_PROVIDERS,
     provide(APP_BASE_HREF, { useValue: '<%= ENV %>' === 'prod' ? '<%= APP_BASE %>' : '/' }),
     //provide(APP_BASE_HREF, { useValue: '/' }),

@@ -155,7 +155,7 @@ export class DetailComponent implements OnInit {
                     this.indicatorDesc = data.Desc;// IndicatorDescSer
                     this.relatedIndicators = data.RelatedIndicators;
                     console.log('indicatorDesc service', data);
-                    this.indicatorTitle = indicator_info.Dashboard_Chart_Title ? indicator_info.Dashboard_Chart_Title : indicator_info.Variable;
+                    this.indicatorTitle = indicator_info.Sub_Sub_Topic_ID !== null ? indicator_info.Variable :  indicator_info.Dashboard_Chart_Title ? indicator_info.Dashboard_Chart_Title : indicator_info.Variable;
                     this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
                     this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
                     this.isCountyLevel = indicator_info.CountyLevel;

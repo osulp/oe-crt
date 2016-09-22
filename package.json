@@ -70,6 +70,7 @@
     "gulp-sass-lint": "^1.1.1",
     "gulp-shell": "~0.5.2",
     "gulp-sourcemaps": "2.0.0-alpha",
+    "gulp-strip-debug": "^1.1.0",
     "gulp-template": "^4.0.0",
     "gulp-tslint": "^4.3.3",
     "gulp-typescript": "~2.13.4",

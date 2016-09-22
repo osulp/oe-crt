@@ -25,7 +25,6 @@ var IndicatorTopicFilterPipe = (function () {
             }
         })
             .filter(function (indicator) {
-            console.log('filtering for collection', indicator, selectedCollection);
             var inCollection = selectedCollection === 'Show All' ? true : false;
             if (!inCollection) {
                 inCollection = indicator.collections ? (indicator.collections.split(', ').indexOf(selectedCollection) !== -1 ? true : false) : false;
