@@ -88,7 +88,15 @@ var ExploreComponent = (function () {
         var places = '';
         for (var x = 0; x < selectedPlaces.length; x++) {
             console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
-            places += encodeURIComponent(JSON.stringify(selectedPlaces[x]));
+            var place_simple = {
+                Name: selectedPlaces[x].Name,
+                ResID: selectedPlaces[x].ResID,
+                TypeCategory: selectedPlaces[x].TypeCategory,
+                Desc: selectedPlaces[x].Desc,
+                Combined: selectedPlaces[x].Combined,
+                GroupName: selectedPlaces[x].GroupName
+            };
+            places += encodeURIComponent(JSON.stringify(place_simple));
             if (x !== selectedPlaces.length - 1) {
                 places += ',';
             }

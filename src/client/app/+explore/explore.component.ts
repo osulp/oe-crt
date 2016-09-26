@@ -126,7 +126,16 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         var places: string = '';
         for (var x = 0; x < selectedPlaces.length; x++) {
             console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
-            places += encodeURIComponent(JSON.stringify(selectedPlaces[x]));
+            let place_simple = {
+                Name: selectedPlaces[x].Name,
+                ResID: selectedPlaces[x].ResID,
+                TypeCategory: selectedPlaces[x].TypeCategory,
+                Desc: selectedPlaces[x].Desc,
+                Combined: selectedPlaces[x].Combined,
+                GroupName: selectedPlaces[x].GroupName
+            };
+            places += encodeURIComponent(JSON.stringify(place_simple));
+            //places += encodeURIComponent(JSON.stringify(selectedPlaces[x]));
             //places += selectedPlaces[x].Name;
             if (x !== selectedPlaces.length - 1) {
                 places += ',';

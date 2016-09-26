@@ -7,5 +7,6 @@
     Source?: string;
     GroupName?: string;
     Combined?: boolean;
+    GeoInfo?: any[];
 }
 

@@ -64,6 +64,9 @@
                                         <br />
                                         {{'Part of: ' +  place.Desc}}
                                     </span>
+                                    <span *ngIf="place.GeoInfo.length > 0">
+                                        {{'School District:' + place.GeoInfo[0].School_District}}
+                                    </span>
                                    <br /><em>-- Click to close --</em>
                                 </div>
                                 <div class="placePanelWrapper" [ngClass]="placeContainer.getAttribute('editView') === 'true' ? 'editPanel' : ''">

@@ -308,8 +308,33 @@ export class PlacesMapSelectComponent implements OnInit {
             //   console.log('pinfo', pinfo);
             this._selectedPlacesService.add(place, 'map');
             // });
-
         }
+    }
+
+    addPlaces(places: SearchResult[]) {
+        //check if already added
+        //place.Desc = place.Desc.replace(/\./g, '%2E');
+        console.log('places map select adding places', places);
+        let uniquePlaces = places.filter((place: any) => {
+            let pCheck = this.selectedSearchResults.filter((splace: any) => {
+                return splace.Name === place.Name;
+            });
+            return pCheck.length === 0;
+        });
+        console.log('places map select adding unique places', uniquePlaces);
+        this.selectedSearchResults.concat(places);
+        this.selPlacesEvt.emit(this.selectedSearchResults);
+        this._selectedPlacesService.addPlaces(places);
+
+        //var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
+        //if (indexPos === -1) {
+        //    this.selectedSearchResults.push(place);
+        //    this.selPlacesEvt.emit(this.selectedSearchResults);
+        //    //this._placeInfoService.getInfo(place.Name).subscribe((pinfo: any) => {
+        //    //   console.log('pinfo', pinfo);
+        //    this._selectedPlacesService.add(place, 'map');
+        //    // });
+        //}
     }
 
     addPlaceCompare(compareType: string) {
@@ -469,9 +494,10 @@ export class PlacesMapSelectComponent implements OnInit {
         this._selectedPlacesService.selectionChanged$.subscribe(updatedPlaces => this.onSelectedPlacesChanged(updatedPlaces));
         this._selectedPlacesService.load();
         if (this.selectedPlaces.length > 0) {
-            for (var x = 0; x < this.selectedPlaces.length; x++) {
-                this.addPlace(this.selectedPlaces[x]);
-            }
+            this.addPlaces(this.selectedPlaces);
+            //for (var x = 0; x < this.selectedPlaces.length; x++) {
+            //    this.addPlace(this.selectedPlaces[x]);
+            //}
         } else {
             this.addPlaceCompare(this.selectedPlaceType);
         }

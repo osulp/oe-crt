@@ -45,6 +45,7 @@ export class DetailComponent implements OnInit {
     isStatewide: boolean = false;
     isCountyLevel: boolean = false;
     isTOP: boolean = false;
+    detailUrlChanges: number = 0;
 
     constructor(private _indicatorDescService: IndicatorDescService,
         private _router: Router, private _location:Location
@@ -57,10 +58,27 @@ export class DetailComponent implements OnInit {
             if (results.Type.toLowerCase() === 'indicator') {
                 //this._router.navigate(['Explore', { indicator: encodeURIComponent(results.Name), topics: results.TypeCategory.split(';')[1] }]);
                 console.log('search result change', this.placeMap.selectedPlaces, this.placeMap.selectedSearchResults);
+                let places: string = '';
+                this.placeMap.selectedSearchResults.forEach((place: any, idx:number) => {
+                    let place_simple = {
+                        Name: place.Name,
+                        ResID: place.ResID,
+                        TypeCategory: place.TypeCategory,
+                        Desc: place.Desc,
+                        Combined: place.Combined,
+                        GroupName: place.GroupName
+                    };
+                    places += encodeURIComponent(JSON.stringify(place_simple));
+                    places += idx !== this.placeMap.selectedSearchResults.length - 1 ? ',' : '';
+                });
+                console.log('indicator detail: places simple', places);
+
                 this._router.navigate(['Explore', {
                     indicator: encodeURIComponent(results.Name.replace('(', '%28').replace(')', '%29')),
-                    places: encodeURIComponent(JSON.stringify(this.placeMap.selectedSearchResults).replace('[', '').replace(']', ''))
+                    places: places
+                    //places: encodeURIComponent(JSON.stringify(this.placeMap.selectedSearchResults).replace('[', '').replace(']', ''))
                 }]);
+                this.detailUrlChanges++;
             }
         }
     }
@@ -106,16 +124,19 @@ export class DetailComponent implements OnInit {
 
     goBack(evt:any) {
         console.log('going back', this._location, window.history);
-        window.history.back();
+        window.history.back(2 + this.detailUrlChanges);
+        window.history.go(-(this.detailUrlChanges));
+        //window.hist
         //this._location.back();
         //this._router.navigate(['/Explore']);
         window.scrollTo(0, 0);
-        evt.preventDefault();
+        //evt.preventDefault();
     }
 
     onChartDataUpdate(data: any) {
         console.log('Chart data emitted to indicator detail', data);
         this._chartData = data;
+        this.detailUrlChanges++;
     }
 
     onBlurExplorePage(evt: any) {
@@ -149,7 +170,7 @@ export class DetailComponent implements OnInit {
         console.log('DECODED!', this.inputIndicator);
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(
             (data: any) => {
-                console.log('DECODED!', data);
+                console.log('indicator detail repsonse from indicator description service:!', data);
                 let indicator_info = data.Desc[0];
                 if (indicator_info) {
                     this.indicatorDesc = data.Desc;// IndicatorDescSer
@@ -165,8 +186,9 @@ export class DetailComponent implements OnInit {
                 this.windowRefresh();
             });
         this.inputIndicator = this.inputIndicator.replace(/\%2B/g, '+');
+        console.log('indicator detail input places: ', this.inputPlaces);
         this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];
-
+        console.log('indicator detail url places: ', this.urlPlaces);
         //var urlQueryString = document.location.search;
         //var keyRegex = new RegExp('([\?&])places([^&]*|[^,]*)');
         //// If param exists already, update it

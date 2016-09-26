@@ -216,6 +216,20 @@ var PlacesMapSelectComponent = (function () {
             this._selectedPlacesService.add(place, 'map');
         }
     };
+    PlacesMapSelectComponent.prototype.addPlaces = function (places) {
+        var _this = this;
+        console.log('places map select adding places', places);
+        var uniquePlaces = places.filter(function (place) {
+            var pCheck = _this.selectedSearchResults.filter(function (splace) {
+                return splace.Name === place.Name;
+            });
+            return pCheck.length === 0;
+        });
+        console.log('places map select adding unique places', uniquePlaces);
+        this.selectedSearchResults.concat(places);
+        this.selPlacesEvt.emit(this.selectedSearchResults);
+        this._selectedPlacesService.addPlaces(places);
+    };
     PlacesMapSelectComponent.prototype.addPlaceCompare = function (compareType) {
         var compareResult = {
             Name: compareType !== 'Oregon' ? compareType + ' Oregon' : compareType,
@@ -344,9 +358,7 @@ var PlacesMapSelectComponent = (function () {
         this._selectedPlacesService.selectionChanged$.subscribe(function (updatedPlaces) { return _this.onSelectedPlacesChanged(updatedPlaces); });
         this._selectedPlacesService.load();
         if (this.selectedPlaces.length > 0) {
-            for (var x = 0; x < this.selectedPlaces.length; x++) {
-                this.addPlace(this.selectedPlaces[x]);
-            }
+            this.addPlaces(this.selectedPlaces);
         }
         else {
             this.addPlaceCompare(this.selectedPlaceType);

@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {Subject}    from 'rxjs/Subject';
 import {Jsonp, URLSearchParams} from '@angular/http';
 import {ReplaySubject}    from 'rxjs/Rx';
+import {Observable} from 'rxjs/Observable';
 
 let initialState: any[] = [];
 
@@ -58,6 +59,8 @@ export class SelectedPlacesService {
                 };
             })
             .subscribe(this.updates);
+
+
 
         this.removePlace
             .map((place: any) => {
@@ -123,22 +126,46 @@ export class SelectedPlacesService {
 
     add(place: any, source?: any): void {
         console.log('adding place to selectedPlaces', place);
-        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/places';
-        var params = new URLSearchParams();
-        params.set('place', place.Name); // the user's search value
-        params.set('f', 'json');
-        params.set('callback', 'JSONP_CALLBACK');
-            this.jsonp
-                .get(serviceUrl, { search: params })
-                .map((request: any) => {
-                    return <string[]>request.json();
-                }).subscribe((result: any) => {
-                    console.log('jumping jack', result);
+        this.getAdditionalPlaceInfo([place]).subscribe((pinfo: any) => {
+            let geoInfo = pinfo.filter((pi: any[]) => {
+                return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+            });
+            place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+            this.addPlace.next(place);
+        });
+    }
+
+    addPlaces(places: any[]) {
+        //console.log('adding multiple places to selectedPlaces', places);
+        this.getAdditionalPlaceInfo(places).subscribe((pinfo: any) => {
+            //console.log('jumping frank', pinfo);
+            places.forEach((place: any) => {
+                let geoInfo = pinfo.filter((pi: any[]) => {
+                    //console.log('jumping susan', pi, place);
+                    return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
                 });
-        if (source) {
-            place.Source = source;
-        }
-        this.addPlace.next(place);
+                place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+                //console.log('jumping ben', place);
+            });
+            //console.log('jumping jack5', places);
+            this.addPlace.next(places);
+        });
+
+    }
+
+    getAdditionalPlaceInfo(place: any[]) {
+        let observables: any[] = [];
+        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/places';
+        place.forEach((p: any) => {
+            var params = new URLSearchParams();
+            params.set('place', p.Name); // the user's search value
+            params.set('f', 'json');
+            params.set('callback', 'JSONP_CALLBACK');
+            observables.push(this.jsonp
+                .get(serviceUrl, { search: params })
+                .map((request: any) => <string[]>request.json()));
+        });
+        return Observable.forkJoin(observables);
     }
 
     remove(place: any): void {
@@ -147,9 +174,25 @@ export class SelectedPlacesService {
         this.removePlace.next(place.Name);
     }
 
-    setAllbyPlaceType(places: any, placeType: string): void {
+    setAllbyPlaceType(places: any[], placeType: string): void {
         let translatedPlaceType = this.translatePlaceTypes(placeType);
-        this._setAllByPlaceType.next([places, translatedPlaceType]);
+        if (places.length > 0) {
+            this.getAdditionalPlaceInfo(places).subscribe((pinfo: any[]) => {
+                //console.log('jumping jack3', pinfo);
+                places.forEach((place: any) => {
+                    let geoInfo = pinfo.filter((pi: any[]) => {
+                        //console.log('jumping susan', pi, place);
+                        return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                    });
+                    place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+                    //console.log('jumping ben', place);
+                });
+                //console.log('jumping jack4', places);
+                this._setAllByPlaceType.next([places, translatedPlaceType]);
+            });
+        } else {
+            this._setAllByPlaceType.next([places, translatedPlaceType]);
+        }
     }
 
     updatePlaceGroupNames(places: any[], groupName: string, add: boolean): void {

@@ -37,16 +37,33 @@ var DetailComponent = (function () {
         this.isStatewide = false;
         this.isCountyLevel = false;
         this.isTOP = false;
+        this.detailUrlChanges = 0;
     }
     DetailComponent.prototype.onSelectedSearchResult = function (results) {
+        var _this = this;
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
                 console.log('search result change', this.placeMap.selectedPlaces, this.placeMap.selectedSearchResults);
+                var places = '';
+                this.placeMap.selectedSearchResults.forEach(function (place, idx) {
+                    var place_simple = {
+                        Name: place.Name,
+                        ResID: place.ResID,
+                        TypeCategory: place.TypeCategory,
+                        Desc: place.Desc,
+                        Combined: place.Combined,
+                        GroupName: place.GroupName
+                    };
+                    places += encodeURIComponent(JSON.stringify(place_simple));
+                    places += idx !== _this.placeMap.selectedSearchResults.length - 1 ? ',' : '';
+                });
+                console.log('indicator detail: places simple', places);
                 this._router.navigate(['Explore', {
                         indicator: encodeURIComponent(results.Name.replace('(', '%28').replace(')', '%29')),
-                        places: encodeURIComponent(JSON.stringify(this.placeMap.selectedSearchResults).replace('[', '').replace(']', ''))
+                        places: places
                     }]);
+                this.detailUrlChanges++;
             }
         }
     };
@@ -87,13 +104,14 @@ var DetailComponent = (function () {
     };
     DetailComponent.prototype.goBack = function (evt) {
         console.log('going back', this._location, window.history);
-        window.history.back();
+        window.history.back(2 + this.detailUrlChanges);
+        window.history.go(-(this.detailUrlChanges));
         window.scrollTo(0, 0);
-        evt.preventDefault();
     };
     DetailComponent.prototype.onChartDataUpdate = function (data) {
         console.log('Chart data emitted to indicator detail', data);
         this._chartData = data;
+        this.detailUrlChanges++;
     };
     DetailComponent.prototype.onBlurExplorePage = function (evt) {
         if (!$(evt.target).closest('#map-menu').length && !$(evt.target).hasClass('hamburger-menu')) {
@@ -121,7 +139,7 @@ var DetailComponent = (function () {
             .replace(/\+/g, '%2B');
         console.log('DECODED!', this.inputIndicator);
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(function (data) {
-            console.log('DECODED!', data);
+            console.log('indicator detail repsonse from indicator description service:!', data);
             var indicator_info = data.Desc[0];
             if (indicator_info) {
                 _this.indicatorDesc = data.Desc;
@@ -137,7 +155,9 @@ var DetailComponent = (function () {
             _this.windowRefresh();
         });
         this.inputIndicator = this.inputIndicator.replace(/\%2B/g, '+');
+        console.log('indicator detail input places: ', this.inputPlaces);
         this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];
+        console.log('indicator detail url places: ', this.urlPlaces);
     };
     __decorate([
         core_1.Input(), 
