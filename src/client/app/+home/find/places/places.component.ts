@@ -1,5 +1,7 @@
 import {Component, OnInit, ElementRef} from '@angular/core';
 import {MapLeafletComponent} from '../../../shared/components/index';
+import {Router} from '@angular/router';
+
 //import {MapComponent} from '../../../shared/components/map/map.component';
 
 
@@ -13,7 +15,7 @@ import {MapLeafletComponent} from '../../../shared/components/index';
 
 export class PlacesComponent implements OnInit {
 
-    // map config   
+    // map config
     public mapOptions:any = null;
     // search config
     public searchOptions = {
@@ -22,7 +24,7 @@ export class PlacesComponent implements OnInit {
         enableInfoWindow: true,
         showInfoWindowOnSelect: false,
     };
-    constructor(private elementRef: ElementRef) { }
+    constructor(private elementRef: ElementRef, private _router:Router) { }
     // once the map loads
     onMapLoad(response: any) {
         console.log('MAP LOADEDED!!!!!');
@@ -40,6 +42,10 @@ export class PlacesComponent implements OnInit {
     // set map's basemap in response to user changes
     onBasemapSelected(basemapName: any) {
         //this.mapComponent.setBasemap(basemapName);
+    }
+
+    goToExplorePlaces() {
+        this._router.navigateByUrl('/Explore;show=Places');
     }
 
     ngOnInit() {

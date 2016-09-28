@@ -45,6 +45,8 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     initialIndicator: boolean;
     selectedSearchResult: SearchResult;
     subscription: Subscription;
+    showTopicsExpanded: boolean = true;
+    showPlacesExpanded: boolean = false;
 
     constructor(
         public _selectedPlacesService: SelectedPlacesService,
@@ -61,6 +63,9 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         this.selectedIndicators = decodeURI(curr.getParam('indicators'));
         this.selectedPlaces = decodeURI(curr.getParam('places'));
         this.urlCollection = decodeURI(curr.getParam('collection'));
+        this.showTopicsExpanded = curr.getParam('show') !== 'Places';
+        this.showPlacesExpanded = curr.getParam('show') === 'Places';
+        console.log('routercheck', this.showTopicsExpanded, this.showPlacesExpanded);
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
     }
 
@@ -182,6 +187,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     };
 
     onBlurExplorePage(evt: any) {
+        console.log('blurevt', evt);
         //hide select dropdowns if showing.
         if (!$(evt.target).closest('.selectBox').length) {
             this.topicsComp.chkBoxVisibile = false;

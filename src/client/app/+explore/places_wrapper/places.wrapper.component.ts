@@ -13,10 +13,15 @@ import {SearchResult} from '../../shared/data_models/index';
 
 export class PlacesWrapperComponent implements OnInit {
     @Input() inputPlaces: any;
+    @Input() expanded: boolean;
     @ViewChild(PlacesMapSelectComponent) placeMap: PlacesMapSelectComponent;
     selectedPlaceType: string;
     selectedPlaceTypes: any[] = [];
     urlPlaces: SearchResult[] = [];
+    selPlaces: any = [];
+    selPlacesNotStatewide: any = [];
+    selPlacesNotStateTemp: any = [];
+    initMapLoad: boolean = false;
     california: SearchResult = {
         Name: 'California',
         ResID: '06',
@@ -33,12 +38,28 @@ export class PlacesWrapperComponent implements OnInit {
     };
 
     getClass() {
-        return this.selectedPlaceType === 'CountiesCitiesTracts' ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
+        return this.selectedPlaceType === 'CountiesCitiesTracts' || this.expanded.toString() === 'true' ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
     }
+
+    onSelPlaces(places: any[]) {
+        this.selPlaces = places;
+        this.selPlacesNotStatewide = places.filter((place: any) => ['State', 'SchoolDistricts'].indexOf(place.TypeCategory) === -1);
+        if (this.selPlacesNotStatewide.length > this.selPlacesNotStateTemp.length) {
+            this.expanded = true;
+            if (!this.initMapLoad && this.selPlacesNotStatewide.length > 0) {
+                this.initMapLoad = true;
+                this.placeMap.leafletMap.refreshMap();
+            }
+        }
+        this.selPlacesNotStateTemp = this.selPlacesNotStatewide;
+    }
+
+
 
     toggleSelection(tab: any) {
         let addPlace = false;
-        if (this.selectedPlaceTypes.indexOf(tab) === -1) {
+        //console.log('toggletab', tab, this.selectedPlaceTypes, this.expanded.toString());
+        if (tab === 'CountiesCitiesTracts' ? this.expanded.toString() === 'false' : this.selectedPlaceTypes.indexOf(tab) === -1) {
             addPlace = true;
             this.selectedPlaceTypes.push(tab);
         } else {
@@ -47,7 +68,11 @@ export class PlacesWrapperComponent implements OnInit {
         //this.selectedPlaceType = tab;
         if (tab === 'CountiesCitiesTracts') {
             try {
-                this.placeMap.leafletMap.refreshMap();
+                this.expanded = this.expanded.toString() === 'true' ? false : true;
+                if (!this.initMapLoad) {
+                    this.initMapLoad = true;
+                    this.placeMap.leafletMap.refreshMap();
+                }
             } catch (ex) {
                 console.log('IE fails here');
                 let mapScope = this;
@@ -119,6 +144,7 @@ export class PlacesWrapperComponent implements OnInit {
         if (isOregon) {
             this.selectedPlaceTypes.push('Oregon');
         }
+        this.expanded = this.selectedPlaceType === 'CountiesCitiesTracts' ? true : this.expanded;
     }
 }
 

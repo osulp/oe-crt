@@ -43,6 +43,7 @@ var SearchComponent = (function () {
     };
     SearchComponent.prototype.selectResult = function (searchItem) {
         if (searchItem.Type === 'Place') {
+            searchItem.GeoInfo = [];
             this._selectedPlacesService.add(searchItem, 'map');
         }
         this.selSearchResultEvt.emit(searchItem);
@@ -56,16 +57,19 @@ var SearchComponent = (function () {
         var code = event.keyCode || event.which;
         if (code === 13) {
             if (this.tempResults.length > 0) {
-                var firstItem = this.tempResults[this.tempTabIndex === -1 ? 0 : this.tempTabIndex];
-                var selected = {
-                    Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
-                    ResID: firstItem['ResID'],
-                    Type: firstItem['Type'],
-                    TypeCategory: firstItem['TypeCategory'],
-                    Desc: firstItem['Desc']
-                };
-                this.selectedSearchResult = selected;
-                this.selectResult(selected);
+                var searchScope = this;
+                window.setTimeout(function () {
+                    var firstItem = searchScope.tempResults[searchScope.tempTabIndex === -1 ? 0 : searchScope.tempTabIndex];
+                    var selected = {
+                        Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
+                        ResID: firstItem['ResID'],
+                        Type: firstItem['Type'],
+                        TypeCategory: firstItem['TypeCategory'],
+                        Desc: firstItem['Desc']
+                    };
+                    searchScope.selectedSearchResult = selected;
+                    searchScope.selectResult(selected);
+                }, 500);
             }
             else {
                 alert('Please select a valid search term.');

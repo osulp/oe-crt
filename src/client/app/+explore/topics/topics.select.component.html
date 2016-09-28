@@ -12,7 +12,7 @@
                 </div>
             </div>
             <div id="topics-wrapper" class="row">
-                <div [hidden]="!visible">
+                <div *ngIf="expanded.toString() === 'true'">
                     <div id="topic-col-list">
                         <div id="all-topics" [ngClass]="showAllSelected ? 'selected' : ''" (click)="toggleAllTopics($event)">All Topics</div>
                         <div (click)="toggleTopic(topic)"
@@ -51,12 +51,14 @@
                         </div>
                     </div>
                 </div>
-                <div id="selectedTopicsIndicators" [hidden]="visible">
-                    <div *ngIf="showAllSelected">
-                        <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsCountPipe: 'all':collections}}</span></div>
-                    </div>
-                    <div *ngIf="!showAllSelected">
-                        <div *ngFor="let topic of Topics | SelectedTopicsPipe:collections" (click)="toggleTopic(topic)"><span>{{topic.topic}}</span><div class="indicatorCount">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic:collections}}</div><img src="assets/img/closeX.png" /></div>
+                <div id="selectedTopicsIndicators" *ngIf="expanded.toString() === 'false'">
+                    <div *ngIf="showIndicatorCount">
+                        <div *ngIf="showAllSelected">
+                            <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsCountPipe: 'all':collections}}</span></div>
+                        </div>
+                        <div *ngIf="!showAllSelected">
+                            <div *ngFor="let topic of Topics | SelectedTopicsPipe:collections" (click)="toggleTopic(topic)"><span>{{topic.topic}}</span><div class="indicatorCount">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic:collections}}</div><img src="assets/img/closeX.png" /></div>
+                        </div>
                     </div>
                 </div>
             </div>

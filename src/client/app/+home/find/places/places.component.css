@@ -1,6 +1,6 @@
 #places-row-wrapper{
     padding-right:0;
-    padding-left:0;    
+    padding-left:0;
     margin-top:60px;
 }
 
@@ -10,6 +10,11 @@
 
 .map{
     border-radius: 0 0 4px 4px !important;
+}
+
+.exp-more-comm:hover {
+    text-decoration:underline;
+    cursor:pointer;
 }
 
 #viewDiv
@@ -22,7 +27,7 @@
     min-height:270px;
     margin: 0;
     padding:0;
-    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;    
+    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
     border-radius: 0 0 4px 4px;
 }
 .find_header{
@@ -39,7 +44,7 @@
 }
 .find_header .explore-more{
     float:right;
-    padding:22px 15px 0 0;      
+    padding:22px 15px 0 0;
     height:60px;
 }
 
@@ -61,5 +66,5 @@
 
     #viewDiv, .find_header {
         margin: 0 auto;
-    }    
+    }
 }

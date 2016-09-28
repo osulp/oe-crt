@@ -22,6 +22,8 @@ var ExploreComponent = (function () {
         this.urlCollection = 'Show All';
         this.allTopics = [];
         this.indicatorDetailView = false;
+        this.showTopicsExpanded = true;
+        this.showPlacesExpanded = false;
         this.initialIndicator = true;
     }
     ExploreComponent.prototype.routerOnActivate = function (curr, prev, currTree, prevTree) {
@@ -31,6 +33,9 @@ var ExploreComponent = (function () {
         this.selectedIndicators = decodeURI(curr.getParam('indicators'));
         this.selectedPlaces = decodeURI(curr.getParam('places'));
         this.urlCollection = decodeURI(curr.getParam('collection'));
+        this.showTopicsExpanded = curr.getParam('show') !== 'Places';
+        this.showPlacesExpanded = curr.getParam('show') === 'Places';
+        console.log('routercheck', this.showTopicsExpanded, this.showPlacesExpanded);
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
     };
     ExploreComponent.prototype.onSelectedSearchResult = function (results) {
@@ -140,6 +145,7 @@ var ExploreComponent = (function () {
     };
     ;
     ExploreComponent.prototype.onBlurExplorePage = function (evt) {
+        console.log('blurevt', evt);
         if (!$(evt.target).closest('.selectBox').length) {
             this.topicsComp.chkBoxVisibile = false;
         }

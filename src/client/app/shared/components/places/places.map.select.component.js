@@ -127,26 +127,29 @@ var PlacesMapSelectComponent = (function () {
     };
     PlacesMapSelectComponent.prototype.inputKeypressHandler = function (event, result) {
         if (event.keyCode === 13) {
-            if (result !== undefined) {
-                this.addPlace(result);
-            }
-            else {
-                if (this.tempResults.length > 0) {
-                    var firstItem = this.tempResults[0];
-                    var selected = {
-                        Name: firstItem['Name'].replace(/\,/g, '%2C'),
-                        ResID: firstItem['ResID'],
-                        Type: firstItem['Type'],
-                        TypeCategory: firstItem['TypeCategory'],
-                        Desc: firstItem['Desc']
-                    };
-                    this.addPlace(selected);
+            var searchScope = this;
+            window.setTimeout(function () {
+                if (result !== undefined) {
+                    searchScope.addPlace(result);
                 }
-            }
-            if (this.tempResults.length === 0) {
-                alert('Please select a valid search term.');
-            }
-            this.searchTerms = '';
+                else {
+                    if (searchScope.tempResults.length > 0) {
+                        var firstItem = searchScope.tempResults[0];
+                        var selected = {
+                            Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                            ResID: firstItem['ResID'],
+                            Type: firstItem['Type'],
+                            TypeCategory: firstItem['TypeCategory'],
+                            Desc: firstItem['Desc']
+                        };
+                        searchScope.addPlace(selected);
+                    }
+                }
+                if (searchScope.tempResults.length === 0) {
+                    alert('Please select a valid search term.');
+                }
+                searchScope.searchTerms = '';
+            });
         }
     };
     PlacesMapSelectComponent.prototype.clickedSearchResult = function (event, result) {
@@ -246,17 +249,19 @@ var PlacesMapSelectComponent = (function () {
         }
     };
     PlacesMapSelectComponent.prototype.onPlaceSelectedMap = function (place) {
+        console.log('scumm');
         this.addPlace(place);
     };
     PlacesMapSelectComponent.prototype.onSelectedPlacesChanged = function (places) {
         console.log('this one gets it', places);
         this.selectedSearchResults = [];
-        var uniquePlaces = places.filter(function (place, index, self) { return self.findIndex(function (t) { return t.ResID === place.ResID && t.Name === place.Name; }) === index; });
+        var uniquePlaces = places.filter(function (place, index, self) { return self.findIndex(function (t) { return t.ResID === place.ResID && t.Name === place.Name && place.TypeCategory !== 'SchoolDistricts'; }) === index; });
         for (var _i = 0; _i < uniquePlaces.length; _i++) {
             var place = uniquePlaces[_i];
             this.selectedSearchResults.push(place);
         }
         console.log('unique places', this.selectedSearchResults);
+        this.selPlacesEvt.emit(this.selectedSearchResults);
         var runScope = this;
         var runInterval = setInterval(runCheck, 50);
         function runCheck() {

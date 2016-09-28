@@ -201,25 +201,28 @@ export class PlacesMapSelectComponent implements OnInit {
     inputKeypressHandler(event: any, result: SearchResult) {
         if (event.keyCode === 13) {
             //console.log(result);
-            if (result !== undefined) {
-                this.addPlace(result);
-            } else {
-                if (this.tempResults.length > 0) {
-                    var firstItem: any = this.tempResults[0];
-                    var selected: SearchResult = {
-                        Name: firstItem['Name'].replace(/\,/g, '%2C'),
-                        ResID: firstItem['ResID'],
-                        Type: firstItem['Type'],
-                        TypeCategory: firstItem['TypeCategory'],
-                        Desc: firstItem['Desc']
-                    };
-                    this.addPlace(selected);
+            let searchScope = this;
+            window.setTimeout(function () {
+                if (result !== undefined) {
+                    searchScope.addPlace(result);
+                } else {
+                    if (searchScope.tempResults.length > 0) {
+                        var firstItem: any = searchScope.tempResults[0];
+                        var selected: SearchResult = {
+                            Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                            ResID: firstItem['ResID'],
+                            Type: firstItem['Type'],
+                            TypeCategory: firstItem['TypeCategory'],
+                            Desc: firstItem['Desc']
+                        };
+                        searchScope.addPlace(selected);
+                    }
                 }
-            }
-            if (this.tempResults.length === 0) {
-                alert('Please select a valid search term.');
-            }
-            this.searchTerms = '';
+                if (searchScope.tempResults.length === 0) {
+                    alert('Please select a valid search term.');
+                }
+                searchScope.searchTerms = '';
+            });
         }
     }
     clickedSearchResult(event: any, result: SearchResult) {
@@ -357,17 +360,20 @@ export class PlacesMapSelectComponent implements OnInit {
     }
 
     onPlaceSelectedMap(place: any) {
+        console.log('scumm');
         this.addPlace(place);
     }
 
     onSelectedPlacesChanged(places: any[]) {
         console.log('this one gets it', places);
         this.selectedSearchResults = [];
-        var uniquePlaces: any[] = places.filter((place: any, index: number, self: any) => self.findIndex((t: any) => { return t.ResID === place.ResID && t.Name === place.Name; }) === index);
+        var uniquePlaces: any[] = places.filter((place: any, index: number, self: any) => self.findIndex((t: any) => { return t.ResID === place.ResID && t.Name === place.Name && place.TypeCategory !== 'SchoolDistricts'; }) === index);
         for (var place of uniquePlaces) {
             this.selectedSearchResults.push(place);
         }
         console.log('unique places', this.selectedSearchResults);
+        //goes to places.wrapper to help determine communities display
+        this.selPlacesEvt.emit(this.selectedSearchResults);
         let runScope = this;
         var runInterval = setInterval(runCheck, 50);
         function runCheck() {

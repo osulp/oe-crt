@@ -9,9 +9,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var index_1 = require('../../../shared/components/index');
+var router_1 = require('@angular/router');
 var PlacesComponent = (function () {
-    function PlacesComponent(elementRef) {
+    function PlacesComponent(elementRef, _router) {
         this.elementRef = elementRef;
+        this._router = _router;
         this.mapOptions = null;
         this.searchOptions = {
             enableButtonMode: true,
@@ -25,6 +27,9 @@ var PlacesComponent = (function () {
     };
     PlacesComponent.prototype.onBasemapSelected = function (basemapName) {
     };
+    PlacesComponent.prototype.goToExplorePlaces = function () {
+        this._router.navigateByUrl('/Explore;show=Places');
+    };
     PlacesComponent.prototype.ngOnInit = function () {
         console.log('loaded places explore component');
     };
@@ -36,7 +41,7 @@ var PlacesComponent = (function () {
             styleUrls: ['places.component.css'],
             directives: [index_1.MapLeafletComponent]
         }), 
-        __metadata('design:paramtypes', [core_1.ElementRef])
+        __metadata('design:paramtypes', [core_1.ElementRef, router_1.Router])
     ], PlacesComponent);
     return PlacesComponent;
 })();

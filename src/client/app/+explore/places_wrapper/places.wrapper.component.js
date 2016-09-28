@@ -13,6 +13,10 @@ var PlacesWrapperComponent = (function () {
     function PlacesWrapperComponent() {
         this.selectedPlaceTypes = [];
         this.urlPlaces = [];
+        this.selPlaces = [];
+        this.selPlacesNotStatewide = [];
+        this.selPlacesNotStateTemp = [];
+        this.initMapLoad = false;
         this.california = {
             Name: 'California',
             ResID: '06',
@@ -29,11 +33,23 @@ var PlacesWrapperComponent = (function () {
         };
     }
     PlacesWrapperComponent.prototype.getClass = function () {
-        return this.selectedPlaceType === 'CountiesCitiesTracts' ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
+        return this.selectedPlaceType === 'CountiesCitiesTracts' || this.expanded.toString() === 'true' ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
+    };
+    PlacesWrapperComponent.prototype.onSelPlaces = function (places) {
+        this.selPlaces = places;
+        this.selPlacesNotStatewide = places.filter(function (place) { return ['State', 'SchoolDistricts'].indexOf(place.TypeCategory) === -1; });
+        if (this.selPlacesNotStatewide.length > this.selPlacesNotStateTemp.length) {
+            this.expanded = true;
+            if (!this.initMapLoad && this.selPlacesNotStatewide.length > 0) {
+                this.initMapLoad = true;
+                this.placeMap.leafletMap.refreshMap();
+            }
+        }
+        this.selPlacesNotStateTemp = this.selPlacesNotStatewide;
     };
     PlacesWrapperComponent.prototype.toggleSelection = function (tab) {
         var addPlace = false;
-        if (this.selectedPlaceTypes.indexOf(tab) === -1) {
+        if (tab === 'CountiesCitiesTracts' ? this.expanded.toString() === 'false' : this.selectedPlaceTypes.indexOf(tab) === -1) {
             addPlace = true;
             this.selectedPlaceTypes.push(tab);
         }
@@ -42,7 +58,11 @@ var PlacesWrapperComponent = (function () {
         }
         if (tab === 'CountiesCitiesTracts') {
             try {
-                this.placeMap.leafletMap.refreshMap();
+                this.expanded = this.expanded.toString() === 'true' ? false : true;
+                if (!this.initMapLoad) {
+                    this.initMapLoad = true;
+                    this.placeMap.leafletMap.refreshMap();
+                }
             }
             catch (ex) {
                 console.log('IE fails here');
@@ -109,11 +129,16 @@ var PlacesWrapperComponent = (function () {
         if (isOregon) {
             this.selectedPlaceTypes.push('Oregon');
         }
+        this.expanded = this.selectedPlaceType === 'CountiesCitiesTracts' ? true : this.expanded;
     };
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object)
     ], PlacesWrapperComponent.prototype, "inputPlaces", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Boolean)
+    ], PlacesWrapperComponent.prototype, "expanded", void 0);
     __decorate([
         core_1.ViewChild(index_1.PlacesMapSelectComponent), 
         __metadata('design:type', index_1.PlacesMapSelectComponent)

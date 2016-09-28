@@ -16,6 +16,10 @@ export class SelectedPlacesService {
     updatePlaces: Subject<[any[],string,boolean]> = new Subject<any>();
     _setAllByPlaceType: Subject<[any, string]> = new Subject<any>();
     getAll: Subject<any> = new Subject<any>();
+    selectedPlaces: any = [];
+    processing: boolean = false;
+    processingQueue: any[] = [];
+    intervalCount: number = 0;
     //oregon: any = {
     //    Name: 'Oregon',
     //    ResID: '41',
@@ -37,24 +41,13 @@ export class SelectedPlacesService {
                 return operation(accumulator);
             }, initialState)
             .subscribe((data: any) => {
+                this.selectedPlaces = data;
                 this.selectionChanged$.next(data);
             });
 
         this.addPlace
             .map((place: any) => {
                 return (state: any) => {
-                    console.log('adding place service array', state);
-                    console.log('adding concated place', state.concat(place));
-                    //add state if nothing else in bin
-                    //if (state.length === 0) {
-                    //    console.log('adding place', place.ResID.indexOf('41'));
-                    //    if (place.ResID.indexOf('41') === 0 && place.Name !== 'Oregon') {
-                    //        console.log('should be adding Oregon...');
-                    //        state.concat(this.oregon);
-                    //    } else if (place.Name !== 'California'){
-                    //        state.concat(this.california);
-                    //    }
-                    //}
                     return state.concat(place);
                 };
             })
@@ -86,7 +79,7 @@ export class SelectedPlacesService {
             .map((args: any) => {
                 return (state: any) => {
                     console.log(args);
-                    console.log('places from inside setAllPlaceMap');
+                    //console.log('places from inside setAllPlaceMap');
                     let updatedPlaces = args[0];
                     return state
                         .map((place: any) => {
@@ -125,7 +118,7 @@ export class SelectedPlacesService {
 
 
     add(place: any, source?: any): void {
-        console.log('adding place to selectedPlaces', place);
+        //console.log('adding place to selectedPlaces', place);
         this.getAdditionalPlaceInfo([place]).subscribe((pinfo: any) => {
             let geoInfo = pinfo.filter((pi: any[]) => {
                 return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
@@ -161,9 +154,22 @@ export class SelectedPlacesService {
             params.set('place', p.Name); // the user's search value
             params.set('f', 'json');
             params.set('callback', 'JSONP_CALLBACK');
-            observables.push(this.jsonp
-                .get(serviceUrl, { search: params })
-                .map((request: any) => <string[]>request.json()));
+            //console.log('initialstate', this.selectedPlaces);
+            //only get data for place that doesn't have placeinfo
+            let isStatewide = ['41', '06', '41r', '41u', '06r', '06u'].indexOf(p.ResID) !== -1;
+            let selPlace = this.selectedPlaces.filter((sp: any) => sp.Name === p.Name || isStatewide);
+            if (isStatewide) {
+                //console.log('isStatewide, dont need more placeinfo');
+                observables.push([p]);
+            } else if (selPlace.length > 0 ? selPlace[0].GeoInfo.length > 0 : false) {
+                //console.log('already have geoinfo for', selPlace);
+                observables.push([selPlace]);
+            } else {
+                //console.log('need geoinfo for', p.Name);
+                observables.push(this.jsonp
+                    .get(serviceUrl, { search: params })
+                    .map((request: any) => <string[]>request.json()));
+            }
         });
         return Observable.forkJoin(observables);
     }
@@ -176,27 +182,77 @@ export class SelectedPlacesService {
 
     setAllbyPlaceType(places: any[], placeType: string): void {
         let translatedPlaceType = this.translatePlaceTypes(placeType);
+        console.log('processing queue', this.processingQueue, places);
         if (places.length > 0) {
-            this.getAdditionalPlaceInfo(places).subscribe((pinfo: any[]) => {
-                //console.log('jumping jack3', pinfo);
-                places.forEach((place: any) => {
-                    let geoInfo = pinfo.filter((pi: any[]) => {
-                        //console.log('jumping susan', pi, place);
-                        return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
-                    });
-                    place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
-                    //console.log('jumping ben', place);
-                });
-                //console.log('jumping jack4', places);
-                this._setAllByPlaceType.next([places, translatedPlaceType]);
-            });
+            this.processingQueue.push({ places: places, placeType: translatedPlaceType });
+            if (!this.processing) {
+                this.processing = true;
+                this.intervalCount = 0;
+                this._setAllByPlaceType.next([this.processingQueue[0].places, this.processingQueue[0].placeType]);
+                if (placeType !== 'SchoolDistricts') {
+                    this.subScribeToGetAddionalPlaceInfo(this.processingQueue[0].places, this.processingQueue[0].placeType);
+                } else {
+                    this.processingQueue.shift();
+                    this.processing = false;
+                }
+            } else {
+                //console.log('still processing', this.processing);
+                let runScope = this;
+                var runInterval = setInterval(runCheck, 500);
+                function runCheck() {
+                    console.log('processing queue run check', runScope.processingQueue, runScope.intervalCount);
+                    runScope.intervalCount++;
+                    if (runScope.intervalCount >= 6) {
+                        clearInterval(runInterval);
+                    }
+                    if (!runScope.processing && runScope.processingQueue.length > 0) {
+                        //console.log('processing interval not processing moving on to next in queue', runScope.intervalCount);
+                        clearInterval(runInterval);
+                        runScope.intervalCount = 0;
+                        runScope.processing = true;
+                        runScope._setAllByPlaceType.next([runScope.processingQueue[0].places, runScope.processingQueue[0].placeType]);
+                        if (runScope.processingQueue[0].placeType !== 'SchoolDistricts') {
+                            runScope.subScribeToGetAddionalPlaceInfo(runScope.processingQueue[0].places, runScope.processingQueue[0].placeType);
+                        } else {
+                            this.processingQueue.shift();
+                            this.processing = false;
+                        }
+                    }
+                }
+            }
         } else {
+            this.processingQueue = [];
             this._setAllByPlaceType.next([places, translatedPlaceType]);
         }
     }
 
+    subScribeToGetAddionalPlaceInfo(places: any,translatedPlaceType:any) {
+        this.getAdditionalPlaceInfo(places).subscribe((pinfo: any[]) => {
+            //console.log('jumping jack3', this.processingQueue);
+            this.processingQueue.shift();
+            console.log('jumping jack5', this.processingQueue);
+            places.forEach((place: any) => {
+                if (place.GeoInfo.length === 0) {
+                    let geoInfo = pinfo.filter((pi: any[]) => {
+                        //console.log('jumping susan', pi, place);
+                        if (pi[0].community) {
+                            return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                        } else {
+                            return false;
+                        }
+                    });
+                    place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+                }
+                //console.log('jumping ben', place);
+            });
+            //console.log('jumping jack4', places);
+            this._setAllByPlaceType.next([places, translatedPlaceType]);
+            this.processing = false;
+        });
+    }
+
     updatePlaceGroupNames(places: any[], groupName: string, add: boolean): void {
-        console.log('updating place group names', places, groupName, add);
+        //console.log('updating place group names', places, groupName, add);
         this.updatePlaces.next([places, groupName, add]);
     }
 

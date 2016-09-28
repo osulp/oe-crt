@@ -6,12 +6,12 @@
     </div>
     <div class="col-xs-12">
         <div class="row">
-            <topics (selectedTopicsFromComp)="selectedTopics = onGetSelectedTopicsFromComp($event)" (selectedIndicatorsFromComp)="selectedIndicators = onGetSelectedIndicatorsFromComp" (allTopicsFromComp)="onGetAllTopicsFromComp($event)" (allIndicatorsFromComp)="onGetAllIndicatorsFromComp($event)" (selectedCollectionsFromComp)="selectedCollections = onGetSelectedCollectionsFromComp($event)" inputTopics={{selectedTopics}} inputIndicators="{{selectedIndicators}}" inputCollection={{urlCollection}}></topics>
+            <topics (selectedTopicsFromComp)="selectedTopics = onGetSelectedTopicsFromComp($event)" (selectedIndicatorsFromComp)="selectedIndicators = onGetSelectedIndicatorsFromComp" (allTopicsFromComp)="onGetAllTopicsFromComp($event)" (allIndicatorsFromComp)="onGetAllIndicatorsFromComp($event)" (selectedCollectionsFromComp)="selectedCollections = onGetSelectedCollectionsFromComp($event)" inputTopics={{selectedTopics}} inputIndicators="{{selectedIndicators}}" inputCollection={{urlCollection}} expanded="{{showTopicsExpanded}}"></topics>
         </div>
     </div>
     <div class="col-xs-12">
         <div class="row">
-            <places [inputPlaces]="selectedPlaces"></places>
+            <places [inputPlaces]="selectedPlaces" expanded="{{showPlacesExpanded}}"></places>
         </div>
     </div>
     <div class="col-xs-12">

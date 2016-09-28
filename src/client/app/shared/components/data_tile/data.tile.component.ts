@@ -427,12 +427,21 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 for (var p = 0; p < points.length; p++) {
                     let place = points[p];
                     let binPlace: any;
-                    let isInBin = false;
+                    var isInBin = false;
                     console.log('here are the places from map click', chartScope.places);
                     for (var b = 0; b < chartScope.places.length; b++) {
                         console.log('map point', points[p]);
                         console.log('place bin', chartScope.places[b]);
-                        isInBin = points[p].geoid === chartScope.places[b].ResID;
+                        if (this.isSchool) {
+                            if (chartScope.places[b].GeoInfo) {
+                                chartScope.places[b].GeoInfo.forEach((gi: any) => {
+                                    isInBin = gi.School_District.indexOf(points[p].community) !== -1 ? true : isInBin;
+                                });
+                            }
+                        } else {
+                            isInBin = points[p].geoid === chartScope.places[b].ResID ? true : isInBin;
+                        }
+
                         if (isInBin) {
                             console.log('IS in BIn', chartScope.places[b]);
                             binPlace = chartScope.places[b];
@@ -440,23 +449,25 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         }
                     }
                     if (!isInBin) {
-                        pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map' });
+                        pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map', GeoInfo:[] });
                     }
                     //pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map', Combined: false });
                 }
                 pointsAsPlacesForBin = pointsAsPlacesForBin.filter((place: any, index: number, self: any) => self.findIndex((t: any) => { return t.ResID === place.ResID && t.Name === place.Name; }) === index);
-                console.log('adding from map', chartScope.tileType, pointsAsPlacesForBin);
+                console.log('adding from map', chartScope.tileType, pointsAsPlacesForBin, chartScope.selectedPlaceType);
                 chartScope._selectedPlacesService.setAllbyPlaceType(pointsAsPlacesForBin, chartScope.selectedPlaceType);
             }
         });
     }
 
     onPlacesChanged(selectedPlaces: SearchResult[]) {
-        //console.log('adding DataTile place change', selectedPlaces);
+        console.log('adding DataTile place change', selectedPlaces,this.tempPlaces);
         this.places = selectedPlaces;
         this.placeNames = '';
+        let checkDataState: boolean = false;
         //check if repeated event with same places
         if (this.tempPlaces.length !== this.places.length) {
+            checkDataState = true;
             //console.log('temp place not the same as place length, adding ...');
             for (var x = 0; x < this.places.length; x++) {
                 //console.log('place: ', this.places[x]);
@@ -474,9 +485,26 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 this.placeNames += encodeURIComponent(JSON.stringify(this.places[x]));
                 this.placeNames += (x < this.places.length - 1) ? ',' : '';
             }
+
+        } else {
+            //check if just updated geoinfo but same places
+            let hasSamePlaces = true;
+            this.places.forEach((place: any) => {
+                let tPlace = this.tempPlaces.filter((tp: any) => tp.Name === place.Name && tp.GroupName === place.GroupName);
+                console.log('place length the same', tPlace);
+                if (tPlace.length === 0) {
+                    hasSamePlaces = false;
+                    //return;
+                }
+                checkDataState = !hasSamePlaces;
+            });
         }
-        this.checkDataStateForCharts();
-    }
+        if (checkDataState) {
+            console.log('thinks it needs to update');
+            this.checkDataStateForCharts();
+            this.tempPlaces = this.places;
+        }
+     }
 
     checkDataStateForCharts(source?: any) {
         //console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbb', this.indicator_info);
@@ -681,14 +709,18 @@ export class DataTileComponent implements OnInit, OnDestroy {
         //let selectedPlaces = this.places;
 
         this.places.forEach((place: any, idx: number) => {
-            //console.log('ginfo1', place);
+            console.log('ginfo1', place);
             geoids += place.ResID + (idx !== this.places.length - 1 ? ',' : '');
             geonames += place.Name + (idx !== this.places.length - 1 ? ',' : '');
-            place.GeoInfo.forEach((ginfo: any, gidx:number) => {
-                //console.log('ginfo', ginfo);
-                schooldistricts += (schooldistricts.indexOf(ginfo.School_District) === -1 && ginfo.School_District !== null ? ginfo.School_District : '') + (idx !== this.places.length - 1 && gidx !== place.GeoInfo.length -1 ? ',' : '');
-                cts += (['Tracts', 'Census Tracts', 'Unincorporated Place'].indexOf(place.TypeCategory) !== - 1 ? (ginfo.geoid + (gidx !== place.GeoInfo.length - 1  ? ',' : '')) : '');
-            });
+            if (place.TypeCategory === 'SchoolDistricts') {
+                schooldistricts += place.Name + (idx !== this.places.length - 1 ? ',' : '');
+            } else {
+                place.GeoInfo.forEach((ginfo: any, gidx: number) => {
+                    //console.log('ginfo', ginfo);
+                    schooldistricts += (schooldistricts.indexOf(ginfo.School_District) === -1 && ginfo.School_District !== null ? ginfo.School_District : '') + (idx !== this.places.length - 1 && gidx !== place.GeoInfo.length - 1 ? ',' : '');
+                    cts += (['Tracts', 'Census Tracts', 'Unincorporated Place'].indexOf(place.TypeCategory) !== - 1 ? (ginfo.geoid + (gidx !== place.GeoInfo.length - 1 ? ',' : '')) : '');
+                });
+            }
             counties += (place.TypeCategory === 'Counties' ? place.Name.replace(' County', '') + (idx !== this.places.length - 1 ? ',' : '') : '');
             cts += (['Tracts', 'Census Tracts', 'Unincorporated Place'].indexOf(place.TypeCategory) !== - 1 && cts.indexOf(place.ResID) === -1 ? place.ResID + (idx !== this.places.length - 1 ? ',' : '') : '');
             if (place.ResID === '41') {
@@ -704,6 +736,14 @@ export class DataTileComponent implements OnInit, OnDestroy {
         schooldistricts = this.places.length === 0 ? 'Statewide' : schooldistricts;
 
         console.log('fall', counties, cts);
+
+        let indicatorForService = this.indicator.replace(/\%28/g, '(')
+            .replace(/\%29/g, ')')
+            .replace(/\%2C/g, ',')
+            .replace(/\%24/g, '$')
+            .replace(/\+/g, '%2B')
+            .replace(/\=/g, '%3D')
+            .replace(/\&/g, '%26');
 
         if (this.tileType === 'map' && this.showMap) {
             //if (this.viewType === 'advanced') {
@@ -757,7 +797,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 }).toString();
             }
             console.log('GET DATA HOT DIGIDIGDIGIDGIG I', placeTypes, this.selectedPlaceType);
-            this._dataService.getAllbyGeoType(placeTypes, this.indicator).subscribe(
+            this._dataService.getAllbyGeoType(placeTypes, indicatorForService).subscribe(
                 (data: any) => {
                     //this.placeTypeData = data;
                     console.log('data direct from service', data);
@@ -767,14 +807,6 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 () => console.log('done loading data for map')
             );
         } else {
-            let indicatorForService = this.indicator.replace(/\%28/g, '(')
-                .replace(/\%29/g, ')')
-                .replace(/\%2C/g, ',')
-                .replace(/\%24/g, '$')
-                .replace(/\+/g, '%2B')
-                .replace(/\=/g, '%3D')
-                .replace(/\&/g, '%26');
-
             //check for combined requests
             let combinedGroups = this.checkCombineGroups();
 
@@ -792,7 +824,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             } else {
                 console.log('geoids for data service', geoids, geonames);
                 if (this.isSchool) {
-                    //console.log('SCHOOL DATA',schooldistricts, geonames,geoids, this.tileType);
+                    console.log('SCHOOL DATA',schooldistricts, geonames,geoids, this.tileType);
                     //get school districts from places, else statewide value
                     this._dataService.getSchoolDistrictData(schooldistricts, this.indicator, counties, cts).subscribe((data: any) => {
                         console.log('SCHOOL DATA', data);
@@ -1865,7 +1897,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             }
         });
         //process data series
-
+        console.log('sortedplacedata', sortedPlaceData);
         let addedSeries: any[] = [];
         sortedPlaceData.forEach((pd: any) => {
             //for (var x = 0; x < selectedPlaceData.length; x++) {
@@ -2114,7 +2146,14 @@ export class DataTileComponent implements OnInit, OnDestroy {
     checkSelectedPlaceOnLoad(place: any) {
         let isSelected = false;
         for (var p = 0; p < this.places.length; p++) {
-            isSelected = place.geoid === this.places[p].ResID ? true : isSelected;
+            if (this.isSchool) {
+                //console.log('checkselectedplaceforhighmap', this.places[p], place);
+                this.places[p].GeoInfo.forEach((gi: any) => {
+                    isSelected = gi.School_District.indexOf(place.Name) !== -1 ? true : isSelected;
+                });
+            } else {
+                isSelected = place.geoid === this.places[p].ResID ? true : isSelected;
+            }
             //console.log('countylevel checking', this.places[p], place);
             if (this.places[p].Desc) {
                 let split: number = this.places[p].ResID.length > 9 ? 1 : 0;
@@ -2126,12 +2165,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
     getCommunityName(pData: any) {
         //find if unincorporated place or showing county level data
-        //console.log('getCommunityName', this.places, pData, this.isCountyLevel);
+        console.log('getCommunityName', this.places, pData, this.isCountyLevel);
         let returnName = '';
         this.places.forEach((place: SearchResult) => {
-            //console.log('returnName schoolz', place, pData);
+            console.log('returnName schoolz', place, pData);
             if (this.isSchool) {
-                //console.log('returnName school', place, pData);
+                console.log('returnName school', place, pData);
                 //search geoinfo for district name
                 if (place.GeoInfo.length > 0) {
                     place.GeoInfo.forEach((gi: any) => {
@@ -2142,7 +2181,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         }
                     });
                 } else {
-                    returnName = pData.Name === 'Statewide' ? 'Oregon' : returnName;
+                    returnName = pData.Name === 'Statewide' ? 'Oregon' : pData.Name;
                 }
             } else if (place.TypeCategory === 'Unincorporated Place' && (pData.geoid.split(',').indexOf(place.ResID) !== -1 || place.Desc.replace(' County', '').indexOf(pData.community) !== -1)) {
                 //returnName = returnName === '' ? pData.community + (pData.geoid.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';

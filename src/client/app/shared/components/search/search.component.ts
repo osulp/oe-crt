@@ -57,6 +57,7 @@ export class SearchComponent {
     selectResult(searchItem: SearchResult) {
         if (searchItem.Type === 'Place') {
             //searchItem.Desc = searchItem.Desc.replace(/\./g, '%2E');
+            searchItem.GeoInfo = [];
             this._selectedPlacesService.add(searchItem, 'map');
         }
         this.selSearchResultEvt.emit(searchItem);
@@ -71,16 +72,19 @@ export class SearchComponent {
         if (code === 13) {
             //get tempResult values
             if (this.tempResults.length > 0) {
-                var firstItem: any = this.tempResults[this.tempTabIndex === -1 ? 0 : this.tempTabIndex];
-                var selected: SearchResult = {
-                    Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
-                    ResID: firstItem['ResID'],
-                    Type: firstItem['Type'],
-                    TypeCategory: firstItem['TypeCategory'],
-                    Desc: firstItem['Desc']
-                };
-                this.selectedSearchResult = selected;
-                this.selectResult(selected);
+                let searchScope = this;
+                window.setTimeout(function () {
+                    var firstItem: any = searchScope.tempResults[searchScope.tempTabIndex === -1 ? 0 : searchScope.tempTabIndex];
+                    var selected: SearchResult = {
+                        Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
+                        ResID: firstItem['ResID'],
+                        Type: firstItem['Type'],
+                        TypeCategory: firstItem['TypeCategory'],
+                        Desc: firstItem['Desc']
+                    };
+                    searchScope.selectedSearchResult = selected;
+                    searchScope.selectResult(selected);
+                }, 500);
             } else {
                 alert('Please select a valid search term.');
             }

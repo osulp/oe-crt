@@ -24,19 +24,20 @@
                         <img *ngIf="selectedPlaceTypes.indexOf('California') === -1" src="assets/img/icn-cal.svg" />
                         California (Statewide)
                     </div>
-                    <div class="col-md-4 col-md-pull-4 place_type" (click)="toggleSelection('CountiesCitiesTracts')" [ngClass]="selectedPlaceTypes.indexOf('CountiesCitiesTracts') !== -1 ? 'selected' : ''">
-                        <img *ngIf="selectedPlaceTypes.indexOf('CountiesCitiesTracts') !== -1" src="assets/img/icn-layers-light.svg" />
-                        <img *ngIf="selectedPlaceTypes.indexOf('CountiesCitiesTracts') === -1" src="assets/img/icn-layers.svg" />Counties, Cities, Census Tracts
+                    <div class="col-md-4 col-md-pull-4 place_type" (click)="toggleSelection('CountiesCitiesTracts')" [ngClass]="selPlacesNotStatewide.length > 0 || expanded.toString() === 'true' ? 'selected' : ''">
+                        <img *ngIf="expanded.toString() === 'true' || selPlacesNotStatewide.length > 0" src="assets/img/icn-layers-light.svg" />
+                        <img *ngIf="selPlacesNotStatewide.length === 0 && expanded.toString() === 'false'" src="assets/img/icn-layers.svg" />Counties, Cities, Census Tracts
                         <div class="toggle-places">
-                            <div [ngClass]="getClass()" aria-hidden="true"></div>
+                            <div [ngClass]="expanded.toString() === 'true' ?  'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down'" aria-hidden="true"></div>
                         </div>
                     </div>
                 </div>
-                <div class="row place-select" [hidden]="selectedPlaceTypes.indexOf('CountiesCitiesTracts') === -1 ">
-                    <places-map-select [selectedPlaceType]="selectedPlaceType" [viewType]="'explore'" [selectedPlaces]="urlPlaces"></places-map-select>
+                <div class="row place-select" [hidden]="expanded.toString() === 'false'">
+                    <places-map-select [selectedPlaceType]="selectedPlaceType" [viewType]="'explore'" [selectedPlaces]="urlPlaces" (selPlacesEvt)="onSelPlaces($event)"></places-map-select>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 

@@ -27,6 +27,7 @@ var TopicsComponent = (function () {
         this.chkBoxCollectVisibile = false;
         this.initialLoad = true;
         this.collections = [];
+        this.showIndicatorCount = false;
         this.visible = true;
         this.showAllSelected = false;
         this.chkBoxVisibile = false;
@@ -35,7 +36,8 @@ var TopicsComponent = (function () {
         return this.visible ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
     };
     TopicsComponent.prototype.toggleTopicsWrapper = function () {
-        this.visible = !this.visible;
+        console.log('this.expanded', typeof (this.expanded));
+        this.expanded = this.expanded.toString() === 'true' ? false : true;
     };
     TopicsComponent.prototype.toggleAllTopics = function (evt) {
         var _this = this;
@@ -157,6 +159,10 @@ var TopicsComponent = (function () {
                 }
             }
             _this.initialLoad = false;
+            var inScope = _this;
+            window.setTimeout(function () {
+                inScope.showIndicatorCount = true;
+            }, 1000);
         }, function (err) { return console.error(err); }, function () { return console.log('done loading indicators'); });
     };
     TopicsComponent.prototype.ngOnInit = function () {
@@ -211,6 +217,10 @@ var TopicsComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', String)
     ], TopicsComponent.prototype, "inputCollection", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Boolean)
+    ], TopicsComponent.prototype, "expanded", void 0);
     TopicsComponent = __decorate([
         core_1.Component({
             moduleId: module.id,

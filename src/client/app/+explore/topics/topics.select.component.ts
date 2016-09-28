@@ -33,6 +33,7 @@ export class TopicsComponent implements OnInit {
     @Input() inputTopics: string;
     @Input() inputIndicators: string;
     @Input() inputCollection: string;
+    @Input() expanded: boolean;
 
     //selectedIndicators = new EventEmitter();
     Indicators: any;
@@ -49,6 +50,7 @@ export class TopicsComponent implements OnInit {
     selected: string[];
     initialLoad: boolean = true;
     collections: any[] = [];
+    showIndicatorCount: boolean = false;
     //private subscription: Subscription;
 
     constructor(
@@ -67,7 +69,10 @@ export class TopicsComponent implements OnInit {
     }
 
     toggleTopicsWrapper() {
-        this.visible = !this.visible;
+        console.log('this.expanded', typeof(this.expanded));
+        //this.expanded = typeof (this.expanded) === 'string' ? (this.expanded.toString() !== 'true' ? true : false) : !this.expanded;
+        this.expanded = this.expanded.toString() === 'true' ? false : true;
+        //this.visible = !this.visible;
     }
 
     toggleAllTopics(evt?: any) {
@@ -213,6 +218,10 @@ export class TopicsComponent implements OnInit {
                     }
                 }
                 this.initialLoad = false;
+                let inScope = this;
+                window.setTimeout(function () {
+                    inScope.showIndicatorCount = true;
+                },1000);
             },
             (err: any) => console.error(err),
             () => console.log('done loading indicators'));
