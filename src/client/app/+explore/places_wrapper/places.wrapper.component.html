@@ -33,7 +33,7 @@
                     </div>
                 </div>
                 <div class="row place-select" [hidden]="expanded.toString() === 'false'">
-                    <places-map-select [selectedPlaceType]="selectedPlaceType" [viewType]="'explore'" [selectedPlaces]="urlPlaces" (selPlacesEvt)="onSelPlaces($event)"></places-map-select>
+                    <places-map-select [selectedPlaceType]="selectedPlaceType" [refresh]="!initMapLoad" [viewType]="'explore'" [selectedPlaces]="urlPlaces" (selPlacesEvt)="onSelPlaces($event)"></places-map-select>
                 </div>
             </div>
         </div>

@@ -61,6 +61,8 @@ export class SearchComponent {
             this._selectedPlacesService.add(searchItem, 'map');
         }
         this.selSearchResultEvt.emit(searchItem);
+        this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
+        this.searchTerms = '';
     }
 
     inputSearchClickHandler(event: any) {

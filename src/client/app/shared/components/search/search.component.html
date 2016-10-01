@@ -14,7 +14,7 @@
                         </div>
                         <div class="search-result-content">
                             <div class="search-result-name">
-                                <span>{{item.Name}}</span>
+                                <span>{{item.Name !== item.DisplayName ? item.DisplayName : item.Name}}</span>
                                 <span *ngIf="item.TypeCategory" class="typeCategory">({{item.TypeCategory}})</span>
                                 <span *ngIf="item.Desc && item.Type === 'Place'" class="ct-tag">
                                     <b *ngIf="item.Desc.split('~').length > 0">{{(item.TypeCategory === 'Unincorporated Place' ? 'Data shown for ' : 'Includes data for ') + item.Desc.split('~')[0]}}</b>

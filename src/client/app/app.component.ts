@@ -13,6 +13,7 @@ import { ErrorComponent} from './+error/index';
 import { SelectedPlacesService } from './shared/services/index';
 //import { d } from './shared/index';
 
+//declare var crt_globals: any;
 /**
  * This class represents the main application component. Within the @Routes annotation is the configuration of the
  * applications routes, configuring the paths for the lazy loaded components (HomeComponent, AboutComponent).
@@ -43,7 +44,7 @@ import { SelectedPlacesService } from './shared/services/index';
         component: CollectionsComponent
     },
     {
-        path: '/How To',
+        path: '/HowTo',
         component: HowToComponent
     },
     {
@@ -59,5 +60,7 @@ import { SelectedPlacesService } from './shared/services/index';
 //{ path: '/collections', component: CollectionsComponent, name: 'Collections' },
 //{ path: '/my_pins', component: MyPinsComponent, name: 'My Pins' }
 //])
-export class AppComponent { }
+export class AppComponent {
+    //crt_globals = {};
+}
 

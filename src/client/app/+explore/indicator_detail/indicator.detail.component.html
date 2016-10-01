@@ -4,7 +4,7 @@
             <div class="find_header row">
                 <div class="col-xs-12" (click)="toggleCommunitiesWrapper()">
                     <header class="find_header_content">
-                        <div class="back-btn" (click)="goBack();">Back</div>
+                        <div class="back-btn" (click)="goBack($event);">Back</div>
                         <div class="title">Change Community Selection</div>
                         <div class="toggle-communities">
                             <div [ngClass]="getClass()" aria-hidden="true"></div>
@@ -105,22 +105,20 @@
                             </div>
                             <div *ngIf="id.Formula !== null">
                                 <span>Formula:</span>
-                                <span>{{id.Formula}}</span>
+                                <span [innerHTML]="id.Formula"></span>
                             </div>
                         </div>
                     </div>
                     <div *ngIf="indInfo === 'src'">
                         <div *ngFor="let id of indicatorDesc">
-                            <span *ngIf="id.Source !== null">
-                                {{id.Source}}
+                            <span *ngIf="id.Source !== null" [innerHTML]="id.Source">
                             </span>
                             <span *ngIf="id.Source === null">Not available</span>
                         </div>
                     </div>
                     <div *ngIf="indInfo === 'other'">
                         <div *ngFor="let id of indicatorDesc">
-                            <span *ngIf="id.Other !== null">
-                                {{id.Other}}
+                            <span *ngIf="id.Other !== null" [innerHTML]="id.Other">
                             </span>
                             <span *ngIf="id.Other === null">n/a</span>
                         </div>

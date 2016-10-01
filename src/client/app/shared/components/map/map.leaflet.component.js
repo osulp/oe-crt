@@ -400,6 +400,13 @@ var MapLeafletComponent = (function () {
             var selPlaces = changes.selectedPlaces.currentValue;
             this.runSelectedPlaceQueries(selPlaces);
         }
+        if (changes.refresh) {
+            console.log('need to check refresh map');
+            if (changes.refresh.currentValue !== true) {
+                console.log('henry');
+                this.refreshMap();
+            }
+        }
     };
     MapLeafletComponent.prototype.runSelectedPlaceQueries = function (selPlaces) {
         this.processedCity = false;
@@ -499,8 +506,25 @@ var MapLeafletComponent = (function () {
             }
         }
     };
+    MapLeafletComponent.prototype.isIE = function () {
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf('MSIE ');
+        if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
     MapLeafletComponent.prototype.refreshMap = function () {
-        window.dispatchEvent(new Event('resize'));
+        if (this.isIE()) {
+            var evt = document.createEvent('UIEvents');
+            evt.initUIEvent('resize', true, false, window, 0);
+            window.dispatchEvent(evt);
+        }
+        else {
+            window.dispatchEvent(new Event('resize'));
+        }
         this.setInitialMapView();
         if (this.selectedLayer.getLayers().length > 0) {
             var mapScope = this;
@@ -524,6 +548,10 @@ var MapLeafletComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', Object)
     ], MapLeafletComponent.prototype, "selectedPlaces", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Boolean)
+    ], MapLeafletComponent.prototype, "refresh", void 0);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', Object)

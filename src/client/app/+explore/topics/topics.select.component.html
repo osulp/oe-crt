@@ -30,7 +30,7 @@
                                     </div>
                                 </div>
                                 <div id="checkboxes" [hidden]="!chkBoxVisibile">
-                                    <label *ngFor="let indicator of Indicators | indicatorTopicFilterPipe : Topics:collections; let i = index" attr.for={{i}}><input type="checkbox" [checked]="indicator.selected" id="{{i}}" (click)="toggleIndicator(indicator)" />{{indicator.indicator}}</label>
+                                    <label *ngFor="let indicator of Indicators | indicatorTopicFilterPipe : Topics:collections; let i = index" attr.for={{i}}><input type="checkbox" [checked]="indicator.selected" id="{{i}}" (click)="toggleIndicator(indicator)" />{{indicator.indicator_display}}</label>
                                 </div>
                             </div>
                             <div id="collection-filter" class="col-lg-10 col-md-9 col-xs-12">

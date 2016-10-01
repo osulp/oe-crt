@@ -42,7 +42,6 @@ var PlacesWrapperComponent = (function () {
             this.expanded = true;
             if (!this.initMapLoad && this.selPlacesNotStatewide.length > 0) {
                 this.initMapLoad = true;
-                this.placeMap.leafletMap.refreshMap();
             }
         }
         this.selPlacesNotStateTemp = this.selPlacesNotStatewide;
@@ -61,14 +60,10 @@ var PlacesWrapperComponent = (function () {
                 this.expanded = this.expanded.toString() === 'true' ? false : true;
                 if (!this.initMapLoad) {
                     this.initMapLoad = true;
-                    this.placeMap.leafletMap.refreshMap();
                 }
             }
             catch (ex) {
                 console.log('IE fails here');
-                var mapScope = this;
-                console.log(mapScope.placeMap.leafletMap.refreshMap());
-                mapScope.placeMap.leafletMap.refreshMap();
             }
         }
         if (addPlace) {

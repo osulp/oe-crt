@@ -1,4 +1,4 @@
-import {Component, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
+import {Component, Input, Output, ViewChild, EventEmitter, OnInit, OnChanges} from '@angular/core';
 import {Control, CORE_DIRECTIVES} from '@angular/common';
 //import {RouteParams} from 'angular2/router';
 import {JSONP_PROVIDERS}  from '@angular/http';
@@ -33,11 +33,12 @@ import 'rxjs/add/operator/share';
     ]
 })
 
-export class PlacesMapSelectComponent implements OnInit {
+export class PlacesMapSelectComponent implements OnInit, OnChanges {
     @Input() selectedPlaceType: any;
     @Input() viewType: string;
     @Input() selectedPlaces: any;
     @Input() isVisible: boolean;
+    @Input() refresh: boolean;
     @Output() selPlacesEvt = new EventEmitter();
     @ViewChild(MapLeafletComponent) leafletMap: MapLeafletComponent;
     term = new Control();
@@ -51,6 +52,7 @@ export class PlacesMapSelectComponent implements OnInit {
     searchResults: Observable<any>;
     mapOptions: any = null;
     urlPlaces: any;
+    refreshMap: boolean = false;
     //_placeInfoService: PlaceInfoService;
 
     constructor(
@@ -105,7 +107,7 @@ export class PlacesMapSelectComponent implements OnInit {
 
     onDrop(args: any) {
         //let [e, src, target] = args;
-        this.setPlaceBinGroups(args[0],true);
+        this.setPlaceBinGroups(args[0], true);
         console.log('on drop', args);
         if (args[2] === null) {
             return;
@@ -466,12 +468,19 @@ export class PlacesMapSelectComponent implements OnInit {
         //this.title = response.itemInfo.item.title;
     }
 
+    ngOnChanges(changes: any) {
+        if (changes.refresh) {
+            console.log('changes in place map select', changes);
+            this.refreshMap = changes.refresh.currentValue;
+        }
+    }
+
     translatePlaceTypes(placeType: string, placeName?: string) {
         let modPT = placeType;
         switch (placeType) {
             case 'County':
             case 'Counties':
-            //case 'State':
+                //case 'State':
                 modPT = 'Counties';
                 break;
             case 'Census Designated Place':

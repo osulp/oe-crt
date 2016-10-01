@@ -1,15 +1,499 @@
-<p>
-  Angular 2 Seed is a starter project that implements best practices in
-  coding, building and testing Angular 2 apps.
-<p>
+<div id="howto-wrapper" class="row">
+    <div class="col-lg-12">
+        <h2>How to Use This Site</h2>
+        <br />
+        <div id="howto-overview">
+            <p><b>To get started, choose how you want to access data</b></p>
+            <div class="howto-indent">
+                <p>
+                    Are you interested in a <b>broad topic?</b> - Click on a topic listed on the home page or click on the link to "Explore more topics >"
+                </p>
+                <p>
+                    Are you interested in a <b>specific indicator?</b> - Type it into the search box on the home page
+                </p>
+                <p>
+                    Are you interested in a <b>specific town, county, or city?</b> - Type the name into the search box on the home page
+                </p>
+                <p>
+                    Are you interested in <b>data for a region or a number of counties, cities, or towns?</b> - Click on the link to "Explore more Communities >" on the home page
+                </p>
+                <p>
+                    Are you interested in learning about the <b>Oregon Latino community?</b> - Click on the Latinos in Oregon Featured Collection on the home page
+                </p>
+                <p>
+                    Are you interested in learning how Oregon's been doing along 89 <b>key progress indicators?</b> - Click on the Tracking Oregon's Progress Featured Collection on the home page
+                </p>
+                <p>
+                    Do you <b>just want to dive into some data?</b> - Click on the View Data button below any of the Featured Data tiles on the home page
+                </p>
+            </div>
+            <br />
+            <p><b>And don't miss these great features!</b></p>
+            <div class="howto-indent">
+                <p><b>Create a dashboard of data covering multiple topics</b></p>
+                <div class="howto-indent">
+                    <p>Topic Selection box > select multiple topics > click Filter Indicators > uncheck any indicators you don't want to include in your dashboard > scroll down on the page</p>
+                </div>
+                <p><b>Create a dashboard of graphs or maps</b></p>
+                <div class="howto-indent">
+                    <p>Topic Selection box > select multiple topics > click Filter Indicators > uncheck any indicators you don't want to include in your dashboard > scroll down on the page > toggle between map view and graph view of the tiles displayed</p>
+                </div>
+                <p><b>Compare communities</b></p>
+                <div class="howto-indent">
+                    <p>Communities box > Explore More Communities > Community Selection box > click the Counties, Cities, Census Tracts button > type in community name > click the + sign > type in more community names > click Go</p>
+                </div>
+                <p><b>Create a custom regional report</b></p>
+                <div class="howto-indent">
+                    <p>Community Selection box > add counties to your community box > drag one community onto another to have them combine into a region > name your region > Go</p>
+                </div>
+                <p><b>Remove communities from your custom region</b></p>
+                <div class="howto-indent">
+                    <p>Community Selection box > click once on your region name > click on the X next to each community name</p>
+                </div>
+                <p><b>Compare communities to rural or urban</b></p>
+                <div class="howto-indent">
+                    <p>Community Selection box > click the + sign next to Rural or Urban > click your choice of rural Oregon or California or urban Oregon or California</p>
+                </div>
+                <p><b>Add multiple communities to your graph view</b></p>
+                <div class="howto-indent">
+                    <p>Chart Tile > View Data > turn the Map View and Graph View eye icons on > in the map, hold down the Shift key while you click on counties</p>
+                </div>
+                <p><b>Create a map of data by counties, cities, census tracts, or school districts</b></p>
+                <div class="howto-indent">
+                    <p>Chart Tile > View Data > click on the hamburger in the upper right-hand corner of the map > select your map view (counties, cities, census tracts, or school districts)</p>
+                </div>
+                <p><b>Access data tables with statistics</b></p>
+                <div class="howto-indent">
+                    <p>Chart Tile > View Data > turn the Table View eye icons on</p>
+                </div>
+                <p><b>Find indicator descriptions and source information</b></p>
+                <div class="howto-indent">
+                    <p>Chart Tile > View Data > scroll down below the map, chart, or table to find Description and Source tabs</p>
+                </div>
+                <p><b>Find other resources for data and information related to each indicator</b></p>
+                <div class="howto-indent">
+                    <p>Chart Tile > View Data > scroll down below the map, chart, or table to find the Other Resources tab</p>
+                </div>
+                <p><b>Explore related indicators</b></p>
+                <div class="howto-indent">
+                    <p>Chart Tile > View Data > scroll down below the map, chart, or table to find graphics for other indicators related to the indicator you're viewing in depth</p>
+                </div>
+            </div>
+        </div>
 
-<h2>Features</h2>
-<ul>
-  <li>Ready to go, statically typed build system using Gulp for working with TypeScript.</li>
-  <li>Production and development builds.</li>
-  <li>Sample unit tests with Jasmine and Karma including code coverage via Istanbul.</li>
-  <li>End-to-end tests with Protractor.</li>
-  <li>Development server with live reload.</li>
-  <li>TypeScript definition management using Typings.</li>
-  <li>Basic Service Worker, which implements "Cache then network strategy".</li>
-</ul>
+        <div id="howto-video">
+            <!--Add links to video tutorial when available-->
+            Video tutorials coming soon!
+        </div>
+        <br />
+        <div id="howto-faqs">
+            <b>Frequently Asked Questions (FAQ)</b>
+            <br />
+            <ul id="ul-faq">
+                <li (click)="scrollTo('#faq-1')">Who decided what related indicators are displayed?</li>
+                <li (click)="scrollTo('#faq-2')">Why do you have data for Siskiyou County, California?</li>
+                <li (click)="scrollTo('#faq-3')">What is a census tract (CT)?</li>
+                <li (click)="scrollTo('#faq-4')">What is a census designated place (CDP)?</li>
+                <li (click)="scrollTo('#faq-5')">Why are some years available and others not?</li>
+                <li (click)="scrollTo('#faq-6')">What is the American Community Survey (ACS)?</li>
+                <li (click)="scrollTo('#faq-7')">How is the American Community Survey (ACS) different from the census?</li>
+                <li (click)="scrollTo('#faq-8')">
+                    How do I interpret a 5-year average from the American Community Survey (ACS) for the report I'm writing?
+                </li>
+                <li (click)="scrollTo('#faq-9')">
+                    Is there any official U.S. Census Bureau documentation about the American
+                    Community Survey (ACS) I can read?
+                </li>
+                <li (click)="scrollTo('#faq-10')">How do I interpret change over time with 5-year averaged data?</li>
+                <li (click)="scrollTo('#faq-11')">
+                    How do I know what happened in a given year with American Community
+                    Survey (ACS) 5-year average data?
+                </li>
+                <li (click)="scrollTo('#faq-12')">
+                    How do I make comparisons? What about making comparisons between pre-ACS
+                    years and ACS years?
+                </li>
+                <li (click)="scrollTo('#faq-13')">What is a Margin of Error (MOE)?</li>
+                <li (click)="scrollTo('#faq-14')">Why can't I combine cities with counties to create a regional report?</li>
+                <li (click)="scrollTo('#faq-15')">
+                    Why can't I get city-level data for some community characteristics
+                    (e.g. teen pregnancy rate)?
+                </li>
+                <li (click)="scrollTo('#faq-16')">
+                    Why did the population of my community change so dramatically from
+                    one year to another?
+                </li>
+                <li (click)="scrollTo('#faq-17')">
+                    Where do the data for comparing to Rural, Urban, and Whole State come
+                    from?
+                </li>
+                <li (click)="scrollTo('#faq-18')">
+                    Who do I contact if I have a question about this site, the data, or for help?
+                </li>
+            </ul>
+            <div id="FAQ_Answers">
+                <div id="faq-1" class="FAQ_Question">
+                    <b>Who decided what related indicators are displayed?</b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        The Rural Communities Explorer team designates indicators as related based on scans of research literature.
+                    </p>
+                </div>
+                <div id="faq-2" class="FAQ_Question">
+                    <b>Why do you have data for Siskiyou County, California?</b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        The Rural Communities Explorer and subsequently the Communities Reporter Tool is a collaboration of Oregon State University Extension and the Ford Family Foundation. The <a href="http://www.tfff.org/" target="_blank">Ford Family Foundation</a> is a private, non-profit foundation located in Roseburg, Oregon. The foundation primarily serves rural communities in Oregon and Siskiyou County, California. In order to meet the needs of the communities served by the Ford Family Foundation, the Communities Reporter Tool contains data for all communities in Oregon and Siskiyou County, California.
+                    </p>
+                </div>
+                <div id="faq-3" class="FAQ_Question">
+                    <b>What is a census tract (CT)?</b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Census tracts are subdivisions of counties that generally have stable boundaries
+                        that normally follow visible features. Census tracts are delineated by a local committee
+                        of census data users for presenting data. Census tracts are designed to be units
+                        with similar population characteristics, economic status, and living conditions,
+                        and average about 4,000 inhabitants Urban communities can be comprised of several
+                        census tracts, whereas a single rural census tract can contain several small communities.
+                    </p>
+                    <p>
+                        U.S. Census Bureau (2005). Census tracts and block numbering areas. Geographic Areas
+                        Reference Manual (10-2 - 10-3). [Retrieved] 1/10/2011 [from] http://www.census.gov/geo/www/garm.html
+                    </p>
+                </div>
+                <div id="faq-4" class="FAQ_Question">
+                    <b>What is a census designated place (CDP)?</b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Census-designated places are locally recognized communities with population clusters
+                        which lack separate municipal government, but otherwise physically resemble incorporated
+                        places. CDPs are created to provide data for settled concentrations of population
+                        that are identifiable by name by residents but are not legal entities. However,
+                        in the Oregon Communities Reporter Tool, CDPs are treated the same as Census-designated
+                        municipalities for the purposes of comparison of communities.
+                    </p>
+                    <p>
+                        Census Designated Place (CDP) Program for the 2010 Census - Final Criteria, Federal
+                        Register 73:30 (February 13, 2008) pgs. 8269 - 8273, [Retrieved] 1/10/2011 [from]
+                        http://www.census.gov/geo/www/psap2010/cdp_criteria.html
+                    </p>
+                </div>
+                <div id="faq-5" class="FAQ_Question">
+                    <b>Why are some years available and others not?</b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Prior to the 2010 database update of the Oregon Communities Reporter, the years
+                        selected for inclusion in the database corresponded to the decennial census years
+                        1990 and 2000. Additional non-census data were included in 2005, but the census
+                        was not performed in this year. In December 2010, the U.S. Census Bureau released
+                        the first annual installment of 5-year spanned averages from the American Community
+                        Survey (ACS). The ACS has replaced the decennial census for the collection of most
+                        demographic, social, housing, and household economic data nationwide. From 2010
+                        onward, the Oregon Communities Reporter will be updated annually with the releases
+                        of the ACS and other non-Census Bureau data.
+                    </p>
+                    <p>
+                        Since the ACS data refer to a 5-year average, it is impossible to select a specific
+                        year within those displayed for data from the U.S. Census Bureau. For example, starting
+                        in 2010, users will still be able look up Median Household Income, but will have
+                        to select the spanned average from 2005 - 2009 instead of a specific year in that
+                        range. On the other hand, data from sources other than the U.S. Census Bureau will
+                        continue to be selectable by specific years.
+                    </p>
+                </div>
+                <div id="faq-6" class="FAQ_Question">
+                    <b>What is the American Community Survey (ACS)?</b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        The American Community Survey (ACS) is an ongoing nationwide statistical survey
+                        conducted by the U.S. Census Bureau. The ACS provides communities with reliable
+                        and timely demographic, social, economic, and housing data every year. This represents
+                        a remarkable shift in the way the U.S. Census Bureau disseminates and collects data
+                        from a large sample of the U.S. population. Historically, the U.S. Census Bureau
+                        has collected detailed questions about socioeconomic and housing characteristics
+                        of the American people through the "long form" of the 10-year or decennial census.
+                        Starting in 2010, this information will come only from the ACS.
+                    </p>
+                    <p>
+                        U.S. Census Bureau, A Compass for Understanding and Using American Community Survey
+                        Data: What General Users Need to Know, U.S. Government Printing Office, Washington
+                        D.C., 2008.
+                    </p>
+                </div>
+                <div id="faq-7" class="FAQ_Question">
+                    <b>How is the American Community Survey (ACS) different from the census?</b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Prior to 2010, the U.S. Census Bureau collected socioeconomic and detailed housing
+                        data once every ten years using a sample of about 18 million households that completed
+                        the "long-form" of the census. In contrast, with the American Community Survey (ACS),
+                        the Census Bureau samples nearly 3 million addresses each year (approximately 250,000
+                        surveys per month). Since the annual ACS sample is smaller than that used for the
+                        past decennial censuses, the Bureau needs to combine ACS data spanning up to 5 years
+                        to produce reliable numbers for small counties, neighborhoods, and other local areas.
+                        While decennial census data will continue to be available once every ten years,
+                        starting in 2010 the decennial census will only provide basic population information.
+                        For this reason, the U.S. Census Bureau will now release 5-year detailed socioeconomic
+                        and housing estimates from the ACS for all geographical units in the nation on an
+                        annual basis.
+                    </p>
+                    <p>
+                        U.S. Census Bureau, A Compass for Understanding and Using American Community Survey
+                        Data: What General Users Need to Know, U.S. Government Printing Office, Washington
+                        D.C., 2008.
+                    </p>
+                </div>
+                <div id="faq-8" class="FAQ_Question">
+                    <b>
+                        How do I interpret a 5-year average from the American Community Survey (ACS)
+                        for the report I'm writing?
+                    </b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Because ACS estimates provide information about the characteristics of the community
+                        over an entire time frame, multiyear estimates contrast with "point-in-time" estimates
+                        we may be used to, such as those from the decennial census. The ACS data collection
+                        is spread evenly across the entire reference period so as not to over-represent
+                        any particular month or year within the period. Therefore, we cannot interpret these
+                        multiyear estimates by any single year, but must attribute these values to the full
+                        span of years from which they were collected (e.g. Median Household Income for 2005
+                        - 2009).
+                    </p>
+                    <p>
+                        When users report data from the ACS, they should clarify that the data represent
+                        a multiyear time-span and have a margin of error. For example, the estimated percentage
+                        of Oregonians with a high school education or greater (from the 2005-2009 ACS) was
+                        88.3 percent, with a margin of error of 0.2 percent. The best way to report this
+                        estimate would be to state, "On average, between 2005 and 2009, approximately 88.3
+                        percent of adult Oregonians (age 25+) had a high school or greater education level,
+                        plus or minus 0.2 percent."
+                    </p>
+                    <p>
+                        U.S. Census Bureau, A Compass for Understanding and Using American Community Survey
+                        Data: What Rural Users Need to Know, U.S. Government Printing Office, Washington
+                        D.C., 2009.
+                    </p>
+                </div>
+                <div id="faq-9" class="FAQ_Question">
+                    <b>
+                        Is there any official U.S. Census Bureau documentation about the American
+                        Community Survey (ACS) I can read?
+                    </b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Yes, the U.S. Census Bureau has created several guides for understanding and using
+                        data from the ACS. You can find them at: http://www.census.gov/acs/www/guidance_for_data_users/handbooks/
+                    </p>
+                </div>
+                <div id="faq-10" class="FAQ_Question">
+                    <b name="8">How do I interpret change over time with 5-year averaged data?</b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Caution is needed when using ACS multiyear estimates for estimating year-to-year
+                        change in a particular characteristic. This is because four years of the data in
+                        a 5-year estimate overlap with the data in the next year's 5-year estimate. Thus,
+                        as shown in the figure below, when comparing 2005-2009 estimates with 2006-2010
+                        estimates, the differences in the multiyear estimates are driven by differences
+                        in the non-overlapping years (in this case, the difference between 2005 and 2010).
+                    </p>
+                    <p>
+                        A data user interested in comparing overlapping multiyear estimates will not be
+                        able to isolate the differences due to any particular year using these two successive
+                        5-year estimates. While the interpretation of difference between overlapping multiyear
+                        estimates is difficult, these comparisons can be made with caution. Users who are
+                        interested in comparing overlapping multiyear estimates should refer to <a href="http://www.census.gov/acs/www/Downloads/handbooks/ACSRuralAreaHandbook.pdf"
+                                                                                                   target="_blank">
+                            Appendix 4 in the U.S. Census Bureau guide for Understanding and
+                            Using American Community Survey Data (Rural Users)
+                        </a> for more information.
+                    </p>
+                    <img src="assets/img/5yrEstimateChart.jpg" height="400px" alt="Five year estimate chart" />
+                    <p>
+                        U.S. Census Bureau, A Compass for Understanding and Using American Community Survey
+                        Data: What Rural Users Need to Know, U.S. Government Printing Office, Washington
+                        D.C., 2009
+                    </p>
+                </div>
+                <div id="faq-11" class="FAQ_Question">
+                    <b>
+                        How do I know what happened in a given year with American Community Survey
+                        (ACS) 5-year average data?
+                    </b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Because ACS estimates provide information about the characteristics of the community
+                        over an entire time frame, the specific single year value for a community characteristic
+                        cannot be determined from 5-year estimates.
+                    </p>
+                </div>
+                <div id="faq-12" class="FAQ_Question">
+                    <b>What is a Margin of Error (MOE)?</b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Margin of error is a measure of the accuracy of a sample at a given confidence level.
+                        The American Community Survey is administered to a random sample of the nation's
+                        population every month. The monthly values are combined and annual estimates are
+                        calculated. The margin of error describes how close the estimate likely is to the
+                        true population value for all Americans.
+                    </p>
+                    <p>
+                        For example, the 2009 ACS Data Profile for Oregon shows that on average 731,554
+                        married-couple families resided in the state between 2005 and 2009. The 90 percent
+                        margin of error for this statistic was calculated to be give or take 5,327 families
+                        (or about seven tenths of a percent). That is, we can be 90 percent sure that the
+                        true number of married-couple families that resided in Oregon on average between
+                        2005 and 2009 lies somewhere within this calculated interval. The U.S. Census Bureau
+                        uses the 90 percent confidence level as its standard. If we wanted to be more certain,
+                        say 95 percent, then the margin of error would be larger and the upper and lower
+                        bounds around the estimate would be larger.
+                    </p>
+                    <p>
+                        U.S. Census Bureau, A Compass for Understanding and Using American Community Survey
+                        Data: What General Users Need to Know, U.S. Government Printing Office, Washington
+                        D.C., 2008
+                    </p>
+                    <p>
+                        Stokes, Lynne: Tom Belin (2004). What is Margin of Error. What is a Survey? (63-67).
+                        Survey Research Methods Section, American Statistical Association. [Retrieved] 1/6/2011
+                        [from] http://www.amstat.org/sections/srms/pamphlet.pdf
+                    </p>
+                </div>
+                <div id="faq-13" class="FAQ_Question">
+                    <b>
+                        How do I make comparisons? What about making comparisons between pre-ACS
+                        years and ACS years?
+                    </b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Often users want to compare the characteristics of one area to those of another
+                        area. Whenever you want to make a comparison between two different geographic areas
+                        you need to take the type of estimate into account. It is important that comparisons
+                        be made within the same estimate type. That is, 1-year estimates should only be
+                        compared with other 1-year estimates, 3-year estimates should only be compared with
+                        other 3-year estimates, and 5-year estimates should only be compared with other
+                        5-year estimates. Because 5-year estimates cover all communities in the state, the
+                        Oregon Communities Reporter Tool only lists these estimates, making it possible
+                        to compare all communities in the 2009 database year (2005 - 2009 ACS estimates).
+                        However, since the data for 2000 and 1990 were collected by the decennial census,
+                        these values were derived using different method and they are not directly comparable
+                        to data collected by the ACS.
+                    </p>
+                    <p>
+                        U.S. Census Bureau, A Compass for Understanding and Using American Community Survey
+                        Data: What Rural Users Need to Know, U.S. Government Printing Office, Washington
+                        D.C., 2009
+                    </p>
+                </div>
+                <div id="faq-14" class="FAQ_Question">
+                    <b>Why can't I combine cities with counties to create a regional report?</b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        To prevent "double-counting" geographic sub-units, the Oregon Communities Reporter
+                        Tool does not allow users to combine dissimilar units. This is because when a user
+                        selects a county, all of the smaller geographic units within the county are automatically
+                        included in the calculation of community characteristics, including municipalities
+                        (census designated places) and census tracts. If a user were able to combine a municipality
+                        with a county, for example, the municipality that has already been included in the
+                        county data could be added again, causing the report of inaccurate data.
+                    </p>
+                </div>
+                <div id="faq-15" class="FAQ_Question">
+                    <b>
+                        Why can't I get city-level data for some community characteristics (e.g.
+                        teen pregnancy rate)?
+                    </b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        The likely reason is that the data simply is not collected and stored at the municipal
+                        (city) level. Another possibility is that the data are available for a few cities
+                        instead of all of Oregon. Where possible, we have avoided "patchy" data sources,
+                        instead choosing comprehensive data sets for the whole state.
+                    </p>
+                </div>
+                <div id="faq-16" class="FAQ_Question">
+                    <b>
+                        Why did the population of my community change so dramatically from one
+                        year to another?
+                    </b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        If the community you are looking at either went from about 4,000 people to a much
+                        smaller number, or declined to about 4,000 then it is likely that this community
+                        went through a change in geography.
+                    </p>
+                    <p>
+                        Sometimes unincorporated towns that were allocated to census tracts one year get
+                        recognized by the Census Bureau in a later year and become Census Designated Places.
+                        In those instances, the town's population will appear to go from about 4,000 people
+                        (the population of the census tract) to a population size that corresponds to the
+                        much smaller boundaries of the Census Designated Place. The opposite can also occur.
+                        Sometimes towns that are recognized as Census Designated Places (CDP) one year are
+                        not recognized as such the following year. In those cases, the population of this
+                        town will shift from the population residing within the boundaries of the CDP to
+                        the population residing with the census tract that contains the town (which is typically
+                        about 4,000 people).
+                    </p>
+                </div>
+                <div id="faq-17" class="FAQ_Question">
+                    <b>
+                        Where do the data for comparing to Rural, Urban, and Whole State come from?
+                    </b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Step 3 on the Select Communities Tab allows you to compare your selected community
+                        to all of Oregon, all of California, rural and urban areas in Oregon, and rural
+                        and urban areas in Siskiyou County, California. Selecting <b>Rural</b> or <b>Urban</b>
+                        will compare your selected community to less or more populated areas. For Census
+                        Bureau data, the right most columns in the Community Reporter Tool (CRT) output
+                        will be the combined values from census tracts with population densities more or
+                        less than 500 people per square mile, depending your urban/rural comparison selection.
+                        For county-level data, the combined values will be from counties designated as metropolitan
+                        or non-metropolitan by the Office of Management and Budget (OMB) standard categories.
+                        The OMB designates a metropolitan county as one that contains an urban core of at
+                        least 50,000 people. Non-metropolitan counties can be micropolitan (urban core of
+                        10,000-49,999 population), or have no core urban area. Oregon communities selected
+                        in the CRT will be compared to combined census tracts and counties in just Oregon.
+                        California communities in the CRT will be compared to combined census tracts residing
+                        in Siskiyou County and Siskiyou county-level data.
+                    </p>
+                </div>
+                <div id="faq-18" class="FAQ_Question">
+                    <b>
+                        Who do I contact if I have a question about this site, the data, or for
+                        help?
+                    </b>
+                </div>
+                <div class="FAQ_Answer">
+                    <p>
+                        Vincent Adams<br />
+                        Coordinator, Rural Communities Explorer<br />
+                        Office 216 Ballard Extension<br />
+                        Extension Family & Community Health<br />
+                        Oregon State University<br />
+                        Corvallis, Oregon 97331-5106<br />
+                        Phone 541-737-1412<br />
+                        vince.adams@oregonstate.edu
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

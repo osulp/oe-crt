@@ -37,6 +37,7 @@ var FindWrapperComponent = (function () {
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
+                window['detailBackUrl'] = window.location.href;
                 this._router.navigate(['Explore', {
                         indicator: encodeURIComponent(results.Name
                             .replace('(', '%28')

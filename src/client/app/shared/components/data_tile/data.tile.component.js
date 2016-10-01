@@ -389,9 +389,20 @@ var DataTileComponent = (function () {
             console.log('thinks it needs to update');
             this.checkDataStateForCharts();
             this.tempPlaces = this.places;
+            if (this.tileType === 'graph') {
+                if (this.chart) {
+                    this.chart.showLoading();
+                }
+            }
+            else {
+                if (this.mapChart) {
+                    this.mapChart.showLoading();
+                }
+            }
         }
     };
     DataTileComponent.prototype.checkDataStateForCharts = function (source) {
+        var _this = this;
         var loadingGeoJSON = this.tileType === 'map' && this.showMap ? this.checkLoadGeoJSON() : false;
         if (this.tileType === 'graph') {
             this.getPlaceTypes('graph');
@@ -430,6 +441,13 @@ var DataTileComponent = (function () {
                     var inSelectedPlaces = false;
                     for (var z = 0; z < this.places.length; z++) {
                         inSelectedPlaces = (this.places[z].Name.replace(' County', '') === selectedPlaces[s].id.replace(' County', '') && this.places[z].ResID === selectedPlaces[s].geoid) ? true : inSelectedPlaces;
+                        if (!inSelectedPlaces) {
+                            if (this.places[z].GeoInfo.length > 0) {
+                                this.places[z].GeoInfo.forEach(function (gi) {
+                                    inSelectedPlaces = gi.geoid === _this.places[z].ResID ? true : inSelectedPlaces;
+                                });
+                            }
+                        }
                     }
                     console.log(inSelectedPlaces);
                     if (!inSelectedPlaces) {
@@ -649,13 +667,14 @@ var DataTileComponent = (function () {
                 });
             }
             else {
-                console.log('geoids for data service', geoids, geonames);
+                console.log('geoids for data service', geoids, geonames, schooldistricts);
                 if (this.isSchool) {
                     console.log('SCHOOL DATA', schooldistricts, geonames, geoids, this.tileType);
                     this._dataService.getSchoolDistrictData(schooldistricts, this.indicator, counties, cts).subscribe(function (data) {
                         console.log('SCHOOL DATA', data);
                         _this.updateDataStore([data], 'indicator');
                         _this.createGraphChart();
+                        _this.onChartDataUpdate.emit({ data: _this.isCustomChart ? _this.dataStore.indicatorData[_this.indicator].chart_data : data, customPlace: _this.selectedPlaceCustomChart, customYear: _this.selectedCustomChartYear, metadata: data.Metadata[0] });
                     }, function (err) { return console.error(err); }, function () { return console.log('done loading data for graph'); });
                 }
                 else {
@@ -812,6 +831,7 @@ var DataTileComponent = (function () {
                 this.hasDrillDowns = this.placeTypeData.Metadata[0].Sub_Topic_Name !== 'none' ? true : false;
                 if (this.tileType === 'map' && this.showMap) {
                     this.initMapChart();
+                    console.log('shamrock');
                     if (!this.isSliderInit) {
                         this.setupTimeSlider();
                         this.isSliderInit = true;
@@ -1035,6 +1055,7 @@ var DataTileComponent = (function () {
             max: this.getMaxData(true),
             endOnTick: false,
             startOnTick: true,
+            maxColor: this.placeTypeData.Metadata[0].Color_hex ? this.placeTypeData.Metadata[0].Color_hex : '#003399',
             labels: {
                 formatter: function () {
                     return mapScope.formatValue(this.value, true);
@@ -1177,7 +1198,7 @@ var DataTileComponent = (function () {
                         min: 0,
                         max: this.placeTypeData.Metadata[0]['Y-Axis_Max']
                     });
-                    var title = this.placeTypeData.Metadata[0]['Sub_Sub_Topic_ID'] !== null ? this.placeTypeData.Metadata[0]['Variable'] : this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator;
+                    var title = this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator;
                     this.chart.setTitle({
                         text: this.viewType === 'basic' ? title.replace('<br>', ' ') : null,
                         align: this.viewType === 'basic' ? 'left' : null,
@@ -1649,16 +1670,30 @@ var DataTileComponent = (function () {
         var isSelected = false;
         for (var p = 0; p < this.places.length; p++) {
             if (this.isSchool) {
-                this.places[p].GeoInfo.forEach(function (gi) {
-                    isSelected = gi.School_District.indexOf(place.Name) !== -1 ? true : isSelected;
-                });
+                if (this.places[p].GeoInfo.length > 0) {
+                    this.places[p].GeoInfo.forEach(function (gi) {
+                        isSelected = gi.School_District.indexOf(place.Name) !== -1 ? true : isSelected;
+                    });
+                }
+                else {
+                    isSelected = this.places[p].Name === place.Name ? true : isSelected;
+                }
             }
             else {
                 isSelected = place.geoid === this.places[p].ResID ? true : isSelected;
+                if (!isSelected) {
+                    if (this.places[p].GeoInfo.length > 0) {
+                        this.places[p].GeoInfo.forEach(function (gi) {
+                            isSelected = gi.geoid.indexOf(place.geoid) !== -1 ? true : isSelected;
+                        });
+                    }
+                }
             }
-            if (this.places[p].Desc) {
-                var split = this.places[p].ResID.length > 9 ? 1 : 0;
-                isSelected = this.isCountyLevel ? (this.places[p].Desc.split(', ').length > split ? this.places[p].Desc.split(', ')[split].replace(' County', '') === place.community.replace(' County', '').trim() : isSelected) : isSelected;
+            if (!this.isSchool) {
+                if (this.places[p].Desc) {
+                    var split = this.places[p].ResID.length > 9 ? 1 : 0;
+                    isSelected = this.isCountyLevel ? (this.places[p].Desc.split(', ').length > split ? this.places[p].Desc.split(', ')[split].replace(' County', '') === place.community.replace(' County', '').trim() : isSelected) : isSelected;
+                }
             }
         }
         return isSelected;
@@ -2110,6 +2145,7 @@ var DataTileComponent = (function () {
     DataTileComponent.prototype.getMinData = function (isMap, chartType) {
         var min;
         var notLogrithmic = false;
+        console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
         var chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
         var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
         $.each(pdy, function () {
@@ -2131,6 +2167,7 @@ var DataTileComponent = (function () {
                 }
             }
         });
+        console.log('mindata', min);
         return notLogrithmic ? 0 : min < 10 ? 0 : min;
     };
     DataTileComponent.prototype.getMaxData = function (isMap) {
@@ -2173,7 +2210,7 @@ var DataTileComponent = (function () {
                     returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
                     break;
                 case '%Tenth':
-                    returnVal = Math.round(parseFloat(val) * 10000) / 100 + '%';
+                    returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
                     break;
                 case '0':
                     returnVal = isLegend ? this.formatAbvNumbers(val, true, 0) : this.addCommas(Math.round(parseInt(val)).toString());
@@ -2245,6 +2282,9 @@ var DataTileComponent = (function () {
         return str !== null ? str.replace(/([^\W_]+[^\s-]*) */g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); }) : null;
     };
     DataTileComponent.prototype.gotoDetails = function () {
+        if (window.location.href.indexOf('indicator=') === -1) {
+            window['detailBackUrl'] = window.location.href;
+        }
         this._router.navigate(['Explore', {
                 indicator: encodeURI(this.indicator
                     .replace(/\(/g, '%28')

@@ -3,7 +3,7 @@
         <template [ngIf]="!isCustomTable">
             <tr>
                 <td></td>
-                <td class="theading" align="center" *ngFor="let data of tableData">{{data.community}}</td>
+                <td class="theading" align="center" *ngFor="let data of tableData">{{data.community ? data.community : data.Name}}</td>
             </tr>
             <tr *ngFor="let year of tableYears | TableDataFilterPipe : tableData">
                 <td align="center" class="tableYear">{{year.Year}}</td>

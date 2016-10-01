@@ -6,7 +6,7 @@
             </div>
         </div>
         <div #indicatorTopicChkBoxes class="checkboxes" [hidden]="!chkBoxVisibile">
-            <label *ngFor="let indicator of inputIndicators | indicatorTopicFilterPipe : selTopics[0]:selCollections:false" attr.for="{{indicator.indicator}}"><input type="checkbox" [checked]="indicator.selected" id="{{indicator.indicator}}" (click)="toggleIndicator(indicator)" />{{indicator.indicator}}</label>
+            <label *ngFor="let indicator of inputIndicators | indicatorTopicFilterPipe : selTopics[0]:selCollections:false" attr.for="{{indicator.indicator}}"><input type="checkbox" [checked]="indicator.selected" id="{{indicator.indicator}}" (click)="toggleIndicator(indicator)" />{{indicator.indicator_display}}</label>
         </div>
     </div>
 </div>

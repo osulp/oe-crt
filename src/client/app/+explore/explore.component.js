@@ -24,6 +24,7 @@ var ExploreComponent = (function () {
         this.indicatorDetailView = false;
         this.showTopicsExpanded = true;
         this.showPlacesExpanded = false;
+        this.initLoad = true;
         this.initialIndicator = true;
     }
     ExploreComponent.prototype.routerOnActivate = function (curr, prev, currTree, prevTree) {
@@ -42,7 +43,11 @@ var ExploreComponent = (function () {
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
-                this._router.navigate(['/Explore', { indicator: encodeURI(results.Name).replace('(', '%28').replace(')', '%29') }]);
+                window['detailBackUrl'] = window.location.href;
+                this._router.navigate(['/Explore', {
+                        indicator: encodeURI(results.Name).replace('(', '%28').replace(')', '%29'),
+                        places: this.selectedPlacesUrl
+                    }]);
             }
         }
     };
@@ -73,6 +78,7 @@ var ExploreComponent = (function () {
             qsParams.push(indicatorParam);
         }
         var newState = this.updateQueryStringParam(qsParams);
+        console.log('NEW STATE TOPICs!!!!!!!!!!!', newState);
         window.history.pushState({}, '', newState);
     };
     ExploreComponent.prototype.onGetAllTopicsFromComp = function (results) {
@@ -87,12 +93,14 @@ var ExploreComponent = (function () {
         this.dataComp.selectedCollection = results.filter(function (coll) { return coll.selected; })[0].collection;
         this.dataComp.indTopListComps.toArray().forEach(function (child) { return child.selCollections = results; });
     };
+    ExploreComponent.prototype.onPopState = function (evt) {
+        console.log('popping state', evt);
+    };
     ExploreComponent.prototype.onPlacesChanged = function (selectedPlaces) {
         console.log('place added via explore comp', selectedPlaces);
         var qsParams = [];
-        var places = '';
+        this.selectedPlacesUrl = '';
         for (var x = 0; x < selectedPlaces.length; x++) {
-            console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
             var place_simple = {
                 Name: selectedPlaces[x].Name,
                 ResID: selectedPlaces[x].ResID,
@@ -101,16 +109,24 @@ var ExploreComponent = (function () {
                 Combined: selectedPlaces[x].Combined,
                 GroupName: selectedPlaces[x].GroupName
             };
-            places += encodeURIComponent(JSON.stringify(place_simple));
+            this.selectedPlacesUrl += encodeURIComponent(JSON.stringify(place_simple));
             if (x !== selectedPlaces.length - 1) {
-                places += ',';
+                this.selectedPlacesUrl += ',';
             }
         }
-        var placeParam = { key: 'places', value: places };
+        var placeParam = { key: 'places', value: this.selectedPlacesUrl };
         qsParams.push(placeParam);
         var newState = this.updateQueryStringParam(qsParams);
-        console.log('NEW STATE!!!!!!!!!!!', newState);
-        window.history.pushState({}, '', newState);
+        console.log('NEW STATE PLACE !!!!!!!!!!!', newState);
+        if (this.initLoad) {
+            this.initLoad = false;
+            console.log('replacing state', newState);
+            window.history.replaceState({}, '', newState);
+        }
+        else {
+            console.log('pushing state', newState);
+            window.history.pushState({}, '', newState);
+        }
     };
     ExploreComponent.prototype.updateQueryStringParam = function (qsParams) {
         var baseUrl = [location.protocol, '//', location.host, location.pathname.split(';')[0]].join('');
@@ -145,13 +161,6 @@ var ExploreComponent = (function () {
     };
     ;
     ExploreComponent.prototype.onBlurExplorePage = function (evt) {
-        console.log('blurevt', evt);
-        if (!$(evt.target).closest('.selectBox').length) {
-            this.topicsComp.chkBoxVisibile = false;
-        }
-        if (!$(evt.target).closest('.multiselect').length) {
-            this.dataComp.indTopListComps.toArray().forEach(function (child) { return child.chkBoxVisibile = false; });
-        }
     };
     ExploreComponent.prototype.ngOnInit = function () {
         var _this = this;

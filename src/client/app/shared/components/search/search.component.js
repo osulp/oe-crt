@@ -47,6 +47,8 @@ var SearchComponent = (function () {
             this._selectedPlacesService.add(searchItem, 'map');
         }
         this.selSearchResultEvt.emit(searchItem);
+        this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
+        this.searchTerms = '';
     };
     SearchComponent.prototype.inputSearchClickHandler = function (event) {
         this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });

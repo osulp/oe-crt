@@ -22,6 +22,7 @@ export class PlacesWrapperComponent implements OnInit {
     selPlacesNotStatewide: any = [];
     selPlacesNotStateTemp: any = [];
     initMapLoad: boolean = false;
+
     california: SearchResult = {
         Name: 'California',
         ResID: '06',
@@ -48,7 +49,7 @@ export class PlacesWrapperComponent implements OnInit {
             this.expanded = true;
             if (!this.initMapLoad && this.selPlacesNotStatewide.length > 0) {
                 this.initMapLoad = true;
-                this.placeMap.leafletMap.refreshMap();
+                //this.placeMap.leafletMap.refreshMap();
             }
         }
         this.selPlacesNotStateTemp = this.selPlacesNotStatewide;
@@ -71,14 +72,18 @@ export class PlacesWrapperComponent implements OnInit {
                 this.expanded = this.expanded.toString() === 'true' ? false : true;
                 if (!this.initMapLoad) {
                     this.initMapLoad = true;
-                    this.placeMap.leafletMap.refreshMap();
+                    //if (!this.isIE()) {
+                    //    this.placeMap.leafletMap.refreshMap();
+                    //}
                 }
             } catch (ex) {
                 console.log('IE fails here');
-                let mapScope = this;
+                //let mapScope = this;
                 //window.setTimeout(function () {
-                console.log(mapScope.placeMap.leafletMap.refreshMap());
-                mapScope.placeMap.leafletMap.refreshMap();
+                //console.log(mapScope.placeMap.leafletMap.refreshMap());
+                //if (!this.isIE()) {
+                //    mapScope.placeMap.leafletMap.refreshMap();
+                //}
                 //}, 500);
             }
         }
@@ -107,6 +112,16 @@ export class PlacesWrapperComponent implements OnInit {
             }
         }
     }
+
+    //isIE() {
+    //    var ua = window.navigator.userAgent;
+    //    var msie = ua.indexOf("MSIE ");
+    //    if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+    //        return true;
+    //    } else {
+    //        return false;
+    //    }
+    //}
 
     ngOnInit() {
         this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];

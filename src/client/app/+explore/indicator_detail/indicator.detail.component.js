@@ -103,10 +103,28 @@ var DetailComponent = (function () {
         }
     };
     DetailComponent.prototype.goBack = function (evt) {
-        console.log('going back', this._location, window.history);
-        window.history.back(2 + this.detailUrlChanges);
-        window.history.go(-(this.detailUrlChanges));
+        console.log('going back', window['detailBackUrl'], this.detailUrlChanges, window.history);
+        if (window['detailBackUrl']) {
+            if (window.detailBackUrl.toUpperCase().indexOf('/EXPLORE;') !== -1) {
+                console.log('coming from explore page', window.location);
+                if (!window.location.origin) {
+                    window.location.origin = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+                }
+                var url = decodeURI(window.detailBackUrl.replace(window.location.origin + '<%= APP_BASE %>', ''));
+                console.log('url is now :', url);
+                this._router.navigateByUrl(url);
+            }
+            else {
+                console.log('coming from home');
+                this._router.navigate(['/']);
+            }
+        }
+        else {
+            console.log('FREEEEEEEEEEEEEEEE');
+            this._router.navigateByUrl('/Explore');
+        }
         window.scrollTo(0, 0);
+        evt.stopPropagation();
     };
     DetailComponent.prototype.onChartDataUpdate = function (data) {
         console.log('Chart data emitted to indicator detail', data);
@@ -125,6 +143,8 @@ var DetailComponent = (function () {
     };
     DetailComponent.prototype.ngOnInit = function () {
         var _this = this;
+        this.detailUrlChanges = 0;
+        console.log('detailurlchanges', this.detailUrlChanges, history);
         this.showMap = true;
         this.showGraph = true;
         this.showTable = false;
@@ -145,7 +165,9 @@ var DetailComponent = (function () {
                 _this.indicatorDesc = data.Desc;
                 _this.relatedIndicators = data.RelatedIndicators;
                 console.log('indicatorDesc service', data);
-                _this.indicatorTitle = indicator_info.Sub_Sub_Topic_ID !== null ? indicator_info.Variable : indicator_info.Dashboard_Chart_Title ? indicator_info.Dashboard_Chart_Title : indicator_info.Variable;
+                _this.indicatorTitle = indicator_info.Dashboard_Chart_Title
+                    ? indicator_info.Dashboard_Chart_Title
+                    : indicator_info.Variable;
                 _this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
                 _this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
                 _this.isCountyLevel = indicator_info.CountyLevel;

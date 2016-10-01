@@ -9,6 +9,8 @@ import {SearchComponent} from '../../shared/components/index';
 import {TableViewComponent} from './table_view/table.view.component';
 
 declare var $: any;
+declare var window: any;
+//declare var crt_globals: any;
 
 @Component({
     moduleId: module.id,
@@ -46,6 +48,9 @@ export class DetailComponent implements OnInit {
     isCountyLevel: boolean = false;
     isTOP: boolean = false;
     detailUrlChanges: number = 0;
+    backToUrl: string;
+    returnToPlaces: any;
+
 
     constructor(private _indicatorDescService: IndicatorDescService,
         private _router: Router, private _location:Location
@@ -123,13 +128,43 @@ export class DetailComponent implements OnInit {
     }
 
     goBack(evt:any) {
-        console.log('going back', this._location, window.history);
-        window.history.back(2 + this.detailUrlChanges);
-        window.history.go(-(this.detailUrlChanges));
+        console.log('going back', window['detailBackUrl'], this.detailUrlChanges, window.history);
+
+        if (window['detailBackUrl']) {
+            //determine if coming from home or explore
+            //this._router.navigateByUrl(window['detailBackUrl']);
+            if (window.detailBackUrl.toUpperCase().indexOf('/EXPLORE;') !== -1) {
+                //split apart the params and pass back via ng2 router
+                console.log('coming from explore page', window.location);
+                if (!window.location.origin) {
+                    window.location.origin = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+                }
+                let url = decodeURI(window.detailBackUrl.replace(window.location.origin + '<%= APP_BASE %>', ''));
+                console.log('url is now :', url);
+                this._router.navigateByUrl(url);
+            } else {
+                console.log('coming from home');
+                this._router.navigate(['/']);
+            }
+            //window.location = window['detailBackUrl'];
+            //this._router.navigate(['Explore', {
+            //    indicator: encodeURIComponent(results.Name
+            //        .replace('(', '%28')
+            //        .replace(')', '%29')
+            //    )
+            //}]);
+        } else {
+            console.log('FREEEEEEEEEEEEEEEE');
+            this._router.navigateByUrl('/Explore');
+            //window.history.back(1 + this.detailUrlChanges);
+            //window.history.go(-(this.detailUrlChanges));
+        }
+
         //window.hist
         //this._location.back();
         //this._router.navigate(['/Explore']);
         window.scrollTo(0, 0);
+        evt.stopPropagation();
         //evt.preventDefault();
     }
 
@@ -152,6 +187,8 @@ export class DetailComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.detailUrlChanges = 0;
+        console.log('detailurlchanges', this.detailUrlChanges, history);
         this.showMap = true;
         this.showGraph = true;
         this.showTable = false;
@@ -176,7 +213,14 @@ export class DetailComponent implements OnInit {
                     this.indicatorDesc = data.Desc;// IndicatorDescSer
                     this.relatedIndicators = data.RelatedIndicators;
                     console.log('indicatorDesc service', data);
-                    this.indicatorTitle = indicator_info.Sub_Sub_Topic_ID !== null ? indicator_info.Variable :  indicator_info.Dashboard_Chart_Title ? indicator_info.Dashboard_Chart_Title : indicator_info.Variable;
+                    //this.indicatorTitle = indicator_info.Sub_Topic_ID !== null
+                    //    ? indicator_info.Sub_Topic_Name + ' ('+ indicator_info.Variable + ')'
+                    //    : indicator_info.Dashboard_Chart_Title
+                    //        ? indicator_info.Dashboard_Chart_Title
+                    //        : indicator_info.Variable;
+                    this.indicatorTitle = indicator_info.Dashboard_Chart_Title
+                            ? indicator_info.Dashboard_Chart_Title
+                            : indicator_info.Variable;
                     this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
                     this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
                     this.isCountyLevel = indicator_info.CountyLevel;

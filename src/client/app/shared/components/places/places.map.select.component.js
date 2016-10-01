@@ -28,6 +28,7 @@ var PlacesMapSelectComponent = (function () {
         this.term = new common_1.Control();
         this.customSetCounter = 1;
         this.mapOptions = null;
+        this.refreshMap = false;
         dragulaService.drop.subscribe(function (value) {
             console.log("drop: " + value[0]);
             _this.onDrop(value.slice(1));
@@ -330,6 +331,12 @@ var PlacesMapSelectComponent = (function () {
     };
     PlacesMapSelectComponent.prototype.onMapLoad = function (response) {
     };
+    PlacesMapSelectComponent.prototype.ngOnChanges = function (changes) {
+        if (changes.refresh) {
+            console.log('changes in place map select', changes);
+            this.refreshMap = changes.refresh.currentValue;
+        }
+    };
     PlacesMapSelectComponent.prototype.translatePlaceTypes = function (placeType, placeName) {
         var modPT = placeType;
         switch (placeType) {
@@ -385,6 +392,10 @@ var PlacesMapSelectComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', Boolean)
     ], PlacesMapSelectComponent.prototype, "isVisible", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Boolean)
+    ], PlacesMapSelectComponent.prototype, "refresh", void 0);
     __decorate([
         core_1.Output(), 
         __metadata('design:type', Object)

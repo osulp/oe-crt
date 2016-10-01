@@ -6,6 +6,9 @@ import {SearchComponent} from '../../shared/components/search/search.component';
 import {Router} from '@angular/router';
 //import {Router} from '@angular/router-deprecated';
 
+declare var window: any;
+
+
 @Component({
     moduleId: module.id,
     selector: 'find-wrapper',
@@ -44,6 +47,10 @@ export class FindWrapperComponent {
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
                 //this._router.navigate(['Explore', { indicator: encodeURIComponent(results.Name), topics: results.TypeCategory.split(';')[1] }]);
+                //console.log('crt_globals');
+                //console.log('crt_globals', crt_globals);
+                //crt_globals = crt_globals === 'undefined' ? {} : crt_globals;
+                window['detailBackUrl'] = window.location.href;
                 this._router.navigate(['Explore', {
                     indicator: encodeURIComponent(results.Name
                         .replace('(', '%28')

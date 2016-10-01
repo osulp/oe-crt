@@ -1,4 +1,4 @@
-<div *ngIf="!indicatorDetailView" id="explore-page" (click)="onBlurExplorePage($event);" class="page_wrapper explore-page col-xs-12">
+<div *ngIf="!indicatorDetailView" id="explore-page" (click)="onBlurExplorePage($event);" (popstate)="onPopState($event);" class="page_wrapper explore-page col-xs-12">
     <div class="col-lg-12 col-md-12 col-xs-12">
         <div class="row">
             <search [viewType]="'explore'" class="col-lg-12 col-md-12 col-xs-12" (selSearchResultEvt)="selectedSearchResult = onSelectedSearchResult($event)"></search>

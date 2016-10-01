@@ -3,7 +3,7 @@
         <div class="row row-map">
             <div class="col-xs-12">
                 <div id="viewDiv" [ngClass]="setClasses('Map')">
-                    <leaflet-map [visible]="isVisible" [selectedPlaces]="selectedSearchResults" (onPlaceSelected)="onPlaceSelectedMap($event)" [viewType]="viewType"></leaflet-map>
+                    <leaflet-map [visible]="isVisible" [refresh]="refreshMap" [selectedPlaces]="selectedSearchResults" (onPlaceSelected)="onPlaceSelectedMap($event)" [viewType]="viewType"></leaflet-map>
                     <!--<esri-map [options]="mapOptions" (mapLoaded)="onMapLoad($event)">
                         <esri-search [options]="searchOptions"></esri-search>
                     </esri-map>-->

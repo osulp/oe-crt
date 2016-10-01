@@ -11,6 +11,7 @@ import {SearchResult, Topic, Indicator} from '../shared/data_models/index';
 import {SelectedPlacesService} from '../shared/services/index';
 
 declare var $: any;
+declare var window: any;
 
 interface QueryStringParams {
     key: string;
@@ -38,6 +39,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     selectedIndicators: any;
     selectedIndicator: any;
     selectedPlaces: any;
+    selectedPlacesUrl: any;
     selectedCollection: any;
     allIndicators: Indicator[];
     allTopics: Topic[] = [];
@@ -47,6 +49,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     subscription: Subscription;
     showTopicsExpanded: boolean = true;
     showPlacesExpanded: boolean = false;
+    initLoad: boolean = true;
 
     constructor(
         public _selectedPlacesService: SelectedPlacesService,
@@ -74,7 +77,11 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         this.selectedSearchResult = results;
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
-                this._router.navigate(['/Explore', { indicator: encodeURI(results.Name).replace('(', '%28').replace(')', '%29') }]);
+                window['detailBackUrl'] = window.location.href;
+                this._router.navigate(['/Explore', {
+                    indicator: encodeURI(results.Name).replace('(', '%28').replace(')', '%29'),
+                    places: this.selectedPlacesUrl
+                }]);
             }
         }
     }
@@ -106,6 +113,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
             qsParams.push(indicatorParam);
         }
         var newState = this.updateQueryStringParam(qsParams);
+        console.log('NEW STATE TOPICs!!!!!!!!!!!', newState);
         window.history.pushState({}, '', newState);
     }
 
@@ -125,12 +133,16 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         this.dataComp.indTopListComps.toArray().forEach((child: any) => child.selCollections = results);
     }
 
+    onPopState(evt: any) {
+        console.log('popping state', evt);
+    }
+
     onPlacesChanged(selectedPlaces: SearchResult[]) {
         console.log('place added via explore comp', selectedPlaces);
         var qsParams: QueryStringParams[] = [];
-        var places: string = '';
+        this.selectedPlacesUrl = '';
         for (var x = 0; x < selectedPlaces.length; x++) {
-            console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
+            //console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
             let place_simple = {
                 Name: selectedPlaces[x].Name,
                 ResID: selectedPlaces[x].ResID,
@@ -139,19 +151,25 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
                 Combined: selectedPlaces[x].Combined,
                 GroupName: selectedPlaces[x].GroupName
             };
-            places += encodeURIComponent(JSON.stringify(place_simple));
+            this.selectedPlacesUrl += encodeURIComponent(JSON.stringify(place_simple));
             //places += encodeURIComponent(JSON.stringify(selectedPlaces[x]));
             //places += selectedPlaces[x].Name;
             if (x !== selectedPlaces.length - 1) {
-                places += ',';
+                this.selectedPlacesUrl += ',';
             }
         }
-        var placeParam: QueryStringParams = { key: 'places', value: places };
+        var placeParam: QueryStringParams = { key: 'places', value: this.selectedPlacesUrl };
         qsParams.push(placeParam);
         var newState = this.updateQueryStringParam(qsParams);
-        console.log('NEW STATE!!!!!!!!!!!',newState);
-        //console.log(newState);
-        window.history.pushState({}, '', newState);
+        console.log('NEW STATE PLACE !!!!!!!!!!!', newState);
+        if (this.initLoad) {
+            this.initLoad = false;
+            console.log('replacing state', newState);
+            window.history.replaceState({}, '', newState);
+        } else {
+            console.log('pushing state', newState);
+            window.history.pushState({}, '', newState);
+        }
     }
 
 
@@ -187,14 +205,14 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     };
 
     onBlurExplorePage(evt: any) {
-        console.log('blurevt', evt);
-        //hide select dropdowns if showing.
-        if (!$(evt.target).closest('.selectBox').length) {
-            this.topicsComp.chkBoxVisibile = false;
-        }
-        if (!$(evt.target).closest('.multiselect').length) {
-            this.dataComp.indTopListComps.toArray().forEach((child: any) => child.chkBoxVisibile = false);
-        }
+        //console.log('blurevt', evt);
+        ////hide select dropdowns if showing.
+        //if (!$(evt.target).closest('.selectBox').length) {
+        //    this.topicsComp.chkBoxVisibile = false;
+        //}
+        //if (!$(evt.target).closest('.multiselect').length) {
+        //    this.dataComp.indTopListComps.toArray().forEach((child: any) => child.chkBoxVisibile = false);
+        //}
     }
 
     ngOnInit() {
@@ -220,5 +238,9 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         }
     }
 }
+
+//$(window).on('popstate', function (event: any) {
+//    console.log('popping', event);
+//});
 
 
