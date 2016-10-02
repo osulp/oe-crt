@@ -232,6 +232,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
     private mapOptions: Object;
     private chart: Chart;
     private mapChart: any;
+    private mapChartZoomSettings: any = {};
     private selectedMapPoints: any = [];
     //private mapSeriesStore: any = {};
 
@@ -307,6 +308,8 @@ export class DataTileComponent implements OnInit, OnDestroy {
             //margin: [0, 0, 0, 0],
             //spacing: [10, 10, 10, 10],
             colorAxis: {},
+            xAxis: {},
+            yAxis: {},
             tooltip: {
                 hideDelay: 1,
                 followPointer: false,
@@ -1270,19 +1273,39 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
 
     initMapChart() {
-        console.log('CREATIN MAP CHART', this.mapChart);
-        //let centerPt = this.mapChart.fromLatLonToPoint();
-        //let zoomLevel = this.mapChart.mapZoom();
-        //let xExt = this.mapChart.xAxis[0].getExtremes();
-        //let yExt = this.mapChart.yAxis[0].getExtremes();
-        //console.log('extremes', this.mapChart.options, centerPt, zoomLevel);
-        //let opts = $.extend({},this.mapChart.options);
-        //this.mapOptions.yAxis = opts.yAxis;
-        //this.mapOptions.xAxis = opts.xAxis;
-        //this.mapChart.destroy();
-        //this.mapChart = new Highcharts.Map(this.mapOptions);
+        console.log('CREATIN MAP CHART', this.mapChart)
 
         var mapScope = this;
+        this.mapOptions.xAxis = {
+            min: mapScope.mapChartZoomSettings.xMin ? parseInt(mapScope.mapChartZoomSettings.xMin) : null,
+            max: mapScope.mapChartZoomSettings.xMax ? parseInt(mapScope.mapChartZoomSettings.xMax) : null,
+            events: {
+                afterSetExtremes: function (x: any) {
+                    mapScope.mapChartZoomSettings.xMax = x.max;
+                    mapScope.mapChartZoomSettings.xMin = x.min;
+                    mapScope.mapChartZoomSettings.xDataMax = x.dataMax;
+                    mapScope.mapChartZoomSettings.xDataMin = x.dataMin;
+                }
+            }
+        }
+        this.mapOptions.yAxis = {
+            min: mapScope.mapChartZoomSettings.yMin ? parseInt(mapScope.mapChartZoomSettings.yMin) : null,
+            max: mapScope.mapChartZoomSettings.yMax ? parseInt(mapScope.mapChartZoomSettings.yMax) : null,
+            events: {
+                afterSetExtremes: function (y: any) {
+                    mapScope.mapChartZoomSettings.yMax = y.max;
+                    mapScope.mapChartZoomSettings.yMin = y.min;
+                    mapScope.mapChartZoomSettings.yDataMax = y.dataMax;
+                    mapScope.mapChartZoomSettings.yDataMin = y.dataMin;
+                }
+            }
+        }
+
+
+        this.mapChart.destroy();
+        this.mapChart = new Highcharts.Map(this.mapOptions);
+
+
         this.mapChart.legend.title.attr({ text: this.placeTypeData.Metadata[0]['Y-Axis'] ? this.placeTypeData.Metadata[0]['Y-Axis'] : '' });
         //set tooltip display
         this.mapChart.tooltip.options.formatter = function () {
@@ -1295,7 +1318,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 return '<span>' + this.point.properties.name + ' County</span><br/><span style="font-size: 10px">Not Available or Insufficient Data</span>';
             } else {
                 if (this.point.year !== undefined) {
-                   //console.log('mouseover', mapScope.selectedYearIndexArray, this.point.year, mapScope.dataStore[mapScope.selectedPlaceType].indicatorData[mapScope.indicator].chart_data.place_data_years_moe[this.point.id]);
+                    //console.log('mouseover', mapScope.selectedYearIndexArray, this.point.year, mapScope.dataStore[mapScope.selectedPlaceType].indicatorData[mapScope.indicator].chart_data.place_data_years_moe[this.point.id]);
                     if (this.point.year.match('-')) {
                         let chart_data = mapScope.dataStore[mapScope.selectedPlaceType].indicatorData[mapScope.indicator].chart_data;
                         displayValue += '<span style="font-size:8px">  (+/- ';
@@ -1314,12 +1337,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             }
         };
         var colorAxis = this.mapChart.colorAxis[0];
-        //set legend/chloropleth settings
-        //if (this.placeTypeData.Metadata[0].Represented_ID === 10) {
-        //    colorAxis.update({
-        //        dataClasses: this.getDataClasses()
-        //    });
-        //} else
+
         colorAxis.update({
             type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,// 'logarithmic',
             //min: 0,//null,//0,
@@ -1334,7 +1352,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 }
             }
         });
-        //}
+
         //clear out and add again for sync purposes
         //while (this.mapChart.series.length > 1) {
         //    this.mapChart.series[0].remove(false);
@@ -1364,12 +1382,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
             ptSeriesIndexes.push(this.mapChart.series.length - 1);
         }
         var series = {
-            borderColor: this.selectedPlaceType === 'Places' ? '#a7a7a7' :'white',
+            borderColor: this.selectedPlaceType === 'Places' ? '#a7a7a7' : 'white',
             //borderWidth: this.selectedPlaceType === 'Places' ? '0px' : '1px',
             data: this.getPlaceData(),//this.place_data
             mapData: this.getSelectedMapData(),//selectedMapData,
             //index: 0,//bowser.msie ? 1 : 0,
-            joinBy: this.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (this.selectedPlaceType === 'SchoolDistricts' ? ['SCHOOL_D_1','geoid'] : ['NAME', 'name']),
+            joinBy: this.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (this.selectedPlaceType === 'SchoolDistricts' ? ['SCHOOL_D_1', 'geoid'] : ['NAME', 'name']),
             name: this.indicator + ' ' + this.selectedPlaceType + ' (' + this.selectedYear.Year + ')',
             allowPointSelect: true,
             cursor: 'pointer',
@@ -1398,7 +1416,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 }
             });
         this.mapChart.redraw();
-        this.mapChart.hideLoading();
+        window.setTimeout(function () {
+            console.log('sausage', sessionStorage);
+            mapScope.mapChart.hideLoading();
+            mapScope.mapChart.redraw();
+        }, 500);
+
         this.selectedMapPoints = this.mapChart.getSelectedPoints();
     }
 

@@ -179,6 +179,7 @@ var DataTileComponent = (function () {
                 threshold: 0
             }
         };
+        this.mapChartZoomSettings = {};
         this.selectedMapPoints = [];
         this.elementRef = elementRef;
         this.tempPlaces = new Array();
@@ -237,6 +238,8 @@ var DataTileComponent = (function () {
                 }
             },
             colorAxis: {},
+            xAxis: {},
+            yAxis: {},
             tooltip: {
                 hideDelay: 1,
                 followPointer: false,
@@ -1019,6 +1022,32 @@ var DataTileComponent = (function () {
     DataTileComponent.prototype.initMapChart = function () {
         console.log('CREATIN MAP CHART', this.mapChart);
         var mapScope = this;
+        this.mapOptions.xAxis = {
+            min: mapScope.mapChartZoomSettings.xMin ? parseInt(mapScope.mapChartZoomSettings.xMin) : null,
+            max: mapScope.mapChartZoomSettings.xMax ? parseInt(mapScope.mapChartZoomSettings.xMax) : null,
+            events: {
+                afterSetExtremes: function (x) {
+                    mapScope.mapChartZoomSettings.xMax = x.max;
+                    mapScope.mapChartZoomSettings.xMin = x.min;
+                    mapScope.mapChartZoomSettings.xDataMax = x.dataMax;
+                    mapScope.mapChartZoomSettings.xDataMin = x.dataMin;
+                }
+            }
+        };
+        this.mapOptions.yAxis = {
+            min: mapScope.mapChartZoomSettings.yMin ? parseInt(mapScope.mapChartZoomSettings.yMin) : null,
+            max: mapScope.mapChartZoomSettings.yMax ? parseInt(mapScope.mapChartZoomSettings.yMax) : null,
+            events: {
+                afterSetExtremes: function (y) {
+                    mapScope.mapChartZoomSettings.yMax = y.max;
+                    mapScope.mapChartZoomSettings.yMin = y.min;
+                    mapScope.mapChartZoomSettings.yDataMax = y.dataMax;
+                    mapScope.mapChartZoomSettings.yDataMin = y.dataMin;
+                }
+            }
+        };
+        this.mapChart.destroy();
+        this.mapChart = new angular2_highcharts_1.Highcharts.Map(this.mapOptions);
         this.mapChart.legend.title.attr({ text: this.placeTypeData.Metadata[0]['Y-Axis'] ? this.placeTypeData.Metadata[0]['Y-Axis'] : '' });
         this.mapChart.tooltip.options.formatter = function () {
             var displayValue = mapScope.formatValue(this.point.value, false) + '</b>';
@@ -1111,7 +1140,11 @@ var DataTileComponent = (function () {
             }
         });
         this.mapChart.redraw();
-        this.mapChart.hideLoading();
+        window.setTimeout(function () {
+            console.log('sausage', sessionStorage);
+            mapScope.mapChart.hideLoading();
+            mapScope.mapChart.redraw();
+        }, 500);
         this.selectedMapPoints = this.mapChart.getSelectedPoints();
     };
     DataTileComponent.prototype.createGraphChart = function () {

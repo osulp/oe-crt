@@ -30,7 +30,7 @@
             </div>
             <div id="map-controls">
                 <!--<span>Zoom:</span>-->
-                <span (click)="mapChart.mapZoom();" class="glyphicon glyphicon-home full-zoom"></span><span (click)="mapChart.mapZoom();" class="full-zoom">Full Extent</span>
+                <span (click)="mapChart.mapZoom(10);" class="glyphicon glyphicon-home full-zoom"></span><span (click)="mapChart.mapZoom(10);" class="full-zoom">Full Extent</span>
                 <span *ngIf="selectedMapPoints.length > 0" class="selectedMapDrpDwn">
                     Selected:
                     <select #sel class="map-chart-zoom-select" (change)="mapChart.get(sel.value).zoomTo()">
