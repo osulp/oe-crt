@@ -17,6 +17,8 @@ import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/share';
 
+declare var $: any;
+
 @Component({
     moduleId: module.id,
     selector: 'places-map-select',
@@ -53,6 +55,9 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     mapOptions: any = null;
     urlPlaces: any;
     refreshMap: boolean = false;
+    initialLoad: boolean = true;
+    processCombineBins: boolean = true;
+    selPlaceGroups: any[] = [];
     //_placeInfoService: PlaceInfoService;
 
     constructor(
@@ -63,15 +68,15 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     ) {
         //this._placeInfoService = placeInfoService;
         ////setup dragNdrop for creating content
-        //dragulaService.setOptions('bag-crt', {
-        //    copy: false,
-        //    copySortSource: false
+        //dragulaService.setOptions('Counties', {
+        //    copy: true
         //});
 
-        //dragulaService.drag.subscribe((value:any) => {
-        //    console.log(`drag: ${value[0]}`);
-        //    this.onDrag(value.slice(1));
-        //});
+        dragulaService.drag.subscribe((value: any) => {
+            console.log(`drag: ${value[0]}`);
+            this.onDrag(value.slice(1));
+        });
+
         dragulaService.drop.subscribe((value: any) => {
             console.log(`drop: ${value[0]}`);
             this.onDrop(value.slice(1));
@@ -98,12 +103,12 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
         //this.urlPlaces = this._routerParams.get('places');
     }
 
-    //onDrag(args: any) {
-    //    let [e, el] = args;
-    //    console.log('on drag', args);
-    //    this.setPlaceBinClasses(e);
-    //    // do something
-    //}
+    onDrag(args: any) {
+        let [e, el] = args;
+        console.log('on drag', args);
+        //this.setPlaceBinClasses(e);
+        // do something
+    }
 
     onDrop(args: any) {
         //let [e, src, target] = args;
@@ -117,15 +122,15 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     onOver(args: any) {
         //let [e, src, target] = args;
         //console.log('on over', e, src, target);
-        this.setPlaceBinGroups(args[0]);
+        this.setPlaceBinGroups(args[0],false);
     }
 
     onOut(args: any) {
         //let [e, el, container] = args;
         console.log('on out', args);
-        this.setPlaceBinGroups(args[0]);
+        this.setPlaceBinGroups(args[0], false);
         if (args[2].children.length > 0) {
-            this.setPlaceBinGroups(args[2].children[0]);
+            this.setPlaceBinGroups(args[2].children[0],false);
         }
 
     }
@@ -137,11 +142,14 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     }
 
     setPlaceBinGroups(e: any, update?: boolean) {
-        if (e.parentNode !== undefined) {
+        console.log('settingplacebingroup', e);
+        if (e.parentNode !== undefined && e.parentNode !== null) {
             let updatePlaces: SearchResult[] = [];
             let combine: boolean = false;
             for (var i = 0; i < e.parentNode.children.length; i++) {
+                console.log('snickers', e.parentNode);
                 if (e.parentNode.children.length === 1) {
+                    console.log('snickers hide edit', e.parentNode);
                     //not combined
                     //var reg = new RegExp(' combinedPlaces', 'g');
                     //e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
@@ -149,6 +157,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
                     //find place and remove combined group attr
                 } else {
                     //combined
+                    console.log('snickers show edit', e.parentNode);
                     combine = true;
                     //e.parentNode.children[i].className += ' combinedPlaces';
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'true');
@@ -277,29 +286,52 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
         //event.preventDefault();
     }
     removePlace(place: SearchResult, placeBin?: any, dragBin?: any, panelContainer?: any) {
-        var indexPlace = this.selectedSearchResults.indexOf(place);
-        this.selectedSearchResults.splice(indexPlace, 1);
-        //broadcast out to application
-        this.selPlacesEvt.emit(this.selectedSearchResults);
-        console.log('removing place', place);
-        if (place.Combined) {
-            //remove its dom node if empty
-            console.log('place combined and chekcing dragbin', dragBin);
-            console.log(dragBin.getElementsByClassName('place-bin'));
-            if (dragBin.getElementsByClassName('place-bin').length === 2) {
-                //means that removing one will leave only one in bin, needs to be uncombined
-                //let unCombine = this.checkCombineGroups().combineArray.forEach((group: any[]) => {
-                //    group.forEach((gplace: SearchResult) => {
-                //        if (gplace.GroupName === place.GroupName && gplace.ResID !== place.ResID) {
-                //            return gplace;
-                //        }
-                //    });
-                //});
-                //console.log('uncombine', unCombine);
+        //var indexPlace = this.selectedSearchResults.indexOf(place);
+        //this.selectedSearchResults.splice(indexPlace, 1);
 
-                //panelContainer.parentElement.removeChild(panelContainer);
-            }
-        }
+        //if (place.Combined) {
+        //    if (dragBin.getElementsByClassName('place-bin').length === 2) {
+
+        //    }
+        //}
+
+        //    this.selectedSearchResults = this.selectedSearchResults.filter((selPlace: any) => place.Name !== selPlace.Name);
+
+
+        //    //broadcast out to application
+        //    this.selPlacesEvt.emit(this.selectedSearchResults);
+        //    //console.log('removing place', place);
+        //if (place.Combined) {
+        //    //remove its dom node if empty
+        //    console.log('place combined and chekcing dragbin', dragBin);
+        //    console.log(dragBin.getElementsByClassName('place-bin'));
+        //    if (dragBin.getElementsByClassName('place-bin').length === 2) {
+        //        //means that removing one will leave only one in bin, needs to be uncombined
+        //        console.log('uncombine1', this.checkCombineGroups());
+        //        let unCombine:any[] = [];
+        //        this.checkCombineGroups().combineArray.forEach((group: any[]) => {
+        //            group.forEach((gplace: SearchResult) => {
+        //                if (gplace.GroupName === place.GroupName && gplace.ResID !== place.ResID) {
+        //                    unCombine.push(gplace);
+        //                }
+        //            });
+        //        });
+        //        console.log('uncombine', unCombine);
+
+        //       // panelContainer.parentElement.removeChild(panelContainer);
+        //    }
+        //}
+        //this.selectedSearchResults = [];
+        //console.log('removing and fixing', placeBin, dragBin, panelContainer);
+        //if (dragBin.children.length === 2) {
+        //    console.log('has two children and will lonly have one so take off combine');
+        //    //not combined
+        //    //var reg = new RegExp(' combinedPlaces', 'g');
+        //    //e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
+        //    panelContainer.setAttribute('editView', 'false');
+        //    //find place and remove combined group attr
+        //}
+        this.processCombineBins = true;
         this._selectedPlacesService.remove(place);
     }
     addPlace(place: SearchResult) {
@@ -367,13 +399,35 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     }
 
     onSelectedPlacesChanged(places: any[]) {
-        console.log('this one gets it', places);
+        console.log('place map select place change', places);
         this.selectedSearchResults = [];
         var uniquePlaces: any[] = places.filter((place: any, index: number, self: any) => self.findIndex((t: any) => { return t.ResID === place.ResID && t.Name === place.Name && place.TypeCategory !== 'SchoolDistricts'; }) === index);
+        //clean up place-bins not in places anymore
+        //let placeBins = $('.place-bin').each(function () {
+        //    let inSelPlaces = uniquePlaces.filter((up: any) => {
+        //        //console.log('bonker1', this.getAttribute('placename'));
+        //        return up.Name === this.getAttribute('placename');
+        //    });
+        //    if (inSelPlaces.length === 0) {
+        //        this.remove();
+        //    } else {
+        //        console.log('has bin', this);
+        //        //this.setAttribute('hidden', false);
+        //    }
+        //});
+        //let pbToRemove: any[] = [];
+
+        console.log('placebins after remove', this.selectedSearchResults);
         for (var place of uniquePlaces) {
             this.selectedSearchResults.push(place);
         }
         console.log('unique places', this.selectedSearchResults);
+
+        this.selPlaceGroups = this.processPlaceGroups();
+        console.log('placeGroups', this.selPlaceGroups);
+
+        //if (this.initialLoad) {
+        //    this.initialLoad = false;
         //goes to places.wrapper to help determine communities display
         this.selPlacesEvt.emit(this.selectedSearchResults);
         let runScope = this;
@@ -401,7 +455,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
                                 for (var pb = 0; pb < placeBin.length; pb++) {
                                     if (placeBin[pb].getAttribute('combined') === 'true') {
                                         console.log('appending place', placeBin[pb]);
-                                        //dragBins[db].appendChild(placeBin[pb]);
+                                        dragBins[db].appendChild(placeBin[pb]);
                                         dBsToRemove.push(dragBins[db1]);
                                         //remove?  drag bin
                                     }
@@ -422,7 +476,43 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
             });
             clearInterval(runInterval);
         }
+        //} else if (this.processCombineBins) {
+        //    console.log('twinkie');
+        //}
     }
+
+    processPlaceGroups() {
+        let pGroups: any[] = [];
+        //get customGroups
+        let customGroups = this.checkCombineGroups().groupName;
+        this.selectedSearchResults.forEach((place: any) => {
+            if (customGroups.indexOf(place.GroupName) !== -1) {
+                //check if already in pGroup else add
+                let inPgIndex: number;
+                pGroups.forEach((pg: any, idx: number) => { inPgIndex = pg.Name === place.GroupName ? idx : inPgIndex });
+                if (inPgIndex) {
+                    pGroups[inPgIndex].places.push(place);
+                } else {
+                    let pGr: any = {};
+                    pGr.name = place.GroupName;
+                    pGr.editing = false;
+                    pGr.places = [];
+                    pGr.places.push(place);
+                    pGroups.push(pGr);
+                }
+            } else {
+                let pGr: any = {};
+                pGr.name = place.Name;
+                pGr.editing = false;
+                pGr.places = [];
+                pGr.places.push(place);
+                pGroups.push(pGr);
+            }
+        });
+        this.customSetCounter = customGroups.length;
+        return pGroups;
+    }
+
 
     checkCombineGroups() {
         let combineArray: any[] = [];
@@ -430,7 +520,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
         var groupNames: any[] = [];
         this.selectedSearchResults.forEach((place: SearchResult) => {
             if (place.GroupName !== undefined) {
-                if (groupNames.indexOf(place.GroupName) === -1) {
+                if (groupNames.indexOf(place.GroupName) === -1 && place.GroupName !== '') {
                     groupNames.push(place.GroupName);
                 }
             }

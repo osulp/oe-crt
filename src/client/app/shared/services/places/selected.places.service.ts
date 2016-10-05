@@ -59,8 +59,33 @@ export class SelectedPlacesService {
             .map((place: any) => {
                 return (state: any) => {
                     return state.filter((places: any) => {
-                        return places.Name.replace(' County', '') !== place.replace(' County', '');
-                    });
+                        return places.Name.replace(' County', '') !== place.Name.replace(' County', '');
+                    })
+                        .map((places: any) => {
+                            console.log('removing place from service', state, places, place);
+                            if (!place.Combined) {
+                                return places;
+                            } else {
+                                //check how many places have same group name and  if only 1 remove name and combined flag
+                                if (places.GroupName === place.GroupName) {
+                                    let placeGroupName = state.filter((p: any) => p.GroupName === place.GroupName && p.Name !== place.Name);
+                                    console.log('selected place service, removing check for group name', placeGroupName);
+                                    if (placeGroupName.length === 1) {
+                                        let returnPlace = places;
+                                        delete returnPlace.GroupName;
+                                        delete returnPlace.Combined;
+                                        //places.GroupName = '';
+                                        //places.Combined = false;
+                                        console.log('place with removed group name', returnPlace);
+                                        return returnPlace;
+                                    } else {
+                                        return places;
+                                    }
+                                } else {
+                                    return places;
+                                }
+                            }
+                        });
                 };
             })
             .subscribe(this.updates);
@@ -177,7 +202,7 @@ export class SelectedPlacesService {
     remove(place: any): void {
         console.log('removing place from selectedPlaces');
         console.log(place);
-        this.removePlace.next(place.Name);
+        this.removePlace.next(place);
     }
 
     setAllbyPlaceType(places: any[], placeType: string): void {

@@ -380,9 +380,9 @@ var DataTileComponent = (function () {
         else {
             var hasSamePlaces = true;
             this.places.forEach(function (place) {
-                var tPlace = _this.tempPlaces.filter(function (tp) { return tp.Name === place.Name && tp.GroupName === place.GroupName; });
+                var tPlace = _this.tempPlaces.filter(function (tp) { return tp.Name === place.Name; });
                 console.log('place length the same', tPlace);
-                if (tPlace.length === 0) {
+                if (tPlace.length === 0 || place.Combined) {
                     hasSamePlaces = false;
                 }
                 checkDataState = !hasSamePlaces;
@@ -391,7 +391,6 @@ var DataTileComponent = (function () {
         if (checkDataState) {
             console.log('thinks it needs to update');
             this.checkDataStateForCharts();
-            this.tempPlaces = this.places;
             if (this.tileType === 'graph') {
                 if (this.chart) {
                     this.chart.showLoading();
@@ -403,6 +402,7 @@ var DataTileComponent = (function () {
                 }
             }
         }
+        this.tempPlaces = this.places;
     };
     DataTileComponent.prototype.checkDataStateForCharts = function (source) {
         var _this = this;
@@ -435,30 +435,32 @@ var DataTileComponent = (function () {
             }
         }
         else if (!loadingGeoJSON) {
-            console.log('NEED TO UPDATE MAP/CHART');
+            console.log('NEED TO UPDATE MAP/CHART', this.tileType);
             if (this.tileType === 'map' && this.showMap) {
                 var selectedPlaces = this.mapChart.getSelectedPoints();
                 for (var s = 0; s < selectedPlaces.length; s++) {
-                    console.log('checking selected place', selectedPlaces[s]);
-                    console.log(selectedPlaces[s]);
                     var inSelectedPlaces = false;
                     for (var z = 0; z < this.places.length; z++) {
-                        inSelectedPlaces = (this.places[z].Name.replace(' County', '') === selectedPlaces[s].id.replace(' County', '') && this.places[z].ResID === selectedPlaces[s].geoid) ? true : inSelectedPlaces;
-                        if (!inSelectedPlaces) {
-                            if (this.places[z].GeoInfo.length > 0) {
-                                this.places[z].GeoInfo.forEach(function (gi) {
-                                    inSelectedPlaces = gi.geoid === _this.places[z].ResID ? true : inSelectedPlaces;
-                                });
+                        if (selectedPlaces[s].id !== null) {
+                            inSelectedPlaces = (this.places[z].Name.replace(' County', '') === selectedPlaces[s].id.replace(' County', '') && this.places[z].ResID === selectedPlaces[s].geoid) ? true : inSelectedPlaces;
+                            if (!inSelectedPlaces && this.places[z].TypeCategory !== 'Counties') {
+                                if (this.places[z].GeoInfo.length > 0) {
+                                    this.places[z].GeoInfo.forEach(function (gi) {
+                                        inSelectedPlaces = gi.geoid === _this.places[z].ResID ? true : inSelectedPlaces;
+                                    });
+                                }
                             }
                         }
                     }
-                    console.log(inSelectedPlaces);
                     if (!inSelectedPlaces) {
-                        console.log('deselecting!!!!!!!!!!!!!!!!!!!!1', selectedPlaces[s]);
-                        selectedPlaces[s].select(false, true);
+                        try {
+                            selectedPlaces[s].select(false, true);
+                        }
+                        catch (ex) {
+                            console.log('couldnt deselect place', selectedPlaces);
+                        }
                     }
                 }
-                console.log('selectedplaces', this.places, this.mapChart.getSelectedPoints());
                 if (this.places.length !== this.mapChart.getSelectedPoints().length) {
                     console.log('Place length is different');
                     for (var p = 0; p < this.places.length; p++) {
@@ -661,11 +663,11 @@ var DataTileComponent = (function () {
         }
         else {
             var combinedGroups = this.checkCombineGroups();
-            if (combinedGroups.length > 0) {
+            if (combinedGroups.length > 0 && !this.isStatewide) {
                 this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
                     var combinedData = _this.processCombinedData(data);
                     _this.updateDataStore([combinedData], 'indicator');
-                    _this.onChartDataUpdate.emit({ data: combinedData, customPlace: _this.selectedPlaceCustomChart, customYear: _this.selectedCustomChartYear });
+                    _this.onChartDataUpdate.emit({ data: combinedData, customPlace: _this.selectedPlaceCustomChart, customYear: _this.selectedCustomChartYear, metadata: data.Metadata[0] });
                     _this.createGraphChart();
                 });
             }
@@ -727,9 +729,7 @@ var DataTileComponent = (function () {
                         groupArray.push(place);
                     }
                 });
-                if (idx === groupNames.length - 1 && groupArray.length > 1) {
-                    combineArray.push(groupArray);
-                }
+                combineArray.push(groupArray);
             }
         });
         console.log('combined array', combineArray);
@@ -740,8 +740,10 @@ var DataTileComponent = (function () {
         var combinedData = data;
         if (!data.Metadata[0].isPreCalc && data.Metadata[0].Variable_Represent.trim() !== 'Text') {
             var groups = this.checkCombineGroups();
+            console.log('groups', groups);
             for (var _i = 0; _i < groups.length; _i++) {
                 var group = groups[_i];
+                console.log('group of groups', group);
                 var combinedGroupData = new Object;
                 combinedGroupData.community = group[0].GroupName;
                 combinedGroupData.Variable = group[0].Variable;
@@ -971,6 +973,7 @@ var DataTileComponent = (function () {
                     var data = sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data.place_data;
                     sliderScope.mapChart.series[seriesIndex].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
                     sliderScope.mapChart.series[seriesIndex].mapData = mapData;
+                    sliderScope.mapChart.series[seriesIndex].joinBy = sliderScope.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (sliderScope.selectedPlaceType === 'SchoolDistricts' ? ['ODE_ID', 'geoid'] : ['NAME', 'name']);
                     sliderScope.mapChart.series[seriesIndex].setData(data);
                 }
             }
@@ -1029,8 +1032,6 @@ var DataTileComponent = (function () {
                 afterSetExtremes: function (x) {
                     mapScope.mapChartZoomSettings.xMax = x.max;
                     mapScope.mapChartZoomSettings.xMin = x.min;
-                    mapScope.mapChartZoomSettings.xDataMax = x.dataMax;
-                    mapScope.mapChartZoomSettings.xDataMin = x.dataMin;
                 }
             }
         };
@@ -1041,8 +1042,6 @@ var DataTileComponent = (function () {
                 afterSetExtremes: function (y) {
                     mapScope.mapChartZoomSettings.yMax = y.max;
                     mapScope.mapChartZoomSettings.yMin = y.min;
-                    mapScope.mapChartZoomSettings.yDataMax = y.dataMax;
-                    mapScope.mapChartZoomSettings.yDataMin = y.dataMin;
                 }
             }
         };
@@ -1113,7 +1112,7 @@ var DataTileComponent = (function () {
             borderColor: this.selectedPlaceType === 'Places' ? '#a7a7a7' : 'white',
             data: this.getPlaceData(),
             mapData: this.getSelectedMapData(),
-            joinBy: this.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (this.selectedPlaceType === 'SchoolDistricts' ? ['SCHOOL_D_1', 'geoid'] : ['NAME', 'name']),
+            joinBy: this.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (this.selectedPlaceType === 'SchoolDistricts' ? ['ODE_ID', 'geoid'] : ['NAME', 'name']),
             name: this.indicator + ' ' + this.selectedPlaceType + ' (' + this.selectedYear.Year + ')',
             allowPointSelect: true,
             cursor: 'pointer',

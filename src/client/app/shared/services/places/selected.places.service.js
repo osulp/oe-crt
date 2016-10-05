@@ -47,7 +47,32 @@ var SelectedPlacesService = (function () {
             .map(function (place) {
             return function (state) {
                 return state.filter(function (places) {
-                    return places.Name.replace(' County', '') !== place.replace(' County', '');
+                    return places.Name.replace(' County', '') !== place.Name.replace(' County', '');
+                })
+                    .map(function (places) {
+                    console.log('removing place from service', state, places, place);
+                    if (!place.Combined) {
+                        return places;
+                    }
+                    else {
+                        if (places.GroupName === place.GroupName) {
+                            var placeGroupName = state.filter(function (p) { return p.GroupName === place.GroupName && p.Name !== place.Name; });
+                            console.log('selected place service, removing check for group name', placeGroupName);
+                            if (placeGroupName.length === 1) {
+                                var returnPlace = places;
+                                delete returnPlace.GroupName;
+                                delete returnPlace.Combined;
+                                console.log('place with removed group name', returnPlace);
+                                return returnPlace;
+                            }
+                            else {
+                                return places;
+                            }
+                        }
+                        else {
+                            return places;
+                        }
+                    }
                 });
             };
         })
@@ -145,7 +170,7 @@ var SelectedPlacesService = (function () {
     SelectedPlacesService.prototype.remove = function (place) {
         console.log('removing place from selectedPlaces');
         console.log(place);
-        this.removePlace.next(place.Name);
+        this.removePlace.next(place);
     };
     SelectedPlacesService.prototype.setAllbyPlaceType = function (places, placeType) {
         var translatedPlaceType = this.translatePlaceTypes(placeType);

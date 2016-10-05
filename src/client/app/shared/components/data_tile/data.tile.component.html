@@ -56,7 +56,7 @@
     </div>
     <div *ngIf="tileType === 'graph' && viewType === 'advanced' && !isCustomChart">
         <div id="chart_footer_wrapper" class="row">
-            <div class="chart_notices col-xs-6">
+            <div class="chart_notices col-xs-5">
                 <div *ngIf="isCountyLevel || isStatewide || isNotCombinable">
                     <span class="glyphicon glyphicon-flag"></span>
                     <span *ngIf="isStatewide">Statewide Data Only</span>
@@ -64,7 +64,7 @@
                     <span *ngIf="isNotCombinable">Data is not able to be combined</span>
                 </div>
             </div>
-            <div id="chart_controls" class="col-xs-6">
+            <div id="chart_controls" class="col-xs-7">
                 <div *ngIf="isCountyLevel && false" id="showAll">Show All</div>
                 <div *ngIf="hasMOEs" id="showMOEs">
                     <span><input id="chkBoxShowMOE" type="checkbox" [checked]="showMOES" (click)="toggleMOEs()" /></span>

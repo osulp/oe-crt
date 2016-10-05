@@ -493,9 +493,12 @@ export class DataTileComponent implements OnInit, OnDestroy {
             //check if just updated geoinfo but same places
             let hasSamePlaces = true;
             this.places.forEach((place: any) => {
-                let tPlace = this.tempPlaces.filter((tp: any) => tp.Name === place.Name && tp.GroupName === place.GroupName);
+               // let tPlace = this.tempPlaces.filter((tp: any) => tp.Name === place.Name && tp.GroupName === place.GroupName);
+                let tPlace = this.tempPlaces.filter((tp: any) => tp.Name === place.Name);
                 console.log('place length the same', tPlace);
-                if (tPlace.length === 0) {
+                //also check if combined
+
+                if (tPlace.length === 0 || place.Combined) {
                     hasSamePlaces = false;
                     //return;
                 }
@@ -505,7 +508,6 @@ export class DataTileComponent implements OnInit, OnDestroy {
         if (checkDataState) {
             console.log('thinks it needs to update');
             this.checkDataStateForCharts();
-            this.tempPlaces = this.places;
             if (this.tileType === 'graph') {
                 if (this.chart) {
                     this.chart.showLoading();
@@ -516,19 +518,19 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 }
             }
         }
-
+        this.tempPlaces = this.places;
      }
 
     checkDataStateForCharts(source?: any) {
         //console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbb', this.indicator_info);
         let loadingGeoJSON = this.tileType === 'map' && this.showMap ? this.checkLoadGeoJSON() : false;
+        //console.log('lodaindGeoJSON', loadingGeoJSON, this.tileType);
         if (this.tileType === 'graph') {
             //sets placetypes for graph knowing about county level data warnings, etc.
             this.getPlaceTypes('graph');
         }
-        //console.log(this.tileType);
-        //console.log(this.placeTypeData);
         let loadMoreData = this.tileType === 'graph' ? true : this.checkUpdateData();
+        //console.log('loadMoreData', loadMoreData, this.tileType);
         if (!loadingGeoJSON && loadMoreData) {
             console.log('need to load data.  chart type: ', this.tileType);
             //check that if on advanced page only load for indicator not all indicators
@@ -555,37 +557,45 @@ export class DataTileComponent implements OnInit, OnDestroy {
                 this.getData();
             }
         } else if (!loadingGeoJSON) {
-            console.log('NEED TO UPDATE MAP/CHART');
+            console.log('NEED TO UPDATE MAP/CHART', this.tileType);
             if (this.tileType === 'map' && this.showMap) {
                 //deselect to clear if place removed
                 let selectedPlaces = this.mapChart.getSelectedPoints();
+                //console.log('highmap selectedPlaces', selectedPlaces);
                 //logic
                 //1. if in selectedPlaces (selected from map), then already selected.
                 //2. If not in selectedPlaces, then deselect
                 for (var s = 0; s < selectedPlaces.length; s++) {
                     //deselect only if not currently still active
-                    console.log('checking selected place',selectedPlaces[s]);
-                    console.log(selectedPlaces[s]);
-                    let inSelectedPlaces = false;
+                    //console.log('checking selected place',selectedPlaces[s]);
+                    //console.log(selectedPlaces[s]);
+                    var inSelectedPlaces = false;
                     for (var z = 0; z < this.places.length; z++) {
-                        inSelectedPlaces = (this.places[z].Name.replace(' County', '') === selectedPlaces[s].id.replace(' County', '') && this.places[z].ResID === selectedPlaces[s].geoid) ? true : inSelectedPlaces;
-                        if (!inSelectedPlaces) {
-                            if (this.places[z].GeoInfo.length > 0) {
-                                this.places[z].GeoInfo.forEach((gi: any) => {
-                                    inSelectedPlaces = gi.geoid === this.places[z].ResID ? true : inSelectedPlaces;
-                                });
+                        if (selectedPlaces[s].id !== null) {
+                            inSelectedPlaces = (this.places[z].Name.replace(' County', '') === selectedPlaces[s].id.replace(' County', '') && this.places[z].ResID === selectedPlaces[s].geoid) ? true : inSelectedPlaces;
+                            if (!inSelectedPlaces && this.places[z].TypeCategory !== 'Counties') {
+                                if (this.places[z].GeoInfo.length > 0) {
+                                    this.places[z].GeoInfo.forEach((gi: any) => {
+                                        inSelectedPlaces = gi.geoid === this.places[z].ResID ? true : inSelectedPlaces;
+                                    });
+                                }
                             }
                         }
                         //inSelectedPlaces = this.isCountyLevel ? this.places[z].Desc.split(', ').length > 1 ? this.places[z].Desc.split(', ')[1].replace(' County', '') === selectedPlaces[s].id.replace(' County', '') : inSelectedPlaces : inSelectedPlaces;
                     }
-                    console.log(inSelectedPlaces);
+                    //console.log('highmaps in selected places',inSelectedPlaces);
                     if (!inSelectedPlaces) {
                         //deselect
-                        console.log('deselecting!!!!!!!!!!!!!!!!!!!!1', selectedPlaces[s]);
-                        selectedPlaces[s].select(false, true);
+                        //console.log('deselecting!!!!!!!!!!!!!!!!!!!!1', selectedPlaces[s]);
+                        try {
+                            selectedPlaces[s].select(false, true);
+                        } catch (ex) {
+                            console.log('couldnt deselect place', selectedPlaces);
+
+                        }
                     }
                 }
-                console.log('selectedplaces', this.places, this.mapChart.getSelectedPoints());
+                //console.log('selectedplaces', this.places, this.mapChart.getSelectedPoints());
                 if (this.places.length !== this.mapChart.getSelectedPoints().length) {
                     console.log('Place length is different');
                     //assume a search box entry not showing
@@ -830,7 +840,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             //check for combined requests
             let combinedGroups = this.checkCombineGroups();
 
-            if (combinedGroups.length > 0) {
+            if (combinedGroups.length > 0 && !this.isStatewide) {
                 this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(
                     (data: any) => {
                         //console.log('detailed data response', data);
@@ -838,7 +848,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         let combinedData = this.processCombinedData(data);
                         this.updateDataStore([combinedData], 'indicator');
                         //TODO:  check for custom chart and process accordingly
-                        this.onChartDataUpdate.emit({ data: combinedData, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear });
+                        this.onChartDataUpdate.emit({ data: combinedData, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear, metadata:data.Metadata[0] });
                         this.createGraphChart();
                     });
             } else {
@@ -908,9 +918,10 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         groupArray.push(place);
                     }
                 });
-                if (idx === groupNames.length - 1 && groupArray.length > 1) {
-                    combineArray.push(groupArray);
-                }
+                combineArray.push(groupArray);
+                //if (idx === groupNames.length - 1 && groupArray.length > 1) {
+                //    combineArray.push(groupArray);
+                //}
             }
         });
         console.log('combined array', combineArray);
@@ -922,9 +933,10 @@ export class DataTileComponent implements OnInit, OnDestroy {
         let combinedData = data;
         if (!data.Metadata[0].isPreCalc && data.Metadata[0].Variable_Represent.trim() !== 'Text') {
             var groups = this.checkCombineGroups();
+            console.log('groups', groups);
             //build data output combining data by group
             for (var group of groups) {
-                //console.log('group of groups', group);
+                console.log('group of groups', group);
                 let combinedGroupData: any = new Object;
                 combinedGroupData.community = group[0].GroupName;
                 combinedGroupData.Variable = group[0].Variable;
@@ -1213,6 +1225,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
                         let data: any = sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data.place_data;
                         sliderScope.mapChart.series[seriesIndex].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
                         sliderScope.mapChart.series[seriesIndex].mapData = mapData;
+                        sliderScope.mapChart.series[seriesIndex].joinBy = sliderScope.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (sliderScope.selectedPlaceType === 'SchoolDistricts' ? ['ODE_ID', 'geoid'] : ['NAME', 'name']);
                         sliderScope.mapChart.series[seriesIndex].setData(data);
                         //detailChart.xAxis[0].removePlotLine('plot-line-1');
                         //detailChart.xAxis[0].addPlotLine({
@@ -1273,34 +1286,29 @@ export class DataTileComponent implements OnInit, OnDestroy {
 
 
     initMapChart() {
-        console.log('CREATIN MAP CHART', this.mapChart)
+        console.log('CREATIN MAP CHART', this.mapChart);
 
         var mapScope = this;
-        this.mapOptions.xAxis = {
+        (this.mapOptions as any).xAxis = {
             min: mapScope.mapChartZoomSettings.xMin ? parseInt(mapScope.mapChartZoomSettings.xMin) : null,
             max: mapScope.mapChartZoomSettings.xMax ? parseInt(mapScope.mapChartZoomSettings.xMax) : null,
             events: {
                 afterSetExtremes: function (x: any) {
                     mapScope.mapChartZoomSettings.xMax = x.max;
                     mapScope.mapChartZoomSettings.xMin = x.min;
-                    mapScope.mapChartZoomSettings.xDataMax = x.dataMax;
-                    mapScope.mapChartZoomSettings.xDataMin = x.dataMin;
                 }
             }
-        }
-        this.mapOptions.yAxis = {
+        };
+        (this.mapOptions as any).yAxis = {
             min: mapScope.mapChartZoomSettings.yMin ? parseInt(mapScope.mapChartZoomSettings.yMin) : null,
             max: mapScope.mapChartZoomSettings.yMax ? parseInt(mapScope.mapChartZoomSettings.yMax) : null,
             events: {
                 afterSetExtremes: function (y: any) {
                     mapScope.mapChartZoomSettings.yMax = y.max;
                     mapScope.mapChartZoomSettings.yMin = y.min;
-                    mapScope.mapChartZoomSettings.yDataMax = y.dataMax;
-                    mapScope.mapChartZoomSettings.yDataMin = y.dataMin;
                 }
             }
-        }
-
+        };
 
         this.mapChart.destroy();
         this.mapChart = new Highcharts.Map(this.mapOptions);
@@ -1387,7 +1395,7 @@ export class DataTileComponent implements OnInit, OnDestroy {
             data: this.getPlaceData(),//this.place_data
             mapData: this.getSelectedMapData(),//selectedMapData,
             //index: 0,//bowser.msie ? 1 : 0,
-            joinBy: this.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (this.selectedPlaceType === 'SchoolDistricts' ? ['SCHOOL_D_1', 'geoid'] : ['NAME', 'name']),
+            joinBy: this.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (this.selectedPlaceType === 'SchoolDistricts' ? ['ODE_ID', 'geoid'] : ['NAME', 'name']),
             name: this.indicator + ' ' + this.selectedPlaceType + ' (' + this.selectedYear.Year + ')',
             allowPointSelect: true,
             cursor: 'pointer',

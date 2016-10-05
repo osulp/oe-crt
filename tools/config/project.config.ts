@@ -18,6 +18,7 @@ export class ProjectConfig extends SeedConfig {
         this.APP_BASE = this.ENV === 'prod' ? '/rural/crt_ng2_test/' : '/';
         let additional_deps: InjectableDependency[] = [
             { src: `bootstrap/dist/css/bootstrap.${this.getInjectableStyleExtension()}`, inject: true, env: 'dev' }
+            ,{ src: `bootstrap/dist/js/bootstrap.js`, inject: true  }
         ];
 
         const seedDependencies = this.NPM_DEPENDENCIES;

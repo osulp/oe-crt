@@ -24,7 +24,7 @@
     </div>
 
     <div class="row" id="toggleViewRow">
-        <div class="col-xs-6">
+        <div class="col-lg-6 col-md-8 col-sm-12">
             <div class="row">
                 <div *ngIf="!isStatewide && !isCustomChart" class="col-xs-4 toggleView" (click)="setToggleView('map')">
                     <div class="toggleViewIcn" [ngClass]="showMap ? 'viewSelected' : ''"></div>
@@ -41,14 +41,14 @@
                 </div>
             </div>
         </div>
-        <div class="col-xs-6">
-            <div id="data-detail-help">Help</div>
+        <div class="col-lg-6 hidden-sm hidden-xs">
+            <div id="data-detail-help"><span class="fa fa-question"></span></div>
         </div>
     </div>
     <div id="detail-data-view-wrapper" class="row">
         <div class="col-xs-12">
             <div class="row">
-                <div id="indicator-title-wrapper" class="col-xs-10">
+                <div id="indicator-title-wrapper" class="col-lg-10 col-md-10 col-xs-8">
                     <div>
                         <h2 [innerHTML]="indicatorTitle">
                             <!--<span *ngIf="isTOP" class="collectionIcon">
@@ -59,7 +59,7 @@
                     </div>
                     <div class="subtitle">{{subTitle !== '' ? '('+subTitle+')' : '&nbsp;'}}</div>
                 </div>
-                <div class="col-xs-2">
+                <div class="col-lg-2 col-md-2 col-xs-4">
                     <div id="share-btns">
                         <div title="Download data"><img src="assets/img/icn-download.svg" alt="download data" /></div>
                         <div title="Print a report"><img src="assets/img/icn-print.svg" alt="print" /></div>
@@ -146,8 +146,10 @@
                         </div>
                     </div>
                 </div>
-                <div *ngIf="relatedIndicators.length === 0" id="no-rel-ind-buffer" class="col-xs-12">&nbsp;
+                <div *ngIf="relatedIndicators.length === 0" id="no-rel-ind-buffer" class="col-xs-12">
+                    &nbsp;
                 </div>
             </div>
         </div>
-
+    </div>
+</div>

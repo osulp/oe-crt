@@ -232,12 +232,12 @@ home .page_wrapper {
     margin-right: -4px;
 }
 
-.navbar-toggle.collapsed .icon-bar {
+.navbar-toggle .icon-bar {
     background-color: #AEB2BD;
     height: 3px;
 }
 
-.navbar-toggle.collapsed {
+.navbar-toggle {
     border: 1px solid #AEB2BD;
 }
 

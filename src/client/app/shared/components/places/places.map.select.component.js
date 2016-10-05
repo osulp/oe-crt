@@ -29,6 +29,13 @@ var PlacesMapSelectComponent = (function () {
         this.customSetCounter = 1;
         this.mapOptions = null;
         this.refreshMap = false;
+        this.initialLoad = true;
+        this.processCombineBins = true;
+        this.selPlaceGroups = [];
+        dragulaService.drag.subscribe(function (value) {
+            console.log("drag: " + value[0]);
+            _this.onDrag(value.slice(1));
+        });
         dragulaService.drop.subscribe(function (value) {
             console.log("drop: " + value[0]);
             _this.onDrop(value.slice(1));
@@ -49,6 +56,10 @@ var PlacesMapSelectComponent = (function () {
         this.searchResults.subscribe(function (value) { return _this.tempResults = value; });
         this.selectedSearchResults = [];
     }
+    PlacesMapSelectComponent.prototype.onDrag = function (args) {
+        var e = args[0], el = args[1];
+        console.log('on drag', args);
+    };
     PlacesMapSelectComponent.prototype.onDrop = function (args) {
         this.setPlaceBinGroups(args[0], true);
         console.log('on drop', args);
@@ -57,13 +68,13 @@ var PlacesMapSelectComponent = (function () {
         }
     };
     PlacesMapSelectComponent.prototype.onOver = function (args) {
-        this.setPlaceBinGroups(args[0]);
+        this.setPlaceBinGroups(args[0], false);
     };
     PlacesMapSelectComponent.prototype.onOut = function (args) {
         console.log('on out', args);
-        this.setPlaceBinGroups(args[0]);
+        this.setPlaceBinGroups(args[0], false);
         if (args[2].children.length > 0) {
-            this.setPlaceBinGroups(args[2].children[0]);
+            this.setPlaceBinGroups(args[2].children[0], false);
         }
     };
     PlacesMapSelectComponent.prototype.onCombineLabelKeyPress = function (evt, dragBin, placeContainer, inpPlace) {
@@ -72,14 +83,18 @@ var PlacesMapSelectComponent = (function () {
         }
     };
     PlacesMapSelectComponent.prototype.setPlaceBinGroups = function (e, update) {
-        if (e.parentNode !== undefined) {
+        console.log('settingplacebingroup', e);
+        if (e.parentNode !== undefined && e.parentNode !== null) {
             var updatePlaces = [];
             var combine = false;
             for (var i = 0; i < e.parentNode.children.length; i++) {
+                console.log('snickers', e.parentNode);
                 if (e.parentNode.children.length === 1) {
+                    console.log('snickers hide edit', e.parentNode);
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'false');
                 }
                 else {
+                    console.log('snickers show edit', e.parentNode);
                     combine = true;
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'true');
                 }
@@ -200,16 +215,7 @@ var PlacesMapSelectComponent = (function () {
         }, 1);
     };
     PlacesMapSelectComponent.prototype.removePlace = function (place, placeBin, dragBin, panelContainer) {
-        var indexPlace = this.selectedSearchResults.indexOf(place);
-        this.selectedSearchResults.splice(indexPlace, 1);
-        this.selPlacesEvt.emit(this.selectedSearchResults);
-        console.log('removing place', place);
-        if (place.Combined) {
-            console.log('place combined and chekcing dragbin', dragBin);
-            console.log(dragBin.getElementsByClassName('place-bin'));
-            if (dragBin.getElementsByClassName('place-bin').length === 2) {
-            }
-        }
+        this.processCombineBins = true;
         this._selectedPlacesService.remove(place);
     };
     PlacesMapSelectComponent.prototype.addPlace = function (place) {
@@ -254,14 +260,17 @@ var PlacesMapSelectComponent = (function () {
         this.addPlace(place);
     };
     PlacesMapSelectComponent.prototype.onSelectedPlacesChanged = function (places) {
-        console.log('this one gets it', places);
+        console.log('place map select place change', places);
         this.selectedSearchResults = [];
         var uniquePlaces = places.filter(function (place, index, self) { return self.findIndex(function (t) { return t.ResID === place.ResID && t.Name === place.Name && place.TypeCategory !== 'SchoolDistricts'; }) === index; });
+        console.log('placebins after remove', this.selectedSearchResults);
         for (var _i = 0; _i < uniquePlaces.length; _i++) {
             var place = uniquePlaces[_i];
             this.selectedSearchResults.push(place);
         }
         console.log('unique places', this.selectedSearchResults);
+        this.selPlaceGroups = this.processPlaceGroups();
+        console.log('placeGroups', this.selPlaceGroups);
         this.selPlacesEvt.emit(this.selectedSearchResults);
         var runScope = this;
         var runInterval = setInterval(runCheck, 50);
@@ -284,6 +293,7 @@ var PlacesMapSelectComponent = (function () {
                                 for (var pb = 0; pb < placeBin.length; pb++) {
                                     if (placeBin[pb].getAttribute('combined') === 'true') {
                                         console.log('appending place', placeBin[pb]);
+                                        dragBins[db].appendChild(placeBin[pb]);
                                         dBsToRemove.push(dragBins[db1]);
                                     }
                                 }
@@ -301,13 +311,44 @@ var PlacesMapSelectComponent = (function () {
             clearInterval(runInterval);
         }
     };
+    PlacesMapSelectComponent.prototype.processPlaceGroups = function () {
+        var pGroups = [];
+        var customGroups = this.checkCombineGroups().groupName;
+        this.selectedSearchResults.forEach(function (place) {
+            if (customGroups.indexOf(place.GroupName) !== -1) {
+                var inPgIndex;
+                pGroups.forEach(function (pg, idx) { inPgIndex = pg.Name === place.GroupName ? idx : inPgIndex; });
+                if (inPgIndex) {
+                    pGroups[inPgIndex].places.push(place);
+                }
+                else {
+                    var pGr = {};
+                    pGr.name = place.GroupName;
+                    pGr.editing = false;
+                    pGr.places = [];
+                    pGr.places.push(place);
+                    pGroups.push(pGr);
+                }
+            }
+            else {
+                var pGr = {};
+                pGr.name = place.Name;
+                pGr.editing = false;
+                pGr.places = [];
+                pGr.places.push(place);
+                pGroups.push(pGr);
+            }
+        });
+        this.customSetCounter = customGroups.length;
+        return pGroups;
+    };
     PlacesMapSelectComponent.prototype.checkCombineGroups = function () {
         var _this = this;
         var combineArray = [];
         var groupNames = [];
         this.selectedSearchResults.forEach(function (place) {
             if (place.GroupName !== undefined) {
-                if (groupNames.indexOf(place.GroupName) === -1) {
+                if (groupNames.indexOf(place.GroupName) === -1 && place.GroupName !== '') {
                     groupNames.push(place.GroupName);
                 }
             }

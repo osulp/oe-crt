@@ -507,6 +507,15 @@
    margin-left:20px;
 }
 
+.tooltip-schooldistricts {
+    font-size:.8em;
+    color:#808080;
+}
+.tooltip-schooldistricts ul {
+    margin-left:-30px;
+    margin-bottom: -20px;
+}
+
 @media (max-width:1200px) {
      .indicatorDetailFindCombComp {
         right:3%;
