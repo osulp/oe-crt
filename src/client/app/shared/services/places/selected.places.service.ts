@@ -13,7 +13,7 @@ export class SelectedPlacesService {
     updates: Subject<any> = new Subject<any>();
     addPlace: Subject<any> = new Subject<any>();
     removePlace: Subject<any> = new Subject<any>();
-    updatePlaces: Subject<[any[],string,boolean]> = new Subject<any>();
+    updatePlaces: Subject<[any[], string, boolean]> = new Subject<any>();
     _setAllByPlaceType: Subject<[any, string]> = new Subject<any>();
     getAll: Subject<any> = new Subject<any>();
     selectedPlaces: any = [];
@@ -35,7 +35,7 @@ export class SelectedPlacesService {
     //    Desc: 'California'
     //};
 
-    constructor(private jsonp:Jsonp) {
+    constructor(private jsonp: Jsonp) {
         this.updates
             .scan((accumulator: Object[], operation: Function) => {
                 return operation(accumulator);
@@ -146,7 +146,10 @@ export class SelectedPlacesService {
         //console.log('adding place to selectedPlaces', place);
         this.getAdditionalPlaceInfo([place]).subscribe((pinfo: any) => {
             let geoInfo = pinfo.filter((pi: any[]) => {
-                return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                return pi.length > 0 ?
+                    pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim()
+                        : false
+                    : false;
             });
             place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
             this.addPlace.next(place);
@@ -160,16 +163,19 @@ export class SelectedPlacesService {
             places.forEach((place: any) => {
                 let geoInfo = pinfo.filter((pi: any[]) => {
                     //console.log('jumping susan', pi, place);
-                    return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                    return pi.length > 0 ?
+                        pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim()
+                            : false
+                        : false;
                 });
-                place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
-                //console.log('jumping ben', place);
-            });
-            //console.log('jumping jack5', places);
-            this.addPlace.next(places);
+            place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+            //console.log('jumping ben', place);
         });
+        //console.log('jumping jack5', places);
+        this.addPlace.next(places);
+    });
 
-    }
+}
 
     getAdditionalPlaceInfo(place: any[]) {
         let observables: any[] = [];
@@ -260,8 +266,12 @@ export class SelectedPlacesService {
                 if (place.GeoInfo.length === 0) {
                     let geoInfo = pinfo.filter((pi: any[]) => {
                         //console.log('jumping susan', pi, place);
-                        if (pi[0].community) {
-                            return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                        if (pi.length > 0) {
+                            if (pi[0].community) {
+                                return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                            } else {
+                                return false;
+                            }
                         } else {
                             return false;
                         }

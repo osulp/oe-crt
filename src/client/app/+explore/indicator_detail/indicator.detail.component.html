@@ -27,22 +27,22 @@
         <div class="col-lg-6 col-md-8 col-sm-12">
             <div class="row">
                 <div *ngIf="!isStatewide && !isCustomChart" class="col-xs-4 toggleView" (click)="setToggleView('map')">
-                    <div class="toggleViewIcn" [ngClass]="showMap ? 'viewSelected' : ''"></div>
+                    <span class="toggleViewIcn" [ngClass]="showMap ? 'viewSelected' : ''"></span>
                     <span>Map View</span>
                 </div>
                 <div class="col-xs-4 toggleView" (click)="setToggleView('graph')">
-                    <div class="toggleViewIcn" [ngClass]="showGraph ? 'viewSelected' : ''"></div><span>
+                    <span class="toggleViewIcn" [ngClass]="showGraph ? 'viewSelected' : ''"></span><span>
                         Graph View
                     </span>
                 </div>
                 <div class="col-xs-4 toggleView" (click)="setToggleView('table')">
-                    <div class="toggleViewIcn" [ngClass]="showTable ? 'viewSelected' : ''"></div>
+                    <span class="toggleViewIcn" [ngClass]="showTable ? 'viewSelected' : ''"></span>
                     <span>Table View</span>
                 </div>
             </div>
         </div>
         <div class="col-lg-6 hidden-sm hidden-xs">
-            <div id="data-detail-help"><span class="fa fa-question"></span></div>
+            <div id="data-detail-help" (click)="showToolTips()"><span class="fa fa-question"></span></div>
         </div>
     </div>
     <div id="detail-data-view-wrapper" class="row">

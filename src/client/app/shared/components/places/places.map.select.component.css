@@ -236,6 +236,9 @@
     height:70px;
 }
 
+.list-group-item.tabHover {
+    background-color:rgba(111, 124, 130, 0.39);
+}
 #find-compare-combine{
     margin-left:-15px;
 }

@@ -109,11 +109,8 @@
      letter-spacing:1px;
 }
 
-.search .list-group-item{
-    height:70px;
-   }
-
 .search .list-group-item {
+    height:70px;
     padding-top: 5px !important;
     padding-bottom: 5px !important;
 }

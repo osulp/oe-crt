@@ -26,16 +26,14 @@ var PlacesMapSelectComponent = (function () {
         this._selectedPlacesService = _selectedPlacesService;
         this.selPlacesEvt = new core_1.EventEmitter();
         this.term = new common_1.Control();
+        this.tempResults = [];
         this.customSetCounter = 1;
         this.mapOptions = null;
         this.refreshMap = false;
         this.initialLoad = true;
         this.processCombineBins = true;
         this.selPlaceGroups = [];
-        dragulaService.drag.subscribe(function (value) {
-            console.log("drag: " + value[0]);
-            _this.onDrag(value.slice(1));
-        });
+        this.tempTabIndex = -1;
         dragulaService.drop.subscribe(function (value) {
             console.log("drop: " + value[0]);
             _this.onDrop(value.slice(1));
@@ -56,10 +54,6 @@ var PlacesMapSelectComponent = (function () {
         this.searchResults.subscribe(function (value) { return _this.tempResults = value; });
         this.selectedSearchResults = [];
     }
-    PlacesMapSelectComponent.prototype.onDrag = function (args) {
-        var e = args[0], el = args[1];
-        console.log('on drag', args);
-    };
     PlacesMapSelectComponent.prototype.onDrop = function (args) {
         this.setPlaceBinGroups(args[0], true);
         console.log('on drop', args);
@@ -142,30 +136,70 @@ var PlacesMapSelectComponent = (function () {
         return (this.viewType === 'explore' ? 'explore' : 'indicatorDetail') + suffix + sReturn;
     };
     PlacesMapSelectComponent.prototype.inputKeypressHandler = function (event, result) {
-        if (event.keyCode === 13) {
-            var searchScope = this;
-            window.setTimeout(function () {
-                if (result !== undefined) {
-                    searchScope.addPlace(result);
-                }
-                else {
-                    if (searchScope.tempResults.length > 0) {
-                        var firstItem = searchScope.tempResults[0];
-                        var selected = {
-                            Name: firstItem['Name'].replace(/\,/g, '%2C'),
-                            ResID: firstItem['ResID'],
-                            Type: firstItem['Type'],
-                            TypeCategory: firstItem['TypeCategory'],
-                            Desc: firstItem['Desc']
-                        };
-                        searchScope.addPlace(selected);
-                    }
-                }
-                if (searchScope.tempResults.length === 0) {
-                    alert('Please select a valid search term.');
-                }
-                searchScope.searchTerms = '';
-            });
+        var _this = this;
+        var code = event.keyCode || event.which;
+        if (code === 13) {
+            if (this.tempResults.length > 0) {
+                var searchScope = this;
+                window.setTimeout(function () {
+                    var firstItem = searchScope.tempResults[searchScope.tempTabIndex === -1 ? 0 : searchScope.tempTabIndex];
+                    var selected = {
+                        Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
+                        ResID: firstItem['ResID'],
+                        Type: firstItem['Type'],
+                        TypeCategory: firstItem['TypeCategory'],
+                        Desc: firstItem['Desc']
+                    };
+                    searchScope.selectedSearchResult = selected;
+                    searchScope.addPlace(selected);
+                }, 500);
+            }
+            else {
+                alert('Please select a valid search term.');
+            }
+            this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
+            this.searchTerms = '';
+        }
+        else if (code === 40 || code === 9) {
+            if (this.tempTabIndex !== this.tempResults.length) {
+                this.tempTabIndex++;
+            }
+            else {
+                this.tempTabIndex = 0;
+            }
+        }
+        else if (code === 38) {
+            if (this.tempTabIndex !== -1) {
+                this.tempTabIndex--;
+            }
+            else {
+                this.tempTabIndex = 0;
+            }
+        }
+        else {
+            this.tempTabIndex = -1;
+        }
+        this.tempResults.forEach(function (result, idx) {
+            _this.tempResults[idx].hovered = _this.tempTabIndex === idx ? true : false;
+        });
+        if (code === 9) {
+            event.preventDefault();
+        }
+    };
+    PlacesMapSelectComponent.prototype.addSearchResult = function () {
+        if (this.tempResults.length > 0) {
+            var firstItem = this.tempResults[0];
+            var selected = {
+                Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                ResID: firstItem['ResID'],
+                Type: firstItem['Type'],
+                TypeCategory: firstItem['TypeCategory'],
+                Desc: firstItem['Desc']
+            };
+            this.addPlace(selected);
+        }
+        else {
+            alert('Please select a valid search term.');
         }
     };
     PlacesMapSelectComponent.prototype.clickedSearchResult = function (event, result) {
@@ -173,7 +207,6 @@ var PlacesMapSelectComponent = (function () {
         this.searchTerms = '';
     };
     PlacesMapSelectComponent.prototype.toggleToolTip = function (event, elem) {
-        console.log('togglin', elem);
         var curVal = elem.getAttribute('showToolTip');
         elem.setAttribute('showToolTip', curVal === 'true' ? 'false' : 'true');
     };

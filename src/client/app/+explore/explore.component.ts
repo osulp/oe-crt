@@ -79,7 +79,12 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
             if (results.Type.toLowerCase() === 'indicator') {
                 window['detailBackUrl'] = window.location.href;
                 this._router.navigate(['/Explore', {
-                    indicator: encodeURI(results.Name).replace('(', '%28').replace(')', '%29'),
+                    indicator: encodeURI(results.Name)
+                        .replace('(', '%28')
+                        .replace(')', '%29')
+                        .replace(/\+/g, '%2B')
+                        .replace(/\&/g, '%26')
+                        .replace(/\=/g, '%3D'),
                     places: this.selectedPlacesUrl
                 }]);
             }

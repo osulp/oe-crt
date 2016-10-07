@@ -124,7 +124,10 @@ var SelectedPlacesService = (function () {
         var _this = this;
         this.getAdditionalPlaceInfo([place]).subscribe(function (pinfo) {
             var geoInfo = pinfo.filter(function (pi) {
-                return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                return pi.length > 0 ?
+                    pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim()
+                        : false
+                    : false;
             });
             place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
             _this.addPlace.next(place);
@@ -135,7 +138,10 @@ var SelectedPlacesService = (function () {
         this.getAdditionalPlaceInfo(places).subscribe(function (pinfo) {
             places.forEach(function (place) {
                 var geoInfo = pinfo.filter(function (pi) {
-                    return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                    return pi.length > 0 ?
+                        pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim()
+                            : false
+                        : false;
                 });
                 place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
             });
@@ -227,8 +233,13 @@ var SelectedPlacesService = (function () {
             places.forEach(function (place) {
                 if (place.GeoInfo.length === 0) {
                     var geoInfo = pinfo.filter(function (pi) {
-                        if (pi[0].community) {
-                            return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                        if (pi.length > 0) {
+                            if (pi[0].community) {
+                                return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                            }
+                            else {
+                                return false;
+                            }
                         }
                         else {
                             return false;

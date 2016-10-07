@@ -26,10 +26,10 @@
                 <div class="row">
                     <div id="search" class="col-lg-12 col-md-12 col-xs-12">
                         <span class="fa fa-search"></span>
-                        <input [(ngModel)]="searchTerms" #searchInput type="text" [(ngFormControl)]="term" placeholder="Type in a place name." (click)="inputSearchClickHandler($event, result);" (blur)="blurHandler($event);" (keypress)="inputKeypressHandler($event, result);" />
-                        <div id="add-btn">+</div>
+                        <input [(ngModel)]="searchTerms" #searchInput type="text" [(ngFormControl)]="term" placeholder="Type in a place name." (click)="inputSearchClickHandler($event, result);" (blur)="blurHandler($event);" (keydown)="inputKeypressHandler($event, result);" />
+                        <div id="add-btn" (click)="addSearchResult()">+</div>
                         <div *ngIf="searchTerms" class="list-group">
-                            <a *ngFor="let result of searchResults | async" href="javascript:void(0);" class="list-group-item" [attr.data-search-item]="result | json" (keypress)="inputKeypressHandler($event, result)" (click)="clickedSearchResult($event, result)">
+                            <a *ngFor="let result of searchResults | async" href="javascript:void(0);" class="list-group-item" [attr.data-search-item]="result | json" (keydown)="inputKeypressHandler($event, result)" (click)="clickedSearchResult($event, result)" [ngClass]="result.hovered ? 'tabHover' : ''">
                                 <div class="search-result-wrapper">
                                     <!--<div class="isPlace search-result-type">
                                         {{result.Type}}
@@ -106,55 +106,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <!--<div #placeContainer class="col-lg-4 col-md-6 col-xs-12 place-bin-wrapper" *ngFor="let place of selectedSearchResults; let idx = index;" [attr.orig_container]="translatePlaceTypes(place.TypeCategory,place.Name)" (click)="!place.Combined ? placeContainer.setAttribute('showToolTip', placeContainer.getAttribute('showToolTip') === 'true' ? 'false' : 'true') : return; " [attr.showtooltip]="false" [attr.editview]="false" [title]="place.TypeCategory + ' ' + place.Desc">
-                                <div class="place-tooltip" *ngIf="placeContainer.getAttribute('showtooltip') === 'true' && placeContainer.getAttribute('editview') === 'false'">
-                                    <span>
-                                        {{place.TypeCategory}}
-                                    </span>
-                                    <span *ngIf="place.GeoInfo.length > 0 && ['State','Tracts','Counties'].indexOf(place.TypeCategory) === -1" class="tooltip-partof">
-                                        <br />
-                                        {{'Part of: ' +  place.GeoInfo[0].County + ' County'}}
-                                    </span>
-                                    <span *ngIf="place.GeoInfo.length > 0" class="tooltip-schooldistricts">
-                                        <br />
-                                        <b>School Districts</b>
-                                        <ul>
-                                            <li *ngFor="let sd of place.GeoInfo[0].School_District.split(',')">
-                                                {{sd}}
-                                            </li>
-                                        </ul>
-                                    </span>
-                                   <br /><em>-- Click to close --</em>
-                                </div>
-                                <div class="placePanelWrapper" [ngClass]="placeContainer.getAttribute('editview') === 'true' ? 'editPanel' : ''">
-                                    <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editview') === 'true'">
-                                        <div title="Set combined settings." class="editHeader" (click)="updateCustomSetName(dragBin, placeContainer, inpPlace)">
-                                            <span class="editPanelHeading">Edit Combined</span><span class="glyphicon glyphicon-check spanCheck">&nbsp;</span>
-
-                                        </div>
-                                        <input #inpPlace type="text" placeholder="Enter a name for custom group" (keypress)="onCombineLabelKeyPress($event, dragBin, placeContainer, inpPlace)" value="{{place.GroupName}}" (click)="inpPlace.value = ''" />
-                                    </div>
-                                    <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editview') === 'false'" title="Edit combined communities" class="combinedLabel" (click)="placeContainer.setAttribute('editview','true')">
-                                        {{place.GroupName}}
-                                        <span class="glyphicon glyphicon-edit">&nbsp;</span>
-                                    </div>
-                                    <div #dragBin [hidden]="(place.Combined && placeContainer.getAttribute('editview') === 'false') || (!place.Combined && placeContainer.getAttribute('editview') === 'true')"
-                                         [dragula]="translatePlaceTypes(place.TypeCategory)"
-                                         class="dragBin"
-                                         [attr.dragBag]="translatePlaceTypes(place.TypeCategory)"
-                                         [attr.groupname]="(place.Combined && place.GroupName && place.GroupName !== '') ? place.GroupName : 'Custom Set ' + translatePlaceTypes(place.TypeCategory) + ' ' +customSetCounter">
-                                        <div #placeBin [attr.placeName]="place.Name"
-                                             [attr.placeResID]="place.ResID"
-                                             [attr.placeType]="place.TypeCategory"
-                                             [attr.combined]="place.Combined"
-                                             class="place-bin"
-                                             [ngClass]="place.Combined ? 'combinedPlaces' : ''">
-                                            {{place.Name}}
-                                            <span class="removePlace" (click)="removePlace(place, placeBin, dragBin, placeContainer)"><img src="assets/img/closeX2.png" alt="remove selected place" />&nbsp;</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>-->
                         </div>
                     </div>
                 </div>

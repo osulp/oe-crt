@@ -48,7 +48,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     selectedSearchResults: SearchResult[];
     selectedSearchResult: SearchResult;
     //selectedPlaces: string;
-    tempResults: [{}];
+    tempResults: any[] = [];
     customSetCounter: number = 1;
     //searchResults: Observable<[{}]>;
     searchResults: Observable<any>;
@@ -58,6 +58,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     initialLoad: boolean = true;
     processCombineBins: boolean = true;
     selPlaceGroups: any[] = [];
+    tempTabIndex: number = -1;
     //_placeInfoService: PlaceInfoService;
 
     constructor(
@@ -72,10 +73,10 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
         //    copy: true
         //});
 
-        dragulaService.drag.subscribe((value: any) => {
-            console.log(`drag: ${value[0]}`);
-            this.onDrag(value.slice(1));
-        });
+        //dragulaService.drag.subscribe((value: any) => {
+        //    console.log(`drag: ${value[0]}`);
+        //    this.onDrag(value.slice(1));
+        //});
 
         dragulaService.drop.subscribe((value: any) => {
             console.log(`drop: ${value[0]}`);
@@ -103,12 +104,12 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
         //this.urlPlaces = this._routerParams.get('places');
     }
 
-    onDrag(args: any) {
-        let [e, el] = args;
-        console.log('on drag', args);
-        //this.setPlaceBinClasses(e);
-        // do something
-    }
+    //onDrag(args: any) {
+    //    let [e, el] = args;
+    //    console.log('on drag', args);
+    //    //this.setPlaceBinClasses(e);
+    //    // do something
+    //}
 
     onDrop(args: any) {
         //let [e, src, target] = args;
@@ -210,39 +211,98 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     }
 
     inputKeypressHandler(event: any, result: SearchResult) {
-        if (event.keyCode === 13) {
-            //console.log(result);
-            let searchScope = this;
-            window.setTimeout(function () {
-                if (result !== undefined) {
-                    searchScope.addPlace(result);
-                } else {
-                    if (searchScope.tempResults.length > 0) {
-                        var firstItem: any = searchScope.tempResults[0];
-                        var selected: SearchResult = {
-                            Name: firstItem['Name'].replace(/\,/g, '%2C'),
-                            ResID: firstItem['ResID'],
-                            Type: firstItem['Type'],
-                            TypeCategory: firstItem['TypeCategory'],
-                            Desc: firstItem['Desc']
-                        };
-                        searchScope.addPlace(selected);
-                    }
-                }
-                if (searchScope.tempResults.length === 0) {
-                    alert('Please select a valid search term.');
-                }
-                searchScope.searchTerms = '';
-            });
+        var code = event.keyCode || event.which;
+        if (code === 13) {
+            if (this.tempResults.length > 0) {
+                let searchScope = this;
+                window.setTimeout(function () {
+                    var firstItem: any = searchScope.tempResults[searchScope.tempTabIndex === -1 ? 0 : searchScope.tempTabIndex];
+                    var selected: SearchResult = {
+                        Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
+                        ResID: firstItem['ResID'],
+                        Type: firstItem['Type'],
+                        TypeCategory: firstItem['TypeCategory'],
+                        Desc: firstItem['Desc']
+                    };
+                    searchScope.selectedSearchResult = selected;
+                    searchScope.addPlace(selected);
+                }, 500);
+            } else {
+                alert('Please select a valid search term.');
+            }
+            this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
+            this.searchTerms = '';
+            ////console.log(result);
+            //let searchScope = this;
+            //window.setTimeout(function () {
+            //    if (result !== undefined) {
+            //        searchScope.addPlace(result);
+            //    } else {
+            //        if (searchScope.tempResults.length > 0) {
+            //            var firstItem: any = searchScope.tempResults[0];
+            //            var selected: SearchResult = {
+            //                Name: firstItem['Name'].replace(/\,/g, '%2C'),
+            //                ResID: firstItem['ResID'],
+            //                Type: firstItem['Type'],
+            //                TypeCategory: firstItem['TypeCategory'],
+            //                Desc: firstItem['Desc']
+            //            };
+            //            searchScope.addPlace(selected);
+            //        }
+            //    }
+            //    if (searchScope.tempResults.length === 0) {
+            //        alert('Please select a valid search term.');
+            //    }
+            //    searchScope.searchTerms = '';
+            //});
+        } else if (code === 40 || code === 9) {
+            //tab or down arro
+            if (this.tempTabIndex !== this.tempResults.length) {
+                this.tempTabIndex++;
+            } else {
+                this.tempTabIndex = 0;
+            }
+        } else if (code === 38) {
+            //up arrow
+            if (this.tempTabIndex !== -1) {
+                this.tempTabIndex--;
+            } else {
+                this.tempTabIndex = 0;
+            }
+        } else {
+            this.tempTabIndex = -1;
+        }
+        this.tempResults.forEach((result: any, idx: number) => {
+            this.tempResults[idx].hovered = this.tempTabIndex === idx ? true : false;
+        });
+        if (code === 9) {
+            event.preventDefault();
+        }
+
+    }
+    addSearchResult() {
+        if (this.tempResults.length > 0) {
+            var firstItem: any = this.tempResults[0];
+            var selected: SearchResult = {
+                Name: firstItem['Name'].replace(/\,/g, '%2C'),
+                ResID: firstItem['ResID'],
+                Type: firstItem['Type'],
+
+                TypeCategory: firstItem['TypeCategory'],
+                Desc: firstItem['Desc']
+            };
+            this.addPlace(selected);
+        } else {
+            alert('Please select a valid search term.');
         }
     }
+
     clickedSearchResult(event: any, result: SearchResult) {
         this.addPlace(result);
         this.searchTerms = '';
     }
 
     toggleToolTip(event: any, elem: any) {
-        console.log('togglin', elem);
         let curVal = elem.getAttribute('showToolTip');
         elem.setAttribute('showToolTip', curVal === 'true' ? 'false' : 'true');
     }
@@ -286,51 +346,6 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
         //event.preventDefault();
     }
     removePlace(place: SearchResult, placeBin?: any, dragBin?: any, panelContainer?: any) {
-        //var indexPlace = this.selectedSearchResults.indexOf(place);
-        //this.selectedSearchResults.splice(indexPlace, 1);
-
-        //if (place.Combined) {
-        //    if (dragBin.getElementsByClassName('place-bin').length === 2) {
-
-        //    }
-        //}
-
-        //    this.selectedSearchResults = this.selectedSearchResults.filter((selPlace: any) => place.Name !== selPlace.Name);
-
-
-        //    //broadcast out to application
-        //    this.selPlacesEvt.emit(this.selectedSearchResults);
-        //    //console.log('removing place', place);
-        //if (place.Combined) {
-        //    //remove its dom node if empty
-        //    console.log('place combined and chekcing dragbin', dragBin);
-        //    console.log(dragBin.getElementsByClassName('place-bin'));
-        //    if (dragBin.getElementsByClassName('place-bin').length === 2) {
-        //        //means that removing one will leave only one in bin, needs to be uncombined
-        //        console.log('uncombine1', this.checkCombineGroups());
-        //        let unCombine:any[] = [];
-        //        this.checkCombineGroups().combineArray.forEach((group: any[]) => {
-        //            group.forEach((gplace: SearchResult) => {
-        //                if (gplace.GroupName === place.GroupName && gplace.ResID !== place.ResID) {
-        //                    unCombine.push(gplace);
-        //                }
-        //            });
-        //        });
-        //        console.log('uncombine', unCombine);
-
-        //       // panelContainer.parentElement.removeChild(panelContainer);
-        //    }
-        //}
-        //this.selectedSearchResults = [];
-        //console.log('removing and fixing', placeBin, dragBin, panelContainer);
-        //if (dragBin.children.length === 2) {
-        //    console.log('has two children and will lonly have one so take off combine');
-        //    //not combined
-        //    //var reg = new RegExp(' combinedPlaces', 'g');
-        //    //e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
-        //    panelContainer.setAttribute('editView', 'false');
-        //    //find place and remove combined group attr
-        //}
         this.processCombineBins = true;
         this._selectedPlacesService.remove(place);
     }
@@ -489,7 +504,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
             if (customGroups.indexOf(place.GroupName) !== -1) {
                 //check if already in pGroup else add
                 let inPgIndex: number;
-                pGroups.forEach((pg: any, idx: number) => { inPgIndex = pg.Name === place.GroupName ? idx : inPgIndex });
+                pGroups.forEach((pg: any, idx: number) => { inPgIndex = pg.Name === place.GroupName ? idx : inPgIndex; });
                 if (inPgIndex) {
                     pGroups[inPgIndex].places.push(place);
                 } else {

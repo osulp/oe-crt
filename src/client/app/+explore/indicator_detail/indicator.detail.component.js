@@ -102,6 +102,9 @@ var DetailComponent = (function () {
             clearInterval(runInterval);
         }
     };
+    DetailComponent.prototype.showToolTips = function () {
+        this._router.navigate(['/HowTo']);
+    };
     DetailComponent.prototype.goBack = function (evt) {
         console.log('going back', window['detailBackUrl'], this.detailUrlChanges, window.history);
         if (window['detailBackUrl']) {

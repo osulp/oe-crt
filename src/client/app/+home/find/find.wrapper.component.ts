@@ -55,6 +55,9 @@ export class FindWrapperComponent {
                     indicator: encodeURIComponent(results.Name
                         .replace('(', '%28')
                         .replace(')', '%29')
+                        .replace(/\+/g, '%2B')
+                        .replace(/\&/g, '%26')
+                        .replace(/\=/g, '%3D')
                     )
                 }]);
             } else {

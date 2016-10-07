@@ -36,15 +36,16 @@
     }
 
     .toggleView > span {
-        line-height: 30px;
+        /*line-height: 30px;*/
         vertical-align: middle;
         color: #C34500;
         cursor: pointer;
-        padding-bottom: 22px;
+        padding-bottom: 3px;
     }
 
     .toggleView:hover {
         text-decoration: underline;
+        color: #C34500;
     }
 
 .toggleViewIcn {
@@ -71,7 +72,12 @@
 
 #data-detail-help {
     float: right;
+    color:rgb(128, 128, 128);
 }
+
+    #data-detail-help:hover {
+        cursor:pointer;
+    }
 
 #share-btns div {
     display: inline-block;

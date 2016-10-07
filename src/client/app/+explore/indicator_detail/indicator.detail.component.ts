@@ -127,6 +127,10 @@ export class DetailComponent implements OnInit {
         //this.dataTile.onResize(temp);
     }
 
+    showToolTips() {
+        this._router.navigate(['/HowTo']);
+    }
+
     goBack(evt:any) {
         console.log('going back', window['detailBackUrl'], this.detailUrlChanges, window.history);
 

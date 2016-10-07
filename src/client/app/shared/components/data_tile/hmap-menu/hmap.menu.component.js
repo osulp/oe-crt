@@ -26,6 +26,9 @@ var HmapMenuComponent = (function () {
             case 'Place, Tract & County':
                 this.mapViews = ['Counties', 'Cities', 'Census Tracts'];
                 break;
+            case 'Place and Counties':
+                this.mapViews = ['Cities', 'Counties'];
+                break;
             case 'County':
                 this.mapViews = ['Counties'];
                 break;
