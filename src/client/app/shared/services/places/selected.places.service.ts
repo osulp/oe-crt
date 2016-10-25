@@ -211,7 +211,7 @@ export class SelectedPlacesService {
         this.removePlace.next(place);
     }
 
-    setAllbyPlaceType(places: any[], placeType: string): void {
+    setAllbyPlaceType(places: any[], placeType: string, indicatorGeo?:string): void {
         let translatedPlaceType = this.translatePlaceTypes(placeType);
         console.log('processing queue', this.processingQueue, places);
         if (places.length > 0) {
@@ -221,7 +221,7 @@ export class SelectedPlacesService {
                 this.intervalCount = 0;
                 this._setAllByPlaceType.next([this.processingQueue[0].places, this.processingQueue[0].placeType]);
                 if (placeType !== 'SchoolDistricts') {
-                    this.subScribeToGetAddionalPlaceInfo(this.processingQueue[0].places, this.processingQueue[0].placeType);
+                    this.subScribeToGetAddionalPlaceInfo(this.processingQueue[0].places, this.processingQueue[0].placeType, indicatorGeo);
                 } else {
                     this.processingQueue.shift();
                     this.processing = false;
@@ -257,7 +257,7 @@ export class SelectedPlacesService {
         }
     }
 
-    subScribeToGetAddionalPlaceInfo(places: any,translatedPlaceType:any) {
+    subScribeToGetAddionalPlaceInfo(places: any,translatedPlaceType:any,indicatorGeo?:any) {
         this.getAdditionalPlaceInfo(places).subscribe((pinfo: any[]) => {
             //console.log('jumping jack3', this.processingQueue);
             this.processingQueue.shift();

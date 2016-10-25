@@ -133,6 +133,7 @@ var DetailComponent = (function () {
         console.log('Chart data emitted to indicator detail', data);
         this._chartData = data;
         this.detailUrlChanges++;
+        this.pageUrl = decodeURI(window.location.href);
     };
     DetailComponent.prototype.onBlurExplorePage = function (evt) {
         if (!$(evt.target).closest('#map-menu').length && !$(evt.target).hasClass('hamburger-menu')) {
@@ -144,6 +145,13 @@ var DetailComponent = (function () {
             });
         }
     };
+    DetailComponent.prototype.getDateAccessed = function () {
+        var currentDate = new Date();
+        var day = currentDate.getDate();
+        var month = currentDate.getMonth() + 1;
+        var year = currentDate.getFullYear();
+        return month + '/' + day + '/' + year;
+    };
     DetailComponent.prototype.ngOnInit = function () {
         var _this = this;
         this.detailUrlChanges = 0;
@@ -151,6 +159,8 @@ var DetailComponent = (function () {
         this.showMap = true;
         this.showGraph = true;
         this.showTable = false;
+        this.dateAccessed = this.getDateAccessed();
+        this.pageUrl = decodeURI(window.location.href);
         this.chartData = [];
         this.inputIndicator = decodeURI(this.inputIndicator)
             .replace(/\%28/g, '(')

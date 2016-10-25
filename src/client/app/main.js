@@ -42,6 +42,7 @@ var AppExceptionHandler = (function (_super) {
     AppExceptionHandler.prototype.call = function (exception, stackTrace, reason) {
         this.getDependencies();
         console.log('error handler', exception);
+        toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.<br />Error details: <br />' + exception);
         _super.prototype.call.call(this, exception, stackTrace, reason);
     };
     AppExceptionHandler.prototype.getDependencies = function () {
@@ -63,4 +64,21 @@ platform_browser_dynamic_1.bootstrap(app_component_1.AppComponent, [
     core_1.provide(common_1.APP_BASE_HREF, { useValue: '<%= ENV %>' === 'prod' ? '<%= APP_BASE %>' : '/' }),
     core_1.provide(core_1.ExceptionHandler, { useClass: AppExceptionHandler })
 ]);
+toastr.options = {
+    'closeButton': true,
+    'debug': false,
+    'newestOnTop': false,
+    'progressBar': false,
+    'positionClass': 'toast-bottom-full-width',
+    'preventDuplicates': false,
+    'onclick': null,
+    'showDuration': '300',
+    'hideDuration': '1000',
+    'timeOut': 0,
+    'extendedTimeOut': 0,
+    'showEasing': 'swing',
+    'hideEasing': 'linear',
+    'showMethod': 'fadeIn',
+    'hideMethod': 'fadeOut'
+};
 //# sourceMappingURL=main.js.map

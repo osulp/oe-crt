@@ -22,6 +22,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     @Input() inputTopics: Topic[] = [];
     @Input() inputIndicators: Indicator[] = [];
     @Input() inputCollections: any[] = [];
+    @Input() _hideAll: any;
     @ViewChildren(IndicatorsTopicListComponent) indTopListComps: QueryList<IndicatorsTopicListComponent>;
     resultView: string;
     topicIndicatorCount: any = {};
@@ -38,6 +39,8 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     showTopicMax: number = 1;
     SelectedTopics: Topic[] = [];
     showScrollUpCount: number = 3;
+    hideAll: boolean = false;
+    initLoad: boolean = true;
 
     toggleResultView() {
         //console.log('resultview clicked');
@@ -84,8 +87,17 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
             this.topicIndicatorCount[this.inputTopics[t].topic] = {};
             this.collections.forEach(coll => {
                 let topicIndicatorCount = this.inputIndicators.filter(indicator => {
-                    return indicator.topics.split(', ').indexOf(this.inputTopics[t].topic.trim()) !== -1 && (indicator.collections ? (indicator.collections.split(', ').indexOf(coll.collection) !== -1 || coll.collection === 'Show All') : coll.collection === 'Show All' ? true : false);
+                    if (indicator.selected) {
+                        return indicator.topics.split(', ').indexOf(this.inputTopics[t].topic.trim()) !== -1 && (indicator.collections
+                            ? (indicator.collections.split(', ').indexOf(coll.collection) !== -1 || coll.collection === 'Show All')
+                            : coll.collection === 'Show All'
+                                ? true
+                                : false);
+                    } else {
+                        return false;
+                    }
                 }).length;
+
                 this.topicIndicatorCount[this.inputTopics[t].topic][coll.collection] = { maxCount: topicIndicatorCount, showCount: this.showIndicatorDefault };
             });
         }
@@ -104,9 +116,9 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
         let runScope = this;
         var runInterval = setInterval(runCheck, 500);
         function runCheck() {
-            //console.log('still checking');
-            if (runScope.inputTopics !== undefined && runScope.inputIndicators !== undefined && runScope.collections !== undefined) {
-                if (runScope.inputTopics.length > 0 && runScope.inputIndicators.length > 0) {
+            console.log('still checking');
+            if (runScope.SelectedTopics !== undefined && runScope.inputIndicators !== undefined && runScope.collections !== undefined) {
+                if (runScope.SelectedTopics.length > 0 && runScope.inputIndicators.length > 0) {
                     clearInterval(runInterval);
                     runScope.createTopicIndicatorObj();
                     //runScope.onScrollDown();
@@ -138,6 +150,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
         this.resultView = 'graph';
         //console.log('Data Component: Collections Input ' + this.inputCollections);
         this.checkTopicIndicatorLoaded();
+        this.hideAll = false;
         //check screen size and adjust scroll load settings accordingly
         let windowWidth = $(window).width();
         if (windowWidth < 767) {
@@ -168,16 +181,30 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
 
     ngAfterViewInit() {
         console.log(this.indTopListComps);
+        this.initLoad = false;
     }
 
     ngOnChanges(inputChanges: any) {
         //console.log('inputChanges in DataWrapper', inputChanges);
         if (inputChanges.inputTopics) {
-            //console.log('yep selected topics changed!', inputChanges.inputTopics);
+            console.log('yep selected topics changed!', inputChanges.inputTopics);
             let selectedTopics = inputChanges.inputTopics.currentValue.filter((topic: Topic) => topic.selected);
-            //console.log('yep selected topics', selectedTopics);
+            console.log('yep selected topics', selectedTopics, inputChanges.inputTopics.currentValue);
             this.SelectedTopics = selectedTopics.length === 0 ? inputChanges.inputTopics.currentValue : selectedTopics;
+            this.checkTopicIndicatorLoaded();
         }
+        if (inputChanges._hideAll) {
+            console.log('inputChanges in DataWrapper', inputChanges);
+            this.hideAll = this._hideAll.hide;// ? this._hideAll.hide : this.hideAll;
+            this.createTopicIndicatorObj();
+            console.log('hideall called and here is the topicindicator obj', this.topicIndicatorCount);
+            //this.createTopicIndicatorObj();
+        }
+        //if (inputChanges.inputIndicators && !this.initLoad) {
+        //    this.createTopicIndicatorObj();
+        //    console.log('hideall indicators called and here is the topicindicator obj', this.topicIndicatorCount);
+        //    //this.createTopicIndicatorObj();
+        //}
     }
 }
 

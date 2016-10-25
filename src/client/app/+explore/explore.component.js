@@ -22,9 +22,10 @@ var ExploreComponent = (function () {
         this.urlCollection = 'Show All';
         this.allTopics = [];
         this.indicatorDetailView = false;
-        this.showTopicsExpanded = true;
+        this.showTopicsExpanded = false;
         this.showPlacesExpanded = false;
         this.initLoad = true;
+        this.hideAll = { hide: false, trigger: null };
         this.initialIndicator = true;
     }
     ExploreComponent.prototype.routerOnActivate = function (curr, prev, currTree, prevTree) {
@@ -34,10 +35,13 @@ var ExploreComponent = (function () {
         this.selectedIndicators = decodeURI(curr.getParam('indicators'));
         this.selectedPlaces = decodeURI(curr.getParam('places'));
         this.urlCollection = decodeURI(curr.getParam('collection'));
-        this.showTopicsExpanded = curr.getParam('show') !== 'Places';
+        this.showTopicsExpanded = curr.getParam('show') === 'Topics';
         this.showPlacesExpanded = curr.getParam('show') === 'Places';
         console.log('routercheck', this.showTopicsExpanded, this.showPlacesExpanded);
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
+    };
+    ExploreComponent.prototype.onHideAll = function (evt) {
+        this.hideAll = evt;
     };
     ExploreComponent.prototype.onSelectedSearchResult = function (results) {
         this.selectedSearchResult = results;
@@ -69,7 +73,7 @@ var ExploreComponent = (function () {
             }
         }
         else {
-            queryString = 'All Topics';
+            queryString = '';
         }
         var qsParams = [];
         var topicsParam = { key: 'topics', value: queryString };

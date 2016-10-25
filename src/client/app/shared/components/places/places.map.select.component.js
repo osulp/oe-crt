@@ -55,13 +55,15 @@ var PlacesMapSelectComponent = (function () {
         this.selectedSearchResults = [];
     }
     PlacesMapSelectComponent.prototype.onDrop = function (args) {
-        this.setPlaceBinGroups(args[0], true);
+        this.setPlaceBinGroups(args[0], false);
         console.log('on drop', args);
         if (args[2] === null) {
             return;
         }
     };
     PlacesMapSelectComponent.prototype.onOver = function (args) {
+        var e = args[0], src = args[1], target = args[2];
+        console.log('on over', e, src, target);
         this.setPlaceBinGroups(args[0], false);
     };
     PlacesMapSelectComponent.prototype.onOut = function (args) {
@@ -70,6 +72,7 @@ var PlacesMapSelectComponent = (function () {
         if (args[2].children.length > 0) {
             this.setPlaceBinGroups(args[2].children[0], false);
         }
+        $('.hasCombinedPlaceContainer').attr('editview', true);
     };
     PlacesMapSelectComponent.prototype.onCombineLabelKeyPress = function (evt, dragBin, placeContainer, inpPlace) {
         if (evt.keyCode === 13 || evt.keyCode === 9) {
@@ -85,11 +88,14 @@ var PlacesMapSelectComponent = (function () {
                 console.log('snickers', e.parentNode);
                 if (e.parentNode.children.length === 1) {
                     console.log('snickers hide edit', e.parentNode);
+                    var reg = new RegExp(' combinedPlaces', 'g');
+                    e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'false');
                 }
                 else {
                     console.log('snickers show edit', e.parentNode);
                     combine = true;
+                    e.parentNode.children[i].className += ' combinedPlaces';
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'true');
                 }
                 this.selectedSearchResults.forEach(function (place) {
@@ -99,23 +105,29 @@ var PlacesMapSelectComponent = (function () {
                 });
             }
             if (update) {
-                this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, e.parentNode.getAttribute('groupname'), combine);
+                this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, e.parentNode.getAttribute('groupname') === '' ? 'Custom Set ' + e.placetype + ' ' + (this.customSetCounter + 1) : e.parentNode.getAttribute('groupname'), combine);
             }
         }
+    };
+    PlacesMapSelectComponent.prototype.makeDraggable = function () {
+        $('.editPanel').draggable({
+            containment: 'window'
+        });
     };
     PlacesMapSelectComponent.prototype.updateCustomSetName = function (dragBin, placeContainer, inpPlace) {
         var placesInBin = dragBin.getElementsByClassName('place-bin');
         var updatePlaces = [];
+        var updatePlaceType;
         for (var _i = 0; _i < placesInBin.length; _i++) {
             var binP = placesInBin[_i];
             this.selectedSearchResults.forEach(function (place) {
                 if (place.ResID === binP.getAttribute('placeresid') && place.Name === binP.getAttribute('placename')) {
                     updatePlaces.push(place);
+                    updatePlaceType = place.TypeCategory;
                 }
             });
         }
-        this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, inpPlace.value, true);
-        placeContainer.setAttribute('editView', 'false');
+        this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, inpPlace.value !== '' ? inpPlace.value : 'Custom Set ' + this.translatePlaceTypes(updatePlaceType) + ' ' + (this.customSetCounter + 1), true);
     };
     PlacesMapSelectComponent.prototype.inputSearchClickHandler = function (event, result) {
         this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
@@ -339,7 +351,6 @@ var PlacesMapSelectComponent = (function () {
                         console.log(dbr);
                     });
                 }
-                console.log('All the dragBins', dragBins);
             });
             clearInterval(runInterval);
         }

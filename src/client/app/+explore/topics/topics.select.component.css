@@ -145,6 +145,25 @@
     font-style:normal;
 }
 
+.show-hide-all {
+    height:25px;
+    background-color:#808080;
+    width:200%;
+    z-index:1001;
+    border-radius:4px 4px 0 0;
+    font-size:.8em;
+    color:white;
+    padding:0 10px !important;
+}
+
+    .show-hide-all span:hover {
+        text-decoration:underline;
+        cursor:pointer;
+    }
+.hide-show {
+    padding:5px;
+}
+
 #checkboxes {
     border: 1px #dadada solid;
     max-height: 300px;
@@ -152,9 +171,9 @@
     padding: 0 10px;
     font-size: .8em;
     position: absolute;
-    top: 40px;
+    top: 56px;
     left: 0;
-    z-index: 300;
+    z-index: 1001;
     background-color: white;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
     width:200%;
@@ -169,6 +188,19 @@
         #checkboxes label:hover {
             background-color: #F3F2ED;
         }
+
+#filterIndicator {
+    color:#2e2d2d;
+    background-color:#dadada;
+    width:50%;
+    padding: 0 10px;
+    border-radius:4px;
+}
+
+.hide-show {
+    float:right;
+    padding:2px 5px;
+}
 
 #selectedTopicsIndicators div {
     padding-right:20px;

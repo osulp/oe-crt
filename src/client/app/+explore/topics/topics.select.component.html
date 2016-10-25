@@ -23,17 +23,24 @@
                     </div>
                     <div>
                         <div class="multiselect row">
-                            <div class="col-lg-2 col-md-3 col-xs-12">
+                            <div class="col-lg-3 col-md-3 col-xs-12">
                                 <div class="selectBox" (click)="chkBoxVisibile = !chkBoxVisibile;">
                                     <div [ngClass]="chkBoxVisibile ? 'open' : ''" class="topic-header-indicator-filter">
-                                        <p>Filter Indicators</p>
+                                        <p>Show/Hide Indicators</p>
                                     </div>
                                 </div>
-                                <div id="checkboxes" [hidden]="!chkBoxVisibile">
-                                    <label *ngFor="let indicator of Indicators | indicatorTopicFilterPipe : Topics:collections; let i = index" attr.for={{i}}><input type="checkbox" [checked]="indicator.selected" id="{{i}}" (click)="toggleIndicator(indicator)" />{{indicator.indicator_display}}</label>
+                                <div [hidden]="!chkBoxVisibile">
+                                    <div class="show-hide-all">
+                                        <span><input #filterIndicator id="filterIndicator" type="text" placeholder="Find indicators"/></span>
+                                        <span class="hide-show" (click)="showHideAll('show')">Show all</span>
+                                        <span class="hide-show" (click)="showHideAll('hide')">Hide all</span>
+                                    </div>
+                                    <div id="checkboxes">
+                                        <label *ngFor="let indicator of Indicators | indicatorTopicFilterPipe : Topics:collections : filterIndicator.value; let i = index" attr.for={{i}}><input type="checkbox" [checked]="indicator.selected" id="{{i}}" (click)="toggleIndicator(indicator,null,true)" />{{indicator.indicator_display}}</label>
+                                    </div>
                                 </div>
                             </div>
-                            <div id="collection-filter" class="col-lg-10 col-md-9 col-xs-12">
+                            <div id="collection-filter" class="col-lg-9 col-md-9 col-xs-12">
                                 <div class="row">
                                     <div class="col-lg-2 col-md-3 col-xs-12 collection-filter-label">
                                         <span>Filter by Collection:</span>
@@ -53,7 +60,7 @@
                 </div>
                 <div id="selectedTopicsIndicators" *ngIf="expanded.toString() === 'false'">
                     <div *ngIf="showIndicatorCount">
-                        <div *ngIf="showAllSelected">
+                        <div *ngIf="showAllSelected" (click)="expanded = true">
                             <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsCountPipe: 'all':collections}}</span></div>
                         </div>
                         <div *ngIf="!showAllSelected">

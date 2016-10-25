@@ -26,7 +26,7 @@ export class TopicsComponent implements OnInit {
 
     gotoTopic(topic: any) {
         console.log('topic clicked', topic);
-        let targetUrl = topic === 'all' ? '/Explore' : '/Explore;topics=' + encodeURI(topic.topic.replace('&','%26'));
+        let targetUrl = topic === 'all' ? '/Explore;show=Topics' : '/Explore;topics=' + encodeURI(topic.topic.replace('&','%26'));
         console.log('target url', targetUrl);
         this._router.navigateByUrl(targetUrl);
         //window.history.pushState({ url: targetUrl}, 'Explore', targetUrl);

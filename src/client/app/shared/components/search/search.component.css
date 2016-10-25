@@ -61,7 +61,7 @@
     border-radius: 0 0 0 4px 4px 4px 4px;
     text-align:left;
     margin-left:17.5%;
-    z-index:300;
+    z-index:1001;
     /*max-height:400px;
     overflow:scroll;*/
 }

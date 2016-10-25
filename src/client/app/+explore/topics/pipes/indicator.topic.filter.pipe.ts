@@ -6,7 +6,8 @@ import {Indicator, Topic} from '../../../shared/data_models/index';
 })
 
 export class IndicatorTopicFilterPipe implements PipeTransform {
-    transform(indicators: Indicator[], topics: Topic[], collections: any): any {
+    transform(indicators: Indicator[], topics: Topic[], collections: any, filterText: string): any {
+        console.log('filteredText', filterText);
         //if (indicators !== undefined) {
         let selectedCollection = collections ? collections.filter((coll: any) => coll.selected).length > 0 ? collections.filter((coll: any) => coll.selected)[0].collection : 'Show All' : 'Show All';
         let selectedTopics = topics ? topics.filter((topic: Topic) => topic.selected) : [];
@@ -28,6 +29,13 @@ export class IndicatorTopicFilterPipe implements PipeTransform {
                     inCollection = indicator.collections ? (indicator.collections.split(', ').indexOf(selectedCollection) !== -1 ? true : false) : false;
                 }
                 return inCollection;
+            })
+            .filter((indicator: Indicator) => {
+                if (filterText !== '') {
+                    return indicator.indicator_display.toUpperCase().indexOf(filterText.toUpperCase()) !== -1;
+                } else {
+                    return true;
+                }
             })
             .sort((a: any, b: any) => a.indicator.localeCompare(b.indicator))
             : [];

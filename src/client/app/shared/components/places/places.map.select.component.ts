@@ -113,7 +113,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
 
     onDrop(args: any) {
         //let [e, src, target] = args;
-        this.setPlaceBinGroups(args[0], true);
+        this.setPlaceBinGroups(args[0], false);
         console.log('on drop', args);
         if (args[2] === null) {
             return;
@@ -121,8 +121,8 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     }
 
     onOver(args: any) {
-        //let [e, src, target] = args;
-        //console.log('on over', e, src, target);
+        let [e, src, target] = args;
+        console.log('on over', e, src, target);
         this.setPlaceBinGroups(args[0],false);
     }
 
@@ -133,7 +133,9 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
         if (args[2].children.length > 0) {
             this.setPlaceBinGroups(args[2].children[0],false);
         }
+        //open all edit views for possible dropping
 
+        $('.hasCombinedPlaceContainer').attr('editview', true);
     }
 
     onCombineLabelKeyPress(evt: any, dragBin: any, placeContainer: any, inpPlace: any) {
@@ -152,15 +154,15 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
                 if (e.parentNode.children.length === 1) {
                     console.log('snickers hide edit', e.parentNode);
                     //not combined
-                    //var reg = new RegExp(' combinedPlaces', 'g');
-                    //e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
+                    var reg = new RegExp(' combinedPlaces', 'g');
+                    e.parentNode.children[i].className = e.parentNode.children[i].className.replace(reg, '');
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'false');
                     //find place and remove combined group attr
                 } else {
                     //combined
                     console.log('snickers show edit', e.parentNode);
                     combine = true;
-                    //e.parentNode.children[i].className += ' combinedPlaces';
+                    e.parentNode.children[i].className += ' combinedPlaces';
                     e.parentNode.parentNode.parentNode.setAttribute('editView', 'true');
                 }
                 this.selectedSearchResults.forEach((place: SearchResult) => {
@@ -170,24 +172,34 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
                 });
             }
             if (update) {
-                this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, e.parentNode.getAttribute('groupname'), combine);
+                this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, e.parentNode.getAttribute('groupname') === '' ? 'Custom Set ' + e.placetype + ' ' + (this.customSetCounter + 1) : e.parentNode.getAttribute('groupname'), combine);
             }
         }
+    }
+
+    makeDraggable() {
+        $('.editPanel').draggable({
+            containment: 'window'
+            //,
+            //cancel: '.editHeader'
+        });
     }
 
     updateCustomSetName(dragBin: any, placeContainer: any, inpPlace: any) {
         //get all places in bin and update their group-name value
         let placesInBin = dragBin.getElementsByClassName('place-bin');
         let updatePlaces: SearchResult[] = [];
+        let updatePlaceType: any;
         for (var binP of placesInBin) {
             this.selectedSearchResults.forEach((place: SearchResult) => {
                 if (place.ResID === binP.getAttribute('placeresid') && place.Name === binP.getAttribute('placename')) {
                     updatePlaces.push(place);
+                    updatePlaceType = place.TypeCategory;
                 }
             });
         }
-        this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, inpPlace.value, true);
-        placeContainer.setAttribute('editView', 'false');
+        this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, inpPlace.value !== '' ? inpPlace.value : 'Custom Set ' + this.translatePlaceTypes(updatePlaceType) + ' ' + (this.customSetCounter+1), true);
+        //placeContainer.setAttribute('editView', 'false');
     }
 
     inputSearchClickHandler(event: any, result: SearchResult) {
@@ -485,7 +497,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
                         //dbr.parentElement.parentElement.parentElement.removeChild(dbr.parentElement.parentElement);
                     });
                 }
-                console.log('All the dragBins', dragBins);
+                //console.log('All the dragBins', dragBins);
                 //find first instance of dragbin with groupname matching and then append other dragbins with same groupname into dragbin
 
             });

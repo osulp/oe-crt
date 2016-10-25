@@ -71,13 +71,13 @@
                 <div *ngIf="!isStatewide && !isCustomChart" [ngClass]="!showGraph ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
                     <div #mapView class="detail-tile map-chart" [hidden]="!showMap">
                         <!--MAP VIEW-->
-                        <data-tile [indicator]="inputIndicator" [tileType]="'map'" [viewType]="'advanced'"></data-tile>
+                        <data-tile [indicator]="inputIndicator" (onSelectedYearChange)="onSelectedYearChange($event)" [tileType]="'map'" [viewType]="'advanced'"></data-tile>
                     </div>
                 </div>
                 <div [ngClass]="!showMap || isStatewide || isCustomChart ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
                     <div #graphView class="detail-tile" [hidden]="!showGraph">
                         <!--GRAPH VIEW-->
-                        <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'"></data-tile>
+                        <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="" [_selectedYear]="selectedYear" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'"></data-tile>
                     </div>
                 </div>
                 <div class="col-xs-12">
@@ -91,7 +91,7 @@
                 <div id="indicator-info" [ngClass]="indInfo" class="col-lg-5 col-md-6 col-xs-12 arrow_box">
                     <span [ngClass]="{'selected':indInfo === 'desc'}" (click)="indInfo = 'desc';">Description</span>
                     <span [ngClass]="{'selected':indInfo === 'src'}" (click)="indInfo = 'src';">Source</span>
-                    <span [ngClass]="{'selected':indInfo === 'other'}" (click)="indInfo = 'other';">Other Resources</span>
+                    <span [ngClass]="{'selected':indInfo === 'other'}" (click)="indInfo = 'other';">How to cite?</span>
                 </div>
                 <div class="col-xs-12" id="indicator-info-content">
                     <div *ngIf="indInfo === 'desc'">
@@ -116,12 +116,24 @@
                             <span *ngIf="id.Source === null">Not available</span>
                         </div>
                     </div>
-                    <div *ngIf="indInfo === 'other'">
+                    <!--<div *ngIf="indInfo === 'other'">
                         <div *ngFor="let id of indicatorDesc">
                             <span *ngIf="id.Other !== null" [innerHTML]="id.Other">
                             </span>
                             <span *ngIf="id.Other === null">n/a</span>
                         </div>
+                    </div>-->
+                    <div *ngIf="indInfo === 'other'">
+                        <p>Accessed from the Communities Reporter Tool on {{dateAccessed}}</p>
+                        <p>Url: {{pageUrl}}</p>
+                        <div *ngFor="let id of indicatorDesc">
+                            <span>Data source: </span>
+                            <span *ngIf="id.Source !== null" [innerHTML]="id.Source">
+                            </span>
+                            <span *ngIf="id.Source === null">Not available</span>
+                        </div>
+                        <br />
+                        <p><i>The Communities Reporter Tool is a collaboration of Oregon State University (Rural Studies Program and the Oregon Explorer), the Ford Family Foundation (which serves rural Oregon and Siskiyou County, CA), and the Oregon Community Foundation. Partners include the Oregon Department of Administrative Services. </i></p>
                     </div>
                 </div>
                 <div *ngIf="relatedIndicators.length > 0">

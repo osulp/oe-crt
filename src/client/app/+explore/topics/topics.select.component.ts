@@ -30,6 +30,7 @@ export class TopicsComponent implements OnInit {
     @Output() selectedCollectionsFromComp = new EventEmitter();
     @Output() allTopicsFromComp = new EventEmitter();
     @Output() allIndicatorsFromComp = new EventEmitter();
+    @Output() hideAllFromComp = new EventEmitter();
     @Input() inputTopics: string;
     @Input() inputIndicators: string;
     @Input() inputCollection: string;
@@ -51,6 +52,9 @@ export class TopicsComponent implements OnInit {
     initialLoad: boolean = true;
     collections: any[] = [];
     showIndicatorCount: boolean = false;
+    showAll: boolean = true;
+    hideAll: boolean = false;
+    indicatorTrigger: boolean = false;
     //private subscription: Subscription;
 
     constructor(
@@ -65,7 +69,7 @@ export class TopicsComponent implements OnInit {
     }
 
     getClass() {
-        return this.visible ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
+        return this.expanded.toString() === 'true' ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
     }
 
     toggleTopicsWrapper() {
@@ -156,8 +160,20 @@ export class TopicsComponent implements OnInit {
         this.allIndicatorsFromComp.emit(this.Indicators);
     }
 
-    toggleIndicator(indicator: Indicator, value?: boolean) {
-        if (value) {
+    showHideAll(showType: any) {
+        this.showAll = showType === 'show';
+        this.hideAll = showType === 'hide';
+        this.Indicators.forEach((indicator: any) => {
+            this.toggleIndicator(indicator, this.showAll, false);
+        });
+        this.allIndicatorsFromComp.emit(this.Indicators);
+        this.indicatorTrigger = !this.indicatorTrigger;
+        this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger });
+    }
+
+    toggleIndicator(indicator: Indicator, value?: boolean, emit?:boolean) {
+        //assume that specifying negates show all/hide all
+        if (value !== undefined && value !== null) {
             indicator.selected = value;
         } else {
             indicator.toggleSelected();
@@ -174,7 +190,18 @@ export class TopicsComponent implements OnInit {
                 this._selectedIndicators.push(this.Indicators[x]);
             }
         }
-        this.allIndicatorsFromComp.emit(this.Indicators);
+        if (emit === undefined) {
+            this.showAll = false;
+            this.hideAll = false;
+            //console.log('toggleindicator emit', emit);
+            this.allIndicatorsFromComp.emit(this.Indicators);
+        } else if (emit) {
+            this.showAll = false;
+            this.hideAll = false;
+            this.indicatorTrigger = !this.indicatorTrigger;
+            this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger });
+            this.allIndicatorsFromComp.emit(this.Indicators);
+        }
     }
 
     toggleCollection(toggled_collection: any) {

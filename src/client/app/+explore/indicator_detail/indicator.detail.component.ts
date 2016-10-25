@@ -50,6 +50,9 @@ export class DetailComponent implements OnInit {
     detailUrlChanges: number = 0;
     backToUrl: string;
     returnToPlaces: any;
+    dateAccessed: any;
+    pageUrl: any;
+    selectedYear: any = '';
 
 
     constructor(private _indicatorDescService: IndicatorDescService,
@@ -172,10 +175,16 @@ export class DetailComponent implements OnInit {
         //evt.preventDefault();
     }
 
+    onSelectedYearChange(year: any) {
+        console.log('year changed!', year);
+        this.selectedYear = year;
+    }
+
     onChartDataUpdate(data: any) {
         console.log('Chart data emitted to indicator detail', data);
         this._chartData = data;
         this.detailUrlChanges++;
+        this.pageUrl = decodeURI(window.location.href);
     }
 
     onBlurExplorePage(evt: any) {
@@ -190,12 +199,22 @@ export class DetailComponent implements OnInit {
         }
     }
 
+    getDateAccessed() {
+        var currentDate = new Date();
+        var day = currentDate.getDate();
+        var month = currentDate.getMonth() + 1;
+        var year = currentDate.getFullYear();
+        return month + '/' + day + '/' + year;
+    }
+
     ngOnInit() {
         this.detailUrlChanges = 0;
         console.log('detailurlchanges', this.detailUrlChanges, history);
         this.showMap = true;
         this.showGraph = true;
         this.showTable = false;
+        this.dateAccessed = this.getDateAccessed();
+        this.pageUrl = decodeURI(window.location.href);
         this.chartData = [];
         this.inputIndicator = decodeURI(this.inputIndicator)
             //.replace(/\%2528/g, '(')

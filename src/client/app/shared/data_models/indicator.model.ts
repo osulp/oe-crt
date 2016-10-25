@@ -15,4 +15,5 @@
     toggleSelected() {
         this.selected = !this.selected;
     }
+
 }

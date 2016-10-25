@@ -1,9 +1,9 @@
 {
-  "name": "angular2-seed",
-  "version": "0.0.0",
-  "description": "Modular seed project for Angular 2 apps with fast, statically typed build",
+  "name": "communities-reporter-tool",
+  "version": "0.9.1",
+  "description": "Code base for the Oregon Explorer's Communities Reporter Tool",
   "repository": {
-    "url": "https://github.com/mgechev/angular2-seed"
+    "url": "https://github.com/osulp/oe-ng2-seed/tree/oe-crt-master"
   },
   "scripts": {
     "build.dev": "gulp build.dev --color",
@@ -32,7 +32,7 @@
     "webdriver-start": "webdriver-manager start",
     "webdriver-update": "webdriver-manager update"
   },
-  "author": "Minko Gechev <mgechev>",
+  "author": "Marc Gascho Rempel",
   "license": "MIT",
   "devDependencies": {
     "async": "^1.4.2",

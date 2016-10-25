@@ -22,7 +22,7 @@ var TopicsComponent = (function () {
     }
     TopicsComponent.prototype.gotoTopic = function (topic) {
         console.log('topic clicked', topic);
-        var targetUrl = topic === 'all' ? '/Explore' : '/Explore;topics=' + encodeURI(topic.topic.replace('&', '%26'));
+        var targetUrl = topic === 'all' ? '/Explore;show=Topics' : '/Explore;topics=' + encodeURI(topic.topic.replace('&', '%26'));
         console.log('target url', targetUrl);
         this._router.navigateByUrl(targetUrl);
     };

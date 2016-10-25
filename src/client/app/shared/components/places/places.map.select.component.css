@@ -383,7 +383,7 @@
         box-shadow: 2px 2px 2px 2px rgba(0,0,0,0.30);
         margin-left:20px;
         padding: 0 30px 10px 0;
-        z-index:100;
+        z-index:1000;
         position:absolute;
         background:white;
 
@@ -407,6 +407,26 @@
             cursor:pointer;
         }
 
+.ui-draggable-dragging {
+    z-index: 10000 !important;
+}
+
+.edit-handle {
+    position:absolute;
+    left:2px;
+    top:2px;
+   padding:5px;
+   color:#6F7C82;
+    cursor:grab;
+}
+    .edit-handle[dragging] {
+        cursor:grabbing;
+    }
+
+.edit-check {
+    position:absolute;
+    right:5px;
+}
 .place-bin:hover {
     text-decoration:underline;
 }
@@ -414,6 +434,7 @@
 .editHeader {
     min-height: 25px !important;
     position: relative;
+    margin-left:15px;
 }
 
 .spanCheck {

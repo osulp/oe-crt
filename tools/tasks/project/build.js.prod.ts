@@ -50,4 +50,6 @@ function copyTemplates() {
   return result.pipe(gulp.dest(join(PROD_DEST, BOOTSTRAP_DIR)));
 }
 
-export = () => merge(buildTS(), copyTemplates());
+export = () => merge(buildTS(), copyTemplates())
+    //.pipe(plugins.uglify())
+    ;

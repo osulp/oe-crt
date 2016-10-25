@@ -31,6 +31,8 @@ var DataComponent = (function () {
         this.showTopicMax = 1;
         this.SelectedTopics = [];
         this.showScrollUpCount = 3;
+        this.hideAll = false;
+        this.initLoad = true;
     }
     DataComponent.prototype.toggleResultView = function () {
         this.resultView = this.resultView === 'graph' ? 'map' : 'graph';
@@ -72,7 +74,16 @@ var DataComponent = (function () {
             this.topicIndicatorCount[this.inputTopics[t].topic] = {};
             this.collections.forEach(function (coll) {
                 var topicIndicatorCount = _this.inputIndicators.filter(function (indicator) {
-                    return indicator.topics.split(', ').indexOf(_this.inputTopics[t].topic.trim()) !== -1 && (indicator.collections ? (indicator.collections.split(', ').indexOf(coll.collection) !== -1 || coll.collection === 'Show All') : coll.collection === 'Show All' ? true : false);
+                    if (indicator.selected) {
+                        return indicator.topics.split(', ').indexOf(_this.inputTopics[t].topic.trim()) !== -1 && (indicator.collections
+                            ? (indicator.collections.split(', ').indexOf(coll.collection) !== -1 || coll.collection === 'Show All')
+                            : coll.collection === 'Show All'
+                                ? true
+                                : false);
+                    }
+                    else {
+                        return false;
+                    }
                 }).length;
                 _this.topicIndicatorCount[_this.inputTopics[t].topic][coll.collection] = { maxCount: topicIndicatorCount, showCount: _this.showIndicatorDefault };
             });
@@ -87,8 +98,9 @@ var DataComponent = (function () {
         var runScope = this;
         var runInterval = setInterval(runCheck, 500);
         function runCheck() {
-            if (runScope.inputTopics !== undefined && runScope.inputIndicators !== undefined && runScope.collections !== undefined) {
-                if (runScope.inputTopics.length > 0 && runScope.inputIndicators.length > 0) {
+            console.log('still checking');
+            if (runScope.SelectedTopics !== undefined && runScope.inputIndicators !== undefined && runScope.collections !== undefined) {
+                if (runScope.SelectedTopics.length > 0 && runScope.inputIndicators.length > 0) {
                     clearInterval(runInterval);
                     runScope.createTopicIndicatorObj();
                 }
@@ -112,6 +124,7 @@ var DataComponent = (function () {
     DataComponent.prototype.ngOnInit = function () {
         this.resultView = 'graph';
         this.checkTopicIndicatorLoaded();
+        this.hideAll = false;
         var windowWidth = $(window).width();
         if (windowWidth < 767) {
             this.scrollDownDistance = 5;
@@ -133,11 +146,21 @@ var DataComponent = (function () {
     };
     DataComponent.prototype.ngAfterViewInit = function () {
         console.log(this.indTopListComps);
+        this.initLoad = false;
     };
     DataComponent.prototype.ngOnChanges = function (inputChanges) {
         if (inputChanges.inputTopics) {
+            console.log('yep selected topics changed!', inputChanges.inputTopics);
             var selectedTopics = inputChanges.inputTopics.currentValue.filter(function (topic) { return topic.selected; });
+            console.log('yep selected topics', selectedTopics, inputChanges.inputTopics.currentValue);
             this.SelectedTopics = selectedTopics.length === 0 ? inputChanges.inputTopics.currentValue : selectedTopics;
+            this.checkTopicIndicatorLoaded();
+        }
+        if (inputChanges._hideAll) {
+            console.log('inputChanges in DataWrapper', inputChanges);
+            this.hideAll = this._hideAll.hide;
+            this.createTopicIndicatorObj();
+            console.log('hideall called and here is the topicindicator obj', this.topicIndicatorCount);
         }
     };
     __decorate([
@@ -152,6 +175,10 @@ var DataComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', Array)
     ], DataComponent.prototype, "inputCollections", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], DataComponent.prototype, "_hideAll", void 0);
     __decorate([
         core_1.ViewChildren(index_1.IndicatorsTopicListComponent), 
         __metadata('design:type', core_1.QueryList)

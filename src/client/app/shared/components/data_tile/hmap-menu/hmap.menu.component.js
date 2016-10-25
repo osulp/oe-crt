@@ -22,6 +22,7 @@ var HmapMenuComponent = (function () {
         this.mapViews = ['Counties', 'Cities', 'Census Tracts', 'School Districts'];
     };
     HmapMenuComponent.prototype.setIndicatorGeoFilter = function (filter) {
+        console.log('hmap setting filter', filter);
         switch (filter) {
             case 'Place, Tract & County':
                 this.mapViews = ['Counties', 'Cities', 'Census Tracts'];
@@ -66,7 +67,7 @@ var HmapMenuComponent = (function () {
                     case 'Census Tracts':
                         this._translatedMapView = 'Census Tracts';
                         break;
-                    case 'School District':
+                    case 'SchoolDistricts':
                         this._translatedMapView = 'School Districts';
                         break;
                     default:

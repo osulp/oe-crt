@@ -11,6 +11,8 @@ import {HTTP_PROVIDERS,JSONP_PROVIDERS} from '@angular/http';
 
 import { AppComponent } from './app.component';
 
+declare var toastr: any;
+
 if ('<%= ENV %>' === 'prod') { enableProdMode(); }
 
 export class ArrayLogger {
@@ -32,7 +34,9 @@ export class AppExceptionHandler extends ExceptionHandler {
 
     call(exception: any, stackTrace?: any, reason?: string): void {
         this.getDependencies();
-        console.log('error handler',exception);
+        console.log('error handler', exception);
+        // Display an info toast with no title
+        toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.<br />Error details: <br />' + exception);
         //this.router.navigate(['Error', { error: exception }]);
         //if (exception.status === 401) {
         //    // Show login
@@ -92,3 +96,21 @@ bootstrap(AppComponent, [
 //     .catch((err: any) =>
 //       console.log('ServiceWorker registration failed: ', err));
 // }
+
+toastr.options = {
+    'closeButton': true,
+    'debug': false,
+    'newestOnTop': false,
+    'progressBar': false,
+    'positionClass': 'toast-bottom-full-width',
+    'preventDuplicates': false,
+    'onclick': null,
+    'showDuration': '300',
+    'hideDuration': '1000',
+    'timeOut': 0,
+    'extendedTimeOut': 0,
+    'showEasing': 'swing',
+    'hideEasing': 'linear',
+    'showMethod': 'fadeIn',
+    'hideMethod': 'fadeOut'
+};

@@ -3,7 +3,7 @@
 /*topics {
     float: right;
     margin-top: 60px;
-    
+
 }*/
 
 /*places {
@@ -14,7 +14,7 @@
 
 #find-topic-place-wrapper {
     background-image: url('assets/img/banner_image.png');
-    background-repeat: no-repeat;    
+    background-repeat: no-repeat;
 }
 
 
@@ -29,7 +29,8 @@
     }
 
 #launch-help-wrapper {
-    margin-top: 25px;
+    /*margin-top: 25px;*/
+    margin-bottom:-15px;
 }
 
 .home-btns {
@@ -67,7 +68,10 @@
 #how-to-use {
     float: left;
     border: 1px solid #FFFFFF;
+    border: 1px solid #802E01;
+    color: #802E01;
     margin-left: -7px;
+    background: rgba(255, 255, 255, 0.50);
 }
 
     #how-to-use:hover {
@@ -83,4 +87,9 @@
 
 topics h2, places h2{
     color:white !important;
+}
+
+search {
+    margin-top:-26px;
+    margin-bottom:-20px;
 }

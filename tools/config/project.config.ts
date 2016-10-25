@@ -15,7 +15,7 @@ export class ProjectConfig extends SeedConfig {
         super();
         this.PORT = '5556';
         this.APP_TITLE = 'Community Reporter Tool';
-        this.APP_BASE = this.ENV === 'prod' ? '/rural/crt_ng2_test/' : '/';
+        this.APP_BASE = this.ENV === 'prod' ? '/rural/crt_dev/' : '/';
         let additional_deps: InjectableDependency[] = [
             { src: `bootstrap/dist/css/bootstrap.${this.getInjectableStyleExtension()}`, inject: true, env: 'dev' }
             ,{ src: `bootstrap/dist/js/bootstrap.js`, inject: true  }
@@ -38,7 +38,9 @@ export class ProjectConfig extends SeedConfig {
             //{ src: `${this.ASSETS_SRC}/scripts/esri-leaflet-2.0.1.js`, vendor: false, inject: true },
             //{ src: `${this.ASSETS_SRC}/scripts/leaflet-1.0.0-beta.2.js`, vendor: false, inject: true },
             //{ src: `${this.ASSETS_SRC}/scripts/esri-leaflet-2.0.0-beta.8.js`, vendor: false, inject: true },
-            { src: `${this.ASSETS_SRC}/scripts/oe.js`, vendor: false, inject: true }
+            { src: `${this.CSS_SRC}/toast.${this.getInjectableStyleExtension()}`, inject: true, vendor: false },
+            { src: `${this.ASSETS_SRC}/scripts/oe.js`, vendor: false, inject: true },
+            { src: `${this.ASSETS_SRC}/scripts/toast.js`, vendor: false, inject: true }
         ];
         const appAssets = this.APP_ASSETS;
         //this.APP_ASSETS = appAssets.concat(additional_app_assets);

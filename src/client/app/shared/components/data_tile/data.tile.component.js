@@ -36,6 +36,7 @@ var DataTileComponent = (function () {
         this._placeTypesService = _placeTypesService;
         this._indicatorDescService = _indicatorDescService;
         this.onChartDataUpdate = new core_1.EventEmitter();
+        this.onSelectedYearChange = new core_1.EventEmitter();
         this.geoJSONStore = [];
         this.places = new Array();
         this.placeNames = '';
@@ -274,6 +275,7 @@ var DataTileComponent = (function () {
                 _this.isStatewide = _this.indicator_info.Geog_ID === 8 ? true : false;
                 _this.showMap = _this.isStatewide || _this.indicator_info.ScriptName !== null ? false : true;
                 _this.indicator_geo = _this.indicator_info.indicator_geo;
+                console.log('praguer', _this.indicator_geo);
                 _this.isCountyLevel = _this.indicator_info.CountyLevel || _this.indicator_geo === 'County';
                 _this.isTOP = _this.indicator_info.isTOP;
                 _this.is10yr = _this.indicator_info.is10yrPlan;
@@ -356,7 +358,7 @@ var DataTileComponent = (function () {
                 }
                 pointsAsPlacesForBin = pointsAsPlacesForBin.filter(function (place, index, self) { return self.findIndex(function (t) { return t.ResID === place.ResID && t.Name === place.Name; }) === index; });
                 console.log('adding from map', chartScope.tileType, pointsAsPlacesForBin, chartScope.selectedPlaceType);
-                chartScope._selectedPlacesService.setAllbyPlaceType(pointsAsPlacesForBin, chartScope.selectedPlaceType);
+                chartScope._selectedPlacesService.setAllbyPlaceType(pointsAsPlacesForBin, chartScope.selectedPlaceType, chartScope.indicator_geo);
             }
         });
     };
@@ -442,31 +444,29 @@ var DataTileComponent = (function () {
             console.log('NEED TO UPDATE MAP/CHART', this.tileType);
             if (this.tileType === 'map' && this.showMap) {
                 var selectedPlaces = this.mapChart.getSelectedPoints();
-                for (var s = 0; s < selectedPlaces.length; s++) {
+                selectedPlaces.forEach(function (selPt, idx) {
                     var inSelectedPlaces = false;
-                    for (var z = 0; z < this.places.length; z++) {
-                        if (selectedPlaces[s].id !== null) {
-                            inSelectedPlaces = (this.places[z].Name.replace(' County', '') === selectedPlaces[s].id.replace(' County', '') && this.places[z].ResID === selectedPlaces[s].geoid) ? true : inSelectedPlaces;
-                            if (!inSelectedPlaces && this.places[z].TypeCategory !== 'Counties') {
-                                if (this.places[z].GeoInfo.length > 0) {
-                                    this.places[z].GeoInfo.forEach(function (gi) {
-                                        inSelectedPlaces = gi.geoid === _this.places[z].ResID ? true : inSelectedPlaces;
-                                    });
-                                }
+                    _this.places.forEach(function (place) {
+                        inSelectedPlaces = place.Name.replace(' County', '') === selPt.id.replace(' County', '') && place.ResID === selPt.geoid ? true : inSelectedPlaces;
+                        if (!inSelectedPlaces && place.TypeCategory !== 'Counties') {
+                            if (place.GeoInfo.length > 0) {
+                                place.GeoInfo.forEach(function (gi) {
+                                    inSelectedPlaces = gi.geoid === selPt.geoid ? true : inSelectedPlaces;
+                                });
                             }
                         }
-                    }
+                    });
                     if (!inSelectedPlaces) {
-                        try {
-                            selectedPlaces[s].select(false, true);
-                        }
-                        catch (ex) {
-                            console.log('couldnt deselect place', selectedPlaces);
-                        }
+                        console.log('deselecting');
+                        var ptIndex_1;
+                        _this.mapChart.series[_this.mapChart.series.length - 1].data.forEach(function (d, idx) {
+                            ptIndex_1 = d.id === selPt.id ? idx : ptIndex_1;
+                        });
+                        _this.mapChart.series[_this.mapChart.series.length - 1].data[ptIndex_1].update({ selected: false });
                     }
-                }
+                });
                 if (this.places.length !== this.mapChart.getSelectedPoints().length) {
-                    console.log('Place length is different');
+                    console.log('Place length is different', this.places, this.mapChart.getSelectedPoints());
                     for (var p = 0; p < this.places.length; p++) {
                         var place = this.places[p];
                         var isSelected = false;
@@ -474,34 +474,38 @@ var DataTileComponent = (function () {
                             var sp = _a[_i];
                             isSelected = place.ResID === sp.geoid ? true : isSelected;
                         }
-                        console.log('is selected' + isSelected);
+                        console.log('is selected', isSelected);
                         if (!isSelected && place.TypeCategory !== 'State') {
-                            var ptIndex = void 0;
-                            for (var pt = 0; pt < this.mapChart.series[0].data.length; pt++) {
-                                if (this.mapChart.series[0].data[pt].geoid === place.ResID) {
+                            var ptIndex;
+                            var mapSeries = this.mapChart.series.length - 1;
+                            for (var pt = 0; pt < this.mapChart.series[mapSeries].data.length; pt++) {
+                                if (this.mapChart.series[mapSeries].data[pt].geoid === place.ResID) {
                                     ptIndex = pt;
                                     break;
                                 }
                                 if (this.isCountyLevel && place.Desc.split(', ').length > 1) {
-                                    if (place.Desc.split(', ')[1].replace(' County', '') === this.mapChart.series[0].data[pt].id.replace(' County', '')) {
-                                        ptIndex = pt;
-                                        break;
+                                    if (this.mapChart.series[mapSeries].data[pt].id) {
+                                        if (place.Desc.split(', ')[1].replace(' County', '') === this.mapChart.series[mapSeries].data[pt].id.replace(' County', '')) {
+                                            ptIndex = pt;
+                                            break;
+                                        }
                                     }
                                 }
-                                if (place.GeoInfo.length > 0 && ['Counties', 'SchoolDistricts'].indexOf(this.selectedPlaceType) !== -1) {
+                                if (place.GeoInfo.length > 0 && ['Counties', 'SchoolDistricts'].indexOf(this.selectedPlaceType) !== -1 && this.indicator_geo.indexOf('Place') === -1) {
                                     console.log('looking up geopolis', this.mapChart.series);
                                     place.GeoInfo.forEach(function (gi) {
                                         ptIndex = _this.selectedPlaceType === 'Counties'
-                                            ? (_this.mapChart.series[0].data[pt].id ? gi.County === _this.mapChart.series[0].data[pt].id.replace(' County', '')
+                                            ? (_this.mapChart.series[mapSeries].data[pt].id ? gi.County === _this.mapChart.series[mapSeries].data[pt].id.replace(' County', '')
                                                 ? pt : ptIndex : ptIndex)
-                                            : gi.School_District === _this.mapChart.series[0].data[pt].id
+                                            : gi.School_District === _this.mapChart.series[mapSeries].data[pt].id
                                                 ? pt : ptIndex;
                                     });
                                 }
                             }
+                            console.log('ptIndex', ptIndex);
                             if (ptIndex !== undefined) {
-                                console.log('selecting!!!!!!!!!!!!!!!!!!!!1', this.mapChart.series[0].data[ptIndex]);
-                                this.mapChart.series[0].data[ptIndex].update({ selected: true });
+                                console.log('selecting!!!!!!!!!!!!!!!!!!!!1', this.mapChart.series[mapSeries].data[ptIndex]);
+                                this.mapChart.series[mapSeries].data[ptIndex].update({ selected: true });
                             }
                         }
                     }
@@ -530,33 +534,35 @@ var DataTileComponent = (function () {
         return geoJSON_to_load;
     };
     DataTileComponent.prototype.getGeoIndicator = function (place) {
-        var tPlaceType = this.translatePlaceTypes(place.TypeCategory);
-        var isIndGoe = false;
-        switch (this.indicator_geo) {
-            case 'Place, Tract & County':
-                isIndGoe = ['Counties', 'Places', 'Tracts'].indexOf(tPlaceType) !== -1;
-                break;
-            case 'Place and Counties':
-                isIndGoe = ['Places', 'Counties'].indexOf(tPlaceType) !== -1;
-                break;
-            case 'County':
-                isIndGoe = ['Counties'].indexOf(tPlaceType) !== -1;
-                break;
-            case 'School only':
-                isIndGoe = ['SchoolDistricts'].indexOf(tPlaceType) !== -1;
-                break;
-            case 'School and County':
-                isIndGoe = ['Counties', 'SchoolDistricts'].indexOf(tPlaceType) !== -1;
-                break;
-            case 'Place only':
-                isIndGoe = ['Places'].indexOf(tPlaceType) !== -1;
-                break;
-            case 'Tract only':
-                isIndGoe = ['Tracts'].indexOf(tPlaceType) !== -1;
-                break;
-            default:
-                isIndGoe = true;
-                break;
+        var isIndGoe = place.TypeCategory === 'State' ? true : false;
+        if (place.TypeCategory !== 'State') {
+            var tPlaceType = this.translatePlaceTypes(place.TypeCategory);
+            switch (this.indicator_geo) {
+                case 'Place, Tract & County':
+                    isIndGoe = ['Counties', 'Places', 'Tracts'].indexOf(tPlaceType) !== -1;
+                    break;
+                case 'Place and Counties':
+                    isIndGoe = ['Places', 'Counties', 'State'].indexOf(tPlaceType) !== -1;
+                    break;
+                case 'County':
+                    isIndGoe = ['Counties'].indexOf(tPlaceType) !== -1;
+                    break;
+                case 'School only':
+                    isIndGoe = ['SchoolDistricts', 'Counties'].indexOf(tPlaceType) !== -1;
+                    break;
+                case 'School and County':
+                    isIndGoe = ['Counties', 'SchoolDistricts'].indexOf(tPlaceType) !== -1;
+                    break;
+                case 'Place only':
+                    isIndGoe = ['Places'].indexOf(tPlaceType) !== -1;
+                    break;
+                case 'Tract only':
+                    isIndGoe = ['Tracts'].indexOf(tPlaceType) !== -1;
+                    break;
+                default:
+                    isIndGoe = true;
+                    break;
+            }
         }
         return isIndGoe;
     };
@@ -711,7 +717,7 @@ var DataTileComponent = (function () {
         }
         else {
             var combinedGroups = this.checkCombineGroups();
-            if (combinedGroups.length > 0 && !this.isStatewide) {
+            if (combinedGroups.length > 0 && !this.isStatewide && !this.isSchool) {
                 this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
                     var combinedData = _this.processCombinedData(data);
                     _this.updateDataStore([combinedData], 'indicator');
@@ -731,6 +737,7 @@ var DataTileComponent = (function () {
                     }, function (err) { return console.error(err); }, function () { return console.log('done loading data for graph'); });
                 }
                 else {
+                    console.log('prague', geoids, geonames, indicatorForService);
                     this._dataService.getIndicatorDataWithMetadata(geoids, geonames, indicatorForService).subscribe(function (data) {
                         console.log('regular indicator data', data);
                         if (data.Data.length > 0) {
@@ -969,6 +976,14 @@ var DataTileComponent = (function () {
             return this.dataStore.indicatorData[this.indicator].chart_data.place_data;
         }
     };
+    DataTileComponent.prototype.getPlaceTypeData = function () {
+        if (this.tileType === 'map' && this.showMap) {
+            return this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].crt_db;
+        }
+        else {
+            return this.dataStore.indicatorData[this.indicator].crt_db;
+        }
+    };
     DataTileComponent.prototype.getSelectedMapData = function () {
         var _this = this;
         console.log('que pasa', this.selectedPlaceType);
@@ -992,7 +1007,6 @@ var DataTileComponent = (function () {
             console.log(temp);
         }
         var sliderScope = this;
-        console.log('slider', this.customChartYears, this._tickArray, this._tickLabelsTime);
         $(this.elementRef.nativeElement).find('#dateSlider').labeledslider({
             min: 0,
             max: this.isCustomChart ? this.customChartYears.length - 1 : this.placeTypeData.Years.length - (this.yearStartOffset + 1 + this.yearEndOffset),
@@ -1028,6 +1042,9 @@ var DataTileComponent = (function () {
                     sliderScope.mapChart.series[seriesIndex].mapData = mapData;
                     sliderScope.mapChart.series[seriesIndex].joinBy = sliderScope.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (sliderScope.selectedPlaceType === 'SchoolDistricts' ? ['ODE_ID', 'geoid'] : ['NAME', 'name']);
                     sliderScope.mapChart.series[seriesIndex].setData(data);
+                    sliderScope.selectedMapPoints = sliderScope.mapChart.getSelectedPoints();
+                    sliderScope.mapChart.redraw();
+                    sliderScope.onSelectedYearChange.emit({ year: sliderScope.selectedYear, index: sliderScope.selectedYearIndex });
                 }
             }
         });
@@ -1165,7 +1182,10 @@ var DataTileComponent = (function () {
             borderColor: this.selectedPlaceType === 'Places' ? '#a7a7a7' : 'white',
             data: this.getPlaceData(),
             mapData: this.getSelectedMapData(),
-            joinBy: this.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (this.selectedPlaceType === 'SchoolDistricts' ? ['ODE_ID', 'geoid'] : ['NAME', 'name']),
+            joinBy: this.selectedPlaceType === 'Tracts'
+                ? ['GEOID', 'geoid']
+                : (this.selectedPlaceType === 'SchoolDistricts'
+                    ? ['ODE_ID', 'geoid'] : ['NAME', 'name']),
             name: this.indicator + ' ' + this.selectedPlaceType + ' (' + this.selectedYear.Year + ')',
             allowPointSelect: true,
             cursor: 'pointer',
@@ -1193,11 +1213,9 @@ var DataTileComponent = (function () {
         });
         this.mapChart.redraw();
         window.setTimeout(function () {
-            console.log('sausage', sessionStorage);
             mapScope.mapChart.hideLoading();
-            mapScope.mapChart.redraw();
+            mapScope.selectedMapPoints = mapScope.mapChart.getSelectedPoints();
         }, 500);
-        this.selectedMapPoints = this.mapChart.getSelectedPoints();
     };
     DataTileComponent.prototype.createGraphChart = function () {
         try {
@@ -1243,10 +1261,12 @@ var DataTileComponent = (function () {
                     this.chart.tooltip.options.shared = false;
                     this.chart.tooltip.options.useHTML = true;
                     this.chart.tooltip.options.formatter = function () {
+                        console.log('hovering', this);
                         var hoveredPlace = this.series.name
                             .replace(' County', '')
                             .replace(' School District', '')
-                            .replace(' Margin of Error', '');
+                            .replace(' Margin of Error', '')
+                            .split('<br>')[0];
                         if (this.series.name.match('Error')) {
                             return false;
                         }
@@ -1610,10 +1630,7 @@ var DataTileComponent = (function () {
             }
         }
         catch (ex) {
-            console.log('error', ex);
-            if (this.chart) {
-                this.chart.showLoading('Sorry, this chart is not available');
-            }
+            console.log('errorballs', ex, this.tileType);
         }
     };
     DataTileComponent.prototype.addSeriesDataToGraphChart = function (mapPlaces) {
@@ -1636,6 +1653,8 @@ var DataTileComponent = (function () {
         sortedPlaceData.forEach(function (pd, idx) {
             var isOregon = oregonGeoids.indexOf(pd.geoid) !== -1 ? true : false;
             var isCalifornia = californiaGeoids.indexOf(pd.geoid) !== -1 ? true : false;
+            var isRural = pd.geoid.indexOf('r') !== -1;
+            var isUrban = pd.geoid.indexOf('u') !== -1;
             var isState = isOregon || isCalifornia ? true : false;
             var isCombined = pd.geoid === '';
             if (addedSeries.indexOf((_this.isSchool ? pd.Name : pd.community) + pd.geoid) === -1) {
@@ -1657,7 +1676,17 @@ var DataTileComponent = (function () {
                     marker: {
                         fillColor: isState ? '#FFFFFF' : angular2_highcharts_1.Highcharts.getOptions().colors[idx],
                         lineWidth: isState ? 4 : 2,
-                        lineColor: isOregon ? '#244068' : isCalifornia ? '#C34500' : isCombined ? '#98BD85' : angular2_highcharts_1.Highcharts.getOptions().colors[idx],
+                        lineColor: isRural
+                            ? '#996699'
+                            : isUrban
+                                ? '#0088CC'
+                                : isOregon
+                                    ? '#244068'
+                                    : isCalifornia
+                                        ? '#C34500'
+                                        : isCombined
+                                            ? '#98BD85'
+                                            : angular2_highcharts_1.Highcharts.getOptions().colors[idx],
                         radius: _this.placeTypeData.Years.length > 10 ? 3.5 : 4,
                         symbol: 'circle'
                     }
@@ -1709,10 +1738,12 @@ var DataTileComponent = (function () {
     };
     DataTileComponent.prototype.onResize = function (event) {
         if (this.chart) {
-            if (this.chart.legend.display) {
-                this.chart.legend.update(this.setLegendOptions(true));
+            if (this.chart.legend) {
+                if (this.chart.legend.display) {
+                    this.chart.legend.update(this.setLegendOptions(true));
+                }
             }
-            var runInterval = setInterval(runCheck, 1050);
+            var runInterval = setInterval(runCheck, 2000);
             var resizeScope = this;
             function runCheck() {
                 var newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
@@ -1796,12 +1827,9 @@ var DataTileComponent = (function () {
     };
     DataTileComponent.prototype.getCommunityName = function (pData) {
         var _this = this;
-        console.log('getCommunityName', this.places, pData, this.isCountyLevel);
         var returnName = '';
         this.places.forEach(function (place) {
-            console.log('returnName schoolz', place, pData);
             if (_this.isSchool) {
-                console.log('returnName school', place, pData);
                 if (place.GeoInfo.length > 0) {
                     place.GeoInfo.forEach(function (gi) {
                         if (gi.School_District ? gi.School_District.indexOf(pData.Name) !== -1 : false) {
@@ -1819,7 +1847,7 @@ var DataTileComponent = (function () {
                     returnName = returnName === '' ? (place.Desc.split(', ').length > 1 ? place.Desc.split(', ')[1].split('~')[0] : place.Desc) + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
                 }
                 else {
-                    returnName = returnName === '' ? place.Desc + (place.ResID.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
+                    returnName = returnName === '' ? place.Desc.split('~')[0] + (place.ResID.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
                 }
             }
             else if (_this.isCountyLevel && (place.TypeCategory === 'Incorporated City' || place.TypeCategory === 'Incorporated Town' || place.TypeCategory === 'Census Designated Place') && place.Desc.replace(' County', '') === pData.community) {
@@ -2069,7 +2097,8 @@ var DataTileComponent = (function () {
             this.dataStore.indicatorData[this.indicator].chart_data = chart_data;
         }
         else {
-            console.log('place_data check', this.placeTypeData);
+            console.log('place_data check', this.placeTypeData, this.dataStore[this.pluralize(this.selectedPlaceType)]);
+            this.placeTypeData = this.getPlaceTypeData();
             for (var d = 0; d < this.placeTypeData.Data.length; d++) {
                 var pData = this.placeTypeData.Data[d];
                 var statewideFilter = ['Oregon', 'Statewide', 'Rural Oregon', 'Urban Oregon', 'California', 'Rural California', 'Urban California'];
@@ -2381,6 +2410,10 @@ var DataTileComponent = (function () {
         if (window.location.href.indexOf('indicator=') === -1) {
             window['detailBackUrl'] = window.location.href;
         }
+        console.log('gotodetails', this.placeNames, window.location.href);
+        if (this.placeNames === '' && window.location.href.indexOf('places') !== -1) {
+            this.placeNames = window.location.href.split('places=')[1].split(';')[0];
+        }
         this._router.navigate(['Explore', {
                 indicator: encodeURI(this.indicator
                     .replace(/\(/g, '%28')
@@ -2417,6 +2450,9 @@ var DataTileComponent = (function () {
         var collInfo = this.collections.filter(function (coll) { return coll.collection === collection; });
         return collInfo.length > 0 ? collInfo[0].icon_path : '';
     };
+    DataTileComponent.prototype.openMoeDialog = function () {
+        $('#moe-dialog').dialog('open');
+    };
     DataTileComponent.prototype.ngOnInit = function () {
         console.log('Leave this so it does not squawk on build', this.defaultAdvChartOptions);
         this.defaultChartOptions.chart.spacingTop = this.viewType === 'advanced' ? 50 : this.defaultChartOptions.chart.spacingTop;
@@ -2428,6 +2464,30 @@ var DataTileComponent = (function () {
         }
         else {
             this.collections = window.crt_collections ? window.crt_collections : [];
+        }
+        $('#moe-dialog').dialog({
+            autoOpen: false,
+            show: {
+                effect: 'blind',
+                duration: 500
+            },
+            hide: {
+                effect: 'blind',
+                duration: 500
+            }
+        });
+    };
+    DataTileComponent.prototype.ngOnChanges = function (changes) {
+        console.log('datatile changed', changes);
+        if (changes._selectedYear && this.tileType === 'graph' && this.chart) {
+            this.chart.xAxis[0].removePlotLine('plot-line-1');
+            this.chart.xAxis[0].addPlotLine({
+                value: changes._selectedYear.currentValue.index,
+                color: 'gray',
+                dashStyle: 'longdashdot',
+                width: 2,
+                id: 'plot-line-1'
+            });
         }
     };
     DataTileComponent.prototype.ngOnDestroy = function () {
@@ -2462,6 +2522,10 @@ var DataTileComponent = (function () {
         __metadata('design:type', Boolean)
     ], DataTileComponent.prototype, "related", void 0);
     __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], DataTileComponent.prototype, "_selectedYear", void 0);
+    __decorate([
         core_1.ViewChild(hmap_menu_component_1.HmapMenuComponent), 
         __metadata('design:type', hmap_menu_component_1.HmapMenuComponent)
     ], DataTileComponent.prototype, "hMapMenu", void 0);
@@ -2469,6 +2533,10 @@ var DataTileComponent = (function () {
         core_1.Output(), 
         __metadata('design:type', Object)
     ], DataTileComponent.prototype, "onChartDataUpdate", void 0);
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', Object)
+    ], DataTileComponent.prototype, "onSelectedYearChange", void 0);
     DataTileComponent = __decorate([
         core_1.Component({
             moduleId: module.id,

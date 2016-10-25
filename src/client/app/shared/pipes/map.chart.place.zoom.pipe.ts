@@ -24,6 +24,7 @@ export class MapChartPlaceZoomPipe implements PipeTransform {
             case 'Incorporated Town':
             case 'City':
             case 'Cities':
+            case 'Places':
                 returnPT = 'Places';
                 break;
             case 'Census Tract':

@@ -56,7 +56,8 @@
                     <div id="selected-places-bin" class="col-lg-12 col-md-12 col-xs-12">
                         <div class="row">
                             <div #groupContainer class="col-lg-4 col-md-6 col-xs-12 place-bin-wrapper" *ngFor="let group of selPlaceGroups; let idx = index;">
-                                <div #placeContainer *ngFor="let place of group.places; let idx = index;" [attr.orig_container]="translatePlaceTypes(place.TypeCategory,place.Name)" (click)="!place.Combined ? placeContainer.setAttribute('showToolTip', placeContainer.getAttribute('showToolTip') === 'true' ? 'false' : 'true') : return; " [attr.showtooltip]="false" [attr.editview]="false" [title]="place.TypeCategory + ' ' + place.Desc">
+
+                                <div #placeContainer *ngFor="let place of group.places; let idx = index;" class="placeContainer" [ngClass]="dragBin.getElementsByClassName('place-bin').length > 1 ? 'hasCombinedPlaceContainer' : ''" [attr.orig_container]="translatePlaceTypes(place.TypeCategory,place.Name)" (click)="!place.Combined ? placeContainer.setAttribute('showToolTip', placeContainer.getAttribute('showToolTip') === 'true' ? 'false' : 'true') : makeDraggable(); " [attr.showtooltip]="false" [attr.editview]="false" [title]="place.TypeCategory + ' ' + place.Desc">
                                     <div class="place-tooltip" *ngIf="placeContainer.getAttribute('showtooltip') === 'true' && placeContainer.getAttribute('editview') === 'false'">
                                         <span>
                                             {{place.TypeCategory}}
@@ -76,19 +77,21 @@
                                         </span>
                                         <br /><em>-- Click to close --</em>
                                     </div>
-                                    <div class="placePanelWrapper" [ngClass]="placeContainer.getAttribute('editview') === 'true' ? 'editPanel' : ''">
+                                    <div class="placePanelWrapper" [ngClass]="placeContainer.getAttribute('editview') === 'true' ? 'editPanel ui-widget-content' : ''">
                                         <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editview') === 'true'">
-                                            <div title="Set combined settings." class="editHeader" (click)="updateCustomSetName(dragBin, placeContainer, inpPlace)">
-                                                <span class="editPanelHeading">Edit Combined</span><span class="glyphicon glyphicon-check spanCheck">&nbsp;</span>
+                                            <span class="glyphicon glyphicon-move edit-handle"></span>
+                                            <div title="Set combined settings." class="editHeader">
+                                                <span class="editPanelHeading">Edit Combined</span>
+                                                <div class="edit-check"  (click)="updateCustomSetName(dragBin, placeContainer, inpPlace)"><span class="glyphicon glyphicon-check spanCheck">&nbsp;</span></div>
 
                                             </div>
-                                            <input #inpPlace type="text" placeholder="Enter a name for custom group" (keypress)="onCombineLabelKeyPress($event, dragBin, placeContainer, inpPlace)" value="{{place.GroupName}}" (click)="inpPlace.value = ''" />
+                                            <input #inpPlace type="text" placeholder="Enter a name for custom group" (keypress)="onCombineLabelKeyPress($event, dragBin, placeContainer, inpPlace)" value="{{place.GroupName}}"/>
                                         </div>
                                         <div *ngIf="dragBin.getElementsByClassName('place-bin').length > 1 && placeContainer.getAttribute('editview') === 'false'" title="Edit combined communities" class="combinedLabel" (click)="placeContainer.setAttribute('editview','true')">
                                             {{place.GroupName}}
                                             <span class="glyphicon glyphicon-edit">&nbsp;</span>
                                         </div>
-                                        <div #dragBin [hidden]="(place.Combined && placeContainer.getAttribute('editview') === 'false') || (!place.Combined && placeContainer.getAttribute('editview') === 'true')"
+                                        <div #dragBin [hidden]="(place.Combined && placeContainer.getAttribute('editview') === 'false')"
                                              [dragula]="translatePlaceTypes(place.TypeCategory)"
                                              class="dragBin"
                                              [attr.dragBag]="translatePlaceTypes(place.TypeCategory)"
@@ -113,8 +116,8 @@
             </div>
             <div id="place-btn-col" class="col-lg-2 col-md-2 col-xs-12">
                 <div class="row">
-                    <div (click)="addPlaceCompare('Rural')" class="add-place-btn col-xs-4 col-md-12">Rural<span>+</span></div>
-                    <div (click)="addPlaceCompare('Urban')" class="add-place-btn col-xs-4 col-md-12">Urban<span>+</span></div>
+                    <div (click)="addPlaceCompare('Rural')" class="add-place-btn col-xs-4 col-md-12" title="Add rural data for Oregon or Siskiyou County, CA.">Rural<span>+</span></div>
+                    <div (click)="addPlaceCompare('Urban')" class="add-place-btn col-xs-4 col-md-12" title="Add urban data for Oregon or Siskiyou County, CA.">Urban<span>+</span></div>
                     <!--<div id="go-report-button" class="col-xs-4 col-md-12"> Go </div>-->
                 </div>
             </div>

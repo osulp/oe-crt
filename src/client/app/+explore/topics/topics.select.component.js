@@ -24,16 +24,20 @@ var TopicsComponent = (function () {
         this.selectedCollectionsFromComp = new core_1.EventEmitter();
         this.allTopicsFromComp = new core_1.EventEmitter();
         this.allIndicatorsFromComp = new core_1.EventEmitter();
+        this.hideAllFromComp = new core_1.EventEmitter();
         this.chkBoxCollectVisibile = false;
         this.initialLoad = true;
         this.collections = [];
         this.showIndicatorCount = false;
+        this.showAll = true;
+        this.hideAll = false;
+        this.indicatorTrigger = false;
         this.visible = true;
         this.showAllSelected = false;
         this.chkBoxVisibile = false;
     }
     TopicsComponent.prototype.getClass = function () {
-        return this.visible ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
+        return this.expanded.toString() === 'true' ? 'glyphicon glyphicon-menu-up' : 'glyphicon glyphicon-menu-down';
     };
     TopicsComponent.prototype.toggleTopicsWrapper = function () {
         console.log('this.expanded', typeof (this.expanded));
@@ -102,8 +106,19 @@ var TopicsComponent = (function () {
         this.Indicators = Indicators;
         this.allIndicatorsFromComp.emit(this.Indicators);
     };
-    TopicsComponent.prototype.toggleIndicator = function (indicator, value) {
-        if (value) {
+    TopicsComponent.prototype.showHideAll = function (showType) {
+        var _this = this;
+        this.showAll = showType === 'show';
+        this.hideAll = showType === 'hide';
+        this.Indicators.forEach(function (indicator) {
+            _this.toggleIndicator(indicator, _this.showAll, false);
+        });
+        this.allIndicatorsFromComp.emit(this.Indicators);
+        this.indicatorTrigger = !this.indicatorTrigger;
+        this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger });
+    };
+    TopicsComponent.prototype.toggleIndicator = function (indicator, value, emit) {
+        if (value !== undefined && value !== null) {
             indicator.selected = value;
         }
         else {
@@ -119,7 +134,18 @@ var TopicsComponent = (function () {
                 this._selectedIndicators.push(this.Indicators[x]);
             }
         }
-        this.allIndicatorsFromComp.emit(this.Indicators);
+        if (emit === undefined) {
+            this.showAll = false;
+            this.hideAll = false;
+            this.allIndicatorsFromComp.emit(this.Indicators);
+        }
+        else if (emit) {
+            this.showAll = false;
+            this.hideAll = false;
+            this.indicatorTrigger = !this.indicatorTrigger;
+            this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger });
+            this.allIndicatorsFromComp.emit(this.Indicators);
+        }
     };
     TopicsComponent.prototype.toggleCollection = function (toggled_collection) {
         this.collections = this.collections.map(function (coll) {
@@ -205,6 +231,10 @@ var TopicsComponent = (function () {
         core_1.Output(), 
         __metadata('design:type', Object)
     ], TopicsComponent.prototype, "allIndicatorsFromComp", void 0);
+    __decorate([
+        core_1.Output(), 
+        __metadata('design:type', Object)
+    ], TopicsComponent.prototype, "hideAllFromComp", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', String)

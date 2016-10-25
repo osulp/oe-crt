@@ -35,7 +35,7 @@
                     Selected:
                     <select #sel class="map-chart-zoom-select" (change)="mapChart.get(sel.value).zoomTo()">
                         <option *ngFor="let point of selectedMapPoints | mapChartPlaceZoomPipe: selectedPlaceType" [value]="point.id" (click)="mapChart.get(sel.value).zoomTo()">
-                            {{point.id + (point.geoid.length === 5 ? ' County' : '')}}
+                            {{point.id + (point.geoid ? point.geoid.length === 5 ? ' County' : '' : '')}}
                         </option>
                     </select>
                     <span class="glyphicon glyphicon-search zoomBtn" (click)="mapChart.get(sel.value).zoomTo()" title="Find selected community in map."></span>
@@ -68,7 +68,7 @@
                 <div *ngIf="isCountyLevel && false" id="showAll">Show All</div>
                 <div *ngIf="hasMOEs" id="showMOEs">
                     <span><input id="chkBoxShowMOE" type="checkbox" [checked]="showMOES" (click)="toggleMOEs()" /></span>
-                    <span><label for="chkBoxShowMOE">Show <a href="">Margin of Error</a> Bars</label></span>
+                    <span><label for="chkBoxShowMOE">Show <a href="javascript:void(0);" (click)="openMoeDialog()">Margin of Error</a> Bars</label></span>
                 </div>
             </div>
         </div>
@@ -76,4 +76,5 @@
     <div [hidden]="viewType !== 'basic'" class="col-xs-12" id="view-data" (click)="gotoDetails()">
         View Data  >
     </div>
+    <div id="moe-dialog" title="What is Margin of Error?">We can be 90% sure that the true value for this statistic lies somewhere within the margin of error interval. </div>
 </div>

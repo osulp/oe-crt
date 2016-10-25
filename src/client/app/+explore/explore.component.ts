@@ -12,6 +12,7 @@ import {SelectedPlacesService} from '../shared/services/index';
 
 declare var $: any;
 declare var window: any;
+declare var toastr: any;
 
 interface QueryStringParams {
     key: string;
@@ -47,9 +48,10 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     initialIndicator: boolean;
     selectedSearchResult: SearchResult;
     subscription: Subscription;
-    showTopicsExpanded: boolean = true;
+    showTopicsExpanded: boolean = false;
     showPlacesExpanded: boolean = false;
     initLoad: boolean = true;
+    hideAll: any = { hide: false, trigger: null };
 
     constructor(
         public _selectedPlacesService: SelectedPlacesService,
@@ -66,12 +68,15 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         this.selectedIndicators = decodeURI(curr.getParam('indicators'));
         this.selectedPlaces = decodeURI(curr.getParam('places'));
         this.urlCollection = decodeURI(curr.getParam('collection'));
-        this.showTopicsExpanded = curr.getParam('show') !== 'Places';
+        this.showTopicsExpanded = curr.getParam('show') === 'Topics';
         this.showPlacesExpanded = curr.getParam('show') === 'Places';
         console.log('routercheck', this.showTopicsExpanded, this.showPlacesExpanded);
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
     }
-
+    onHideAll(evt:any) {
+        //console.log('onhideall', evt);
+        this.hideAll = evt;
+    }
     //emitted from search component
     onSelectedSearchResult(results: SearchResult) {
         this.selectedSearchResult = results;
@@ -103,7 +108,8 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
                 }
             }
         } else {
-            queryString = 'All Topics';
+            //queryString = 'All Topics';
+            queryString = '';
         }
         var qsParams: QueryStringParams[] = [];
         var topicsParam: QueryStringParams = { key: 'topics', value: queryString };
@@ -224,6 +230,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         //this.selectedTopics = this._routeParams.getParam('topics');
         //this.selectedTopics = this.getParameterByName('topics');
         console.log('topics from init?', this.selectedTopics);
+        //toastr.info('Are you the 6 fingered man?');
         this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
             data => {
                 console.log('subscribe throwing event');
