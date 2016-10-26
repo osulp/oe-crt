@@ -26,6 +26,10 @@ export class FeaturedCollectionsComponent implements OnInit {
         this.items = this._collectionsService.get();
     }
 
+    gotoCollection(collection: any) {
+        window.location.href = './Explore;collection=' + collection;
+    }
+
     ngOnInit() {
         this.search('');
     }

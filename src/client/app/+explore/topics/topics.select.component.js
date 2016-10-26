@@ -48,16 +48,36 @@ var TopicsComponent = (function () {
         this.showAllSelected = this.showAllSelected ? this.showAllSelected : !this.showAllSelected;
         if (this.showAllSelected) {
             console.log('show all selected');
-            this.Topics.forEach(function (topic) {
+            var tempTopics = this.Topics;
+            tempTopics.forEach(function (topic) {
                 if (topic.selected) {
                     _this.toggleTopic(topic);
                 }
+                var idx = _this.Topics.indexOf(topic);
+                _this.Topics = _this.Topics.slice(0, idx).concat([
+                    topic
+                ], _this.Topics.slice(idx + 1));
             });
             this._selectedTopics = [];
-            this.selectedTopicsFromComp.emit(this._selectedTopics);
-            for (var i = 0; i < this.Indicators.length; i++) {
-                this.toggleIndicator(this.Indicators[i], true);
+            this._selectedIndicators = [];
+            for (var x = 0; x < this.Indicators.length; x++) {
+                if (this.Indicators[x].selected) {
+                    this._selectedIndicators.push(this.Indicators[x]);
+                }
             }
+            this.selectedTopicsFromComp.emit(this._selectedTopics);
+            var tempIndicators = this.Indicators;
+            this._selectedIndicators = [];
+            tempIndicators.forEach(function (indicator) {
+                if (!indicator.selected) {
+                    indicator.toggleSelected();
+                }
+                var i = _this.Indicators.indexOf(indicator);
+                _this.Indicators = _this.Indicators.slice(0, i).concat([
+                    indicator
+                ], _this.Indicators.slice(i + 1));
+                _this._selectedIndicators.push(indicator);
+            });
             this.allTopicsFromComp.emit(this.Topics);
             this.allIndicatorsFromComp.emit(this.Indicators);
         }

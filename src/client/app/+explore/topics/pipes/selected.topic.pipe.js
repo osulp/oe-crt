@@ -18,7 +18,7 @@ var SelectedTopicsPipe = (function () {
             var isAllTopics = topics.filter(function (topic) { return topic.selected; }).length === 0;
             if (selectedCollection.length > 0) {
                 var selectedTopics = topics.filter(function (topic) {
-                    if (topicIndicatorCount) {
+                    if (topicIndicatorCount ? topicIndicatorCount[topic.topic] : false) {
                         if (topic.selected || isAllTopics) {
                             return selectedCollection[0].collection !== 'Show All'
                                 ? topic.collections
@@ -46,10 +46,10 @@ var SelectedTopicsPipe = (function () {
                 });
                 console.log('selectedCRTTOPICs', topics, collection, selectedCollection, selectedTopics);
                 if (selectedTopics.length === 0) {
-                    return topics.filter(function (topic) { return selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true; });
+                    return topics.filter(function (topic) { return selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true; }).sort(function (a, b) { return a.topic.localeCompare(b.topic); });
                 }
                 else {
-                    return selectedTopics;
+                    return selectedTopics.sort(function (a, b) { return a.topic.localeCompare(b.topic); });
                 }
             }
             else {
@@ -61,7 +61,7 @@ var SelectedTopicsPipe = (function () {
                         return topic.selected;
                     }
                 });
-                return selectedTopics;
+                return selectedTopics.sort(function (a, b) { return a.topic.localeCompare(b.topic); });
             }
         }
     };

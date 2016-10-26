@@ -718,8 +718,10 @@ var DataTileComponent = (function () {
         else {
             var combinedGroups = this.checkCombineGroups();
             if (combinedGroups.length > 0 && !this.isStatewide && !this.isSchool) {
+                console.log('combine data call', geoids);
                 this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
                     var combinedData = _this.processCombinedData(data);
+                    console.log('hotdog', combinedData);
                     _this.updateDataStore([combinedData], 'indicator');
                     _this.onChartDataUpdate.emit({ data: combinedData, customPlace: _this.selectedPlaceCustomChart, customYear: _this.selectedCustomChartYear, metadata: data.Metadata[0] });
                     _this.createGraphChart();
@@ -795,7 +797,7 @@ var DataTileComponent = (function () {
         var combinedData = data;
         if (!data.Metadata[0].isPreCalc && data.Metadata[0].Variable_Represent.trim() !== 'Text') {
             var groups = this.checkCombineGroups();
-            console.log('groups', groups);
+            console.log('groups', groups, data);
             for (var _i = 0; _i < groups.length; _i++) {
                 var group = groups[_i];
                 console.log('group of groups', group);
@@ -804,6 +806,7 @@ var DataTileComponent = (function () {
                 combinedGroupData.Variable = group[0].Variable;
                 combinedGroupData.geoid = '';
                 var multiplyBy = parseInt(data.Metadata[0].MultiplyBy);
+                var notCombined = false;
                 for (var _a = 0, _b = data.Years; _a < _b.length; _a++) {
                     var year = _b[_a];
                     var isACS = year.Year.indexOf('-') !== -1;
@@ -816,29 +819,37 @@ var DataTileComponent = (function () {
                         var placeData = combinedData.Data.filter(function (pData) {
                             return pData.geoid === place.ResID;
                         });
-                        var numValue = placeData[0][year.Year + '_N'];
-                        var denomValue = placeData[0][year.Year + '_D'];
-                        var numMOEValue = isACS ? placeData[0][year.Year + '_MOE_N'] : null;
-                        var denomMOEValue = isACS ? placeData[0][year.Year + '_MOE_D'] : null;
-                        combinedNumerators = numValue !== '' && numValue !== null ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
-                        combinedDenoms = denomValue !== '' && denomValue !== null ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
-                        if (isACS) {
-                            combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
-                            combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
-                        }
-                    }
-                    combinedDenoms = combinedDenoms === 0 || combinedDenoms === null ? 1 : combinedDenoms;
-                    combinedGroupData[year.Year] = combinedNumerators / combinedDenoms * multiplyBy;
-                    if (isACS) {
-                        var displayMOE = void 0;
-                        if (combinedDenomMOEs !== 0) {
-                            var calcVal = (combinedNumerators / combinedDenoms) / multiplyBy;
-                            displayMOE = Math.round(((Math.sqrt(Math.pow(combinedNumMOEs, 2) + ((Math.pow(calcVal, 2) * (Math.pow(combinedDenomMOEs, 2))))) / combinedDenoms)) * multiplyBy * 10) / 10;
+                        console.log(placeData);
+                        if (placeData.length > 0) {
+                            var numValue = placeData[0][year.Year + '_N'];
+                            var denomValue = placeData[0][year.Year + '_D'];
+                            var numMOEValue = isACS ? placeData[0][year.Year + '_MOE_N'] : null;
+                            var denomMOEValue = isACS ? placeData[0][year.Year + '_MOE_D'] : null;
+                            combinedNumerators = numValue !== '' && numValue !== null ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
+                            combinedDenoms = denomValue !== '' && denomValue !== null ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
+                            if (isACS) {
+                                combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
+                                combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
+                            }
                         }
                         else {
-                            displayMOE = Math.round(combinedNumMOEs * 10) / 10;
+                            notCombined = true;
                         }
-                        combinedGroupData[year.Year + '_MOE'] = displayMOE;
+                    }
+                    if (!notCombined) {
+                        combinedDenoms = combinedDenoms === 0 || combinedDenoms === null ? 1 : combinedDenoms;
+                        combinedGroupData[year.Year] = combinedNumerators / combinedDenoms * multiplyBy;
+                        if (isACS) {
+                            var displayMOE = void 0;
+                            if (combinedDenomMOEs !== 0) {
+                                var calcVal = (combinedNumerators / combinedDenoms) / multiplyBy;
+                                displayMOE = Math.round(((Math.sqrt(Math.pow(combinedNumMOEs, 2) + ((Math.pow(calcVal, 2) * (Math.pow(combinedDenomMOEs, 2))))) / combinedDenoms)) * multiplyBy * 10) / 10;
+                            }
+                            else {
+                                displayMOE = Math.round(combinedNumMOEs * 10) / 10;
+                            }
+                            combinedGroupData[year.Year + '_MOE'] = displayMOE;
+                        }
                     }
                 }
                 for (var _d = 0; _d < group.length; _d++) {
@@ -1044,7 +1055,7 @@ var DataTileComponent = (function () {
                     sliderScope.mapChart.series[seriesIndex].setData(data);
                     sliderScope.selectedMapPoints = sliderScope.mapChart.getSelectedPoints();
                     sliderScope.mapChart.redraw();
-                    sliderScope.onSelectedYearChange.emit({ year: sliderScope.selectedYear, index: sliderScope.selectedYearIndex });
+                    sliderScope.onSelectedYearChange.emit({ year: sliderScope.selectedYear, index: sliderScope.selectedYearIndex, indicator: sliderScope.indicator });
                 }
             }
         });
@@ -1134,7 +1145,7 @@ var DataTileComponent = (function () {
                         displayValue += mapScope.formatValue(((parseFloat(chart_data.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][1]) - parseFloat(chart_data.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][0])) / 2), false);
                         displayValue += ' )</span>';
                     }
-                    var SeriesName = this.point.series.name.split(':').length > 1 ? this.point.series.name.split(':')[0] + ':<br />' + this.point.series.name.split(':')[1] : this.point.series.name;
+                    var SeriesName = (this.point.series.name.split(':').length > 1 ? this.point.series.name.split(':')[0] + ':<br />' + this.point.series.name.split(':')[1] : this.point.series.name).replace('%3A', ':');
                     var returnHTML = '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size: 10px"> ' + SeriesName + '</span>';
                     returnHTML += '<br/><b>' + this.point.id + ' ' + (mapScope.selectedPlaceType === 'Counties' ? 'County' : '') + ': ' + displayValue;
                     returnHTML += '<br/><span style="color:#a7a7a7;">-----------------------------------------</span><br/><em><span style="font-size:10px; color:' + mapScope.placeTypeData.Metadata[0].Color_hex;
@@ -1657,7 +1668,7 @@ var DataTileComponent = (function () {
             var isUrban = pd.geoid.indexOf('u') !== -1;
             var isState = isOregon || isCalifornia ? true : false;
             var isCombined = pd.geoid === '';
-            if (addedSeries.indexOf((_this.isSchool ? pd.Name : pd.community) + pd.geoid) === -1) {
+            if (addedSeries.indexOf((_this.isSchool ? pd.Name : pd.community) + pd.geoid) === -1 && _this.hasCombined ? _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years[(_this.isSchool ? pd.Name : pd.community)].data.filter(function (d) { return d !== null; }).length > 0 : true) {
                 addedSeries.push((_this.isSchool ? pd.Name : pd.community) + pd.geoid);
                 _this.chart.addSeries({
                     id: (_this.isSchool ? pd.Name : pd.community) + pd.geoid,
@@ -1737,35 +1748,47 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.onResize = function (event) {
+        console.log('resizing...', this.indicator, this.tileType, this.chart);
         if (this.chart) {
-            if (this.chart.legend) {
-                if (this.chart.legend.display) {
-                    this.chart.legend.update(this.setLegendOptions(true));
-                }
-            }
             var runInterval = setInterval(runCheck, 2000);
             var resizeScope = this;
             function runCheck() {
                 var newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
                 $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
+                if (resizeScope.chart.legend) {
+                    if (resizeScope.chart.legend) {
+                        resizeScope.chart.legend.update(resizeScope.setLegendOptions(true));
+                    }
+                }
                 clearInterval(runInterval);
             }
         }
     };
     DataTileComponent.prototype.setLegendOptions = function (show) {
-        var domTile = this.related ? $(this.elementRef.nativeElement) : $('#data-tile-wrapper');
-        var domTileWidth = $(domTile).width();
-        return {
-            width: this.viewType === 'basic' ? domTileWidth : 400,
-            itemWidth: this.viewType === 'basic' ? (domTileWidth - 20) / 2 : 200,
-            itemStyle: {
-                width: this.viewType === 'basic' ? (domTileWidth - 40) / 2 : 180,
-                color: '#4d4d4d'
-            },
-            title: {
-                text: this.isStatewide || !show ? null : 'LEGEND: <span style="font-size: 9px; color: #666; font-weight: normal">(Click to hide series in chart)</span>'
-            }
-        };
+        try {
+            var domTile = this.related ? $(this.elementRef.nativeElement) : $('#data-tile-wrapper');
+            var domTileWidth = $(domTile).width() !== 0
+                ? $(domTile).width()
+                : this.elementRef.nativeElement.offsetParent
+                    ? this.elementRef.nativeElement.offsetParent.offsetWidth - 50
+                    : 400;
+            console.log('domtilewidth', this.indicator, domTileWidth, this.elementRef.nativeElement.offsetParent.offsetWidth);
+            return {
+                width: this.viewType === 'basic' ? domTileWidth : 400,
+                itemWidth: this.viewType === 'basic' ? (domTileWidth - 20) / 2 : 200,
+                itemStyle: {
+                    width: this.viewType === 'basic' ? (domTileWidth - 40) / 2 : 180,
+                    color: '#4d4d4d'
+                },
+                title: {
+                    text: this.isStatewide || !show ? null : 'LEGEND: <span style="font-size: 9px; color: #666; font-weight: normal">(Click to hide series in chart)</span>'
+                }
+            };
+        }
+        catch (ex) {
+            console.log('resize legend failed', ex);
+            return null;
+        }
     };
     DataTileComponent.prototype.getMaxMOE = function (data) {
         var max = 0;

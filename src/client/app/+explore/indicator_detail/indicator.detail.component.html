@@ -57,7 +57,13 @@
                         </h2>
 
                     </div>
-                    <div class="subtitle">{{subTitle !== '' ? '('+subTitle+')' : '&nbsp;'}}</div>
+                    <div class="subtitle">
+                        <span>{{subTitle !== '' ? '('+subTitle+')' : '&nbsp;'}}</span>
+                        <span *ngIf="isStatewide || isCountyLevel" class="data-flag"><span class="glyphicon glyphicon-flag"></span>
+                            {{isStatewide ? '*** Data only available Statewide ***' : isCountyLevel ? '*** Data only available at the County level ***' : ''}}
+                        </span>
+                    </div>
+
                 </div>
                 <div class="col-lg-2 col-md-2 col-xs-4">
                     <div id="share-btns">

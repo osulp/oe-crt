@@ -92,6 +92,11 @@
     float: right;
 }
 
+.data-flag {
+    padding-left:20px;
+    color:rgba(195, 69, 0, 0.67);
+}
+
 .detail-tile:nth-child(1) {
     padding-right: 30px;
 }

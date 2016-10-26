@@ -15,6 +15,7 @@
 
 .featured-collection {
     margin: 0 auto;
+    cursor: pointer;
 }
 
 #find-collections-wrapper {

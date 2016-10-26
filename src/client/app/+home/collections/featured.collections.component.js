@@ -19,6 +19,9 @@ var FeaturedCollectionsComponent = (function () {
     FeaturedCollectionsComponent.prototype.search = function (term) {
         this.items = this._collectionsService.get();
     };
+    FeaturedCollectionsComponent.prototype.gotoCollection = function (collection) {
+        window.location.href = './Explore;collection=' + collection;
+    };
     FeaturedCollectionsComponent.prototype.ngOnInit = function () {
         this.search('');
     };

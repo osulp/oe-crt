@@ -72,7 +72,12 @@ var PlacesMapSelectComponent = (function () {
         if (args[2].children.length > 0) {
             this.setPlaceBinGroups(args[2].children[0], false);
         }
-        $('.hasCombinedPlaceContainer').attr('editview', true);
+        $('.hasCombinedPlaceContainer').each(function (comb) {
+            console.log('flop', comb, this, args);
+            if ($(this).attr('placetype') === args[0].getAttribute('placetype')) {
+                $('.hasCombinedPlaceContainer').attr('editview', true);
+            }
+        });
     };
     PlacesMapSelectComponent.prototype.onCombineLabelKeyPress = function (evt, dragBin, placeContainer, inpPlace) {
         if (evt.keyCode === 13 || evt.keyCode === 9) {
@@ -108,10 +113,11 @@ var PlacesMapSelectComponent = (function () {
                 this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, e.parentNode.getAttribute('groupname') === '' ? 'Custom Set ' + e.placetype + ' ' + (this.customSetCounter + 1) : e.parentNode.getAttribute('groupname'), combine);
             }
         }
+        this.makeDraggable();
     };
     PlacesMapSelectComponent.prototype.makeDraggable = function () {
         $('.editPanel').draggable({
-            containment: 'window'
+            containment: 'window',
         });
     };
     PlacesMapSelectComponent.prototype.updateCustomSetName = function (dragBin, placeContainer, inpPlace) {
@@ -264,8 +270,8 @@ var PlacesMapSelectComponent = (function () {
         this._selectedPlacesService.remove(place);
     };
     PlacesMapSelectComponent.prototype.addPlace = function (place) {
-        var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
-        if (indexPos === -1) {
+        var isDupe = this.selectedSearchResults.filter(function (sp) { return sp.Name === place.Name && sp.TypeCategory === place.TypeCategory; });
+        if (isDupe.length === 0) {
             this.selectedSearchResults.push(place);
             this.selPlacesEvt.emit(this.selectedSearchResults);
             this._selectedPlacesService.add(place, 'map');

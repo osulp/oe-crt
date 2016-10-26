@@ -57,7 +57,7 @@
                         <div class="row">
                             <div #groupContainer class="col-lg-4 col-md-6 col-xs-12 place-bin-wrapper" *ngFor="let group of selPlaceGroups; let idx = index;">
 
-                                <div #placeContainer *ngFor="let place of group.places; let idx = index;" class="placeContainer" [ngClass]="dragBin.getElementsByClassName('place-bin').length > 1 ? 'hasCombinedPlaceContainer' : ''" [attr.orig_container]="translatePlaceTypes(place.TypeCategory,place.Name)" (click)="!place.Combined ? placeContainer.setAttribute('showToolTip', placeContainer.getAttribute('showToolTip') === 'true' ? 'false' : 'true') : makeDraggable(); " [attr.showtooltip]="false" [attr.editview]="false" [title]="place.TypeCategory + ' ' + place.Desc">
+                                <div #placeContainer *ngFor="let place of group.places; let idx = index;" class="placeContainer" [ngClass]="dragBin.getElementsByClassName('place-bin').length > 1 ? 'hasCombinedPlaceContainer' : ''" [attr.orig_container]="translatePlaceTypes(place.TypeCategory,place.Name)" (click)="!place.Combined ? placeContainer.setAttribute('showToolTip', placeContainer.getAttribute('showToolTip') === 'true' ? 'false' : 'true') : makeDraggable(); " [attr.showtooltip]="false" [attr.editview]="false" [attr.placetype]="place.TypeCategory" [title]="place.TypeCategory + ' ' + place.Desc">
                                     <div class="place-tooltip" *ngIf="placeContainer.getAttribute('showtooltip') === 'true' && placeContainer.getAttribute('editview') === 'false'">
                                         <span>
                                             {{place.TypeCategory}}

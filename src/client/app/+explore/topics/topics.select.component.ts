@@ -84,17 +84,49 @@ export class TopicsComponent implements OnInit {
         if (this.showAllSelected) {
             //turn off any other selected topics and set selected to all
             console.log('show all selected');
-            this.Topics.forEach((topic: Topic) => {
+            let tempTopics = this.Topics;
+
+            tempTopics.forEach((topic: Topic) => {
                 if (topic.selected) {
                     this.toggleTopic(topic);
+                    //topic.toggleSelected();
                 }
+                const idx = this.Topics.indexOf(topic);
+                this.Topics = [
+                    ...this.Topics.slice(0, idx),
+                    topic,
+                    ...this.Topics.slice(idx + 1)
+                ];
             });
             this._selectedTopics = [];
-            this.selectedTopicsFromComp.emit(this._selectedTopics);
-            for (var i = 0; i < this.Indicators.length; i++) {
-                this.toggleIndicator(this.Indicators[i], true);
-                //this._selectedIndicatorsService.toggle(this.Indicators[i], true);
+
+            this._selectedIndicators = [];
+            for (var x = 0; x < this.Indicators.length; x++) {
+                if (this.Indicators[x].selected) {
+                    this._selectedIndicators.push(this.Indicators[x]);
+                }
             }
+
+
+            this.selectedTopicsFromComp.emit(this._selectedTopics);
+            let tempIndicators = this.Indicators;
+            this._selectedIndicators = [];
+            tempIndicators.forEach((indicator: Indicator) => {
+                if (!indicator.selected) {
+                    indicator.toggleSelected();
+                }
+                const i = this.Indicators.indexOf(indicator);
+                this.Indicators = [
+                    ...this.Indicators.slice(0, i),
+                    indicator,
+                    ...this.Indicators.slice(i + 1)
+                ];
+                this._selectedIndicators.push(indicator);
+            });
+            //for (var i = 0; i < this.Indicators.length; i++) {
+            //    this.toggleIndicator(this.Indicators[i], true);
+            //    //this._selectedIndicatorsService.toggle(this.Indicators[i], true);
+            //}
             this.allTopicsFromComp.emit(this.Topics);
             this.allIndicatorsFromComp.emit(this.Indicators);
         }

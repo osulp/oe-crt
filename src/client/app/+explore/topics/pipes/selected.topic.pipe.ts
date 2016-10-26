@@ -34,7 +34,7 @@ export class SelectedTopicsPipe implements PipeTransform {
             let isAllTopics = topics.filter(topic => topic.selected).length === 0;
             if (selectedCollection.length > 0) {
                 let selectedTopics = topics.filter((topic: Topic) => {
-                    if (topicIndicatorCount) {
+                    if (topicIndicatorCount ? topicIndicatorCount[topic.topic]: false) {
                         if (topic.selected || isAllTopics) {
                             return selectedCollection[0].collection !== 'Show All'
                                 ? topic.collections
@@ -62,9 +62,9 @@ export class SelectedTopicsPipe implements PipeTransform {
                 console.log('selectedCRTTOPICs', topics, collection, selectedCollection, selectedTopics);
                 if (selectedTopics.length === 0) {
                     //filter by selected collection
-                    return topics.filter(topic => selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true);
+                    return topics.filter(topic => selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true).sort((a: any, b: any) => a.topic.localeCompare(b.topic));
                 } else {
-                    return selectedTopics;
+                    return selectedTopics.sort((a: any, b: any) => a.topic.localeCompare(b.topic));
                 }
             } else {
                 let selectedTopics = topics.filter((topic:Topic) => {
@@ -74,9 +74,12 @@ export class SelectedTopicsPipe implements PipeTransform {
                         return topic.selected;
                     }
                 });
-                return selectedTopics;
+                return selectedTopics.sort((a: any, b: any) => a.topic.localeCompare(b.topic));
             }
         }
     }
+
+
+
 }
 

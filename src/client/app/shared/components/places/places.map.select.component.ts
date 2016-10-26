@@ -134,8 +134,13 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
             this.setPlaceBinGroups(args[2].children[0],false);
         }
         //open all edit views for possible dropping
+        $('.hasCombinedPlaceContainer').each(function (comb: any) {
+            console.log('flop', comb, this, args);
+            if ($(this).attr('placetype') === args[0].getAttribute('placetype')) {
+                $('.hasCombinedPlaceContainer').attr('editview', true);
+            }
+        });
 
-        $('.hasCombinedPlaceContainer').attr('editview', true);
     }
 
     onCombineLabelKeyPress(evt: any, dragBin: any, placeContainer: any, inpPlace: any) {
@@ -175,13 +180,15 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
                 this._selectedPlacesService.updatePlaceGroupNames(updatePlaces, e.parentNode.getAttribute('groupname') === '' ? 'Custom Set ' + e.placetype + ' ' + (this.customSetCounter + 1) : e.parentNode.getAttribute('groupname'), combine);
             }
         }
+        this.makeDraggable();
     }
 
     makeDraggable() {
         $('.editPanel').draggable({
-            containment: 'window'
+            containment: 'window',
+            //handle: '
             //,
-            //cancel: '.editHeader'
+            //cancel: '.dragBin'
         });
     }
 
@@ -364,8 +371,8 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     addPlace(place: SearchResult) {
         //check if already added
         //place.Desc = place.Desc.replace(/\./g, '%2E');
-        var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
-        if (indexPos === -1) {
+        let isDupe = this.selectedSearchResults.filter((sp: any) => sp.Name === place.Name && sp.TypeCategory === place.TypeCategory);
+        if (isDupe.length === 0) {
             this.selectedSearchResults.push(place);
             this.selPlacesEvt.emit(this.selectedSearchResults);
             //this._placeInfoService.getInfo(place.Name).subscribe((pinfo: any) => {
@@ -373,6 +380,17 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
             this._selectedPlacesService.add(place, 'map');
             // });
         }
+        //var indexPos = this.selectedSearchResults.map(function (e) {
+        //    return e.Name.trim().replace(' County', '');
+        //}).indexOf(place.Name.trim().replace(' County', ''));
+        //if (indexPos === -1) {
+        //    this.selectedSearchResults.push(place);
+        //    this.selPlacesEvt.emit(this.selectedSearchResults);
+        //    //this._placeInfoService.getInfo(place.Name).subscribe((pinfo: any) => {
+        //    //   console.log('pinfo', pinfo);
+        //    this._selectedPlacesService.add(place, 'map');
+        //    // });
+        //}
     }
 
     addPlaces(places: SearchResult[]) {
