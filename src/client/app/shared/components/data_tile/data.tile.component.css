@@ -3,8 +3,13 @@
     box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
     border-radius: 0 0 4px 4px;
     background-color: white;
-    padding:15px;
+    /*padding:15px;*/
+    padding:5px 15px 15px 15px;
     position:relative
+}
+
+.graph-chart-wrapper{
+    margin-left:-15px;
 }
 #data-tile-wrapper.advanced{
     height:680px;
@@ -162,12 +167,14 @@
 }
 .collection-icon-wrapper {
     position:absolute;
-    top:-10px;
-    right:-5px;
+    /*top:-10px;
+    right:-5px;*/
+     top:7px;
+    right:-15px;
     z-index:100;
 }
 .mapChartDiv {
-    padding: 0;
+    /*padding: 0;*/
 }
 
 .map-chart-zoom-select {
@@ -191,7 +198,7 @@
 
 .customChartTitle {
     font-size:15.5px;
-    margin-top:2px;
+    margin-top:15px;
     font-weight:200;
 }
 .placeSelectCustomChart {
@@ -205,6 +212,19 @@
 
 @media only screen and (max-width : 720px) {
     #showMOEs {
-        font-size:.8em;
+        font-size: .8em;
     }
+
+    #data-tile-wrapper {
+       padding:5px;
+    }
+    #data-tile-wrapper.featured{
+        padding:5px;
+        /*margin-left:-20px;*/
+    }
+    .collection-icon-wrapper{
+        /*top:-5px;*/
+        right:-7px;
+    }
+
 }

@@ -2,12 +2,13 @@
 import {Indicator, Topic} from '../../../shared/data_models/index';
 
 @Pipe({
-    name: 'indicatorTopicFilterPipe'
+    name: 'indicatorTopicFilterPipe',
+    pure: true
 })
 
 export class IndicatorTopicFilterPipe implements PipeTransform {
-    transform(indicators: Indicator[], topics: Topic[], collections: any, filterText: string): any {
-        console.log('filteredText', filterText);
+    transform(indicators: Indicator[], topics: Topic[], collections: any, filterText: string, sortAlpha: boolean): any {
+        console.log('water');
         //if (indicators !== undefined) {
         let selectedCollection = collections ? collections.filter((coll: any) => coll.selected).length > 0 ? collections.filter((coll: any) => coll.selected)[0].collection : 'Show All' : 'Show All';
         let selectedTopics = topics ? topics.filter((topic: Topic) => topic.selected) : [];
@@ -37,7 +38,18 @@ export class IndicatorTopicFilterPipe implements PipeTransform {
                     return true;
                 }
             })
-            .sort((a: any, b: any) => a.indicator.localeCompare(b.indicator))
+            .sort((a: any, b: any) => {
+                //if (sortAlpha) {
+                //    return a.indicator_display.localeCompare(b.indicator_display);
+                //} else {
+                //    return b.indicator_display.localeCompare(a.indicator_display);
+                //}
+                if (sortAlpha) {
+                    return a.indicator.toUpperCase().localeCompare(b.indicator.toUpperCase());
+                } else {
+                    return b.indicator.toUpperCase().localeCompare(a.indicator.toUpperCase());
+                }
+            })
             : [];
         return returnIndicators;
     }

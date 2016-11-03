@@ -47,6 +47,10 @@
     padding:4px;
 }
 
+.closeButton:hover {
+    cursor:pointer;
+}
+
 .find_header .explore-more div{
     display:inline-block;
 }
@@ -60,6 +64,29 @@
     color:rgb(221, 232, 250);
 }
 
+fieldset {
+    border: 1px solid #BBB2A4;
+    /*background: #ddd;*/
+    border-radius: 2px;
+    padding: 5px 15px;
+    margin:5px -30px;
+}
+
+fieldset legend {
+    /*width:150px;*/
+    width:auto;
+    padding: 5px 10px ;
+    font-size: 1.2em;
+    border:none;
+    /*border-radius: 4px;*/
+    /*background-color:#DDE7EA;
+    border:1px solid #BBB2A4;*/
+    color:#244068;
+    margin: -5px 0 0 0;
+    /*text-transform:uppercase;*/
+    letter-spacing:2px;
+}
+
 #topic-col-list {
     -moz-column-width: 200px;
     -webkit-column-width: 200px;
@@ -70,16 +97,27 @@
     -webkit-column-rule: 1px solid rgb(221, 232, 250);
     column-rule: 1px solid rgb(221, 232, 250);
     column-gap: 20px;
+    margin-left:8px;
 }
 
-    #topic-col-list div {
+    /*#topic-col-list div {
         min-height: 42px;
         padding: 10px 10px 10px 16px;
         border-radius: 4px;
         margin-bottom:10px;
         display: inline-block;
         width: 100%;
+    }*/
+
+     #topic-col-list div {
+        min-height: 35px;
+        padding: 8px 10px 0 16px;
+        border-radius: 4px;
+        margin-bottom:10px;
+        display: inline-block;
+        width: 100%;
     }
+
      #topic-col-list div:hover{
          border: solid 1px #C34500;
          cursor:pointer;
@@ -95,7 +133,7 @@
     border: solid 1px #C34500;
 }
 
-.multiselect {
+.globalselect {
     /*min-width: 200px;
     max-width: 50%;*/
     margin-left: 15px;
@@ -103,13 +141,21 @@
     border-top: 1px solid rgb(221, 232, 250);
     padding-top:10px;
 }
-.multiselect div:nth-child(1){
+.globalselect div:nth-child(1){
     padding-right:0;
     padding-left:0;
 }
 .selectBox {
     position: relative;
     cursor:pointer;
+}
+
+#selectedTopicsIndicators.expanded{
+    padding:10px 40px;
+    background:#D1CDC7;
+    color:#2e2d2d;
+    border-radius:4px;
+
 }
 
 
@@ -160,9 +206,103 @@
         text-decoration:underline;
         cursor:pointer;
     }
-.hide-show {
-    padding:5px;
+
+.dataset-filter input[type=text] {
+    width:90%;
+    height:40px;
+    border-radius: 4px 0 0 4px;
+    border: 1px solid #D1CDC7;
+    border-right:none;
+    /*box-shadow: 0 0 3px #ccc, 0 10px 15px #ebebeb inset;*/
+    text-indent:45px;
+    vertical-align: middle;
 }
+.dataset-filter .fa-search {
+    position: relative;
+    left: 40px;
+}
+
+#toggle-indicator-filter {
+    width: 40px;
+    height: 40px;
+    background: #C34500;
+    /*border: 1px solid #C34500;*/
+    border-radius: 0 4px 4px 0;
+    color:white;
+    font-size:1.1em;
+    position:relative;
+    vertical-align:middle;
+    line-height:40px;
+    display:inline-block;
+    margin:-2px 0  0 -5px;
+    text-align:center;
+}
+    #toggle-indicator-filter:hover {
+        cursor:pointer;
+    }
+
+#indicator-list-header {
+    width: 90%;
+    min-height:30px;
+    z-index: 1002;
+    background-color: white;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+    margin-left:17px;
+    padding-left:10px;
+    position:absolute;
+    top:40px;
+    left:17px;
+    background:#D1CDC7;
+    padding:4px 10px 4px 45px;
+    color:#244068;
+}
+
+
+#indicator-list{
+    width: 90%;
+    max-height: 300px;
+    overflow: auto;
+    z-index: 1001;
+    background-color: white;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+    margin-left:17px;
+    padding-left:10px;
+    position:absolute;
+    top:70px;
+    left:17px;
+}
+    #indicator-list div {
+        /*min-height:40px;*/
+        padding:3px 10px;
+        line-height:20px;
+        font-weight:100;
+    }
+        #indicator-list div:hover {
+            background:#f3f2ed;
+            cursor:pointer;
+        }
+
+    #indicator-list label{
+        font-weight:normal;
+
+    }
+
+    #indicator-list span {
+        display:table-cell;
+    }
+
+    #indicator-list .ind-checkbox{
+        width:25px !important;
+    }
+
+    /*#indicator-list input {
+        margin-right:10px;
+    }*/
+
+    #indicator-list input::-ms-clear{
+        display:none;
+    }
+
 
 #checkboxes {
     border: 1px #dadada solid;
@@ -189,6 +329,7 @@
             background-color: #F3F2ED;
         }
 
+
 #filterIndicator {
     color:#2e2d2d;
     background-color:#dadada;
@@ -201,6 +342,18 @@
     float:right;
     padding:2px 5px;
 }
+    .hide-show:hover {
+        text-decoration:underline;
+        cursor:pointer;
+    }
+    .hide-show.fa {
+        padding-top:5px;
+    }
+
+    #selTopicsIndicatorsWrapper{
+        padding-left:0;
+        padding-right:0;
+    }
 
 #selectedTopicsIndicators div {
     padding-right:20px;
@@ -226,6 +379,10 @@
     color:#C34500;
 }
 
+#collections{
+    padding-left:40px;
+}
+
 #collection-filter {
     /*position: absolute;
     top: 10px;
@@ -244,6 +401,62 @@
     text-align:right;
 }
 
+/* HTML5 Boilerplate accessible hidden styles */
+[type="radio"] {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+[type="radio"] + span {
+    display: block;
+    font-weight:lighter;
+    color:#C34500;
+}
+
+    [type="radio"] + span:hover {
+        cursor:pointer;
+    }
+    /* the basic, unchecked style */
+    [type="radio"] + span:before {
+        content: '';
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        vertical-align: -0.25em;
+        border-radius: 1em;
+        border: 0.125em solid #fff;
+        box-shadow: 0 0 0 0.15em #D1CDC7;
+        margin-right: 0.75em;
+        -moz-transition: 0.5s ease all;
+        -o-transition: 0.5s ease all;
+        -webkit-transition: 0.5s ease all;
+        transition: 0.5s ease all;
+    }
+
+/* the checked style using the :checked pseudo class */
+[type="radio"]:checked + span:before {
+    background: #C34500;
+    box-shadow: 0 0 0 0.25em #D1CDC7;
+}
+
+    [type="radio"]:checked + span {
+        color:#6F7C82;
+    }
+
+/* never forget focus styling */
+/*[type="radio"]:focus + span:after {
+    content: '\0020\2190';
+    font-size: 1.5em;
+    line-height: 1;
+    vertical-align: -0.125em;
+}*/
+
 
 /* Small Devices, Tablets */
 @media only screen and (max-width : 992px) {
@@ -253,11 +466,54 @@
     }
 
     #checkboxes {
-        width:100%;
+        width: 100%;
     }
+
     .collection-filter-label {
-        margin-left:-10px;
-    text-align:left;
+        margin-left: -10px;
+        text-align: left;
+    }
 }
+
+/* Small Devices, Tablets */
+@media only screen and (max-width : 768px) {
+
+    .dataset-filter input[type=text], #indicator-list-header, #indicator-list {
+        width: 75%;
+    }
+
+    #indicator-list.withFilter{
+        padding-top:2px;
+        top:92px;
+    }
+
+        #indicator-list .ind-label {
+            width: 85%;
+        }
+
+        fieldset{
+            padding:5px 0;
+            margin:5px -20px;
+        }
+
+    /*#selectedTopicsIndicators.expanded {
+        padding:10px 20px;
+    }*/
+
+    #topic-col-list div{
+        width:98%;
+    }
+    #topics-wrapper{
+        padding:15px 0;
+    }
+
+    #selectedTopicsIndicators.expanded{
+        padding:10px 20px;
+    }
+
+    #selTopicsIndicatorsWrapper{
+        padding-left:10px;
+        padding-right:10px;
+    }
 }
 

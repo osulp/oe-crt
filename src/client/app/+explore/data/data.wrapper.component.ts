@@ -29,7 +29,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     collections: any[] = [];
     selectedCollection: string = 'Show All';
     processedTopics: number = 0;
-    showIndicatorDefault: number = 6;
+    showIndicatorDefault: number = 9;
     showIndicatorCount: number = 6;
     showTopicIndicatorCount: number = 6;
     showIncrement: number = 3;
@@ -41,6 +41,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     showScrollUpCount: number = 3;
     hideAll: boolean = false;
     initLoad: boolean = true;
+    isMobile: boolean = false;
 
     toggleResultView() {
         //console.log('resultview clicked');
@@ -83,6 +84,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
 
     createTopicIndicatorObj() {
         //console.log('creating TopicIndicator Count', this.inputTopics, this.inputIndicators, this.collections);
+        this.topicIndicatorCount = {};
         for (var t = 0; t < this.inputTopics.length; t++) {
             this.topicIndicatorCount[this.inputTopics[t].topic] = {};
             this.collections.forEach(coll => {
@@ -129,6 +131,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
 
     onResize(event: any) {
         let windowWidth = $(window).width();
+        this.isMobile = windowWidth < 767;
         if (windowWidth < 767) {
             //this.scrollDownDistance = 5;
             //this.scrollUpDistance = 5;
@@ -153,11 +156,19 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
         this.hideAll = false;
         //check screen size and adjust scroll load settings accordingly
         let windowWidth = $(window).width();
+        this.isMobile = windowWidth < 767;
         if (windowWidth < 767) {
-            this.scrollDownDistance = 5;
-            this.scrollUpDistance = 5;
+            this.showIndicatorDefault = 3;
+            this.showIndicatorCount = 3;
+            this.showTopicIndicatorCount = 3;
+            this.scrollDownDistance = 16;
+            this.scrollUpDistance = 20;
             this.showIncrement = 1;
+            this.showScrollUpCount = 1;
         } else if (windowWidth < 993) {
+            this.showIndicatorDefault = 6;
+            this.showIndicatorCount = 6;
+            this.showTopicIndicatorCount = 6;
             this.scrollDownDistance = 3;
             this.scrollUpDistance = 3;
             this.showIncrement = 2;
@@ -191,13 +202,14 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
             let selectedTopics = inputChanges.inputTopics.currentValue.filter((topic: Topic) => topic.selected);
             console.log('yep selected topics', selectedTopics, inputChanges.inputTopics.currentValue);
             this.SelectedTopics = selectedTopics.length === 0 ? inputChanges.inputTopics.currentValue : selectedTopics;
+            this.SelectedTopics.sort((a: any, b: any) => a.topic.localeCompare(b.topic));
             this.checkTopicIndicatorLoaded();
         }
         if (inputChanges._hideAll) {
-            console.log('inputChanges in DataWrapper', inputChanges);
+            //console.log('inputChanges in DataWrapper', inputChanges);
             this.hideAll = this._hideAll.hide;// ? this._hideAll.hide : this.hideAll;
             this.createTopicIndicatorObj();
-            console.log('hideall called and here is the topicindicator obj', this.topicIndicatorCount);
+            //console.log('hideall called and here is the topicindicator obj', this.topicIndicatorCount);
             //this.createTopicIndicatorObj();
         }
         //if (inputChanges.inputIndicators && !this.initLoad) {

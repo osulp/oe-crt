@@ -15,6 +15,7 @@ var router_1 = require('@angular/router');
 var FindWrapperComponent = (function () {
     function FindWrapperComponent(_router) {
         this._router = _router;
+        this.isMobile = false;
         this.oregon = {
             Name: 'Oregon',
             ResID: '41',
@@ -60,6 +61,9 @@ var FindWrapperComponent = (function () {
                 this._router.navigate(['Explore', { places: places }]);
             }
         }
+    };
+    FindWrapperComponent.prototype.ngOnInit = function () {
+        this.isMobile = $(window).width() < 400;
     };
     FindWrapperComponent = __decorate([
         core_1.Component({

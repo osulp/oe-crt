@@ -91,12 +91,23 @@ a {
 
 /*#endregion */
 
-.loading {
+/*.loading {
     position: absolute;
     left: 45%;
     top: 45%;
     height:100%;
     width:100%;
+}*/
+.loading div {
+    width: 200px;
+    height: 60px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    text-align:center;
 }
 
 .ui-slider-wrapper {
@@ -279,7 +290,9 @@ a.a-nav {
         margin-top: 0;
     }
 
-
+    .sponsor-row div{
+        padding:20px;
+    }
 
 #footer-wrapper {
     vertical-align: middle;
@@ -312,7 +325,15 @@ a.a-nav {
 }
 
 /* Small Devices, Tablets */
-@media only screen and (min-width : 768px) {
+@media only screen and (max-width : 768px) {
+    #footer {
+        padding: 0 10px;
+        text-align:center;
+    }
+    #footer div{
+        height:auto;
+        padding:10px 0;
+    }
 }
 
 /* Medium Devices, Desktops */

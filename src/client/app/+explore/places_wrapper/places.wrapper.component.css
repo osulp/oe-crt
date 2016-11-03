@@ -14,18 +14,7 @@
     /*padding: 20px 25px;*/
 }
 
-#viewDiv
-{
-    /*width:570px;*/
-    /*width:100%;*/
-    background-color:rgb(221, 232, 250);
-    max-width:1170px;
-    min-height:270px;
-    margin: 0 auto;
-    padding:0;
-    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
-    border-radius: 0 0 4px 4px;
-}
+
 .find_header{
     height:50px;
     max-width:1170px;
@@ -50,16 +39,16 @@
     max-width:1170px;
     min-height:60px;
     padding:10px;
-    margin:0 auto;
+    margin:0 2px auto 0;
     box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
     border-radius: 0 0 4px 4px;
 }
 #place_type_select .place_type{
     border:solid 1px #C34500;
-    height:40px;
+    min-height:40px;
     color:#C34500;
     font-weight:bold;
-    padding-top:9px;
+    padding-top:8px;
     text-align:center;
     cursor:pointer;
 }
@@ -309,21 +298,39 @@
         margin: 0 auto;
     }
 
-    #place_type_select .place_type:nth-child(1) {
+    #place_type_select .place_type:nth-child(1), #place_type_select .place_type.selected:nth-child(1) {
         border-radius: 4px 4px 0 0;
         border: solid 1px #C34500;
         border-bottom: none;
     }
 
-    #place_type_select .place_type:nth-child(2) {
+    #place_type_select .place_type:nth-child(2), #place_type_select .place_type.selected:nth-child(2) {
         border-radius: 0;
         border: solid 1px #C34500;
         border-bottom: none;
+        /*border-top:none;*/
     }
 
-    #place_type_select .place_type:nth-child(3) {
+    #place_type_select .place_type:nth-child(3), #place_type_select .place_type.selected:nth-child(3) {
         border-radius: 0 0 4px 4px;
         border: solid 1px #C34500;
+        padding:7px 4px;
+    }
+
+    #place_type_select .place_type.selected:nth-child(1) {
+        /*border-bottom:1px solid white;*/
+        /*margin-bottom:1px;*/
+    }
+
+    #place_type_select .place_type.selected:nth-child(2) {
+         /*border-bottom:1px solid white;
+          border-top:1px solid white;*/
+           margin-bottom:1px;
+            margin-top:1px;
+    }
+    #place_type_select .place_type.selected:nth-child(3) {
+         /*border-top:1px solid white;*/
+          margin-top:1px;
     }
     #find-compare-combine{
         margin-left:0;
@@ -350,7 +357,7 @@
 
 @media only screen and (max-width : 768px) {
     .add-place-btn {
-        margin-right: 5px;
+        margin:-5px -10px -3px -5px;
     }
 
     #go-report-button {
@@ -364,5 +371,8 @@
 
     #selected-places-bin {
         width: 91%;
+    }
+    #viewDiv.exploreMap{
+        margin-right:-15px !important;
     }
 }

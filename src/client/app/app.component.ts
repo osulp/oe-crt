@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 //import {Subscription}   from 'rxjs/Subscription';
-import { ROUTER_DIRECTIVES, Routes } from '@angular/router';
+import { ROUTER_DIRECTIVES, Routes, Router} from '@angular/router';
 //import { RouteConfig, ROUTER_DIRECTIVES, Router } from '@angular/router-deprecated';
 import { HTTP_PROVIDERS} from '@angular/http';
 import { AboutComponent } from './+about/index';
@@ -13,6 +13,7 @@ import { ErrorComponent} from './+error/index';
 import { SelectedPlacesService } from './shared/services/index';
 //import { d } from './shared/index';
 
+declare var ga: Function;
 //declare var crt_globals: any;
 /**
  * This class represents the main application component. Within the @Routes annotation is the configuration of the
@@ -61,6 +62,16 @@ import { SelectedPlacesService } from './shared/services/index';
 //{ path: '/my_pins', component: MyPinsComponent, name: 'My Pins' }
 //])
 export class AppComponent {
+    constructor(public router: Router) {
+        this.router.changes.subscribe(() => {
+            console.log('router info', window.location.href);
+            if ('<%= ENV %>' === 'prod') {
+                if (ga) {
+                    ga('send', 'pageview', window.location.href);
+                }
+            }
+        });
+    }
     //crt_globals = {};
 }
 

@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {TopicsComponent} from './topics/topics.component';
 import {PlacesComponent} from './places/places.component';
 import {SearchResult} from '../../shared/data_models/index';
@@ -7,7 +7,7 @@ import {Router} from '@angular/router';
 //import {Router} from '@angular/router-deprecated';
 
 declare var window: any;
-
+declare var $: any;
 
 @Component({
     moduleId: module.id,
@@ -17,9 +17,10 @@ declare var window: any;
     directives: [SearchComponent, PlacesComponent, TopicsComponent]
 })
 
-export class FindWrapperComponent {
+export class FindWrapperComponent implements OnInit {
     selectedSearchResult: SearchResult;
     page: string;
+    isMobile: boolean = false;
     oregon: any = {
         Name: 'Oregon',
         ResID: '41',
@@ -73,6 +74,9 @@ export class FindWrapperComponent {
                 this._router.navigate(['Explore', { places: places }]);                //this._router.navigate(['Explore', { topics: 'All Topics' }]);
             }
         }
+    }
+    ngOnInit() {
+        this.isMobile = $(window).width() < 400;
     }
 }
 

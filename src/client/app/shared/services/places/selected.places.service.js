@@ -121,7 +121,6 @@ var SelectedPlacesService = (function () {
     SelectedPlacesService.prototype.load = function () {
     };
     SelectedPlacesService.prototype.add = function (place, source) {
-        var _this = this;
         this.getAdditionalPlaceInfo([place]).subscribe(function (pinfo) {
             var geoInfo = pinfo.filter(function (pi) {
                 return pi.length > 0 ?
@@ -130,11 +129,14 @@ var SelectedPlacesService = (function () {
                     : false;
             });
             place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
-            _this.addPlace.next(place);
+            place.UpdateOnly = true;
         });
+        place.UpdateOnly = false;
+        this.addPlace.next(place);
     };
     SelectedPlacesService.prototype.addPlaces = function (places) {
         var _this = this;
+        console.log('adding multiple places to selectedPlaces', places);
         this.getAdditionalPlaceInfo(places).subscribe(function (pinfo) {
             places.forEach(function (place) {
                 var geoInfo = pinfo.filter(function (pi) {
@@ -178,7 +180,7 @@ var SelectedPlacesService = (function () {
         console.log(place);
         this.removePlace.next(place);
     };
-    SelectedPlacesService.prototype.setAllbyPlaceType = function (places, placeType) {
+    SelectedPlacesService.prototype.setAllbyPlaceType = function (places, placeType, indicatorGeo) {
         var translatedPlaceType = this.translatePlaceTypes(placeType);
         console.log('processing queue', this.processingQueue, places);
         if (places.length > 0) {
@@ -188,7 +190,7 @@ var SelectedPlacesService = (function () {
                 this.intervalCount = 0;
                 this._setAllByPlaceType.next([this.processingQueue[0].places, this.processingQueue[0].placeType]);
                 if (placeType !== 'SchoolDistricts') {
-                    this.subScribeToGetAddionalPlaceInfo(this.processingQueue[0].places, this.processingQueue[0].placeType);
+                    this.subScribeToGetAddionalPlaceInfo(this.processingQueue[0].places, this.processingQueue[0].placeType, indicatorGeo);
                 }
                 else {
                     this.processingQueue.shift();
@@ -197,7 +199,7 @@ var SelectedPlacesService = (function () {
             }
             else {
                 var runScope = this;
-                var runInterval = setInterval(runCheck, 500);
+                var runInterval = setInterval(runCheck, 100);
                 function runCheck() {
                     console.log('processing queue run check', runScope.processingQueue, runScope.intervalCount);
                     runScope.intervalCount++;
@@ -225,7 +227,7 @@ var SelectedPlacesService = (function () {
             this._setAllByPlaceType.next([places, translatedPlaceType]);
         }
     };
-    SelectedPlacesService.prototype.subScribeToGetAddionalPlaceInfo = function (places, translatedPlaceType) {
+    SelectedPlacesService.prototype.subScribeToGetAddionalPlaceInfo = function (places, translatedPlaceType, indicatorGeo) {
         var _this = this;
         this.getAdditionalPlaceInfo(places).subscribe(function (pinfo) {
             _this.processingQueue.shift();

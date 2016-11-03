@@ -121,9 +121,13 @@ export class DetailComponent implements OnInit {
     }
 
     windowRefresh() {
+        //resizes charts to display the full width for statewide
         var runInterval = setInterval(runCheck, 50);
         function runCheck() {
-            window.dispatchEvent(new Event('resize'));
+            var evt = document.createEvent('UIEvents');
+            evt.initUIEvent('resize', true, false, window, 0);
+            window.dispatchEvent(evt);
+            //window.dispatchEvent(new Event('resize'));
             clearInterval(runInterval);
         }
         //let temp: any = '';

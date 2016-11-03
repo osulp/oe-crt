@@ -38,7 +38,7 @@
     font-family:  AvenirLTCom-Book, AvenirLTStd-Book, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     color: white;
     font-weight: bold;
-    line-height: 20px;
+    line-height: 21px;
     width: 170px;
     height: 50px;
     font-size: .9em;
@@ -79,6 +79,7 @@
         color: #802E01;
         cursor: pointer;
         background: rgba(255, 255, 255, 0.50);
+        text-decoration:underline;
     }
 
         #how-to-use:hover span {
@@ -92,4 +93,32 @@ topics h2, places h2{
 search {
     margin-top:-26px;
     margin-bottom:-20px;
+}
+
+@media only screen and (max-width : 768px) {
+
+    #banner-tag-launch-wrapper {
+        margin-top:0;
+        z-index:1000;
+    }
+    #banner-tag-launch-wrapper h1{
+        font-size:15px !important;
+        line-height:24px !important;
+    }
+    .find-search-wrapper{
+        margin:-30px;
+    }
+    .find-topics-wrapper-row {
+        margin-left:-25px;
+        margin-right:-30px;
+    }
+
+    #launch-help-wrapper{
+        margin-top:40px;
+    }
+
+    .home-btns{
+        width:137px;
+    }
+
 }

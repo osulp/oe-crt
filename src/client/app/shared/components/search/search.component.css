@@ -146,4 +146,31 @@
     float:right;
 }
 
+@media only screen and (max-width : 768px) {
+    .search {
+        margin-left: -20px;
+    }
+
+    .search-wrapper input {
+        text-indent: 30px;
+    }
+
+    .search-wrapper .fa-search {
+        left: 27px;
+        top: 2px;
+    }
+
+    .search .list-group {
+        position: absolute;
+        width: 89%;
+        background: #FFFFFF;
+        box-shadow: 2px 2px 2px 2px rgba(0,0,0,0.30);
+        border-radius: 0 0 0 4px 4px 4px 4px;
+        text-align: left;
+        margin-left: 7%;
+        z-index: 1001;
+        /*max-height:400px;
+    overflow:scroll;*/
+    }
+}
 

@@ -5,7 +5,7 @@
                 <h2>{{selTopics[0].topic}}</h2>
             </div>
         </div>
-        <div #indicatorTopicChkBoxes class="checkboxes" [hidden]="!chkBoxVisibile">
+        <div #indicatorTopicChkBoxes class="checkboxes" [ngClass]="selTopics[0].topic.length > 20 ? 'lower' : ''" [hidden]="!chkBoxVisibile">
             <label *ngFor="let indicator of inputIndicators | indicatorTopicFilterPipe : selTopics[0]:selCollections:false" attr.for="{{indicator.indicator}}"><input type="checkbox" [checked]="indicator.selected" id="{{indicator.indicator}}" (click)="toggleIndicator(indicator)" />{{indicator.indicator_display}}</label>
         </div>
     </div>

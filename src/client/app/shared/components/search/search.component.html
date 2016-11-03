@@ -2,7 +2,7 @@
     <div class="col-md-12">
         <div class="search">
             <span class="fa fa-search"></span>
-            <input [(ngModel)]="searchTerms" #searchInput type="text" [(ngFormControl)]="term" placeholder="Type in location or indicator here" (click)="inputSearchClickHandler($event);" (blur)="blurHandler($event);" (keydown)="inputKeypressHandler($event);" />
+            <input [(ngModel)]="searchTerms" #searchInput type="text" [(ngFormControl)]="term" [placeholder]="isMobile ? 'Select and explore' : 'Type in location or indicator'" (click)="inputSearchClickHandler($event);" (blur)="blurHandler($event);" (keydown)="inputKeypressHandler($event);" />
             <div id="explore-btn">
                 Explore
             </div>

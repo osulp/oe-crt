@@ -32,6 +32,8 @@ var TopicsComponent = (function () {
         this.showAll = true;
         this.hideAll = false;
         this.indicatorTrigger = false;
+        this.showFilterIndicator = false;
+        this.indicatorSortAlpha = true;
         this.visible = true;
         this.showAllSelected = false;
         this.chkBoxVisibile = false;
@@ -43,44 +45,58 @@ var TopicsComponent = (function () {
         console.log('this.expanded', typeof (this.expanded));
         this.expanded = this.expanded.toString() === 'true' ? false : true;
     };
+    TopicsComponent.prototype.toggleFilterIndicator = function (filterInput) {
+        this.showFilterIndicator = !this.showFilterIndicator;
+        console.log('toggleIndicatorList', filterInput);
+        filterInput.value = !this.showFilterIndicator ? '' : filterInput.value;
+    };
     TopicsComponent.prototype.toggleAllTopics = function (evt) {
-        var _this = this;
         this.showAllSelected = this.showAllSelected ? this.showAllSelected : !this.showAllSelected;
         if (this.showAllSelected) {
-            console.log('show all selected');
-            var tempTopics = this.Topics;
-            tempTopics.forEach(function (topic) {
-                if (topic.selected) {
-                    _this.toggleTopic(topic);
-                }
-                var idx = _this.Topics.indexOf(topic);
-                _this.Topics = _this.Topics.slice(0, idx).concat([
-                    topic
-                ], _this.Topics.slice(idx + 1));
-            });
-            this._selectedTopics = [];
-            this._selectedIndicators = [];
-            for (var x = 0; x < this.Indicators.length; x++) {
-                if (this.Indicators[x].selected) {
-                    this._selectedIndicators.push(this.Indicators[x]);
-                }
-            }
-            this.selectedTopicsFromComp.emit(this._selectedTopics);
-            var tempIndicators = this.Indicators;
-            this._selectedIndicators = [];
-            tempIndicators.forEach(function (indicator) {
-                if (!indicator.selected) {
-                    indicator.toggleSelected();
-                }
-                var i = _this.Indicators.indexOf(indicator);
-                _this.Indicators = _this.Indicators.slice(0, i).concat([
-                    indicator
-                ], _this.Indicators.slice(i + 1));
-                _this._selectedIndicators.push(indicator);
-            });
-            this.allTopicsFromComp.emit(this.Topics);
-            this.allIndicatorsFromComp.emit(this.Indicators);
+            this.selectAllTopics();
         }
+    };
+    TopicsComponent.prototype.onIndicatorFilterKeyPress = function (event, filterIndicator) {
+        var code = event.keyCode || event.which;
+        if (code === 13) {
+            this.showHideAll('show', filterIndicator);
+        }
+    };
+    TopicsComponent.prototype.selectAllTopics = function () {
+        var _this = this;
+        console.log('show all selected');
+        var tempTopics = this.Topics;
+        tempTopics.forEach(function (topic) {
+            if (topic.selected) {
+                _this.toggleTopic(topic);
+            }
+            var idx = _this.Topics.indexOf(topic);
+            _this.Topics = _this.Topics.slice(0, idx).concat([
+                topic
+            ], _this.Topics.slice(idx + 1));
+        });
+        this._selectedTopics = [];
+        this._selectedIndicators = [];
+        for (var x = 0; x < this.Indicators.length; x++) {
+            if (this.Indicators[x].selected) {
+                this._selectedIndicators.push(this.Indicators[x]);
+            }
+        }
+        this.selectedTopicsFromComp.emit(this._selectedTopics);
+        var tempIndicators = this.Indicators;
+        this._selectedIndicators = [];
+        tempIndicators.forEach(function (indicator) {
+            if (!indicator.selected) {
+                indicator.toggleSelected();
+            }
+            var i = _this.Indicators.indexOf(indicator);
+            _this.Indicators = _this.Indicators.slice(0, i).concat([
+                indicator
+            ], _this.Indicators.slice(i + 1));
+            _this._selectedIndicators.push(indicator);
+        });
+        this.allTopicsFromComp.emit(this.Topics);
+        this.allIndicatorsFromComp.emit(this.Indicators);
     };
     TopicsComponent.prototype.getTopics = function () {
         var _this = this;
@@ -107,6 +123,8 @@ var TopicsComponent = (function () {
             }
             if (this._selectedTopics.length === 0) {
                 this.showAllSelected = true;
+                this.selectAllTopics();
+                return;
             }
             this.selectedTopicsFromComp.emit(this._selectedTopics);
         }
@@ -126,16 +144,30 @@ var TopicsComponent = (function () {
         this.Indicators = Indicators;
         this.allIndicatorsFromComp.emit(this.Indicators);
     };
-    TopicsComponent.prototype.showHideAll = function (showType) {
+    TopicsComponent.prototype.showHideAll = function (showType, filterInput) {
         var _this = this;
         this.showAll = showType === 'show';
         this.hideAll = showType === 'hide';
+        var isShowing = this.showAll;
+        console.log('filtervalue', filterInput.value);
         this.Indicators.forEach(function (indicator) {
-            _this.toggleIndicator(indicator, _this.showAll, false);
+            isShowing = indicator.indicator_display.toUpperCase().indexOf(filterInput.value.toUpperCase()) !== -1;
+            if (isShowing) {
+                console.log('isshowing', indicator);
+                _this.toggleIndicator(indicator, _this.showAll, false);
+            }
+            else if (_this.showAll) {
+                _this.toggleIndicator(indicator, false, false);
+            }
         });
         this.allIndicatorsFromComp.emit(this.Indicators);
         this.indicatorTrigger = !this.indicatorTrigger;
+        this.hideAll = filterInput.value === '' && !this.showAll;
         this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger });
+        if (showType === 'visible') {
+            filterInput.value = '';
+            this.showFilterIndicator = false;
+        }
     };
     TopicsComponent.prototype.toggleIndicator = function (indicator, value, emit) {
         if (value !== undefined && value !== null) {

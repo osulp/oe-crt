@@ -73,10 +73,6 @@ var DataTileComponent = (function () {
         this.defaultChartOptions = {
             chart: {
                 type: 'line',
-                marginRight: 15,
-                marginLeft: 60,
-                spacingLeft: 30,
-                spacingRight: 15,
                 spacingTop: 15,
                 zoomType: 'x',
                 resetZoomButton: {
@@ -99,6 +95,15 @@ var DataTileComponent = (function () {
                     }
                 }
             },
+            plotOptions: {
+                series: {
+                    events: {
+                        legendItemClick: function (event) {
+                            console.log('series hidden');
+                        }
+                    }
+                }
+            },
             title: {
                 text: '',
                 style: {
@@ -107,8 +112,6 @@ var DataTileComponent = (function () {
                         fontSize: '1.25em',
                         fontWeight: '200'
                     },
-                    widthAdjust: -10,
-                    x: -30
                 }
             },
             credits: {
@@ -155,6 +158,15 @@ var DataTileComponent = (function () {
                                     color: 'white'
                                 }
                             }
+                        }
+                    }
+                }
+            },
+            plotOptions: {
+                series: {
+                    events: {
+                        legendItemClick: function (event) {
+                            this.chart.yAxis[0].setExtremes();
                         }
                     }
                 }
@@ -294,8 +306,6 @@ var DataTileComponent = (function () {
                             fontSize: '1.25em',
                             fontWeight: '200'
                         },
-                        widthAdjust: -10,
-                        x: -30
                     });
                     _this.chart.legend.update(_this.setLegendOptions(false));
                 }
@@ -483,7 +493,7 @@ var DataTileComponent = (function () {
                                     ptIndex = pt;
                                     break;
                                 }
-                                if (this.isCountyLevel && place.Desc.split(', ').length > 1) {
+                                if (this.isCountyLevel && place.Desc ? place.Desc.split(', ').length > 1 : false) {
                                     if (this.mapChart.series[mapSeries].data[pt].id) {
                                         if (place.Desc.split(', ')[1].replace(' County', '') === this.mapChart.series[mapSeries].data[pt].id.replace(' County', '')) {
                                             ptIndex = pt;
@@ -756,8 +766,6 @@ var DataTileComponent = (function () {
                                     fontSize: '1.25em',
                                     fontWeight: '200'
                                 },
-                                widthAdjust: -10,
-                                x: -30
                             });
                             _this.chart.legend.enabled = false;
                         }
@@ -916,6 +924,12 @@ var DataTileComponent = (function () {
             }
             catch (ex) {
                 console.log('CAUGHT Exception: placetype indicator data not loaded' + ex.message, this.selectedPlaceType, this.dataStore);
+                if (this.tileType === 'graph') {
+                    this.chart.showLoading('Sorry, this chart is not currently available.  ' + ('<%= ENV %>' !== 'prod' ? ex.message : ''));
+                }
+                else {
+                    this.mapChart.showLoading('Sorry, this map is not currently available.  ' + ('<%= ENV %>' !== 'prod' ? ex.message : ''));
+                }
             }
         }
         else {
@@ -980,12 +994,14 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.getPlaceData = function () {
+        var returnData;
         if (this.tileType === 'map' && this.showMap) {
-            return this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data.place_data;
+            returnData = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data.place_data;
         }
         else {
-            return this.dataStore.indicatorData[this.indicator].chart_data.place_data;
+            returnData = this.dataStore.indicatorData[this.indicator].chart_data.place_data;
         }
+        return returnData.filter(function (data) { return typeof data.value === 'number'; });
     };
     DataTileComponent.prototype.getPlaceTypeData = function () {
         if (this.tileType === 'map' && this.showMap) {
@@ -1158,6 +1174,7 @@ var DataTileComponent = (function () {
             }
         };
         var colorAxis = this.mapChart.colorAxis[0];
+        console.log('logarithmic?', this.getMinData(true, true), this.getMinData(true, true) > 0 ? 'logarithmic' : null);
         colorAxis.update({
             type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,
             min: this.getMinData(true),
@@ -1189,6 +1206,7 @@ var DataTileComponent = (function () {
             this.mapChart.addSeries(boundarySeries);
             ptSeriesIndexes.push(this.mapChart.series.length - 1);
         }
+        console.log('placedata from map', this.getPlaceData());
         var series = {
             borderColor: this.selectedPlaceType === 'Places' ? '#a7a7a7' : 'white',
             data: this.getPlaceData(),
@@ -1209,7 +1227,9 @@ var DataTileComponent = (function () {
                 }
             }
         };
+        console.log('checkshit', series);
         this.mapChart.addSeries(series, true);
+        console.log('checkshit2', series);
         this.mapChart.series[this.selectedPlaceType === 'Places' ? 1 : 0].mapData = this.getSelectedMapData();
         this.mapChart.series[this.selectedPlaceType === 'Places' ? 1 : 0].setData(this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data.place_data);
         this.mapChart.setTitle(null, {
@@ -1255,6 +1275,15 @@ var DataTileComponent = (function () {
                             }],
                         plotOptions: {
                             series: {
+                                events: {
+                                    hide: function () {
+                                        console.log('The series was just hidden');
+                                        chartScope.chart.yAxis[0].setExtremes();
+                                    },
+                                    show: function () {
+                                        chartScope.chart.yAxis[0].setExtremes();
+                                    }
+                                },
                                 fillOpacity: 0.85,
                                 animation: {
                                     duration: 500
@@ -1322,8 +1351,6 @@ var DataTileComponent = (function () {
                             fontSize: '1.25em',
                             fontWeight: '200'
                         },
-                        widthAdjust: -10,
-                        x: -30
                     }, {
                         text: this.viewType === 'basic' ? (this.isCountyLevel ? '<span class="glyphicon glyphicon-flag"></span><span>County Level Data</span>' : this.isStatewide ? '<span class="glyphicon glyphicon-flag"></span><span>Statewide Data Only</span>' : '') : null,
                         align: 'right',
@@ -1748,7 +1775,6 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.onResize = function (event) {
-        console.log('resizing...', this.indicator, this.tileType, this.chart);
         if (this.chart) {
             var runInterval = setInterval(runCheck, 2000);
             var resizeScope = this;
@@ -1774,10 +1800,7 @@ var DataTileComponent = (function () {
                     : 400;
             console.log('domtilewidth', this.indicator, domTileWidth, this.elementRef.nativeElement.offsetParent.offsetWidth);
             return {
-                width: this.viewType === 'basic' ? domTileWidth : 400,
-                itemWidth: this.viewType === 'basic' ? (domTileWidth - 20) / 2 : 200,
                 itemStyle: {
-                    width: this.viewType === 'basic' ? (domTileWidth - 40) / 2 : 180,
                     color: '#4d4d4d'
                 },
                 title: {
@@ -1786,7 +1809,6 @@ var DataTileComponent = (function () {
             };
         }
         catch (ex) {
-            console.log('resize legend failed', ex);
             return null;
         }
     };
@@ -2315,11 +2337,14 @@ var DataTileComponent = (function () {
                 }
             }
         });
-        console.log('mindata', min);
-        return notLogrithmic ? 0 : min < 10 ? 0 : min;
+        console.log('mindata', min, notLogrithmic, notLogrithmic ? 0 : min < 10 ? 0 : min);
+        console.log('mindata2', this.getMaxData(true) / min);
+        return notLogrithmic ? 0
+            : this.getMaxData(true) / min < 400
+                ? 0
+                : min;
     };
     DataTileComponent.prototype.getMaxData = function (isMap) {
-        console.log('yaxismax', this.indicator_info['y-Axis_Max'], this.indicator_info);
         if (this.indicator_info['Dashboard_Chart_Y_Axis_Max'] !== null) {
             return parseFloat(this.indicator_info['Dashboard_Chart_Y_Axis_Max']);
         }
@@ -2344,8 +2369,34 @@ var DataTileComponent = (function () {
                     }
                 }
             });
+            console.log('yaxismax', max);
             return max;
         }
+    };
+    DataTileComponent.prototype.formatData = function (val) {
+        console.log('formattingdata', val);
+        if (val === null) {
+            return null;
+        }
+        if (val.match(/^[-+]?[1-9]\.[0-9]+e[-]?[1-9][0-9]*$/)) {
+            var precision = this.getPrecision(val);
+            val = parseFloat((+val).toFixed(precision));
+        }
+        if ($.isNumeric(val)) {
+            console.log('data is numeric');
+            return parseFloat(val);
+        }
+        else {
+            console.log('data is not numeric!', val);
+            return null;
+        }
+    };
+    DataTileComponent.prototype.getPrecision = function (sval) {
+        var arr = new Array();
+        arr = sval.split('e');
+        arr = arr[0].split('.');
+        var precision = arr[1].length;
+        return parseInt(precision);
     };
     DataTileComponent.prototype.formatValue = function (val, isLegend) {
         var returnVal = val;

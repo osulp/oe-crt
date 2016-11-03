@@ -18,7 +18,16 @@ var index_3 = require('./+howto/index');
 var index_4 = require('./+error/index');
 var index_5 = require('./shared/services/index');
 var AppComponent = (function () {
-    function AppComponent() {
+    function AppComponent(router) {
+        this.router = router;
+        this.router.changes.subscribe(function () {
+            console.log('router info', window.location.href);
+            if ('<%= ENV %>' === 'prod') {
+                if (ga) {
+                    ga('send', 'pageview', window.location.href);
+                }
+            }
+        });
     }
     AppComponent = __decorate([
         core_1.Component({
@@ -55,7 +64,7 @@ var AppComponent = (function () {
                 component: index_4.ErrorComponent
             }
         ]), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [router_1.Router])
     ], AppComponent);
     return AppComponent;
 })();

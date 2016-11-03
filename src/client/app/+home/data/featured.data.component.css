@@ -18,3 +18,13 @@
         margin-left: 0;
     }
 }
+
+@media only screen and (max-width : 768px) {
+    #featured-data-wrapper {
+        padding:0;
+        margin:0 auto;
+    }
+    .data-tile-grid{
+        padding:0 15px 25px 15px;
+    }
+}

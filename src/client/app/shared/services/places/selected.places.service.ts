@@ -152,12 +152,15 @@ export class SelectedPlacesService {
                     : false;
             });
             place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
-            this.addPlace.next(place);
+            place.UpdateOnly = true;
+            //this.addPlace.next(place);
         });
+        place.UpdateOnly = false;
+        this.addPlace.next(place);
     }
 
     addPlaces(places: any[]) {
-        //console.log('adding multiple places to selectedPlaces', places);
+        console.log('adding multiple places to selectedPlaces', places);
         this.getAdditionalPlaceInfo(places).subscribe((pinfo: any) => {
             //console.log('jumping frank', pinfo);
             places.forEach((place: any) => {
@@ -168,7 +171,8 @@ export class SelectedPlacesService {
                             : false
                         : false;
                 });
-            place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+                place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+                //this.addPlace.next(places);
             //console.log('jumping ben', place);
         });
         //console.log('jumping jack5', places);
@@ -229,7 +233,7 @@ export class SelectedPlacesService {
             } else {
                 //console.log('still processing', this.processing);
                 let runScope = this;
-                var runInterval = setInterval(runCheck, 500);
+                var runInterval = setInterval(runCheck, 100);
                 function runCheck() {
                     console.log('processing queue run check', runScope.processingQueue, runScope.intervalCount);
                     runScope.intervalCount++;

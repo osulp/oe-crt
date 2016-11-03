@@ -5,21 +5,21 @@
 }
 .selectBox {
     position: relative;
-    cursor: pointer;    
-}    
+    cursor: pointer;
+}
 
-.topic-header-indicator-filter h2:after{    
+.topic-header-indicator-filter h2:after{
     font-family:'Glyphicons Halflings';
     content: '\\e259';
     font-size:16px;
-    color:#C34500; 
+    color:#C34500;
     width:25px;
     height:25px;
     margin:20px;
     background:white;
     border: solid 1px #C34500;
     border-radius:4px;
-    padding: 4px 4px 2px 4px;     
+    padding: 4px 4px 2px 4px;
     pointer-events: none;
 }
 
@@ -28,7 +28,7 @@
     content:"\\e260";
 }
 
-.checkboxes {   
+.checkboxes {
     border: 1px #dadada solid;
     max-height:300px;
     overflow:auto;
@@ -51,3 +51,17 @@
         .checkboxes label:hover {
             background-color: #F3F2ED;
         }
+
+@media only screen and (max-width : 768px) {
+    .multiselect{
+        min-width:0;
+        max-width:20em;
+        margin:0;
+    }
+    .checkboxes{
+        left:20px;
+    }
+    .checkboxes.lower {
+        top:80px;
+    }
+}

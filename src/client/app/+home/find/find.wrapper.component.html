@@ -3,14 +3,14 @@
         <div id="banner-tag-launch-wrapper" class="col-xs-12">
             <h1>Explore data and statistics for communities in Oregon and Siskiyou County, California</h1>
             <div class="col-lg-12 col-md-12 col-xs-12">
-                <div class="row">
+                <div class="row find-search-wrapper">
                     <search class="col-lg-12 col-md-12 col-xs-12" (selSearchResultEvt)="selectedSearchResult = onSelectedSearchResult($event)"></search>
                 </div>
             </div>
         </div>
         <!--<div class="col-lg-12 col-md-12 col-xs-12">-->
         <div class="col-lg-12 col-md-12 col-xs-12">
-            <div class="row row-centered">
+            <div class="row row-centered find-topics-wrapper-row">
                 <div id="find-topics-wrapper" class="col-lg-6 col-md-6 col-xs-12 col-centered">
                     <topics></topics>
                 </div>
@@ -28,8 +28,7 @@
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-xs-6">
-                    <div id="how-to-use" class="home-btns" (click)="goto('HowTo');">
-                        <span>How To Use This Site</span>
+                    <div id="how-to-use" class="home-btns" (click)="goto('HowTo');" [innerHTML]="isMobile ? 'How to use' : 'How To Use This Site'">
                     </div>
                 </div>
             </div>

@@ -74,7 +74,7 @@
 .back-to-top-scroll{
     color:#808080;
     text-align:center;
-    margin:-15px;
+    margin:-10px;
 }
 
 .back-to-top {
@@ -100,5 +100,17 @@
 @media (max-width :  1200px) {
     #data-row-wrapper{
         padding: 0 15px;
+    }
+}
+
+@media only screen and (max-width : 768px) {
+    .data-tile-grid {
+        padding: 15px 30px;
+    }
+    .back-to-top-scroll {
+        font-size:smaller;
+    }
+    #data-control-bar {
+        top:20px;
     }
 }

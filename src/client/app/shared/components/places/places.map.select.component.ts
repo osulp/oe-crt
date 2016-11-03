@@ -373,10 +373,11 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
         //place.Desc = place.Desc.replace(/\./g, '%2E');
         let isDupe = this.selectedSearchResults.filter((sp: any) => sp.Name === place.Name && sp.TypeCategory === place.TypeCategory);
         if (isDupe.length === 0) {
-            this.selectedSearchResults.push(place);
-            this.selPlacesEvt.emit(this.selectedSearchResults);
+            //this.selectedSearchResults.push(place);
+            //this.selPlacesEvt.emit(this.selectedSearchResults);
             //this._placeInfoService.getInfo(place.Name).subscribe((pinfo: any) => {
             //   console.log('pinfo', pinfo);
+            place.GeoInfo = [];
             this._selectedPlacesService.add(place, 'map');
             // });
         }

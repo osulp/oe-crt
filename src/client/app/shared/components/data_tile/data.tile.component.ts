@@ -63,6 +63,7 @@ interface Chart {
     showLoading: any;
     hideLoading: any;
     destroy: any;
+    zoomOut: any;
 }
 
 @Component({
@@ -142,10 +143,10 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     private defaultChartOptions = {
         chart: {
             type: 'line',
-            marginRight: 15,
-            marginLeft: 60,
-            spacingLeft: 30,
-            spacingRight: 15,
+            //marginRight: 15,
+            //marginLeft: 15,
+            //spacingLeft: 60,
+            //spacingRight: 15,
             spacingTop: 15,
             zoomType: 'x',
             resetZoomButton: {
@@ -170,6 +171,16 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
             }
         },
+
+        plotOptions: {
+            series: {
+                events: {
+                    legendItemClick: function (event: any) {
+                        console.log('series hidden');
+                    }
+                }
+            }
+        },
         title: {
             text: '',
             style: {
@@ -178,8 +189,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     fontSize: '1.25em',
                     fontWeight: '200'
                 },
-                widthAdjust: -10,
-                x: -30
+                //widthAdjust: -10,
+                //x: -30
             }
         },
         credits: {
@@ -228,6 +239,15 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 color: 'white'
                             }
                         }
+                    }
+                }
+            }
+        },
+        plotOptions: {
+            series: {
+                events: {
+                    legendItemClick: function (event: any) {
+                        this.chart.yAxis[0].setExtremes();
                     }
                 }
             }
@@ -396,8 +416,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 fontSize: '1.25em',
                                 fontWeight: '200'
                             },
-                            widthAdjust: -10,
-                            x: -30
+                            //widthAdjust: -10,
+                            //x: -30
                         });
                         this.chart.legend.update(this.setLegendOptions(false));
                     } else {
@@ -675,7 +695,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                     ptIndex = pt;
                                     break;
                                 }
-                                if (this.isCountyLevel && place.Desc.split(', ').length > 1) {
+                                if (this.isCountyLevel && place.Desc ? place.Desc.split(', ').length > 1 : false) {
                                     //console.log('cesky', place.Desc, this.mapChart.series[mapSeries].data[pt]);
                                     if (this.mapChart.series[mapSeries].data[pt].id) {
                                         if (place.Desc.split(', ')[1].replace(' County', '') === this.mapChart.series[mapSeries].data[pt].id.replace(' County', '')) {
@@ -999,8 +1019,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                         fontSize: '1.25em',
                                         fontWeight: '200'
                                     },
-                                    widthAdjust: -10,
-                                    x: -30
+                                    //widthAdjust: -10,
+                                    //x: -30
                                 });
                                 this.chart.legend.enabled = false;
                             }
@@ -1197,6 +1217,11 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
             } catch (ex) {
                 console.log('CAUGHT Exception: placetype indicator data not loaded' + ex.message, this.selectedPlaceType, this.dataStore);
+                if (this.tileType === 'graph') {
+                    this.chart.showLoading('Sorry, this chart is not currently available.  ' + ('<%= ENV %>' !== 'prod' ? ex.message : ''));
+                } else {
+                    this.mapChart.showLoading('Sorry, this map is not currently available.  ' + ('<%= ENV %>' !== 'prod' ? ex.message : ''));
+                }
             }
             //else {
             //    this.Data = this.placeTypeData.Data;
@@ -1291,11 +1316,13 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
     getPlaceData() {
         //console.log('Checking on place data', this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data);
+        let returnData: any;
         if (this.tileType === 'map' && this.showMap) {
-            return this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data.place_data;
+            returnData = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data.place_data;
         } else {
-            return this.dataStore.indicatorData[this.indicator].chart_data.place_data;
+            returnData = this.dataStore.indicatorData[this.indicator].chart_data.place_data;
         }
+        return returnData.filter((data: any) => typeof data.value === 'number');
     }
 
     getPlaceTypeData() {
@@ -1491,7 +1518,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             }
         };
         var colorAxis = this.mapChart.colorAxis[0];
-
+        console.log('logarithmic?', this.getMinData(true, true), this.getMinData(true, true) > 0 ? 'logarithmic' : null);
         colorAxis.update({
             type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,// 'logarithmic',
             //min: 0,//null,//0,
@@ -1506,6 +1533,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
             }
         });
+        //console.log('colorAxis min', this.getMinData(true));
+        //console.log('colorAxis max', this.getMaxData(true));
 
         //clear out and add again for sync purposes
         //while (this.mapChart.series.length > 1) {
@@ -1535,6 +1564,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             this.mapChart.addSeries(boundarySeries);
             ptSeriesIndexes.push(this.mapChart.series.length - 1);
         }
+        console.log('placedata from map', this.getPlaceData());
         var series = {
             borderColor: this.selectedPlaceType === 'Places' ? '#a7a7a7' : 'white',
             //borderWidth: this.selectedPlaceType === 'Places' ? '0px' : '1px',
@@ -1558,7 +1588,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
             }
         };
+        console.log('checkshit',series);
         this.mapChart.addSeries(series, true);
+        console.log('checkshit2', series);
         this.mapChart.series[this.selectedPlaceType === 'Places' ? 1 : 0].mapData = this.getSelectedMapData();
         this.mapChart.series[this.selectedPlaceType === 'Places' ? 1 : 0].setData(this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data.place_data);
         this.mapChart.setTitle(null,
@@ -1641,6 +1673,15 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         }],
                         plotOptions: {
                             series: {
+                                events: {
+                                    hide: function () {
+                                        console.log('The series was just hidden');
+                                        chartScope.chart.yAxis[0].setExtremes();
+                                    },
+                                    show: function () {
+                                        chartScope.chart.yAxis[0].setExtremes();
+                                    }
+                                },
                                 fillOpacity: 0.85,
                                 animation: {
                                     duration: 500
@@ -1740,8 +1781,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 fontSize: '1.25em',
                                 fontWeight: '200'
                             },
-                            widthAdjust: -10,
-                            x: -30
+                            //widthAdjust: -10,
+                            //x: -30
                             //y: 0
                         },
                         {
@@ -2227,7 +2268,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     onResize(event: any) {
-        console.log('resizing...', this.indicator,this.tileType, this.chart);
+        //console.log('resizing...', this.indicator,this.tileType, this.chart);
         if (this.chart) {
 
             var runInterval = setInterval(runCheck, 2000);
@@ -2264,10 +2305,10 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             //let domTileWidth = $('#highchart' + this.indicator).width();
             console.log('domtilewidth', this.indicator, domTileWidth, this.elementRef.nativeElement.offsetParent.offsetWidth);
             return {
-                width: this.viewType === 'basic' ? domTileWidth : 400,
-                itemWidth: this.viewType === 'basic' ? (domTileWidth - 20) / 2 : 200,
+                //width: this.viewType === 'basic' ? domTileWidth : 400,
+                //itemWidth: this.viewType === 'basic' ? (domTileWidth - 20) / 2 : 200,
                 itemStyle: {
-                    width: this.viewType === 'basic' ? (domTileWidth - 40) / 2 : 180,
+                   // width: this.viewType === 'basic' ? (domTileWidth - 40) / 2 : 180,
                     color: '#4d4d4d'
                 },
                 title: {
@@ -2275,7 +2316,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
             };
         } catch (ex) {
-            console.log('resize legend failed', ex);
+            //console.log('resize legend failed', ex);
             return null;
         }
     }
@@ -2771,6 +2812,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
                         //check to see if data for end offset
                         //this.yearEndOffset = $.isNumeric(pData[_year]) ? 0 : this.yearEndOffset + 1;
+                        //year_data.push(this.formatData(pData[_year]));
                         year_data.push($.isNumeric(pData[_year]) ? parseFloat(pData[_year]) : null);
                         if (_year.match('-')) {
                             year_data_moe.push([parseFloat(pData[_year]) - parseFloat(pData[_year + '_MOE']), parseFloat(pData[_year]) + parseFloat(pData[_year + '_MOE'])]);
@@ -2976,13 +3018,17 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
             }
         });
-        console.log('mindata', min);
-        return notLogrithmic ? 0 : min < 10 ? 0 : min;
+        console.log('mindata', min, notLogrithmic, notLogrithmic ? 0 : min < 10 ? 0 : min );
+        console.log('mindata2', this.getMaxData(true) / min);
+        return notLogrithmic ? 0
+            : this.getMaxData(true)/min < 400
+                ? 0
+                : min;
     }
 
     getMaxData(isMap: boolean) {
         //check if set by database else calculate dynamically
-        console.log('yaxismax', this.indicator_info['y-Axis_Max'], this.indicator_info);
+        //console.log('yaxismax', this.indicator_info['y-Axis_Max'], this.indicator_info);
         if (this.indicator_info['Dashboard_Chart_Y_Axis_Max'] !== null) {
             return parseFloat(this.indicator_info['Dashboard_Chart_Y_Axis_Max']);
         } else {
@@ -3005,8 +3051,43 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     }
                 }
             });
+            console.log('yaxismax', max);
             return max;
         }
+    }
+
+    formatData(val: any) {
+        console.log('formattingdata', val);
+        if (val === null) {
+            return null;
+        }
+        if (val.match(/^[-+]?[1-9]\.[0-9]+e[-]?[1-9][0-9]*$/)) {
+            let precision = this.getPrecision(val);
+            val = parseFloat((+val).toFixed(precision));
+        }
+        if ($.isNumeric(val)) {
+            console.log('data is numeric');
+            // Handle exponential numbers.
+            return parseFloat(val);
+        } else {
+            console.log('data is not numeric!', val);
+            return null;
+        }
+    }
+
+    getPrecision(sval: any) {
+        var arr = new Array();
+        // Get the exponent after 'e', make it absolute.
+        arr = sval.split('e');
+        //var exponent = Math.abs(arr[1]);
+
+        // Add to it the number of digits between the '.' and the 'e'
+        // to give our required precision.
+        //var precision = new Number(exponent);
+        arr = arr[0].split('.');
+        var precision = arr[1].length;
+
+        return parseInt(precision);
     }
 
     formatValue(val: any, isLegend: boolean) {

@@ -89,6 +89,11 @@ var ExploreComponent = (function () {
         var newState = this.updateQueryStringParam(qsParams);
         console.log('NEW STATE TOPICs!!!!!!!!!!!', newState);
         window.history.pushState({}, '', newState);
+        if ('<%= ENV %>' === 'prod') {
+            if (ga) {
+                ga('send', 'pageview', window.location.href);
+            }
+        }
     };
     ExploreComponent.prototype.onGetAllTopicsFromComp = function (results) {
         this.allTopics = results;
@@ -135,6 +140,9 @@ var ExploreComponent = (function () {
         else {
             console.log('pushing state', newState);
             window.history.pushState({}, '', newState);
+            if ('<%= ENV %>' === 'prod') {
+                ga('send', 'pageview', window.location.href);
+            }
         }
     };
     ExploreComponent.prototype.updateQueryStringParam = function (qsParams) {
@@ -170,6 +178,13 @@ var ExploreComponent = (function () {
     };
     ;
     ExploreComponent.prototype.onBlurExplorePage = function (evt) {
+        console.log('blurevt', $(evt.target).closest('.multiselect').length, $(evt.target).closest('.globalselect').length);
+        if (!$(evt.target).closest('.globalselect').length) {
+            this.topicsComp.chkBoxVisibile = false;
+        }
+        if (!$(evt.target).closest('.multiselect').length) {
+            this.dataComp.indTopListComps.toArray().forEach(function (child) { return child.chkBoxVisibile = false; });
+        }
     };
     ExploreComponent.prototype.ngOnInit = function () {
         var _this = this;

@@ -1,4 +1,4 @@
-import {Component, Output, Input, EventEmitter} from '@angular/core';
+import {Component, Output, Input, OnInit, EventEmitter} from '@angular/core';
 import {Control, CORE_DIRECTIVES, NgClass} from '@angular/common';
 import {JSONP_PROVIDERS}  from '@angular/http';
 import {Router} from '@angular/router';
@@ -23,7 +23,7 @@ declare var $: any;
     directives: [CORE_DIRECTIVES, NgClass]
 })
 
-export class SearchComponent {
+export class SearchComponent implements OnInit {
     @Input() viewType: any;
     @Input() filterType: any;
     @Output() selSearchResultEvt = new EventEmitter();
@@ -34,6 +34,7 @@ export class SearchComponent {
     tempResults: any[] = [];
     items: Observable<any[]>;
     tempTabIndex: number = -1;
+    isMobile: boolean = false;
 
     constructor(
         private _searchService: SearchTopicsPlacesService,
@@ -127,7 +128,7 @@ export class SearchComponent {
                 var attr: any = 'data-search-item';
                 var listItem: any = JSON.parse(document.activeElement.attributes[attr].value);
                 var selected: SearchResult = {
-                    Name: listItem.Name.replace(/\,/g, '%2C').replace(/\./g,'%2E'),
+                    Name: listItem.Name.replace(/\,/g, '%2C').replace(/\./g, '%2E'),
                     ResID: listItem.ResID,
                     Type: listItem.Type,
                     TypeCategory: listItem.TypeCategory,
@@ -173,15 +174,8 @@ export class SearchComponent {
         });
     }
 
-    //ngOnInit() {
-    //    console.log('searching for shit', this.filterType);
-    //    this.filter = this.filterType !== undefined ? this.filterType : this.filter;
-    //    this.items = this.term.valueChanges
-    //        .debounceTime(200)
-    //        .distinctUntilChanged()
-    //        .switchMap((term: any) => this._searchService.search(term !== undefined ? term.toString() : ''), (this.filter !== undefined ? this.filter : null))
-    //        .share();
-    //    this.items.subscribe(value => this.tempResults = value);
-    //}
+    ngOnInit() {
+        this.isMobile = $(window).width() < 400;
+    }
 }
 

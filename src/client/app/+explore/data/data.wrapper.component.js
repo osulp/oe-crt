@@ -22,7 +22,7 @@ var DataComponent = (function () {
         this.collections = [];
         this.selectedCollection = 'Show All';
         this.processedTopics = 0;
-        this.showIndicatorDefault = 6;
+        this.showIndicatorDefault = 9;
         this.showIndicatorCount = 6;
         this.showTopicIndicatorCount = 6;
         this.showIncrement = 3;
@@ -33,6 +33,7 @@ var DataComponent = (function () {
         this.showScrollUpCount = 3;
         this.hideAll = false;
         this.initLoad = true;
+        this.isMobile = false;
     }
     DataComponent.prototype.toggleResultView = function () {
         this.resultView = this.resultView === 'graph' ? 'map' : 'graph';
@@ -70,6 +71,7 @@ var DataComponent = (function () {
     };
     DataComponent.prototype.createTopicIndicatorObj = function () {
         var _this = this;
+        this.topicIndicatorCount = {};
         for (var t = 0; t < this.inputTopics.length; t++) {
             this.topicIndicatorCount[this.inputTopics[t].topic] = {};
             this.collections.forEach(function (coll) {
@@ -109,6 +111,7 @@ var DataComponent = (function () {
     };
     DataComponent.prototype.onResize = function (event) {
         var windowWidth = $(window).width();
+        this.isMobile = windowWidth < 767;
         if (windowWidth < 767) {
         }
         else if (windowWidth < 993) {
@@ -126,12 +129,20 @@ var DataComponent = (function () {
         this.checkTopicIndicatorLoaded();
         this.hideAll = false;
         var windowWidth = $(window).width();
+        this.isMobile = windowWidth < 767;
         if (windowWidth < 767) {
-            this.scrollDownDistance = 5;
-            this.scrollUpDistance = 5;
+            this.showIndicatorDefault = 3;
+            this.showIndicatorCount = 3;
+            this.showTopicIndicatorCount = 3;
+            this.scrollDownDistance = 16;
+            this.scrollUpDistance = 20;
             this.showIncrement = 1;
+            this.showScrollUpCount = 1;
         }
         else if (windowWidth < 993) {
+            this.showIndicatorDefault = 6;
+            this.showIndicatorCount = 6;
+            this.showTopicIndicatorCount = 6;
             this.scrollDownDistance = 3;
             this.scrollUpDistance = 3;
             this.showIncrement = 2;
@@ -154,13 +165,12 @@ var DataComponent = (function () {
             var selectedTopics = inputChanges.inputTopics.currentValue.filter(function (topic) { return topic.selected; });
             console.log('yep selected topics', selectedTopics, inputChanges.inputTopics.currentValue);
             this.SelectedTopics = selectedTopics.length === 0 ? inputChanges.inputTopics.currentValue : selectedTopics;
+            this.SelectedTopics.sort(function (a, b) { return a.topic.localeCompare(b.topic); });
             this.checkTopicIndicatorLoaded();
         }
         if (inputChanges._hideAll) {
-            console.log('inputChanges in DataWrapper', inputChanges);
             this.hideAll = this._hideAll.hide;
             this.createTopicIndicatorObj();
-            console.log('hideall called and here is the topicindicator obj', this.topicIndicatorCount);
         }
     };
     __decorate([

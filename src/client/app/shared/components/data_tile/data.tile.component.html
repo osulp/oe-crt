@@ -1,47 +1,49 @@
-<div id="data-tile-wrapper" (window:resize)="onResize($event)" class="row" [ngClass]="{'advanced':viewType === 'advanced','mapChart':tileType === 'map'}">
+<div id="data-tile-wrapper" (window:resize)="onResize($event)" class="row" [ngClass]="{'advanced':viewType === 'advanced','mapChart':tileType === 'map','featured':featured}">
     <div class="col-xs-12" id="chart-div" [ngClass]="tileType === 'map' ? 'mapChartDiv' : 'graphChartDiv'">
-        <div *ngIf="tileType === 'graph'" class="collection-icon-wrapper">
-            <span *ngFor="let collection of indicator_collections" class="collectionIcon">
-                <img *ngIf="getCollectionIcon(collection) !== ''" [src]="getCollectionIcon(collection)" [alt]="collection" [title]="'This indicator is part of the '+collection+' collection.'" />
-            </span>
-        </div>
-        <!--<div *ngIf="(isTOP || is10yr) && tileType === 'graph'" class="collection-icon-wrapper">
+        <div class="row">
+            <!--<div *ngIf="(isTOP || is10yr) && tileType === 'graph'" class="collection-icon-wrapper">
             <span *ngIf="isTOP" class="collectionIcon">
                 <img src="assets/img/top_icon.svg" alt="Tracking Oregon's Progress Indicator" title="This indicator is part of the Tracking Oregon's Progress Collection" />
             </span>
         </div>-->
-        <div *ngIf="tileType === 'graph'">
-            <div *ngIf="isCustomChart">
-                <div *ngIf="viewType === 'basic'" class="customChartTitle">{{indicator}}</div>
-                <div [ngClass]="viewType === 'basic' ? 'placeSelectCustomChart' : ''">
-                    <span>Select community:</span>
-                    <select #selPlace class="chart-place-select" [ngModel]="selectedPlaceCustomChart" (ngModelChange)="onSelectedPlaceChangedCustomChart($event)">
-                        <option *ngFor="let place of places" [ngValue]="place">
-                            {{place.Name}}
-                        </option>
-                    </select>
+            <div *ngIf="tileType === 'graph'" class="col-xs-12 graph-chart-wrapper">
+                <div *ngIf="tileType === 'graph'" class="collection-icon-wrapper">
+                    <span *ngFor="let collection of indicator_collections" class="collectionIcon">
+                        <img *ngIf="getCollectionIcon(collection) !== ''" [src]="getCollectionIcon(collection)" [alt]="collection" [title]="'This indicator is part of the '+collection+' collection.'" />
+                    </span>
                 </div>
+                <div *ngIf="isCustomChart">
+                    <div *ngIf="viewType === 'basic'" class="customChartTitle col-xs-12">{{indicator}}</div>
+                    <div [ngClass]="viewType === 'basic' ? 'placeSelectCustomChart' : ''">
+                        <span>Select community:</span>
+                        <select #selPlace class="chart-place-select" [ngModel]="selectedPlaceCustomChart" (ngModelChange)="onSelectedPlaceChangedCustomChart($event)">
+                            <option *ngFor="let place of places" [ngValue]="place">
+                                {{place.Name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <chart #highchart [id]="'highchart'+indicator" [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph graph-chart" [ngClass]="isCustomChart ? 'custom' : ''"></chart>
             </div>
-            <chart #highchart [id]="'highchart'+indicator" [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph graph-chart" [ngClass]="isCustomChart ? 'custom' : ''"></chart>
-        </div>
-        <div id="map-chart-wrapper" *ngIf="tileType === 'map'">
-            <div id="map-view-wrapper">
-                <hmap-menu [(mapView)]="selectedPlaceType" [showMenuLeft]="showMenuLeft" (selMapView)="onSelectedMapViewChange($event)"></hmap-menu>
+            <div id="map-chart-wrapper" *ngIf="tileType === 'map'">
+                <div id="map-view-wrapper">
+                    <hmap-menu [(mapView)]="selectedPlaceType" [showMenuLeft]="showMenuLeft" (selMapView)="onSelectedMapViewChange($event)"></hmap-menu>
+                </div>
+                <div id="map-controls">
+                    <!--<span>Zoom:</span>-->
+                    <span (click)="mapChart.mapZoom(20);" class="glyphicon glyphicon-home full-zoom"></span><span (click)="mapChart.mapZoom(20);" class="full-zoom">Full Extent</span>
+                    <span *ngIf="selectedMapPoints.length > 0" class="selectedMapDrpDwn">
+                        Selected:
+                        <select #sel class="map-chart-zoom-select" (change)="mapChart.get(sel.value).zoomTo()">
+                            <option *ngFor="let point of selectedMapPoints | mapChartPlaceZoomPipe: selectedPlaceType" [value]="point.id" (click)="mapChart.get(sel.value).zoomTo()">
+                                {{point.id + (point.geoid ? point.geoid.length === 5 ? ' County' : '' : '')}}
+                            </option>
+                        </select>
+                        <span class="glyphicon glyphicon-search zoomBtn" (click)="mapChart.get(sel.value).zoomTo()" title="Find selected community in map."></span>
+                    </span>
+                </div>
+                <chart #highmap id="highmap" type="Map" [options]="mapOptions" (load)="saveInstance($event.context)" class="graph map-chart"></chart>
             </div>
-            <div id="map-controls">
-                <!--<span>Zoom:</span>-->
-                <span (click)="mapChart.mapZoom(20);" class="glyphicon glyphicon-home full-zoom"></span><span (click)="mapChart.mapZoom(20);" class="full-zoom">Full Extent</span>
-                <span *ngIf="selectedMapPoints.length > 0" class="selectedMapDrpDwn">
-                    Selected:
-                    <select #sel class="map-chart-zoom-select" (change)="mapChart.get(sel.value).zoomTo()">
-                        <option *ngFor="let point of selectedMapPoints | mapChartPlaceZoomPipe: selectedPlaceType" [value]="point.id" (click)="mapChart.get(sel.value).zoomTo()">
-                            {{point.id + (point.geoid ? point.geoid.length === 5 ? ' County' : '' : '')}}
-                        </option>
-                    </select>
-                    <span class="glyphicon glyphicon-search zoomBtn" (click)="mapChart.get(sel.value).zoomTo()" title="Find selected community in map."></span>
-                </span>
-            </div>
-            <chart #highmap id="highmap" type="Map" [options]="mapOptions" (load)="saveInstance($event.context)" class="graph map-chart"></chart>
         </div>
     </div>
     <div *ngIf="tileType === 'map' || (isCustomChart && viewType === 'advanced')">

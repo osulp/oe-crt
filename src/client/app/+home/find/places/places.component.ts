@@ -3,7 +3,7 @@ import {MapLeafletComponent} from '../../../shared/components/index';
 import {Router} from '@angular/router';
 
 //import {MapComponent} from '../../../shared/components/map/map.component';
-
+declare var $: any;
 
 @Component({
     moduleId: module.id,
@@ -14,7 +14,7 @@ import {Router} from '@angular/router';
 })
 
 export class PlacesComponent implements OnInit {
-
+    isMobile: boolean = false;
     // map config
     public mapOptions:any = null;
     // search config
@@ -49,7 +49,7 @@ export class PlacesComponent implements OnInit {
     }
 
     ngOnInit() {
-        console.log('loaded places explore component');
+        this.isMobile = $(window).width() < 550;
     }
 }
 

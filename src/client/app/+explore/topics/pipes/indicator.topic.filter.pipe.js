@@ -11,8 +11,8 @@ var core_1 = require('@angular/core');
 var IndicatorTopicFilterPipe = (function () {
     function IndicatorTopicFilterPipe() {
     }
-    IndicatorTopicFilterPipe.prototype.transform = function (indicators, topics, collections, filterText) {
-        console.log('filteredText', filterText);
+    IndicatorTopicFilterPipe.prototype.transform = function (indicators, topics, collections, filterText, sortAlpha) {
+        console.log('water');
         var selectedCollection = collections ? collections.filter(function (coll) { return coll.selected; }).length > 0 ? collections.filter(function (coll) { return coll.selected; })[0].collection : 'Show All' : 'Show All';
         var selectedTopics = topics ? topics.filter(function (topic) { return topic.selected; }) : [];
         var returnIndicators = indicators ? indicators
@@ -43,13 +43,21 @@ var IndicatorTopicFilterPipe = (function () {
                 return true;
             }
         })
-            .sort(function (a, b) { return a.indicator.localeCompare(b.indicator); })
+            .sort(function (a, b) {
+            if (sortAlpha) {
+                return a.indicator.toUpperCase().localeCompare(b.indicator.toUpperCase());
+            }
+            else {
+                return b.indicator.toUpperCase().localeCompare(a.indicator.toUpperCase());
+            }
+        })
             : [];
         return returnIndicators;
     };
     IndicatorTopicFilterPipe = __decorate([
         core_1.Pipe({
-            name: 'indicatorTopicFilterPipe'
+            name: 'indicatorTopicFilterPipe',
+            pure: true
         }), 
         __metadata('design:paramtypes', [])
     ], IndicatorTopicFilterPipe);

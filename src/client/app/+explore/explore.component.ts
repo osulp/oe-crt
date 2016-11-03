@@ -13,6 +13,7 @@ import {SelectedPlacesService} from '../shared/services/index';
 declare var $: any;
 declare var window: any;
 declare var toastr: any;
+declare let ga: Function;
 
 interface QueryStringParams {
     key: string;
@@ -126,6 +127,11 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         var newState = this.updateQueryStringParam(qsParams);
         console.log('NEW STATE TOPICs!!!!!!!!!!!', newState);
         window.history.pushState({}, '', newState);
+        if ('<%= ENV %>' === 'prod') {
+            if (ga) {
+                ga('send', 'pageview', window.location.href);
+            }
+        }
     }
 
     onGetAllTopicsFromComp(results: any) {
@@ -180,6 +186,9 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         } else {
             console.log('pushing state', newState);
             window.history.pushState({}, '', newState);
+            if ('<%= ENV %>' === 'prod') {
+                ga('send', 'pageview', window.location.href);
+            }
         }
     }
 
@@ -216,14 +225,14 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     };
 
     onBlurExplorePage(evt: any) {
-        //console.log('blurevt', evt);
-        ////hide select dropdowns if showing.
-        //if (!$(evt.target).closest('.selectBox').length) {
-        //    this.topicsComp.chkBoxVisibile = false;
-        //}
-        //if (!$(evt.target).closest('.multiselect').length) {
-        //    this.dataComp.indTopListComps.toArray().forEach((child: any) => child.chkBoxVisibile = false);
-        //}
+        console.log('blurevt', $(evt.target).closest('.multiselect').length, $(evt.target).closest('.globalselect').length);
+        //hide select dropdowns if showing.
+        if (!$(evt.target).closest('.globalselect').length) {
+            this.topicsComp.chkBoxVisibile = false;
+        }
+        if (!$(evt.target).closest('.multiselect').length) {
+            this.dataComp.indTopListComps.toArray().forEach((child: any) => child.chkBoxVisibile = false);
+        }
     }
 
     ngOnInit() {

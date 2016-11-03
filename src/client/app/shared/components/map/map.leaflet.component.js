@@ -23,6 +23,7 @@ var MapLeafletComponent = (function () {
         this.processedCity = false;
         this.processedCounty = false;
         this.processedTract = false;
+        this.tempPlaces = [];
         this.oregon = {
             Name: 'Oregon',
             ResID: '41',
@@ -390,6 +391,7 @@ var MapLeafletComponent = (function () {
         }
     };
     MapLeafletComponent.prototype.ngOnChanges = function (changes) {
+        var _this = this;
         console.log('map input changed', changes);
         if (!this.map) {
             console.log('map not loaded');
@@ -397,8 +399,32 @@ var MapLeafletComponent = (function () {
         }
         if (changes.selectedPlaces) {
             console.log('selectedPlaces', changes.selectedPlaces);
-            var selPlaces = changes.selectedPlaces.currentValue;
-            this.runSelectedPlaceQueries(selPlaces);
+            if (changes.selectedPlaces.currentValue) {
+                var needsUpdate = false;
+                if (changes.selectedPlaces.currentValue.length === changes.selectedPlaces.previousValue.length) {
+                    this.tempPlaces = this.tempPlaces.length === 0 ? changes.selectedPlaces.currentValue : this.tempPlaces;
+                    changes.selectedPlaces.currentValue.forEach(function (place) {
+                        var thisPlaceIsIn = false;
+                        _this.tempPlaces.forEach(function (tp) {
+                            thisPlaceIsIn = tp.ResID === place.ResID ? true : thisPlaceIsIn;
+                        });
+                        needsUpdate = !thisPlaceIsIn ? true : needsUpdate;
+                        if (needsUpdate) {
+                            return;
+                        }
+                    });
+                    console.log('needs update map?', needsUpdate);
+                }
+                else {
+                    needsUpdate = true;
+                }
+                if (needsUpdate) {
+                    console.log('updating map');
+                    var selPlaces = changes.selectedPlaces.currentValue;
+                    this.runSelectedPlaceQueries(selPlaces);
+                }
+                this.tempPlaces = changes.selectedPlaces.currentValue;
+            }
         }
         if (changes.refresh) {
             console.log('need to check refresh map');

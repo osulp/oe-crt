@@ -46,73 +46,14 @@
     padding: 0 20px;
 }
 
-/*.find_header{
-    height:50px;
-    max-width:1170px;
-    margin: 0 auto;
-    background-color:#244068 !important;
-    color:white;
-    border-radius: 4px 4px 0 0;
-    cursor:pointer;
-
-}
-.find_header .title{
-    padding-left:20px;
-    float:left;
-}
-.toggle-places{
-    float:right;
-    height:30px;
-    width:30px;
-}
-
-#place_type_select {
-    max-width:1170px;
-    min-height:60px;
-    padding:10px;
-    margin:0 auto;
-    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
-    border-radius: 0 0 4px 4px;
-}
-#place_type_select .place_type{
-    border:solid 1px #C34500;
-    height:40px;
-    color:#C34500;
-    font-weight:bold;
-    padding-top:9px;
-    text-align:center;
-    cursor:pointer;
-}
-
-#place_type_select .place_type:hover{
-    text-decoration:underline;
-}
-
-#place_type_select .place_type:nth-child(1){
-    border-radius: 4px 0 0 4px;
-    border-right:none;
-}
-
-#place_type_select .place_type:nth-child(2){
-    border-radius: 0 4px 4px 0;
-    border-left:none;
-}
-
-#place_type_select .place_type img{
-    margin-right:14px;
-    margin-top:-4px;
-}
-
-#place_type_select .place_type.selected{
-    background-color:#C34500;
-    color:white;
-}*/
-
 .place-select.indicatorDetail, .indicatorDetailMap{
     height:400px;
     max-height:400px;
 }
 
+#place_type_select{
+    margin:0 0 2px 0;
+}
 .indicatorDetailMap .row-map{
 
 }
@@ -544,6 +485,9 @@
      .indicatorDetailFindCombComp {
         right:3%;
     }
+      #add-btn{
+        margin:-3px -6px  0 -5px;
+    }
 }
 
 
@@ -591,11 +535,15 @@
         margin-right:10px;
     }
 
+
 }
 
 @media only screen and (max-width : 768px) {
     .add-place-btn {
         margin-right: 5px;
+    }
+    #add-btn {
+        margin:-5px -10px -3px -5px;
     }
 
     #go-report-button {
@@ -609,5 +557,8 @@
 
     #selected-places-bin {
         width: 91%;
+    }
+    #viewDiv{
+        margin:0 -15px;
     }
 }

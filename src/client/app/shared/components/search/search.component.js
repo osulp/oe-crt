@@ -30,6 +30,7 @@ var SearchComponent = (function () {
         this.filter = '%';
         this.tempResults = [];
         this.tempTabIndex = -1;
+        this.isMobile = false;
         this.filter = this.filterType !== undefined ? this.filterType : this.filter;
         this.items = this.term.valueChanges
             .debounceTime(200)
@@ -154,6 +155,9 @@ var SearchComponent = (function () {
             console.log('parentheight', idx, $(parents[idx]).height());
             $(result).css('min-width', $(parents[idx]).height() + 25 + 'px !important');
         });
+    };
+    SearchComponent.prototype.ngOnInit = function () {
+        this.isMobile = $(window).width() < 400;
     };
     __decorate([
         core_1.Input(), 

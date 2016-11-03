@@ -272,8 +272,7 @@ var PlacesMapSelectComponent = (function () {
     PlacesMapSelectComponent.prototype.addPlace = function (place) {
         var isDupe = this.selectedSearchResults.filter(function (sp) { return sp.Name === place.Name && sp.TypeCategory === place.TypeCategory; });
         if (isDupe.length === 0) {
-            this.selectedSearchResults.push(place);
-            this.selPlacesEvt.emit(this.selectedSearchResults);
+            place.GeoInfo = [];
             this._selectedPlacesService.add(place, 'map');
         }
     };

@@ -4,7 +4,7 @@
             <header class="find_header">
                 <div class="title"><h2 class="h2-light">Communities</h2></div>
                 <div class="explore-more" (click)="goToExplorePlaces();">
-                    <div class="exp-more-comm">Explore more communities </div>
+                    <div class="exp-more-comm" [innerHTML]="isMobile ? 'Explore more': 'Explore more communities'" ></div>
                     <div class="glyphicon glyphicon-menu-right" aria-hidden="true"></div>
                     <div class="clearfix"></div>
                 </div>

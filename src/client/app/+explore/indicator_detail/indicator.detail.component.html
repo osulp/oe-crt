@@ -58,9 +58,10 @@
 
                     </div>
                     <div class="subtitle">
+                        &nbsp;
                         <span>{{subTitle !== '' ? '('+subTitle+')' : '&nbsp;'}}</span>
                         <span *ngIf="isStatewide || isCountyLevel" class="data-flag"><span class="glyphicon glyphicon-flag"></span>
-                            {{isStatewide ? '*** Data only available Statewide ***' : isCountyLevel ? '*** Data only available at the County level ***' : ''}}
+                            {{isStatewide ? ' Data only available Statewide ' : isCountyLevel ? ' Data only available at the County level ' : ''}}
                         </span>
                     </div>
 
@@ -97,7 +98,7 @@
                 <div id="indicator-info" [ngClass]="indInfo" class="col-lg-5 col-md-6 col-xs-12 arrow_box">
                     <span [ngClass]="{'selected':indInfo === 'desc'}" (click)="indInfo = 'desc';">Description</span>
                     <span [ngClass]="{'selected':indInfo === 'src'}" (click)="indInfo = 'src';">Source</span>
-                    <span [ngClass]="{'selected':indInfo === 'other'}" (click)="indInfo = 'other';">How to cite?</span>
+                    <span [ngClass]="{'selected':indInfo === 'other'}" (click)="indInfo = 'other';">How to cite</span>
                 </div>
                 <div class="col-xs-12" id="indicator-info-content">
                     <div *ngIf="indInfo === 'desc'">

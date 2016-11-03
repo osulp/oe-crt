@@ -142,7 +142,19 @@
                 max-width: 100%;
             }
 
-    #topics-wrapper img {
-        margin: 0 5px 0 0;
+    #topics-wrapper {
+        min-height: 240px;
+    }
+
+        #topics-wrapper img {
+            margin: 0 5px 0 0;
+        }
+
+    .find_header .title {
+        padding-left: 0;
+    }
+
+    .find_header .explore-more {
+        padding-right: 0;
     }
 }

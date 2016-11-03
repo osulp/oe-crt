@@ -42,7 +42,7 @@ var AppExceptionHandler = (function (_super) {
     AppExceptionHandler.prototype.call = function (exception, stackTrace, reason) {
         this.getDependencies();
         console.log('error handler', exception);
-        toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.<br />Error details: <br />' + exception);
+        toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + '<br />Error details: <br />' + exception);
         _super.prototype.call.call(this, exception, stackTrace, reason);
     };
     AppExceptionHandler.prototype.getDependencies = function () {

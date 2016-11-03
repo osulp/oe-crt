@@ -1,4 +1,4 @@
-<div id="topics-row-wrapper">
+<!--<div id="topics-row-wrapper">
     <div class="row">
         <div class="col-xs-12">
             <div class="find_header row row-centered">
@@ -22,7 +22,7 @@
                         </div>
                     </div>
                     <div>
-                        <div class="multiselect row">
+                        <div class="globalselect row">
                             <div class="col-lg-3 col-md-3 col-xs-12">
                                 <div class="selectBox" (click)="chkBoxVisibile = !chkBoxVisibile;">
                                     <div [ngClass]="chkBoxVisibile ? 'open' : ''" class="topic-header-indicator-filter">
@@ -64,12 +64,120 @@
                             <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsCountPipe: 'all':collections}}</span></div>
                         </div>
                         <div *ngIf="!showAllSelected">
-                            <div *ngFor="let topic of Topics | SelectedTopicsPipe:collections" (click)="toggleTopic(topic)"><span>{{topic.topic}}</span><div class="indicatorCount">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic:collections}}</div><img src="assets/img/closeX.png" /></div>
+                            <div *ngFor="let topic of Topics | SelectedTopicsPipe:collections" title="Open data selection window to refine selected statistics." (click)="expanded = true"><span>{{topic.topic}}</span><div class="indicatorCount" title="Total number of selected data indicators.">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic:collections}}</div><span class="closeButton" title="Remove this topic selection.  If only topic selected, removing will select all topics."><img src="assets/img/closeX.png"  (click)="toggleTopic(topic)" /></span></div>
                         </div>
                     </div>
                 </div>
             </div>
 
+        </div>
+    </div>
+</div>-->
+<div id="topics-row-wrapper">
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="find_header row row-centered">
+                <div class="col-xs-12 col-centered" (click)="toggleTopicsWrapper()">
+                    <header class="">
+                        <div class="title"><h2 class="h2-light compact">Topic Selection</h2></div>
+                        <div class="toggle-topics">
+                            <div [ngClass]="getClass()" aria-hidden="true"></div>
+                        </div>
+                    </header>
+                </div>
+            </div>
+            <div id="topics-wrapper" class="row">
+                <div *ngIf="expanded.toString() === 'true'" class="col-lg-12 col-md-12 col-xs-12">
+                    <!--<fieldset>
+                        <legend>Filter by:</legend>-->
+
+                    <div class="col-lg-12 col-md-12 col-xs-12">
+                        <fieldset>
+                            <legend>Topics</legend>
+                            <div id="topic-col-list">
+                                <div id="all-topics" [ngClass]="showAllSelected ? 'selected' : ''" (click)="toggleAllTopics($event)">All Topics</div>
+                                <div (click)="toggleTopic(topic)"
+                                     [ngClass]="topic.selected ? 'selected' : ''"
+                                     *ngFor="let topic of Topics | SortAlphaTopicPipe:collections">
+                                    {{topic.topic}}
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-xs-12">
+                        <fieldset>
+                            <legend>Collections</legend>
+                            <div class="row" id="collections">
+                                <span *ngFor="let collection of collections; let i = index" class="col-lg-4 col-md-4 col-xs-12">
+                                    <label attr.for={{i}} (click)="toggleCollection(collection);">
+                                        <input name="collections" type="radio" [checked]="collection.selected" id="{{i}}" />
+                                        <span>
+                                            <img width="20px" *ngIf="collection.icon_path" [src]="collection.icon_path" /> {{collection.collection === 'Show All' ? 'All' : collection.collection}}
+                                        </span>
+                                    </label>
+                                </span>
+                            </div>
+                        </fieldset>
+                    </div>
+
+                    <div class="col-lg-12 col-md-12 col-xs-12">
+                        <fieldset>
+                            <legend>
+                                Indicators
+                            </legend>
+                            <div class="dataset-filter row">
+                                <div class="col-xs-12">
+                                    <div>
+                                        <span class="fa fa-search"></span>
+                                        <span><input #filterIndicator id="filteredIndicator" (keypress)="onIndicatorFilterKeyPress($event,filterIndicator)" (click)="toggleFilterIndicator(filterIndicator)" type="text" placeholder="Select indicators" /></span>
+                                        <span id="toggle-indicator-filter" class="glyphicon" [ngClass]="showFilterIndicator ? 'glyphicon-menu-up' : 'glyphicon-menu-down'" (click)="toggleFilterIndicator(filterIndicator)">
+                                        </span>
+                                    </div>
+                                    <div *ngIf="filterIndicator.value !== '' || showFilterIndicator">
+                                        <div id="indicator-list-header">
+                                            <div class="row">
+                                                <span class="hide-show col-md-2 col-xs-6" (click)="showHideAll('hide',filterIndicator)">De-select all</span>
+                                                <span class="hide-show col-md-2 col-xs-4" (click)="showHideAll('show',filterIndicator)">Select all</span>
+                                                <span class="hide-show col-md-1 col-xs-2 fa" [ngClass]="indicatorSortAlpha ? 'fa-sort-alpha-asc' :'fa-sort-alpha-desc'" (click)="indicatorSortAlpha = !indicatorSortAlpha"></span>
+                                                <!--<span class="hide-show col-lg-7 col-md-7 col-xs-12" *ngIf="filterIndicator.value !== ''" (click)="showHideAll('visible',filterIndicator)">Select filtered results</span>-->
+                                                <!--
+                                                <span class="hide-show" (click)="showHideAll('hide')">De-select all</span>
+                                                <span class="hide-show" (click)="showHideAll('show')">Select all</span>
+                                                <span class="hide-show fa" [ngClass]="indicatorSortAlpha ? 'fa-sort-alpha-asc' :'fa-sort-alpha-desc'" (click)="indicatorSortAlpha = !indicatorSortAlpha"></span>
+                                                <span class="hide-show" *ngIf="filterIndicator.value !== ''" (click)="showHideAll('visible',filterIndicator)">Select filtered results</span>
+                                                    -->
+                                            </div>
+                                        </div>
+                                        <div id="indicator-list" class="container" [ngClass]="filterIndicator.value !== '' ? 'withFilter' : ''">
+                                            <div *ngFor="let indicator of Indicators | indicatorTopicFilterPipe : Topics:collections : filterIndicator.value: indicatorSortAlpha; let i = index" (click)="toggleIndicator(indicator,null,true)" class="row">
+                                                <div class="col-xs-1 ind-checkbox">
+                                                    <input type="checkbox" [checked]="indicator.selected" id="{{i+'ind'}}" />
+                                                </div>
+                                                <div class="col-xs-11 ind-label">
+                                                    <label attr.for="{{i+'ind'}}">{{indicator.indicator_display}}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="col-lg-12 col-md-12 col-xs-12" id="selTopicsIndicatorsWrapper">
+                    <div id="selectedTopicsIndicators" [ngClass]="expanded.toString() === 'true' ? 'expanded' : ''" *ngIf="showIndicatorCount">
+                        <span *ngIf="expanded.toString() === 'true'">
+                            Currently selected:
+                        </span>
+                        <div *ngIf="showAllSelected" (click)="expanded = true">
+                            <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsCountPipe: 'all':collections}}</span></div>
+                        </div>
+                        <div *ngIf="!showAllSelected">
+                            <div *ngFor="let topic of Topics | SelectedTopicsPipe:collections" title="Open data selection window to refine selected statistics." (click)="expanded = true"><span>{{topic.topic}}</span><div class="indicatorCount" title="Total number of selected data indicators.">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic:collections}}</div><span class="closeButton" title="Remove this topic selection.  If only topic selected, removing will select all topics."><img src="assets/img/closeX.png" (click)="toggleTopic(topic)" /></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

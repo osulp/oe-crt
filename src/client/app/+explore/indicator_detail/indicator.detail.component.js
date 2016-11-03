@@ -38,6 +38,7 @@ var DetailComponent = (function () {
         this.isCountyLevel = false;
         this.isTOP = false;
         this.detailUrlChanges = 0;
+        this.selectedYear = '';
     }
     DetailComponent.prototype.onSelectedSearchResult = function (results) {
         var _this = this;
@@ -98,7 +99,9 @@ var DetailComponent = (function () {
     DetailComponent.prototype.windowRefresh = function () {
         var runInterval = setInterval(runCheck, 50);
         function runCheck() {
-            window.dispatchEvent(new Event('resize'));
+            var evt = document.createEvent('UIEvents');
+            evt.initUIEvent('resize', true, false, window, 0);
+            window.dispatchEvent(evt);
             clearInterval(runInterval);
         }
     };
@@ -128,6 +131,10 @@ var DetailComponent = (function () {
         }
         window.scrollTo(0, 0);
         evt.stopPropagation();
+    };
+    DetailComponent.prototype.onSelectedYearChange = function (year) {
+        console.log('year changed!', year);
+        this.selectedYear = year;
     };
     DetailComponent.prototype.onChartDataUpdate = function (data) {
         console.log('Chart data emitted to indicator detail', data);

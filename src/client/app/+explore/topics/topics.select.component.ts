@@ -55,6 +55,8 @@ export class TopicsComponent implements OnInit {
     showAll: boolean = true;
     hideAll: boolean = false;
     indicatorTrigger: boolean = false;
+    showFilterIndicator: boolean = false;
+    indicatorSortAlpha: boolean = true;
     //private subscription: Subscription;
 
     constructor(
@@ -79,57 +81,75 @@ export class TopicsComponent implements OnInit {
         //this.visible = !this.visible;
     }
 
+    toggleFilterIndicator(filterInput:any) {
+        this.showFilterIndicator = !this.showFilterIndicator;
+        console.log('toggleIndicatorList', filterInput);
+        filterInput.value = !this.showFilterIndicator ? '' : filterInput.value;
+    }
+
     toggleAllTopics(evt?: any) {
         this.showAllSelected = this.showAllSelected ? this.showAllSelected : !this.showAllSelected;
         if (this.showAllSelected) {
-            //turn off any other selected topics and set selected to all
-            console.log('show all selected');
-            let tempTopics = this.Topics;
-
-            tempTopics.forEach((topic: Topic) => {
-                if (topic.selected) {
-                    this.toggleTopic(topic);
-                    //topic.toggleSelected();
-                }
-                const idx = this.Topics.indexOf(topic);
-                this.Topics = [
-                    ...this.Topics.slice(0, idx),
-                    topic,
-                    ...this.Topics.slice(idx + 1)
-                ];
-            });
-            this._selectedTopics = [];
-
-            this._selectedIndicators = [];
-            for (var x = 0; x < this.Indicators.length; x++) {
-                if (this.Indicators[x].selected) {
-                    this._selectedIndicators.push(this.Indicators[x]);
-                }
-            }
-
-
-            this.selectedTopicsFromComp.emit(this._selectedTopics);
-            let tempIndicators = this.Indicators;
-            this._selectedIndicators = [];
-            tempIndicators.forEach((indicator: Indicator) => {
-                if (!indicator.selected) {
-                    indicator.toggleSelected();
-                }
-                const i = this.Indicators.indexOf(indicator);
-                this.Indicators = [
-                    ...this.Indicators.slice(0, i),
-                    indicator,
-                    ...this.Indicators.slice(i + 1)
-                ];
-                this._selectedIndicators.push(indicator);
-            });
-            //for (var i = 0; i < this.Indicators.length; i++) {
-            //    this.toggleIndicator(this.Indicators[i], true);
-            //    //this._selectedIndicatorsService.toggle(this.Indicators[i], true);
-            //}
-            this.allTopicsFromComp.emit(this.Topics);
-            this.allIndicatorsFromComp.emit(this.Indicators);
+            this.selectAllTopics();
         }
+    }
+
+    onIndicatorFilterKeyPress(event: any,filterIndicator:any) {
+        var code = event.keyCode || event.which;
+        if (code === 13) {
+            //select visible and close
+            this.showHideAll('show', filterIndicator);
+        }
+    }
+
+    selectAllTopics() {
+        //turn off any other selected topics and set selected to all
+        console.log('show all selected');
+        let tempTopics = this.Topics;
+
+        tempTopics.forEach((topic: Topic) => {
+            if (topic.selected) {
+                this.toggleTopic(topic);
+                //topic.toggleSelected();
+            }
+            const idx = this.Topics.indexOf(topic);
+            this.Topics = [
+                ...this.Topics.slice(0, idx),
+                topic,
+                ...this.Topics.slice(idx + 1)
+            ];
+        });
+        this._selectedTopics = [];
+
+        this._selectedIndicators = [];
+        for (var x = 0; x < this.Indicators.length; x++) {
+            if (this.Indicators[x].selected) {
+                this._selectedIndicators.push(this.Indicators[x]);
+            }
+        }
+
+
+        this.selectedTopicsFromComp.emit(this._selectedTopics);
+        let tempIndicators = this.Indicators;
+        this._selectedIndicators = [];
+        tempIndicators.forEach((indicator: Indicator) => {
+            if (!indicator.selected) {
+                indicator.toggleSelected();
+            }
+            const i = this.Indicators.indexOf(indicator);
+            this.Indicators = [
+                ...this.Indicators.slice(0, i),
+                indicator,
+                ...this.Indicators.slice(i + 1)
+            ];
+            this._selectedIndicators.push(indicator);
+        });
+        //for (var i = 0; i < this.Indicators.length; i++) {
+        //    this.toggleIndicator(this.Indicators[i], true);
+        //    //this._selectedIndicatorsService.toggle(this.Indicators[i], true);
+        //}
+        this.allTopicsFromComp.emit(this.Topics);
+        this.allIndicatorsFromComp.emit(this.Indicators);
     }
 
     getTopics() {
@@ -165,6 +185,8 @@ export class TopicsComponent implements OnInit {
             }
             if (this._selectedTopics.length === 0) {
                 this.showAllSelected = true;
+                this.selectAllTopics();
+                return;
             }
             this.selectedTopicsFromComp.emit(this._selectedTopics);
         }
@@ -192,15 +214,37 @@ export class TopicsComponent implements OnInit {
         this.allIndicatorsFromComp.emit(this.Indicators);
     }
 
-    showHideAll(showType: any) {
+    showHideAll(showType: any,filterInput?:any) {
         this.showAll = showType === 'show';
         this.hideAll = showType === 'hide';
+        let isShowing = this.showAll;
+        console.log('filtervalue',filterInput.value);
         this.Indicators.forEach((indicator: any) => {
-            this.toggleIndicator(indicator, this.showAll, false);
+            isShowing = indicator.indicator_display.toUpperCase().indexOf(filterInput.value.toUpperCase()) !== -1;
+
+            //if (showType === 'visible') {
+            //    //console.log('filterVisible', filterInput, filterInput.value);
+            //    show = indicator.indicator_display.toUpperCase().indexOf(filterInput.value.toUpperCase()) !== -1;
+            //}
+            if (isShowing) {
+                console.log('isshowing', indicator);
+                //isShowing = this.hideAll ? false : true;
+                this.toggleIndicator(indicator, this.showAll, false);
+            } else if (this.showAll) {
+                //hide everything not showing
+                this.toggleIndicator(indicator,false, false);
+            }
         });
         this.allIndicatorsFromComp.emit(this.Indicators);
         this.indicatorTrigger = !this.indicatorTrigger;
+        this.hideAll = filterInput.value === '' && !this.showAll;
         this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger });
+
+
+        if (showType === 'visible') {
+            filterInput.value = '';
+            this.showFilterIndicator = false;
+        }
     }
 
     toggleIndicator(indicator: Indicator, value?: boolean, emit?:boolean) {
