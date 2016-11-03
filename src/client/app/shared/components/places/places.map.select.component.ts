@@ -59,6 +59,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     processCombineBins: boolean = true;
     selPlaceGroups: any[] = [];
     tempTabIndex: number = -1;
+    isMobile: boolean = $(window).width() < 767;
     //_placeInfoService: PlaceInfoService;
 
     constructor(
@@ -218,10 +219,10 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
         let sReturn: string = '';
         switch (suffix) {
             case 'MapCol':
-                sReturn += this.viewType === 'explore' ? 'col-lg-7 col-md-7 col-xs-12 ' : 'col-xs-12 ';
+                sReturn += this.viewType === 'explore' || this.isMobile ? 'col-lg-7 col-md-7 col-xs-12 ' : 'col-xs-12 ';
                 break;
             case 'FindCombComp':
-                sReturn += this.viewType === 'explore' ? 'col-lg-5 col-md-5 col-xs-12 ' : '';
+                sReturn += this.viewType === 'explore' || this.isMobile ? 'col-lg-5 col-md-5 col-xs-12 ' : '';
                 break;
             default:
                 break;

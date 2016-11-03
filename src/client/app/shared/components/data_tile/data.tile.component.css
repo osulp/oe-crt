@@ -227,4 +227,30 @@
         right:-7px;
     }
 
+    #data-tile-wrapper.mapChart .graph{
+        height:325px;
+    }
+
+     #data-tile-wrapper.advanced .graph-chart {
+         height:375px;
+     }
+
+
+    #data-tile-wrapper.advanced{
+        height:435px;
+        margin-bottom:15px;
+        padding:15px 0 10px 0;
+    }
+    #map-controls{
+        top:0;
+        left:15px;
+    }
+    .selectedMapDrpDwn{
+        display:block;
+        border-left:none;
+    }
+
+    #chart_footer_wrapper{
+        left:15px;
+    }
 }

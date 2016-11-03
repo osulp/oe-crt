@@ -39,6 +39,7 @@ var DetailComponent = (function () {
         this.isTOP = false;
         this.detailUrlChanges = 0;
         this.selectedYear = '';
+        this.isMobile = false;
     }
     DetailComponent.prototype.onSelectedSearchResult = function (results) {
         var _this = this;
@@ -168,6 +169,7 @@ var DetailComponent = (function () {
         this.showTable = false;
         this.dateAccessed = this.getDateAccessed();
         this.pageUrl = decodeURI(window.location.href);
+        this.isMobile = $(window).width() < 767;
         this.chartData = [];
         this.inputIndicator = decodeURI(this.inputIndicator)
             .replace(/\%28/g, '(')

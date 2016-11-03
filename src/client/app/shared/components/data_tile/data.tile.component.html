@@ -70,7 +70,7 @@
                 <div *ngIf="isCountyLevel && false" id="showAll">Show All</div>
                 <div *ngIf="hasMOEs" id="showMOEs">
                     <span><input id="chkBoxShowMOE" type="checkbox" [checked]="showMOES" (click)="toggleMOEs()" /></span>
-                    <span><label for="chkBoxShowMOE">Show <a href="javascript:void(0);" (click)="openMoeDialog()">Margin of Error</a> Bars</label></span>
+                    <span><label for="chkBoxShowMOE" [innerHTML]="isHandheld ? '<a href=\'javascript:void(0);\' (click)=\'openMoeDialog()\'>Margin of Error</a>' : 'Show <a href=\'javascript:void(0);\' (click)=\'openMoeDialog()\'>Margin of Error</a> Bars'"></label></span>
                 </div>
             </div>
         </div>

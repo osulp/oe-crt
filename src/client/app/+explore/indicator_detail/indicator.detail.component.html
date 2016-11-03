@@ -5,7 +5,7 @@
                 <div class="col-xs-12" (click)="toggleCommunitiesWrapper()">
                     <header class="find_header_content">
                         <div class="back-btn" (click)="goBack($event);">Back</div>
-                        <div class="title">Change Community Selection</div>
+                        <div *ngIf="!isMobile" class="title">Change Community Selection</div>
                         <div class="toggle-communities">
                             <div [ngClass]="getClass()" aria-hidden="true"></div>
                         </div>
@@ -16,7 +16,7 @@
     </div>
     <div [hidden]="!visible" class="row">
         <div class="col-xs-12 data-detail-map-wrapper">
-            <places-map-select [selectedPlaceType]="selectedPlaceType" [viewType]="'indicatorDetail'" [selectedPlaces]="urlPlaces"></places-map-select>
+            <places-map-select [selectedPlaceType]="selectedPlaceType" [viewType]="'indicatorDetail'" [selectedPlaces]="urlPlaces" ></places-map-select>
         </div>
     </div>
     <div class="row">
@@ -28,16 +28,14 @@
             <div class="row">
                 <div *ngIf="!isStatewide && !isCustomChart" class="col-xs-4 toggleView" (click)="setToggleView('map')">
                     <span class="toggleViewIcn" [ngClass]="showMap ? 'viewSelected' : ''"></span>
-                    <span>Map View</span>
+                    <span [innerHTML]="isMobile ? 'Map' : 'Map View'"></span>
                 </div>
                 <div class="col-xs-4 toggleView" (click)="setToggleView('graph')">
-                    <span class="toggleViewIcn" [ngClass]="showGraph ? 'viewSelected' : ''"></span><span>
-                        Graph View
-                    </span>
+                    <span class="toggleViewIcn" [ngClass]="showGraph ? 'viewSelected' : ''"></span><span [innerHTML]="isMobile ? 'Graph' : 'Graph View'"></span>
                 </div>
                 <div class="col-xs-4 toggleView" (click)="setToggleView('table')">
                     <span class="toggleViewIcn" [ngClass]="showTable ? 'viewSelected' : ''"></span>
-                    <span>Table View</span>
+                    <span [innerHTML]="isMobile ? 'Table' : 'Table View'"></span>
                 </div>
             </div>
         </div>
@@ -48,7 +46,7 @@
     <div id="detail-data-view-wrapper" class="row">
         <div class="col-xs-12">
             <div class="row">
-                <div id="indicator-title-wrapper" class="col-lg-10 col-md-10 col-xs-8">
+                <div id="indicator-title-wrapper" class="col-lg-10 col-md-10 col-xs-10">
                     <div>
                         <h2 [innerHTML]="indicatorTitle">
                             <!--<span *ngIf="isTOP" class="collectionIcon">
@@ -61,15 +59,15 @@
                         &nbsp;
                         <span>{{subTitle !== '' ? '('+subTitle+')' : '&nbsp;'}}</span>
                         <span *ngIf="isStatewide || isCountyLevel" class="data-flag"><span class="glyphicon glyphicon-flag"></span>
-                            {{isStatewide ? ' Data only available Statewide ' : isCountyLevel ? ' Data only available at the County level ' : ''}}
+                            {{isStatewide ? isMobile ? 'Statewide data' : ' Data only available Statewide ' : isCountyLevel ? isMobile ? 'County level data' : ' Data only available at the County level ' : ''}}
                         </span>
                     </div>
 
                 </div>
-                <div class="col-lg-2 col-md-2 col-xs-4">
+                <div class="col-lg-2 col-md-2 col-xs-2">
                     <div id="share-btns">
-                        <div title="Download data"><img src="assets/img/icn-download.svg" alt="download data" /></div>
-                        <div title="Print a report"><img src="assets/img/icn-print.svg" alt="print" /></div>
+                        <div *ngIf="!isMobile" title="Download data"><img src="assets/img/icn-download.svg" alt="download data" /></div>
+                        <div *ngIf="!isMobile" title="Print a report"><img src="assets/img/icn-print.svg" alt="print" /></div>
                         <div title="Share with others on social media or with links"><img src="assets/img/icn-share.svg" alt="share" /></div>
                     </div>
                 </div>
@@ -96,9 +94,11 @@
             </div>
             <div class="row">
                 <div id="indicator-info" [ngClass]="indInfo" class="col-lg-5 col-md-6 col-xs-12 arrow_box">
-                    <span [ngClass]="{'selected':indInfo === 'desc'}" (click)="indInfo = 'desc';">Description</span>
-                    <span [ngClass]="{'selected':indInfo === 'src'}" (click)="indInfo = 'src';">Source</span>
-                    <span [ngClass]="{'selected':indInfo === 'other'}" (click)="indInfo = 'other';">How to cite</span>
+                    <div class="row">
+                    <span class="col-xs-4" [ngClass]="{'selected':indInfo === 'desc'}" (click)="indInfo = 'desc';">Description</span>
+                    <span class="col-xs-4"  [ngClass]="{'selected':indInfo === 'src'}" (click)="indInfo = 'src';">Source</span>
+                    <span class="col-xs-4"  [ngClass]="{'selected':indInfo === 'other'}" (click)="indInfo = 'other';">How to cite</span>
+                    </div>
                 </div>
                 <div class="col-xs-12" id="indicator-info-content">
                     <div *ngIf="indInfo === 'desc'">
@@ -143,16 +143,8 @@
                         <p><i>The Communities Reporter Tool is a collaboration of Oregon State University (Rural Studies Program and the Oregon Explorer), the Ford Family Foundation (which serves rural Oregon and Siskiyou County, CA), and the Oregon Community Foundation. Partners include the Oregon Department of Administrative Services. </i></p>
                     </div>
                 </div>
-                <div *ngIf="relatedIndicators.length > 0">
+                <!--<div *ngIf="relatedIndicators.length > 0">
                     <div id="related-indicators-wrapper" class="row">
-                        <!--<div class="col-xs-12">
-                            <div id="data-control-bar">
-                                <div id="map-graph-toggle" (click)="toggleResultView()">
-                                    <div [ngClass]="resultView === 'graph' ? 'selected' : ''">Graph View</div>
-                                    <div [ngClass]="resultView === 'map' ? 'selected' : ''">Map View</div>
-                                </div>
-                            </div>
-                        </div>-->
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
@@ -168,7 +160,7 @@
                 <div *ngIf="relatedIndicators.length === 0" id="no-rel-ind-buffer" class="col-xs-12">
                     &nbsp;
                 </div>
-            </div>
+            </div>-->
         </div>
     </div>
 </div>

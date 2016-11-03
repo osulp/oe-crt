@@ -59,7 +59,7 @@ var TopicsComponent = (function () {
     TopicsComponent.prototype.onIndicatorFilterKeyPress = function (event, filterIndicator) {
         var code = event.keyCode || event.which;
         if (code === 13) {
-            this.showHideAll('show', filterIndicator);
+            this.showHideAll('show', filterIndicator, true);
         }
     };
     TopicsComponent.prototype.selectAllTopics = function () {
@@ -144,7 +144,7 @@ var TopicsComponent = (function () {
         this.Indicators = Indicators;
         this.allIndicatorsFromComp.emit(this.Indicators);
     };
-    TopicsComponent.prototype.showHideAll = function (showType, filterInput) {
+    TopicsComponent.prototype.showHideAll = function (showType, filterInput, close) {
         var _this = this;
         this.showAll = showType === 'show';
         this.hideAll = showType === 'hide';
@@ -164,7 +164,7 @@ var TopicsComponent = (function () {
         this.indicatorTrigger = !this.indicatorTrigger;
         this.hideAll = filterInput.value === '' && !this.showAll;
         this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger });
-        if (showType === 'visible') {
+        if (close) {
             filterInput.value = '';
             this.showFilterIndicator = false;
         }

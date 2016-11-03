@@ -53,6 +53,7 @@ export class DetailComponent implements OnInit {
     dateAccessed: any;
     pageUrl: any;
     selectedYear: any = '';
+    isMobile: boolean = false;
 
 
     constructor(private _indicatorDescService: IndicatorDescService,
@@ -219,6 +220,7 @@ export class DetailComponent implements OnInit {
         this.showTable = false;
         this.dateAccessed = this.getDateAccessed();
         this.pageUrl = decodeURI(window.location.href);
+        this.isMobile = $(window).width() < 767;
         this.chartData = [];
         this.inputIndicator = decodeURI(this.inputIndicator)
             //.replace(/\%2528/g, '(')

@@ -39,6 +39,7 @@ var MapLeafletComponent = (function () {
             Desc: 'California'
         };
         this.labels = {};
+        this.isMobile = $(window).width() < 767;
     }
     MapLeafletComponent.prototype.loadMap = function () {
         console.log('start loadmap', this.selectedPlaces);
@@ -62,7 +63,7 @@ var MapLeafletComponent = (function () {
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
                 pane: 'labels',
                 minZoom: 1,
-                maxZoom: this.viewType === 'indicatorDetail' ? 7 : 8
+                maxZoom: this.viewType === 'indicatorDetail' && !this.isMobile ? 7 : 8
             });
             baseMapLabels.addTo(this.map);
             var ctTypes = ['Tracts', 'Unincorporated Place'];
@@ -122,14 +123,14 @@ var MapLeafletComponent = (function () {
                 _zoomHomeWrapper: function (e) {
                     this._zoomHome(e);
                     var zoomScope = this;
-                    if (mapScope.viewType === 'indicatorDetail') {
+                    if (mapScope.viewType === 'indicatorDetail' && !mapScope.isMobile) {
                         window.setTimeout(function () {
                             zoomScope._zoomHome(e);
                         }, 500);
                     }
                 },
                 _zoomHome: function (e) {
-                    if (mapScope.viewType === 'indicatorDetail') {
+                    if (mapScope.viewType === 'indicatorDetail' && !mapScope.isMobile) {
                         this._map.setZoom(6);
                         this._map.panToOffset([44, -121.5], [mapScope.detailViewOffset, 0]);
                     }
@@ -169,7 +170,7 @@ var MapLeafletComponent = (function () {
             });
             locate.addTo(this.map);
             function onLocationFound(e) {
-                if (mapScope.viewType === 'indicatorDetail') {
+                if (mapScope.viewType === 'indicatorDetail' && !mapScope.isMobile) {
                     mapScope.map.panToOffset(e.latlng, [mapScope.detailViewOffset, 100]);
                 }
             }
@@ -192,7 +193,7 @@ var MapLeafletComponent = (function () {
                     var returnText = '';
                     if (featureCollection.features.length > 0) {
                         mapScope.identifiedLayer.addData(featureCollection.features);
-                        if (mapScope.viewType === 'indicatorDetail') {
+                        if (mapScope.viewType === 'indicatorDetail' && !mapScope.isMobile) {
                             mapScope.map.fitBounds(mapScope.identifiedLayer.getBounds(), {
                                 paddingTopLeft: new L.Point(mapScope.detailViewOffset - 100, 100)
                             });
@@ -273,7 +274,7 @@ var MapLeafletComponent = (function () {
         });
     };
     MapLeafletComponent.prototype.setDetailView = function () {
-        if (this.viewType === 'indicatorDetail') {
+        if (this.viewType === 'indicatorDetail' && !this.isMobile) {
             var leftPadding = $('.crt-logo').css('padding-left');
             $('.leaflet-left').css('left', leftPadding);
             var rightPadding = (530 + parseInt(leftPadding.replace('px', ''))) + 'px';
@@ -282,10 +283,10 @@ var MapLeafletComponent = (function () {
     };
     MapLeafletComponent.prototype.setInitialMapView = function () {
         var initialCoords = [44, -121.5];
-        var initialZoom = this.viewType === 'indicatorDetail' ? 6 : 5.5;
+        var initialZoom = this.viewType === 'indicatorDetail' && !this.isMobile ? 6 : 5.5;
         this.map.setView(initialCoords, initialZoom);
         var mapScope = this;
-        if (this.viewType === 'indicatorDetail') {
+        if (this.viewType === 'indicatorDetail' && !this.isMobile) {
             window.setTimeout(function () {
                 mapScope.map.panToOffset(mapScope.map.getCenter(), [mapScope.detailViewOffset, 0]);
             }, 500);
@@ -516,7 +517,7 @@ var MapLeafletComponent = (function () {
                 clearInterval(runInterval);
                 if (mapScope.selectedLayer.getLayers().length > 0) {
                     var center = mapScope.selectedLayer.getBounds().getCenter();
-                    if (mapScope.viewType === 'indicatorDetail') {
+                    if (mapScope.viewType === 'indicatorDetail' && !mapScope.isMobile) {
                         mapScope.map.panToOffset(center, [mapScope.detailViewOffset, 0]);
                     }
                     else {
@@ -556,7 +557,7 @@ var MapLeafletComponent = (function () {
             var mapScope = this;
             window.setTimeout(function () {
                 mapScope.map.fitBounds(mapScope.selectedLayer.getBounds());
-                if (mapScope.viewType === 'indicatorDetail') {
+                if (mapScope.viewType === 'indicatorDetail' && !mapScope.isMobile) {
                     mapScope.map.panToOffset(mapScope.map.getCenter(), [mapScope.detailViewOffset, 0]);
                 }
             }, 500);

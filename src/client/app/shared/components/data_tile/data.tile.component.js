@@ -52,7 +52,7 @@ var DataTileComponent = (function () {
         this.county_map_no_data = [];
         this.animationCounter = -1;
         this.sliderState = 'play';
-        this.isHandheld = false;
+        this.isHandheld = $(window).width() < 481;
         this.isSliderInit = false;
         this.isCountyLevel = false;
         this.isStatewide = false;
@@ -136,11 +136,11 @@ var DataTileComponent = (function () {
         this.defaultAdvChartOptions = {
             chart: {
                 type: 'line',
-                marginRight: 15,
-                marginLeft: 70,
-                spacingLeft: 30,
-                spacingRight: 35,
-                spacingTop: 55,
+                marginRight: this.isHandheld ? null : 15,
+                marginLeft: this.isHandheld ? null : 70,
+                spacingLeft: this.isHandheld ? 10 : 30,
+                spacingRight: this.isHandheld ? 10 : 35,
+                spacingTop: this.isHandheld ? 0 : 55,
                 zoomType: 'x',
                 resetZoomButton: {
                     position: {
@@ -202,7 +202,8 @@ var DataTileComponent = (function () {
         this.mapOptions = {
             chart: {
                 renderTo: 'highmap',
-                type: 'map'
+                type: 'map',
+                spacingTop: this.isHandheld ? 20 : null
             },
             title: {
                 text: ''
@@ -228,7 +229,7 @@ var DataTileComponent = (function () {
             },
             credits: {
                 enabled: true,
-                text: 'Maps and Charts provided by Oregon Explorer and OSU Rural Studies Program',
+                text: this.isHandheld ? 'Oregon Explorer and OSU Rural Studies Program' : 'Maps and Charts provided by Oregon Explorer and OSU Rural Studies Program',
                 href: 'http://oregonexplorer.info/rural',
                 position: {
                     align: 'center'
@@ -242,11 +243,11 @@ var DataTileComponent = (function () {
                 },
                 buttons: {
                     zoomIn: {
-                        x: 8,
+                        x: this.isHandheld ? 0 : 8,
                         y: -8
                     },
                     zoomOut: {
-                        x: 8,
+                        x: this.isHandheld ? 0 : 8,
                         y: 20
                     }
                 }
@@ -300,8 +301,8 @@ var DataTileComponent = (function () {
                 if (_this.indicator_info.Represented_ID === 10 && _this.tileType === 'graph') {
                     _this.chart.showLoading('Chart not available. See map and table view');
                     _this.chart.setTitle({
-                        text: _this.viewType === 'basic' ? _this.indicator.replace('<br>', ' ') : null,
-                        align: _this.viewType === 'basic' ? 'left' : null,
+                        text: _this.viewType === 'basic' || _this.isHandheld ? _this.indicator.replace('<br>', ' ') : null,
+                        align: _this.viewType === 'basic' ? 'left' : _this.isHandheld ? 'center' : null,
                         style: {
                             fontSize: '1.25em',
                             fontWeight: '200'
@@ -760,8 +761,8 @@ var DataTileComponent = (function () {
                         else {
                             _this.chart.showLoading('Sorry, indicator data is not available for this place.');
                             _this.chart.setTitle({
-                                text: _this.viewType === 'basic' ? _this.indicator.replace('<br>', ' ') : null,
-                                align: _this.viewType === 'basic' ? 'left' : null,
+                                text: _this.viewType === 'basic' || _this.isHandheld ? _this.indicator.replace('<br>', ' ') : null,
+                                align: _this.viewType === 'basic' ? 'left' : _this.isHandheld ? 'center' : null,
                                 style: {
                                     fontSize: '1.25em',
                                     fontWeight: '200'
@@ -1345,8 +1346,8 @@ var DataTileComponent = (function () {
                     });
                     var title = this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator;
                     this.chart.setTitle({
-                        text: this.viewType === 'basic' ? title.replace('<br>', ' ') : null,
-                        align: this.viewType === 'basic' ? 'left' : null,
+                        text: this.viewType === 'basic' || this.isHandheld ? title.replace('<br>', ' ') : null,
+                        align: this.viewType === 'basic' ? 'left' : this.isHandheld ? 'center' : null,
                         style: {
                             fontSize: '1.25em',
                             fontWeight: '200'
@@ -2232,7 +2233,7 @@ var DataTileComponent = (function () {
         var counter = 0;
         var counterTime = 0;
         var prevYear;
-        var labelEveryYear = this.placeTypeData.Years.length - (this.yearStartOffset + this.yearEndOffset) > 10 ? false : true;
+        var labelEveryYear = this.placeTypeData.Years.length - (this.yearStartOffset + this.yearEndOffset) > 10 ? false : this.isHandheld && this.placeTypeData.Years.length - (this.yearStartOffset + this.yearEndOffset) > 5 ? false : true;
         var labelEveryThirdYear = this.placeTypeData.Years.length - (this.yearStartOffset + this.yearEndOffset) > 20 ? true : false;
         var labelYear = true;
         var labelThirdYear = true;

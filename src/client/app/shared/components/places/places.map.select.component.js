@@ -34,6 +34,7 @@ var PlacesMapSelectComponent = (function () {
         this.processCombineBins = true;
         this.selPlaceGroups = [];
         this.tempTabIndex = -1;
+        this.isMobile = $(window).width() < 767;
         dragulaService.drop.subscribe(function (value) {
             console.log("drop: " + value[0]);
             _this.onDrop(value.slice(1));
@@ -143,10 +144,10 @@ var PlacesMapSelectComponent = (function () {
         var sReturn = '';
         switch (suffix) {
             case 'MapCol':
-                sReturn += this.viewType === 'explore' ? 'col-lg-7 col-md-7 col-xs-12 ' : 'col-xs-12 ';
+                sReturn += this.viewType === 'explore' || this.isMobile ? 'col-lg-7 col-md-7 col-xs-12 ' : 'col-xs-12 ';
                 break;
             case 'FindCombComp':
-                sReturn += this.viewType === 'explore' ? 'col-lg-5 col-md-5 col-xs-12 ' : '';
+                sReturn += this.viewType === 'explore' || this.isMobile ? 'col-lg-5 col-md-5 col-xs-12 ' : '';
                 break;
             default:
                 break;

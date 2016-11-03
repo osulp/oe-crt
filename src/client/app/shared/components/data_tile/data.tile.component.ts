@@ -116,7 +116,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     private county_map_no_data: any = [];
     private animationCounter: number = -1;
     private sliderState: string = 'play';
-    private isHandheld: boolean = false;
+    private isHandheld: boolean = $(window).width() < 481;// false;
     private placeTypeGeoYears: any;
     private isSliderInit: boolean = false;
     private isCountyLevel: boolean = false;
@@ -215,11 +215,11 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     private defaultAdvChartOptions = {
         chart: {
             type: 'line',
-            marginRight: 15,
-            marginLeft: 70,
-            spacingLeft: 30,
-            spacingRight: 35,
-            spacingTop: 55,
+            marginRight: this.isHandheld ? null : 15,
+            marginLeft: this.isHandheld ? null : 70,
+            spacingLeft: this.isHandheld ? 10 : 30,
+            spacingRight: this.isHandheld ?10 : 35,
+            spacingTop: this.isHandheld ? 0 : 55,
             zoomType: 'x',
             resetZoomButton: {
                 position: {
@@ -300,7 +300,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         this.mapOptions = {
             chart: {
                 renderTo: 'highmap',
-                type: 'map'
+                type: 'map',
+                spacingTop: this.isHandheld ? 20 : null
             },
             title: {
                 text: ''
@@ -327,7 +328,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             },
             credits: {
                 enabled: true,
-                text: 'Maps and Charts provided by Oregon Explorer and OSU Rural Studies Program',
+                text: this.isHandheld ? 'Oregon Explorer and OSU Rural Studies Program' : 'Maps and Charts provided by Oregon Explorer and OSU Rural Studies Program',
                 href: 'http://oregonexplorer.info/rural',
                 position: {
                     align: 'center'
@@ -341,17 +342,15 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 },
                 buttons: {
                     zoomIn: {
-                        x: 8,
+                        x: this.isHandheld ? 0 : 8,
                         y: -8
                     },
                     zoomOut: {
-                        x: 8,
+                        x: this.isHandheld ? 0 : 8,
                         y: 20
                     }
                 }
             },
-            //margin: [0, 0, 0, 0],
-            //spacing: [10, 10, 10, 10],
             colorAxis: {},
             xAxis: {},
             yAxis: {},
@@ -410,8 +409,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     if (this.indicator_info.Represented_ID === 10 && this.tileType === 'graph') {
                         this.chart.showLoading('Chart not available. See map and table view');
                         this.chart.setTitle({
-                            text: this.viewType === 'basic' ? this.indicator.replace('<br>', ' ') : null,
-                            align: this.viewType === 'basic' ? 'left' : null,
+                            text: this.viewType === 'basic' || this.isHandheld ? this.indicator.replace('<br>', ' ') : null,
+                            align: this.viewType === 'basic' ? 'left' : this.isHandheld ? 'center' : null,
                             style: {
                                 fontSize: '1.25em',
                                 fontWeight: '200'
@@ -1013,8 +1012,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             } else {
                                 this.chart.showLoading('Sorry, indicator data is not available for this place.');
                                 this.chart.setTitle({
-                                    text: this.viewType === 'basic' ? this.indicator.replace('<br>', ' ') : null,
-                                    align: this.viewType === 'basic' ? 'left' : null,
+                                    text: this.viewType === 'basic' || this.isHandheld ? this.indicator.replace('<br>', ' ') : null,
+                                    align: this.viewType === 'basic' ? 'left' : this.isHandheld ? 'center' : null,
                                     style: {
                                         fontSize: '1.25em',
                                         fontWeight: '200'
@@ -1775,8 +1774,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     let title = this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator;
                     this.chart.setTitle(
                         {
-                            text: this.viewType === 'basic' ? title.replace('<br>', ' ') : null,
-                            align: this.viewType === 'basic' ? 'left' : null,
+                            text: this.viewType === 'basic' || this.isHandheld ? title.replace('<br>', ' ') : null,
+                            align: this.viewType === 'basic' ? 'left' : this.isHandheld ? 'center' : null,
                             style: {
                                 fontSize: '1.25em',
                                 fontWeight: '200'
@@ -2877,7 +2876,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         var counterTime = 0;// this.yearStartOffset;
         //var overallCounter = 0;
         var prevYear: any;
-        var labelEveryYear = this.placeTypeData.Years.length - (this.yearStartOffset + this.yearEndOffset) > 10 ? false : true;
+        var labelEveryYear = this.placeTypeData.Years.length - (this.yearStartOffset + this.yearEndOffset) > 10 ? false : this.isHandheld && this.placeTypeData.Years.length - (this.yearStartOffset + this.yearEndOffset) > 5 ? false :  true;
         var labelEveryThirdYear = this.placeTypeData.Years.length - (this.yearStartOffset + this.yearEndOffset) > 20 ? true : false;
         var labelYear = true;
         var labelThirdYear = true;

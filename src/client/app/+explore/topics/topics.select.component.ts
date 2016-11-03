@@ -98,7 +98,7 @@ export class TopicsComponent implements OnInit {
         var code = event.keyCode || event.which;
         if (code === 13) {
             //select visible and close
-            this.showHideAll('show', filterIndicator);
+            this.showHideAll('show', filterIndicator, true);
         }
     }
 
@@ -214,7 +214,7 @@ export class TopicsComponent implements OnInit {
         this.allIndicatorsFromComp.emit(this.Indicators);
     }
 
-    showHideAll(showType: any,filterInput?:any) {
+    showHideAll(showType: any,filterInput?:any, close?:boolean) {
         this.showAll = showType === 'show';
         this.hideAll = showType === 'hide';
         let isShowing = this.showAll;
@@ -241,7 +241,7 @@ export class TopicsComponent implements OnInit {
         this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger });
 
 
-        if (showType === 'visible') {
+        if (close) {
             filterInput.value = '';
             this.showFilterIndicator = false;
         }
