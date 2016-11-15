@@ -36,7 +36,9 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     //export class ExploreComponent implements OnInit {
     @ViewChild(DataComponent) dataComp: DataComponent;
     @ViewChild(TopicsComponent) topicsComp: TopicsComponent;
+    @ViewChild(DetailComponent) detailComp: DetailComponent;
     urlCollection: any = 'Show All';
+    urlFilter: any = '';
     selectedTopics: any;
     selectedIndicators: any;
     selectedIndicator: any;
@@ -69,13 +71,41 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         this.selectedIndicators = decodeURI(curr.getParam('indicators'));
         this.selectedPlaces = decodeURI(curr.getParam('places'));
         this.urlCollection = decodeURI(curr.getParam('collection'));
+        this.urlFilter = decodeURI(curr.getParam('filter'));
         this.showTopicsExpanded = curr.getParam('show') === 'Topics';
         this.showPlacesExpanded = curr.getParam('show') === 'Places';
         console.log('routercheck', this.showTopicsExpanded, this.showPlacesExpanded);
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
     }
-    onHideAll(evt:any) {
-        //console.log('onhideall', evt);
+    onHideAll(evt: any) {
+        console.log('onhideall', evt);
+        if (evt.filter !== undefined) {
+            console.log('shark');
+            //update url string for use with back and reloads
+            var newState = '';
+            if (evt.filter === '') {
+                var baseUrl = [location.protocol, '//', location.host, location.pathname.split(';')[0]].join('');
+                var urlQueryString = location.pathname.replace(location.pathname.split(';')[0], '').replace('/Explore', '');
+                console.log('onhideallqs', urlQueryString);
+                let splitQS = urlQueryString.split(';');
+                urlQueryString = '';
+                splitQS.forEach((qs: any, index:number) => {
+                    urlQueryString += qs.indexOf('filter=') === -1 ? (index !== 0 ? ';' : '') + qs : '';
+                });
+                newState = baseUrl + urlQueryString;
+                newState = '<%= ENV %>' !== 'prod' ? newState.replace(new RegExp('\\.', 'g'), '%2E') : newState;
+            } else {
+                var qsParams: QueryStringParams[] = [];
+                var filterParam: QueryStringParams = { key: 'filter', value: evt.filter };
+                qsParams.push(filterParam);
+                newState = this.updateQueryStringParam(qsParams);
+            }
+            console.log('pushing state for filter', newState);
+            window.history.pushState({}, '', newState);
+            if ('<%= ENV %>' === 'prod') {
+                ga('send', 'pageview', window.location.href);
+            }
+        }
         this.hideAll = evt;
     }
     //emitted from search component
@@ -225,14 +255,28 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     };
 
     onBlurExplorePage(evt: any) {
-        console.log('blurevt', $(evt.target).closest('.multiselect').length, $(evt.target).closest('.globalselect').length);
+        //console.log('blurevt', $(evt.target).closest('.multiselect').length, $(evt.target).closest('.dataset-filter').length);
         //hide select dropdowns if showing.
-        if (!$(evt.target).closest('.globalselect').length) {
-            this.topicsComp.chkBoxVisibile = false;
+        try {
+            if (!$(evt.target).closest('.data-control-bar').length) {
+                this.dataComp.shareLinkComp.showShare = false;
+            }
+            if (!$(evt.target).closest('.dataset-filter').length) {
+                //this.topicsComp.showFilterIndicator = this.topicsComp.showFilterIndicator ? false : true;
+                //$('#filteredIndicator').val = '';
+                (<HTMLInputElement>document.getElementById('filteredIndicator')).value = '';
+                this.topicsComp.showFilterIndicator = false;
+                //this.topicsComp.chkBoxVisibile = false;
+            }
+            if (!$(evt.target).closest('.multiselect').length) {
+                this.dataComp.indTopListComps.toArray().forEach((child: any) => child.chkBoxVisibile = false);
+            }
+
+        } catch (ex) {
+            evt.preventDefault();
+            console.log('failed to check/hide list boxes');
         }
-        if (!$(evt.target).closest('.multiselect').length) {
-            this.dataComp.indTopListComps.toArray().forEach((child: any) => child.chkBoxVisibile = false);
-        }
+
     }
 
     ngOnInit() {

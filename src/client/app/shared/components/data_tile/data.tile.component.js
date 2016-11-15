@@ -53,6 +53,7 @@ var DataTileComponent = (function () {
         this.animationCounter = -1;
         this.sliderState = 'play';
         this.isHandheld = $(window).width() < 481;
+        this.showSlider = true;
         this.isSliderInit = false;
         this.isCountyLevel = false;
         this.isStatewide = false;
@@ -102,6 +103,9 @@ var DataTileComponent = (function () {
                             console.log('series hidden');
                         }
                     }
+                },
+                column: {
+                    maxPointWidth: 50
                 }
             },
             title: {
@@ -286,14 +290,13 @@ var DataTileComponent = (function () {
             _this.indicator_info = indicatorDesc.Desc[0];
             if (_this.indicator_info) {
                 _this.isStatewide = _this.indicator_info.Geog_ID === 8 ? true : false;
-                _this.showMap = _this.isStatewide || _this.indicator_info.ScriptName !== null ? false : true;
                 _this.indicator_geo = _this.indicator_info.indicator_geo;
-                console.log('praguer', _this.indicator_geo);
                 _this.isCountyLevel = _this.indicator_info.CountyLevel || _this.indicator_geo === 'County';
                 _this.isTOP = _this.indicator_info.isTOP;
                 _this.is10yr = _this.indicator_info.is10yrPlan;
-                _this.isCustomChart = _this.indicator_info.ScriptName !== null;
                 _this.isSchool = _this.indicator_geo.indexOf('School') !== -1;
+                _this.isCustomChart = _this.indicator_info.ScriptName !== null && !_this.isSchool;
+                _this.showMap = _this.isStatewide || _this.isCustomChart ? false : true;
                 if (_this.hMapMenu) {
                     _this.hMapMenu.setIndicatorGeoFilter(_this.indicator_geo);
                 }
@@ -308,7 +311,10 @@ var DataTileComponent = (function () {
                             fontWeight: '200'
                         },
                     });
-                    _this.chart.legend.update(_this.setLegendOptions(false));
+                    try {
+                        _this.chart.legend.update(_this.setLegendOptions(false));
+                    }
+                    catch (ex) { }
                 }
                 else {
                     _this.subscription = _this._selectedPlacesService.selectionChanged$.subscribe(function (data) {
@@ -745,6 +751,7 @@ var DataTileComponent = (function () {
                     this._dataService.getSchoolDistrictData(schooldistricts, this.indicator, counties, cts).subscribe(function (data) {
                         console.log('SCHOOL DATA', data);
                         _this.updateDataStore([data], 'indicator');
+                        console.log('updated data store');
                         _this.createGraphChart();
                         _this.onChartDataUpdate.emit({ data: _this.isCustomChart ? _this.dataStore.indicatorData[_this.indicator].chart_data : data, customPlace: _this.selectedPlaceCustomChart, customYear: _this.selectedCustomChartYear, metadata: data.Metadata[0] });
                     }, function (err) { return console.error(err); }, function () { return console.log('done loading data for graph'); });
@@ -917,9 +924,12 @@ var DataTileComponent = (function () {
                 if (this.tileType === 'map' && this.showMap) {
                     this.initMapChart();
                     console.log('shamrock');
-                    if (!this.isSliderInit) {
+                    if (!this.isSliderInit && this._tickArray.length > 1) {
                         this.setupTimeSlider();
                         this.isSliderInit = true;
+                    }
+                    else {
+                        this.showSlider = false;
                     }
                 }
             }
@@ -950,8 +960,8 @@ var DataTileComponent = (function () {
                     this.isCountyLevel = metadata.CountyLevel;
                     this.isNotCombinable = metadata.isPreCalc && this.isStatewide && this.hasCombined;
                 }
-                if (this.tileType === 'map' && !this.isStatewide && this.indicator_info.ScriptName === null) {
-                    console.log('say what', data[d].GeoTypes[0].geoType, data);
+                if (this.tileType === 'map' && !this.isStatewide && !this.isCustomChart) {
+                    console.log('say what', data[d].GeoTypes[0].geoType, data, this.isSchool);
                     if (this.isSchool) {
                         var geoTypeIndicatorData = {};
                         geoTypeIndicatorData[this.indicator] = { crt_db: data[0] };
@@ -1014,8 +1024,9 @@ var DataTileComponent = (function () {
     };
     DataTileComponent.prototype.getSelectedMapData = function () {
         var _this = this;
-        console.log('que pasa', this.selectedPlaceType);
+        console.log('que pasa', this.selectedPlaceType, this.selectedYear);
         var selectedGeoJSONType = this.geoJSONStore.filter(function (data) { return data.layerId === _this.pluralize(_this.selectedPlaceType) || 'School Districts' === data.layerId; });
+        console.log('que pasa geotype', selectedGeoJSONType);
         var selectedYearGeoJSONIndex = 0;
         for (var y = 0; y < selectedGeoJSONType[0].features.length; y++) {
             var year = selectedGeoJSONType[0].features[y];
@@ -1251,8 +1262,8 @@ var DataTileComponent = (function () {
     };
     DataTileComponent.prototype.createGraphChart = function () {
         try {
-            if (this.indicator_info.ScriptName === null) {
-                console.log('fred2', this.dataStore.indicatorData[this.indicator].crt_db);
+            if (!this.isCustomChart) {
+                console.log('fred2 dss', this.dataStore.indicatorData[this.indicator].crt_db);
                 this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
                 this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
                 this.processDataYear();
@@ -1270,7 +1281,7 @@ var DataTileComponent = (function () {
                         plotLines: [{
                                 color: 'gray',
                                 dashStyle: 'longdashdot',
-                                width: 2,
+                                width: this._tickArray.length > 1 && this.viewType === 'advanced' ? 2 : 0,
                                 value: this.selectedYearIndex,
                                 id: 'plot-line-1'
                             }],
@@ -1298,7 +1309,10 @@ var DataTileComponent = (function () {
                             }
                         }
                     });
-                    this.chart.legend.update(this.setLegendOptions(true));
+                    try {
+                        this.chart.legend.update(this.setLegendOptions(true));
+                    }
+                    catch (ex) { }
                     this.chart.tooltip.options.shared = false;
                     this.chart.tooltip.options.useHTML = true;
                     this.chart.tooltip.options.formatter = function () {
@@ -1324,6 +1338,7 @@ var DataTileComponent = (function () {
                         }
                     };
                     var indicatorYaxis = this.placeTypeData.Metadata[0]['Y-Axis'] !== null ? this.placeTypeData.Metadata[0]['Y-Axis'] : this.indicator;
+                    console.log('pissant', this.indicator);
                     this.chart.yAxis[0].update({
                         title: {
                             text: this.viewType === 'advanced' ? indicatorYaxis : '',
@@ -1340,8 +1355,8 @@ var DataTileComponent = (function () {
                                 width: 1,
                                 color: '#808080'
                             }],
-                        floor: 0,
-                        min: 0,
+                        floor: this.indicator.indexOf('Net Job Loss') === -1 ? 0 : null,
+                        min: this.indicator.indexOf('Net Job Loss') === -1 ? 0 : null,
                         max: this.placeTypeData.Metadata[0]['Y-Axis_Max']
                     });
                     var title = this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator;
@@ -1394,6 +1409,7 @@ var DataTileComponent = (function () {
     };
     DataTileComponent.prototype.processCustomChart = function () {
         var _this = this;
+        console.log('thinks it is custom chart');
         var chartScope = this;
         var categories;
         try {
@@ -1596,7 +1612,7 @@ var DataTileComponent = (function () {
                             enabled: false
                         },
                         legend: {
-                            enabled: this.viewType === 'basic' ? true : false,
+                            enabled: (this.viewType === 'basic' || this.isHandheld) ? true : false,
                             itemStyle: {
                                 fontSize: '.7em',
                                 color: 'gray'
@@ -1616,7 +1632,7 @@ var DataTileComponent = (function () {
                                 allowPointSelect: true,
                                 cursor: 'pointer',
                                 dataLabels: {
-                                    enabled: this.viewType === 'advanced' ? true : false,
+                                    enabled: this.viewType === 'advanced' && !this.isHandheld ? true : false,
                                     format: '<b>{point.name}</b><br>{point.percentage:.1f} %',
                                     style: {
                                         color: (angular2_highcharts_1.Highcharts.theme && angular2_highcharts_1.Highcharts.theme.contrastTextColor) || 'gray',
@@ -1664,8 +1680,11 @@ var DataTileComponent = (function () {
             });
             this.selectedPlaceCustomChart = placeSelected ? this.selectedPlaceCustomChart : this.places[0];
             this.processCustomChart();
-            if (this.viewType === 'advanced') {
+            if (this.viewType === 'advanced' && this._tickArray.length > 1) {
                 this.setupTimeSlider();
+            }
+            else {
+                this.showSlider = false;
             }
         }
         catch (ex) {
@@ -1696,16 +1715,30 @@ var DataTileComponent = (function () {
             var isUrban = pd.geoid.indexOf('u') !== -1;
             var isState = isOregon || isCalifornia ? true : false;
             var isCombined = pd.geoid === '';
+            var isBarChart = _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years[(_this.isSchool ? pd.Name : pd.community)].data.length === 1;
+            var color = isRural
+                ? '#996699'
+                : isUrban
+                    ? '#0088CC'
+                    : isOregon
+                        ? '#244068'
+                        : isCalifornia
+                            ? '#C34500'
+                            : isCombined
+                                ? '#98BD85'
+                                : angular2_highcharts_1.Highcharts.getOptions().colors[idx];
+            var data = _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years[(_this.isSchool ? pd.Name : pd.community)].data;
             if (addedSeries.indexOf((_this.isSchool ? pd.Name : pd.community) + pd.geoid) === -1 && _this.hasCombined ? _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years[(_this.isSchool ? pd.Name : pd.community)].data.filter(function (d) { return d !== null; }).length > 0 : true) {
                 addedSeries.push((_this.isSchool ? pd.Name : pd.community) + pd.geoid);
                 _this.chart.addSeries({
                     id: (_this.isSchool ? pd.Name : pd.community) + pd.geoid,
                     name: _this.getCommunityName(pd),
-                    type: 'line',
+                    type: isBarChart ? 'column' : 'line',
                     lineWidth: isState ? 4 : 2,
                     lineColor: isState ? '#A3A3A4' : angular2_highcharts_1.Highcharts.getOptions().colors[idx],
                     lineOpacity: 1.0,
-                    data: _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years[(_this.isSchool ? pd.Name : pd.community)].data,
+                    data: data,
+                    color: color,
                     connectNulls: true,
                     threshold: 0,
                     fillOpacity: 0.85,
@@ -1776,19 +1809,27 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.onResize = function (event) {
-        if (this.chart) {
-            var runInterval = setInterval(runCheck, 2000);
-            var resizeScope = this;
-            function runCheck() {
-                var newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
-                $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
-                if (resizeScope.chart.legend) {
+        try {
+            if (this.chart) {
+                var runInterval = setInterval(runCheck, 2000);
+                var resizeScope = this;
+                function runCheck() {
+                    var newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
+                    $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
                     if (resizeScope.chart.legend) {
-                        resizeScope.chart.legend.update(resizeScope.setLegendOptions(true));
+                        if (resizeScope.chart.legend) {
+                            try {
+                                resizeScope.chart.legend.update(resizeScope.setLegendOptions());
+                            }
+                            catch (ex) { }
+                        }
                     }
+                    clearInterval(runInterval);
                 }
-                clearInterval(runInterval);
             }
+        }
+        catch (ex) {
+            console.log('resize failed', ex);
         }
     };
     DataTileComponent.prototype.setLegendOptions = function (show) {
@@ -2135,7 +2176,7 @@ var DataTileComponent = (function () {
         var place_data = [{}];
         var place_data_years = {};
         var place_data_years_moe = {};
-        if (this.indicator_info.ScriptName !== null) {
+        if (this.isCustomChart) {
             place_data_years = this.processCustomChartData(this.indicator.ScriptName);
             var chart_data = {
                 place_data_years: place_data_years
@@ -2175,7 +2216,14 @@ var DataTileComponent = (function () {
                             year_data.push(null);
                             year_data_moe.push(null);
                         }
-                        year_data.push($.isNumeric(pData[_year]) ? parseFloat(pData[_year]) : null);
+                        console.log('pdata', pData.community, pData[_year]);
+                        if (pData[_year] === '//') {
+                            console.log('data suppressed');
+                            year_data.push('Data suppressed');
+                        }
+                        else {
+                            year_data.push($.isNumeric(pData[_year]) ? parseFloat(pData[_year]) : null);
+                        }
                         if (_year.match('-')) {
                             year_data_moe.push([parseFloat(pData[_year]) - parseFloat(pData[_year + '_MOE']), parseFloat(pData[_year]) + parseFloat(pData[_year + '_MOE'])]);
                         }
@@ -2261,7 +2309,7 @@ var DataTileComponent = (function () {
                 this._tickLabels[counter] = Year;
                 this._tickArray.push(counter);
                 this._tickLabelsTime[counterTime] = labelEveryThirdYear ? (labelYearCounter === 3 || counter === 0 ? Year : ' ') : (labelEveryYear ? Year : (labelYear ? Year : ' '));
-                if (Year.match('-')) {
+                if (Year.match('-') && !this.isSchool) {
                     this.hasMOEs = true;
                 }
                 labelYearCounter = (labelThirdYear && labelYearCounter === 3) ? 1 : labelYearCounter + 1;
@@ -2316,6 +2364,7 @@ var DataTileComponent = (function () {
     DataTileComponent.prototype.getMinData = function (isMap, chartType) {
         var min;
         var notLogrithmic = false;
+        var hasNegativevalues = false;
         console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
         var chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
         var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
@@ -2336,12 +2385,13 @@ var DataTileComponent = (function () {
                 else {
                     min = min > PlaceMin ? PlaceMin : min;
                 }
+                hasNegativevalues = min < 0 ? true : hasNegativevalues;
             }
         });
         console.log('mindata', min, notLogrithmic, notLogrithmic ? 0 : min < 10 ? 0 : min);
         console.log('mindata2', this.getMaxData(true) / min);
-        return notLogrithmic ? 0
-            : this.getMaxData(true) / min < 400
+        return notLogrithmic && !hasNegativevalues ? 0
+            : this.getMaxData(true) / min < 400 && !hasNegativevalues
                 ? 0
                 : min;
     };
@@ -2422,10 +2472,13 @@ var DataTileComponent = (function () {
                     returnVal = '$' + this.formatAbvNumbers(val, isLegend, 1);
                     break;
                 case '$0':
-                    returnVal = '$' + this.formatAbvNumbers(val, isLegend, 0);
+                    returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())));
                     break;
                 case '$Thousand':
                     returnVal = '$' + this.formatAbvNumbers((val * 1000), isLegend, 2);
+                    break;
+                case '$Millions':
+                    returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())) + 'mil');
                     break;
                 case '$Bill2009':
                     returnVal = '$' + Math.round(parseFloat(val) * 100) / 100 + 'bn';
@@ -2529,7 +2582,7 @@ var DataTileComponent = (function () {
         $('#moe-dialog').dialog('open');
     };
     DataTileComponent.prototype.ngOnInit = function () {
-        console.log('Leave this so it does not squawk on build', this.defaultAdvChartOptions);
+        this.defaultAdvChartOptions = this.defaultAdvChartOptions;
         this.defaultChartOptions.chart.spacingTop = this.viewType === 'advanced' ? 50 : this.defaultChartOptions.chart.spacingTop;
         if (this.tileType === 'map' && this.showMap) {
             for (var pt in this.dataStore) {
@@ -2553,7 +2606,6 @@ var DataTileComponent = (function () {
         });
     };
     DataTileComponent.prototype.ngOnChanges = function (changes) {
-        console.log('datatile changed', changes);
         if (changes._selectedYear && this.tileType === 'graph' && this.chart) {
             this.chart.xAxis[0].removePlotLine('plot-line-1');
             this.chart.xAxis[0].addPlotLine({

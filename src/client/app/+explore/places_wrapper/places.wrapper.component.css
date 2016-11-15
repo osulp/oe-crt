@@ -291,6 +291,7 @@
     cursor:pointer;
 }
 
+
 /* Small Devices, Tablets */
 @media only screen and (max-width : 992px) {
 
@@ -376,3 +377,10 @@
         margin-right:-15px !important;
     }
 }
+
+@media only screen and (max-width : 319px) {
+    #place_type_select .place_type:nth-child(3), #place_type_select .place_type.selected:nth-child(3) {
+        padding: 7px 50px;
+    }
+}
+

@@ -7,28 +7,7 @@
     border-top: solid 1.25px #D1CDC7;
 }
 
-#data-control-bar {
-    position: absolute;
-    top: 27px;
-    right: 15px;
-    z-index: 2000;
-    height: 50px;
-}
 
-    #data-control-bar div {
-        display: inline-block;
-    }
-
-#share-btns div {
-    margin-left: 6px;
-    border: solid 1px #D1CDC7;
-    border-radius: 4px;
-    background-color: #F3F2ED;
-    width: 30px;
-    height: 30px;
-    text-align: center;
-    padding: 2px;
-}
 
 #map-graph-toggle {
     margin-left: 20px;
@@ -90,11 +69,14 @@
     }
 
 .no-indicators-selected {
-    text-align:center;
-    font-size:20px;
+    /*text-align:center;*/
+    font-size:1.2em;
     color:#808080;
     font-style:italic;
     font-weight:bold;
+    max-width:50%;
+    margin:50px auto auto auto;
+    min-height:300px;
 }
 
 @media (max-width :  1200px) {
@@ -113,4 +95,10 @@
     #data-control-bar {
         top:20px;
     }
+    .no-indicators-selected{
+        max-width:75%;
+        font-size:1em;
+        min-height:200px;
+    }
 }
+

@@ -2,7 +2,7 @@ import {Component, Input, ViewChild, ViewChildren, QueryList, OnInit} from '@ang
 import {Location} from '@angular/common';
 import {JSONP_PROVIDERS}  from '@angular/http';
 import {Router} from '@angular/router';
-import {DataTileComponent,PlacesMapSelectComponent} from '../../shared/components/index';
+import {DataTileComponent,PlacesMapSelectComponent, ShareLinkComponent} from '../../shared/components/index';
 import {IndicatorDescService, SelectedDataService} from '../../shared/services/index';
 import {SearchResult} from '../../shared/data_models/index';
 import {SearchComponent} from '../../shared/components/index';
@@ -18,7 +18,7 @@ declare var window: any;
     templateUrl: 'indicator.detail.component.html',
     styleUrls: ['indicator.detail.component.css'],
     providers: [JSONP_PROVIDERS, IndicatorDescService, SelectedDataService],
-    directives: [PlacesMapSelectComponent, DataTileComponent, SearchComponent, TableViewComponent]
+    directives: [PlacesMapSelectComponent, DataTileComponent, SearchComponent, TableViewComponent, ShareLinkComponent]
 })
 
 export class DetailComponent implements OnInit {
@@ -26,6 +26,7 @@ export class DetailComponent implements OnInit {
     @Input() inputPlaces: any;
     @ViewChild(PlacesMapSelectComponent) placeMap: PlacesMapSelectComponent;
     @ViewChildren(DataTileComponent) dataTiles: QueryList<DataTileComponent>;
+    @ViewChild(ShareLinkComponent) shareLinkComp: ShareLinkComponent;
     indicatorDesc: any = [];
     _chartData: any = [];
     chartData: any = [];
@@ -192,6 +193,23 @@ export class DetailComponent implements OnInit {
         this.pageUrl = decodeURI(window.location.href);
     }
 
+    onDownloadClick(clicked: any) {
+        console.log('download clicked detail');
+        //get data from graph or map?
+        let data: any;
+        let years: any;
+        let places: any;
+        this.dataTiles.forEach((dt: any) => {
+            if (dt.tileType === 'graph') {
+                data = dt.dataStore.indicatorData;
+                years = dt._tickLabels;
+                places = dt.places;
+            }
+        });
+        console.log('datatile check!', data,this.indicatorTitle,this.inputIndicator);
+        this.shareLinkComp.download(data[this.inputIndicator].crt_db, years,places,this.inputIndicator);
+    }
+
     onBlurExplorePage(evt: any) {
         //hide select dropdowns if showing.
         if (!$(evt.target).closest('#map-menu').length && !$(evt.target).hasClass('hamburger-menu')) {
@@ -201,6 +219,9 @@ export class DetailComponent implements OnInit {
                     dt.hMapMenu.menuSelected = false;
                 }
             });
+        }
+        if (!$(evt.target).closest('.detail').length) {
+            this.shareLinkComp.showShare = false;
         }
     }
 
@@ -214,7 +235,7 @@ export class DetailComponent implements OnInit {
 
     ngOnInit() {
         this.detailUrlChanges = 0;
-        console.log('detailurlchanges', this.detailUrlChanges, history);
+        //console.log('detailurlchanges', this.detailUrlChanges, history);
         this.showMap = true;
         this.showGraph = true;
         this.showTable = false;
@@ -233,15 +254,15 @@ export class DetailComponent implements OnInit {
             .replace(/\%24/g, '$')
             .replace(/\+/g, '%2B');
                     //.replace(/\%2B/g, '+');
-        console.log('DECODED!', this.inputIndicator);
+        //console.log('DECODED!', this.inputIndicator);
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(
             (data: any) => {
-                console.log('indicator detail repsonse from indicator description service:!', data);
+                //console.log('indicator detail repsonse from indicator description service:!', data);
                 let indicator_info = data.Desc[0];
                 if (indicator_info) {
                     this.indicatorDesc = data.Desc;// IndicatorDescSer
                     this.relatedIndicators = data.RelatedIndicators;
-                    console.log('indicatorDesc service', data);
+                    //console.log('indicatorDesc service', data);
                     //this.indicatorTitle = indicator_info.Sub_Topic_ID !== null
                     //    ? indicator_info.Sub_Topic_Name + ' ('+ indicator_info.Variable + ')'
                     //    : indicator_info.Dashboard_Chart_Title
@@ -254,14 +275,14 @@ export class DetailComponent implements OnInit {
                     this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
                     this.isCountyLevel = indicator_info.CountyLevel;
                     this.isTOP = indicator_info.isTOP;
-                    this.isCustomChart = indicator_info.ScriptName !== null;
+                    this.isCustomChart = indicator_info.ScriptName !== null && indicator_info.indicator_geo.indexOf('School') === -1;
                 }
                 this.windowRefresh();
             });
         this.inputIndicator = this.inputIndicator.replace(/\%2B/g, '+');
-        console.log('indicator detail input places: ', this.inputPlaces);
+        //console.log('indicator detail input places: ', this.inputPlaces);
         this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];
-        console.log('indicator detail url places: ', this.urlPlaces);
+        //console.log('indicator detail url places: ', this.urlPlaces);
         //var urlQueryString = document.location.search;
         //var keyRegex = new RegExp('([\?&])places([^&]*|[^,]*)');
         //// If param exists already, update it

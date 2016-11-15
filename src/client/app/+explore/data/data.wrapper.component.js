@@ -9,12 +9,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var core_1 = require('@angular/core');
 var index_1 = require('../../shared/components/index');
+var index_2 = require('../../shared/services/index');
 var indicator_detail_component_1 = require('../indicator_detail/indicator.detail.component');
-var index_2 = require('../topics/pipes/index');
-var index_3 = require('../../shared/pipes/index');
+var index_3 = require('../topics/pipes/index');
+var index_4 = require('../../shared/pipes/index');
 var angular2_infinite_scroll_1 = require('angular2-infinite-scroll');
 var DataComponent = (function () {
-    function DataComponent() {
+    function DataComponent(_dataService) {
+        this._dataService = _dataService;
         this.inputTopics = [];
         this.inputIndicators = [];
         this.inputCollections = [];
@@ -32,7 +34,9 @@ var DataComponent = (function () {
         this.SelectedTopics = [];
         this.showScrollUpCount = 3;
         this.hideAll = false;
+        this.noIndicatorsSelected = false;
         this.initLoad = true;
+        this.isLoading = true;
         this.isMobile = false;
     }
     DataComponent.prototype.toggleResultView = function () {
@@ -40,6 +44,27 @@ var DataComponent = (function () {
     };
     DataComponent.prototype.onFilterIndicator = function (Indicators) {
         this.inputIndicators = Indicators;
+    };
+    DataComponent.prototype.onDownloadClick = function (evt) {
+        var _this = this;
+        console.log('download clicked!');
+        var places = this.dataTiles.toArray().length > 0 ? this.dataTiles.toArray()[0].places : [];
+        if (places.length !== 0) {
+            var geoids = places.map(function (p) { return p.ResID; }).toString();
+            var csvString = '';
+            var selIndicators = this.inputIndicators.filter(function (ind) { return ind.selected; });
+            console.log('selected indicators', selIndicators);
+            this._dataService.getIndicatorDataWithMetadataBatch(geoids, selIndicators).subscribe(function (results) {
+                console.log('download data results', results);
+                results.forEach(function (res, idx) {
+                    csvString += _this.shareLinkComp.ConvertToCSV(res, [], true, idx === results.length - 1);
+                });
+                _this.shareLinkComp.download(csvString, '', places, '', true);
+            });
+        }
+        else {
+            alert('sorry need to have a place selected');
+        }
     };
     DataComponent.prototype.onScrollDown = function () {
         var _this = this;
@@ -71,12 +96,15 @@ var DataComponent = (function () {
     };
     DataComponent.prototype.createTopicIndicatorObj = function () {
         var _this = this;
+        this.isLoading = true;
         this.topicIndicatorCount = {};
+        var numIndicators = 0;
         for (var t = 0; t < this.inputTopics.length; t++) {
             this.topicIndicatorCount[this.inputTopics[t].topic] = {};
             this.collections.forEach(function (coll) {
                 var topicIndicatorCount = _this.inputIndicators.filter(function (indicator) {
                     if (indicator.selected) {
+                        numIndicators++;
                         return indicator.topics.split(', ').indexOf(_this.inputTopics[t].topic.trim()) !== -1 && (indicator.collections
                             ? (indicator.collections.split(', ').indexOf(coll.collection) !== -1 || coll.collection === 'Show All')
                             : coll.collection === 'Show All'
@@ -90,6 +118,8 @@ var DataComponent = (function () {
                 _this.topicIndicatorCount[_this.inputTopics[t].topic][coll.collection] = { maxCount: topicIndicatorCount, showCount: _this.showIndicatorDefault };
             });
         }
+        this.noIndicatorsSelected = !this.initLoad ? numIndicators === 0 : false;
+        this.isLoading = false;
     };
     DataComponent.prototype.resetTopicIndicatorCounts = function () {
     };
@@ -188,21 +218,34 @@ var DataComponent = (function () {
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object)
+    ], DataComponent.prototype, "inputPlaces", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
     ], DataComponent.prototype, "_hideAll", void 0);
     __decorate([
         core_1.ViewChildren(index_1.IndicatorsTopicListComponent), 
         __metadata('design:type', core_1.QueryList)
     ], DataComponent.prototype, "indTopListComps", void 0);
+    __decorate([
+        core_1.ViewChild(index_1.ShareLinkComponent), 
+        __metadata('design:type', index_1.ShareLinkComponent)
+    ], DataComponent.prototype, "shareLinkComp", void 0);
+    __decorate([
+        core_1.ViewChildren(index_1.DataTileComponent), 
+        __metadata('design:type', core_1.QueryList)
+    ], DataComponent.prototype, "dataTiles", void 0);
     DataComponent = __decorate([
         core_1.Component({
             moduleId: module.id,
             selector: 'data',
             templateUrl: 'data.wrapper.component.html',
             styleUrls: ['data.wrapper.component.css'],
-            directives: [index_1.DataTileComponent, indicator_detail_component_1.DetailComponent, index_1.IndicatorsTopicListComponent, angular2_infinite_scroll_1.InfiniteScroll],
-            pipes: [index_2.SelectedTopicsPipe, index_3.IndicatorTopicFilterPipe, index_2.IndicatorScrollCountPipe]
+            directives: [index_1.DataTileComponent, indicator_detail_component_1.DetailComponent, index_1.IndicatorsTopicListComponent, angular2_infinite_scroll_1.InfiniteScroll, index_1.ShareLinkComponent],
+            providers: [index_2.DataService],
+            pipes: [index_3.SelectedTopicsPipe, index_4.IndicatorTopicFilterPipe, index_3.IndicatorScrollCountPipe]
         }), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [index_2.DataService])
     ], DataComponent);
     return DataComponent;
 })();

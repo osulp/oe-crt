@@ -6,4 +6,5 @@ __export(require('./indicators/index'));
 __export(require('./map/index'));
 __export(require('./places/index'));
 __export(require('./search/index'));
+__export(require('./share_link/index'));
 //# sourceMappingURL=index.js.map

@@ -35,7 +35,7 @@
     padding:0 10px;
     font-size:.8em;
     position:absolute;
-    top:60px;
+    top:80px;
     left:40px;
     z-index:300;
     background-color:white;
@@ -52,6 +52,81 @@
             background-color: #F3F2ED;
         }
 
+#indicator-list-header {
+    min-height: 30px;
+    z-index: 1002;
+    background-color: white;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+    margin-left: 17px;
+    padding-left: 10px;
+    position: absolute;
+    border-radius:4px 4px 0 0;
+    top: 60px;
+    left: 22px;
+    right:0;
+    background: #D1CDC7;
+    padding: 4px 10px 4px 45px;
+    color: #244068;
+}
+
+
+#indicator-list{
+    max-height: 300px;
+    overflow: auto;
+    z-index: 1001;
+    background-color: white;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.3);
+    margin-left:17px;
+    padding-left:10px;
+    position:absolute;
+    top:93px;
+    left:22px;
+}
+
+    #indicator-list div {
+        /*min-height:40px;*/
+        padding:3px 10px;
+        line-height:20px;
+        font-weight:100;
+    }
+        #indicator-list div:hover {
+            background:#f3f2ed;
+            cursor:pointer;
+        }
+
+    #indicator-list label{
+        font-weight:normal;
+
+    }
+
+    #indicator-list span {
+        display:table-cell;
+    }
+
+    #indicator-list .ind-checkbox{
+        width:25px !important;
+    }
+
+    /*#indicator-list input {
+        margin-right:10px;
+    }*/
+
+    #indicator-list input::-ms-clear{
+        display:none;
+    }
+
+    .hide-show {
+    float:right;
+    padding:2px 5px;
+}
+    .hide-show:hover {
+        text-decoration:underline;
+        cursor:pointer;
+    }
+    .hide-show.fa {
+        padding-top:5px;
+    }
+
 @media only screen and (max-width : 768px) {
     .multiselect{
         min-width:0;
@@ -63,5 +138,20 @@
     }
     .checkboxes.lower {
         top:80px;
+    }
+     #indicator-list .ind-label {
+            width: 85%;
+        }
+}
+
+@media only screen and (max-width : 340px) {
+    .topic-header-indicator-filter {
+        max-width:90%;
+    }
+    #indicator-list.double {
+        top:120px;
+    }
+    #indicator-list-header.double{
+        top:85px;
     }
 }

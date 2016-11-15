@@ -11,20 +11,30 @@ var core_1 = require('@angular/core');
 var Subject_1 = require('rxjs/Subject');
 var Rx_1 = require('rxjs/Rx');
 var initialState = [];
-var GeoJSONStoreService = (function () {
-    function GeoJSONStoreService() {
+var SelectedDataService = (function () {
+    function SelectedDataService() {
         this.selectionChanged$ = new Rx_1.ReplaySubject(1);
         this.updates = new Subject_1.Subject();
-        this.addLayer = new Subject_1.Subject();
+        this.addData = new Subject_1.Subject();
+        this.removeData = new Subject_1.Subject();
         this.getAll = new Subject_1.Subject();
         this.updates
             .scan(function (accumulator, operation) {
             return operation(accumulator);
         }, initialState)
             .subscribe(this.selectionChanged$);
-        this.addLayer
-            .map(function (layer) {
-            return function (state) { return state.concat(layer); };
+        this.addData
+            .map(function (data) {
+            return function (state) { return state.concat(data); };
+        })
+            .subscribe(this.updates);
+        this.removeData
+            .map(function (data) {
+            return function (state) {
+                return state.filter(function (dataset) {
+                    return data !== data;
+                });
+            };
         })
             .subscribe(this.updates);
         this.getAll
@@ -37,17 +47,23 @@ var GeoJSONStoreService = (function () {
         })
             .subscribe(this.updates);
     }
-    GeoJSONStoreService.prototype.load = function () {
+    SelectedDataService.prototype.load = function () {
+        console.log('load selected data');
+        this.getAll.next(null);
     };
-    GeoJSONStoreService.prototype.add = function (layer) {
-        console.log('adding layer to geojsonstore');
-        this.addLayer.next(layer);
+    SelectedDataService.prototype.add = function (data) {
+        console.log('adding data to selectedData');
+        this.addData.next(data);
     };
-    GeoJSONStoreService = __decorate([
+    SelectedDataService.prototype.remove = function (data) {
+        console.log('removing data from selectedData');
+        this.removeData.next(data);
+    };
+    SelectedDataService = __decorate([
         core_1.Injectable(), 
         __metadata('design:paramtypes', [])
-    ], GeoJSONStoreService);
-    return GeoJSONStoreService;
+    ], SelectedDataService);
+    return SelectedDataService;
 })();
-exports.GeoJSONStoreService = GeoJSONStoreService;
-//# sourceMappingURL=geojson_store.service.js.map
+exports.SelectedDataService = SelectedDataService;
+//# sourceMappingURL=selected-data.service.js.map

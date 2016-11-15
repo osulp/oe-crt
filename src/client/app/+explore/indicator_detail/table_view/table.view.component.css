@@ -4,6 +4,8 @@
     padding:20px;
     background-color:#E9E9E6;
     border-radius:4px;
+    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
+    overflow-x:auto;
 }
 
 
@@ -18,7 +20,7 @@
     }
 
         #tableData tr td:first-child {
-            padding-left:10%;
+            /*padding-left:5%;*/
         }
 
     .dataVal{
@@ -30,10 +32,30 @@
         display:block;
     }
 
-    .tableYear{
-        font-weight:bold;
-    }
+.tableYear {
+    font-weight: bold;
+    max-width: 20px;
+    border-right: solid 1px rgba(128, 128, 128, 0.50);
+    padding:2px 5px 10px ;
+}
 
     #tableData .theading{
     font-weight:bold;
+}
+
+    .data-suppressed{
+        float:right;
+        font-size:.8em;
+        color:#413c3c;
+        padding:5px 0;
+        font-style:italic;
+    }
+        .data-suppressed a {
+            font-size:1em !important;
+        }
+
+@media only screen and (max-width : 768px) {
+    .tableYear {
+        max-width:none;
+    }
 }

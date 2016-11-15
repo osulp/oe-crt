@@ -1,0 +1,109 @@
+#share-buttons img {
+width: 35px;
+padding: 5px;
+border: 0;
+box-shadow: 0;
+display: inline;
+}
+
+.data-control-bar {
+    position: absolute;
+    top: 27px;
+    right: 15px;
+    z-index: 2000;
+    height: 50px;
+}
+
+    .data-control-bar div {
+        display: inline-block;
+    }
+
+#share-btns div {
+    margin-left: 6px;
+    border: solid 1px #D1CDC7;
+    border-radius: 4px;
+    background-color: #F3F2ED;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    padding: 2px;
+}
+
+#share-btns div:hover, #share-btns.detail div:hover{
+    cursor:pointer;
+    border-color:rgb(0, 0, 0);
+}
+
+
+
+#share-btns.detail div {
+    display: inline-block;
+    margin-left: 6px;
+    border: solid 1px #D1CDC7;
+    border-radius: 4px;
+    background-color: #F3F2ED;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    padding: 2px;
+    float: right;
+}
+
+#share-link-wrapper {
+    position: absolute;
+    left: -27px;
+    top: -20px;
+    padding: 10px;
+    width: 100px;
+    z-index: 1000;
+    background-color: #ffffff;
+    border: 1px solid #D1CDC7;
+    box-shadow: rgba(0,0,0,0.3) 0 2px 5px 0;
+    border-radius: 4px;
+    font-size:.8em;
+    color:rgb(128, 128, 128);
+    text-align:center;
+}
+
+#share-btns.detail #share-link-wrapper {
+    left:-55px;
+}
+
+#share-link-wrapper b{
+    /*text-decoration:underline;*/
+}
+
+/*http://www.cssarrowplease.com/*/
+
+#share-link-wrapper.arrow_box:after, .arrow_box:before {
+	left: 100%;
+	top: 27%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+#share-link-wrapper.arrow_box:after {
+	border-color: rgba(136, 183, 213, 0);
+	border-left-color: #ffffff;
+	border-width: 10px;
+	margin-top: -10px;
+}
+#share-link-wrapper.arrow_box:before {
+	border-color: rgba(194, 225, 245, 0);
+	border-left-color: #D1CDC7;
+	border-width: 11px;
+	margin-top: -11px;
+}
+
+@media only screen and (max-width : 768px) {
+    #share-link-wrapper {
+        left:-110px;
+    }
+    #share-btns.detail #share-link-wrapper {
+        left: -90px;
+    }
+}

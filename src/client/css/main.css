@@ -250,6 +250,7 @@ home .page_wrapper {
 
 .navbar-toggle {
     border: 1px solid #AEB2BD;
+    margin:auto;
 }
 
 .crt-nav {

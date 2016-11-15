@@ -235,6 +235,21 @@
          height:375px;
      }
 
+     #data-tile-wrapper .graph-chart.custom {
+         height:250px;
+     }
+
+     #data-tile-wrapper.advanced .graph-chart.custom {
+         height:350px;
+     }
+
+    #data-tile-wrapper.advanced .customPlaceSelectWrapper {
+        margin-left:15px;
+    }
+
+    #slider_wrapper.custom{
+        margin:auto;
+    }
 
     #data-tile-wrapper.advanced{
         height:435px;
@@ -252,5 +267,10 @@
 
     #chart_footer_wrapper{
         left:15px;
+    }
+
+    .chart_notices {
+        padding:0;
+        font-size:.8em;
     }
 }

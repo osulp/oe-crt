@@ -25,6 +25,7 @@ var TopicsComponent = (function () {
         this.allTopicsFromComp = new core_1.EventEmitter();
         this.allIndicatorsFromComp = new core_1.EventEmitter();
         this.hideAllFromComp = new core_1.EventEmitter();
+        this.filterVal = '';
         this.chkBoxCollectVisibile = false;
         this.initialLoad = true;
         this.collections = [];
@@ -34,6 +35,7 @@ var TopicsComponent = (function () {
         this.indicatorTrigger = false;
         this.showFilterIndicator = false;
         this.indicatorSortAlpha = true;
+        this.isLoading = true;
         this.visible = true;
         this.showAllSelected = false;
         this.chkBoxVisibile = false;
@@ -51,6 +53,7 @@ var TopicsComponent = (function () {
         filterInput.value = !this.showFilterIndicator ? '' : filterInput.value;
     };
     TopicsComponent.prototype.toggleAllTopics = function (evt) {
+        this.isLoading = true;
         this.showAllSelected = this.showAllSelected ? this.showAllSelected : !this.showAllSelected;
         if (this.showAllSelected) {
             this.selectAllTopics();
@@ -59,7 +62,7 @@ var TopicsComponent = (function () {
     TopicsComponent.prototype.onIndicatorFilterKeyPress = function (event, filterIndicator) {
         var code = event.keyCode || event.which;
         if (code === 13) {
-            this.showHideAll('show', filterIndicator, true);
+            this.showHideAll('show', filterIndicator.value, filterIndicator, true);
         }
     };
     TopicsComponent.prototype.selectAllTopics = function () {
@@ -82,6 +85,7 @@ var TopicsComponent = (function () {
                 this._selectedIndicators.push(this.Indicators[x]);
             }
         }
+        this.isLoading = false;
         this.selectedTopicsFromComp.emit(this._selectedTopics);
         var tempIndicators = this.Indicators;
         this._selectedIndicators = [];
@@ -104,9 +108,16 @@ var TopicsComponent = (function () {
             _this.Topics = data;
             _this.allTopicsFromComp.emit(_this.Topics);
             _this.getIndicators();
+            _this.initialLoad = false;
+            var inScope = _this;
+            window.setTimeout(function () {
+                inScope.isLoading = false;
+                inScope.showIndicatorCount = true;
+            }, 1000);
         }, function (err) { return console.error(err); }, function () { return console.log('done loading topics'); });
     };
     TopicsComponent.prototype.toggleTopic = function (topic) {
+        var _this = this;
         console.log('topic toggled', topic);
         this.showAllSelected = false;
         topic.toggleSelected();
@@ -128,15 +139,19 @@ var TopicsComponent = (function () {
             }
             this.selectedTopicsFromComp.emit(this._selectedTopics);
         }
-        for (var i = 0; i < this.Indicators.length; i++) {
-            var assocTopics = this.Indicators[i].topics.split(', ');
-            for (var _i = 0, _a = this._selectedTopics; _i < _a.length; _i++) {
-                var t = _a[_i];
-                if (assocTopics.indexOf(t) !== -1) {
-                    this.toggleIndicator(this.Indicators[i], true);
+        this.Indicators.forEach(function (indicator) {
+            indicator.topics.split(', ').forEach(function (topic) {
+                if (_this._selectedTopics.indexOf(topic) !== -1) {
+                    var show = _this.filterVal
+                        ? _this.filterVal !== '' && _this.filterVal !== 'undefined'
+                            ? indicator.indicator_display.toUpperCase().indexOf(_this.filterVal.toUpperCase()) !== -1
+                            : true
+                        : true;
+                    _this.toggleIndicator(indicator, show);
                 }
-            }
-        }
+            });
+        });
+        this.isLoading = false;
         this.allTopicsFromComp.emit(this.Topics);
         this.allIndicatorsFromComp.emit(this.Indicators);
     };
@@ -144,16 +159,15 @@ var TopicsComponent = (function () {
         this.Indicators = Indicators;
         this.allIndicatorsFromComp.emit(this.Indicators);
     };
-    TopicsComponent.prototype.showHideAll = function (showType, filterInput, close) {
+    TopicsComponent.prototype.showHideAll = function (showType, filterInput, domFilterInput, close) {
         var _this = this;
         this.showAll = showType === 'show';
         this.hideAll = showType === 'hide';
         var isShowing = this.showAll;
-        console.log('filtervalue', filterInput.value);
+        console.log('filtervalue', filterInput);
         this.Indicators.forEach(function (indicator) {
-            isShowing = indicator.indicator_display.toUpperCase().indexOf(filterInput.value.toUpperCase()) !== -1;
+            isShowing = indicator.indicator_display.toUpperCase().indexOf(filterInput.toUpperCase()) !== -1;
             if (isShowing) {
-                console.log('isshowing', indicator);
                 _this.toggleIndicator(indicator, _this.showAll, false);
             }
             else if (_this.showAll) {
@@ -163,9 +177,12 @@ var TopicsComponent = (function () {
         this.allIndicatorsFromComp.emit(this.Indicators);
         this.indicatorTrigger = !this.indicatorTrigger;
         this.hideAll = filterInput.value === '' && !this.showAll;
-        this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger });
+        this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger, filter: filterInput });
+        this.filterVal = filterInput;
         if (close) {
-            filterInput.value = '';
+            if (domFilterInput) {
+                domFilterInput.value = '';
+            }
             this.showFilterIndicator = false;
         }
     };
@@ -210,19 +227,8 @@ var TopicsComponent = (function () {
         var _this = this;
         this._indicatorService.getIndicators().subscribe(function (data) {
             _this.Indicators = data;
-            console.log('got indicators', _this.Indicators);
-            console.log('selected topics?', _this._selectedTopics);
             if (_this.Indicators.length > 0) {
-                for (var x = 0; x < _this.Indicators.length; x++) {
-                    if (_this._inputIndicators[0] !== '') {
-                        if (_this._inputIndicators.indexOf(_this.Indicators[x].indicator) !== -1) {
-                            _this.toggleIndicator(_this.Indicators[x]);
-                        }
-                    }
-                }
-                console.log(_this.Topics);
                 if (_this._selectedTopics.length > 0) {
-                    console.log('jack has sause', _this._selectedTopics, _this._inputTopics);
                     _this.showAllSelected = _this._selectedTopics[0] !== 'undefined' ? false : true;
                     for (var x = 0; x < _this.Topics.length; x++) {
                         if (_this._selectedTopics.indexOf(_this.Topics[x].topic) !== -1) {
@@ -230,22 +236,30 @@ var TopicsComponent = (function () {
                         }
                     }
                     if (_this.showAllSelected) {
-                        for (var i = 0; i < _this.Indicators.length; i++) {
-                            _this.toggleIndicator(_this.Indicators[i], true);
-                        }
+                        _this.Indicators.forEach(function (indicator) {
+                            var show = _this.filterVal
+                                ? _this.filterVal !== '' && _this.filterVal !== 'undefined'
+                                    ? indicator.indicator_display.toUpperCase().indexOf(_this.filterVal.toUpperCase()) !== -1
+                                    : true
+                                : true;
+                            _this.toggleIndicator(indicator, show);
+                        });
                     }
                 }
             }
-            _this.initialLoad = false;
-            var inScope = _this;
-            window.setTimeout(function () {
-                inScope.showIndicatorCount = true;
-            }, 1000);
         }, function (err) { return console.error(err); }, function () { return console.log('done loading indicators'); });
+    };
+    TopicsComponent.prototype.ngOnChanges = function (changes) {
+        console.log('hallway', changes);
+        if (changes.inputFilter) {
+            this.filterVal = changes.inputFilter.currentValue;
+        }
     };
     TopicsComponent.prototype.ngOnInit = function () {
         var _this = this;
+        this.isLoading = true;
         this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
+        this.filterVal = this.inputFilter !== 'undefined' ? this.inputFilter : '';
         this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['All Topics'] : this._inputTopics;
         this._inputIndicators = this.inputIndicators.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(';');
         this._selectedIndicators = this._inputIndicators;
@@ -299,6 +313,10 @@ var TopicsComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', String)
     ], TopicsComponent.prototype, "inputCollection", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', String)
+    ], TopicsComponent.prototype, "inputFilter", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Boolean)

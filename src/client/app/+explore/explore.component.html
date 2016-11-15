@@ -6,7 +6,7 @@
     </div>
     <div class="col-xs-12">
         <div class="row">
-            <topics (selectedTopicsFromComp)="selectedTopics = onGetSelectedTopicsFromComp($event)" (selectedIndicatorsFromComp)="selectedIndicators = onGetSelectedIndicatorsFromComp" (allTopicsFromComp)="onGetAllTopicsFromComp($event)" (allIndicatorsFromComp)="onGetAllIndicatorsFromComp($event)" (selectedCollectionsFromComp)="selectedCollections = onGetSelectedCollectionsFromComp($event)" (hideAllFromComp)="onHideAll($event)" inputTopics={{selectedTopics}} inputIndicators="{{selectedIndicators}}" inputCollection={{urlCollection}} expanded="{{showTopicsExpanded}}"></topics>
+            <topics (selectedTopicsFromComp)="selectedTopics = onGetSelectedTopicsFromComp($event)" (selectedIndicatorsFromComp)="selectedIndicators = onGetSelectedIndicatorsFromComp" (allTopicsFromComp)="onGetAllTopicsFromComp($event)" (allIndicatorsFromComp)="onGetAllIndicatorsFromComp($event)" (selectedCollectionsFromComp)="selectedCollections = onGetSelectedCollectionsFromComp($event)" (hideAllFromComp)="onHideAll($event)" inputTopics={{selectedTopics}} inputIndicators="{{selectedIndicators}}" inputCollection={{urlCollection}} inputFilter="{{urlFilter}}"expanded="{{showTopicsExpanded}}"></topics>
         </div>
     </div>
     <div class="col-xs-12">
@@ -16,7 +16,7 @@
     </div>
     <div class="col-xs-12">
         <div class="row">
-            <data [inputTopics]="allTopics" [inputIndicators]="allIndicators" [inputCollections]="selectedCollections" [_hideAll]="hideAll"></data>
+            <data [inputTopics]="allTopics" [inputIndicators]="allIndicators" [inputCollections]="selectedCollections" [inputPlaces]="selectedPlaces" [_hideAll]="hideAll"></data>
         </div>
     </div>
 </div>

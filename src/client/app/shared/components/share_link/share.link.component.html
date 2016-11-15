@@ -1,0 +1,22 @@
+
+<div [ngClass]="renderTo !== 'detail' ? 'data-control-bar' : ''">
+    <div id="share-btns" [ngClass]="renderTo === 'detail' ? 'detail' : ''">
+        <div *ngIf="!isMobile && renderTo === 'detail'" title="Download data"><img src="assets/img/icn-download.svg" alt="download data" (click)="downloadClickHandler()" /></div>
+        <div *ngIf="!isMobile" title="Print a report"><img src="assets/img/icn-print.svg" alt="print" (click)="print()" /></div>
+        <div title="Share with others on social media or with links"><img src="assets/img/icn-share.svg" alt="share" (click)="showShare = !showShare" /></div>
+        <span id="share-link-wrapper" class="arrow_box" *ngIf="showShare">
+            <span id="share-buttons">
+                <b>SHARE:</b><br />
+                <img (click)="shareHandler('email')" src="assets/img/email.png" alt="Email" _ngcontent-icy-15="">
+                <img (click)="shareHandler('facebook')" src="assets/img/facebook.png" alt="Facebook">
+                <img  (click)="shareHandler('google')" src="assets/img/google.png" alt="Google">
+                <img (click)="shareHandler('linkedin')" src="assets/img/linkedin.png" alt="LinkedIn">
+                <img (click)="shareHandler('twitter')" src="assets/img/twitter.png" alt="Twitter">
+                <img (click)="shareHandler('pinterest')" src="assets/img/pinterest.png" alt="Pinterest">
+            </span>
+        </span>
+    </div>
+    <!--<a id="downloadLink" [download]="fileName" hidden="hidden" [href]="downloadUri">test</a>-->
+</div>
+
+

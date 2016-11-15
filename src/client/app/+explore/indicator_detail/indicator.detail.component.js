@@ -143,6 +143,21 @@ var DetailComponent = (function () {
         this.detailUrlChanges++;
         this.pageUrl = decodeURI(window.location.href);
     };
+    DetailComponent.prototype.onDownloadClick = function (clicked) {
+        console.log('download clicked detail');
+        var data;
+        var years;
+        var places;
+        this.dataTiles.forEach(function (dt) {
+            if (dt.tileType === 'graph') {
+                data = dt.dataStore.indicatorData;
+                years = dt._tickLabels;
+                places = dt.places;
+            }
+        });
+        console.log('datatile check!', data, this.indicatorTitle, this.inputIndicator);
+        this.shareLinkComp.download(data[this.inputIndicator].crt_db, years, places, this.inputIndicator);
+    };
     DetailComponent.prototype.onBlurExplorePage = function (evt) {
         if (!$(evt.target).closest('#map-menu').length && !$(evt.target).hasClass('hamburger-menu')) {
             console.log('ree', evt);
@@ -151,6 +166,9 @@ var DetailComponent = (function () {
                     dt.hMapMenu.menuSelected = false;
                 }
             });
+        }
+        if (!$(evt.target).closest('.detail').length) {
+            this.shareLinkComp.showShare = false;
         }
     };
     DetailComponent.prototype.getDateAccessed = function () {
@@ -163,7 +181,6 @@ var DetailComponent = (function () {
     DetailComponent.prototype.ngOnInit = function () {
         var _this = this;
         this.detailUrlChanges = 0;
-        console.log('detailurlchanges', this.detailUrlChanges, history);
         this.showMap = true;
         this.showGraph = true;
         this.showTable = false;
@@ -179,14 +196,11 @@ var DetailComponent = (function () {
             .replace(/\%2524/g, '$')
             .replace(/\%24/g, '$')
             .replace(/\+/g, '%2B');
-        console.log('DECODED!', this.inputIndicator);
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(function (data) {
-            console.log('indicator detail repsonse from indicator description service:!', data);
             var indicator_info = data.Desc[0];
             if (indicator_info) {
                 _this.indicatorDesc = data.Desc;
                 _this.relatedIndicators = data.RelatedIndicators;
-                console.log('indicatorDesc service', data);
                 _this.indicatorTitle = indicator_info.Dashboard_Chart_Title
                     ? indicator_info.Dashboard_Chart_Title
                     : indicator_info.Variable;
@@ -194,14 +208,12 @@ var DetailComponent = (function () {
                 _this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
                 _this.isCountyLevel = indicator_info.CountyLevel;
                 _this.isTOP = indicator_info.isTOP;
-                _this.isCustomChart = indicator_info.ScriptName !== null;
+                _this.isCustomChart = indicator_info.ScriptName !== null && indicator_info.indicator_geo.indexOf('School') === -1;
             }
             _this.windowRefresh();
         });
         this.inputIndicator = this.inputIndicator.replace(/\%2B/g, '+');
-        console.log('indicator detail input places: ', this.inputPlaces);
         this.urlPlaces = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];
-        console.log('indicator detail url places: ', this.urlPlaces);
     };
     __decorate([
         core_1.Input(), 
@@ -219,6 +231,10 @@ var DetailComponent = (function () {
         core_1.ViewChildren(index_1.DataTileComponent), 
         __metadata('design:type', core_1.QueryList)
     ], DetailComponent.prototype, "dataTiles", void 0);
+    __decorate([
+        core_1.ViewChild(index_1.ShareLinkComponent), 
+        __metadata('design:type', index_1.ShareLinkComponent)
+    ], DetailComponent.prototype, "shareLinkComp", void 0);
     DetailComponent = __decorate([
         core_1.Component({
             moduleId: module.id,
@@ -226,7 +242,7 @@ var DetailComponent = (function () {
             templateUrl: 'indicator.detail.component.html',
             styleUrls: ['indicator.detail.component.css'],
             providers: [http_1.JSONP_PROVIDERS, index_2.IndicatorDescService, index_2.SelectedDataService],
-            directives: [index_1.PlacesMapSelectComponent, index_1.DataTileComponent, index_3.SearchComponent, table_view_component_1.TableViewComponent]
+            directives: [index_1.PlacesMapSelectComponent, index_1.DataTileComponent, index_3.SearchComponent, table_view_component_1.TableViewComponent, index_1.ShareLinkComponent]
         }), 
         __metadata('design:paramtypes', [index_2.IndicatorDescService, router_1.Router, common_1.Location])
     ], DetailComponent);

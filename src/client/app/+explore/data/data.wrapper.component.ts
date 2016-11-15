@@ -1,6 +1,7 @@
-import {Component, OnInit, Input, ViewChildren, AfterViewInit, QueryList, OnChanges } from '@angular/core';
+import {Component, OnInit, Input, ViewChildren,ViewChild, AfterViewInit, QueryList, OnChanges } from '@angular/core';
 import {Topic,Indicator} from '../../shared/data_models/index';
-import {DataTileComponent, IndicatorsTopicListComponent} from '../../shared/components/index';
+import {DataTileComponent, IndicatorsTopicListComponent, ShareLinkComponent} from '../../shared/components/index';
+import {DataService} from '../../shared/services/index';
 import {DetailComponent} from '../indicator_detail/indicator.detail.component';
 import {SelectedTopicsPipe, IndicatorScrollCountPipe} from '../topics/pipes/index';
 import {IndicatorTopicFilterPipe} from '../../shared/pipes/index';
@@ -13,8 +14,8 @@ declare var $: any;
     selector: 'data',
     templateUrl: 'data.wrapper.component.html',
     styleUrls: ['data.wrapper.component.css'],
-    directives: [DataTileComponent, DetailComponent, IndicatorsTopicListComponent, InfiniteScroll],
-    //providers: [SelectedIndicatorsService],
+    directives: [DataTileComponent, DetailComponent, IndicatorsTopicListComponent, InfiniteScroll, ShareLinkComponent],
+    providers: [DataService],
     pipes: [SelectedTopicsPipe, IndicatorTopicFilterPipe, IndicatorScrollCountPipe]
 })
 
@@ -22,8 +23,11 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     @Input() inputTopics: Topic[] = [];
     @Input() inputIndicators: Indicator[] = [];
     @Input() inputCollections: any[] = [];
+    @Input() inputPlaces: any;
     @Input() _hideAll: any;
     @ViewChildren(IndicatorsTopicListComponent) indTopListComps: QueryList<IndicatorsTopicListComponent>;
+    @ViewChild(ShareLinkComponent) shareLinkComp: ShareLinkComponent;
+    @ViewChildren(DataTileComponent) dataTiles: QueryList<DataTileComponent>;
     resultView: string;
     topicIndicatorCount: any = {};
     collections: any[] = [];
@@ -40,8 +44,12 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     SelectedTopics: Topic[] = [];
     showScrollUpCount: number = 3;
     hideAll: boolean = false;
+    noIndicatorsSelected: boolean = false;
     initLoad: boolean = true;
+    isLoading: boolean = true;
     isMobile: boolean = false;
+
+    constructor(private _dataService: DataService) { }
 
     toggleResultView() {
         //console.log('resultview clicked');
@@ -53,6 +61,32 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
         //console.log('dope, does this work', Indicators);
         this.inputIndicators = Indicators;
     }
+
+    onDownloadClick(evt: any) {
+        console.log('download clicked!');
+        let places = this.dataTiles.toArray().length > 0 ? this.dataTiles.toArray()[0].places : [];
+        //this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];
+        //console.log('places', places,this.dataTiles);
+        //let places = this.inputPlaces !== 'undefined' ? JSON.parse('[' + decodeURIComponent(this.inputPlaces) + ']') : [];
+        if (places.length !== 0) {
+            //check url for place
+            let geoids = places.map((p: any) => p.ResID).toString();
+            //console.log('download clicked in explore', this.inputIndicators, places, geoids);
+            let csvString = '';
+            let selIndicators = this.inputIndicators.filter((ind: any) => ind.selected);
+            console.log('selected indicators', selIndicators);
+            this._dataService.getIndicatorDataWithMetadataBatch(geoids, selIndicators).subscribe((results: any) => {
+                console.log('download data results', results);
+                results.forEach((res: any, idx: number) => {
+                    csvString += this.shareLinkComp.ConvertToCSV(res, [], true, idx === results.length - 1);
+                });
+                this.shareLinkComp.download(csvString, '', places, '', true);
+            });
+        } else {
+            alert('sorry need to have a place selected');
+        }
+    }
+
 
     onScrollDown() {
         let incrementedIndicatorCount = false;
@@ -84,12 +118,15 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
 
     createTopicIndicatorObj() {
         //console.log('creating TopicIndicator Count', this.inputTopics, this.inputIndicators, this.collections);
+        this.isLoading = true;
         this.topicIndicatorCount = {};
+        let numIndicators = 0;
         for (var t = 0; t < this.inputTopics.length; t++) {
             this.topicIndicatorCount[this.inputTopics[t].topic] = {};
             this.collections.forEach(coll => {
                 let topicIndicatorCount = this.inputIndicators.filter(indicator => {
                     if (indicator.selected) {
+                        numIndicators++;
                         return indicator.topics.split(', ').indexOf(this.inputTopics[t].topic.trim()) !== -1 && (indicator.collections
                             ? (indicator.collections.split(', ').indexOf(coll.collection) !== -1 || coll.collection === 'Show All')
                             : coll.collection === 'Show All'
@@ -103,7 +140,9 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
                 this.topicIndicatorCount[this.inputTopics[t].topic][coll.collection] = { maxCount: topicIndicatorCount, showCount: this.showIndicatorDefault };
             });
         }
-        //console.log('here is the lookup', this.topicIndicatorCount);
+        this.noIndicatorsSelected = !this.initLoad ? numIndicators === 0 : false;
+        this.isLoading = false;
+        //console.log('here is the lookup', this.initLoad, this.topicIndicatorCount);
     }
 
     resetTopicIndicatorCounts() {
@@ -180,6 +219,7 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
         let windowHeight = $(window).height();
         let bodyHeight = $('body').height();
         console.log('windowHeight', windowHeight, bodyHeight);
+
         //if (windowHeight > 800) {
         //    this.scrollDownDistance = 12;
         //    this.scrollUpDistance = 5;

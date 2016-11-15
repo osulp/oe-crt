@@ -20,8 +20,16 @@ var IndicatorsTopicListComponent = (function () {
         this.selTopics = [];
         this.selCollections = [];
         this.chkBoxVisibile = false;
+        this.indicatorSortAlpha = true;
     }
-    IndicatorsTopicListComponent.prototype.toggleIndicator = function (indicator, value) {
+    IndicatorsTopicListComponent.prototype.showHideAll = function (showType) {
+        var _this = this;
+        this.inputIndicators.forEach(function (indicator) {
+            _this.toggleIndicator(indicator, showType === 'show', false);
+        });
+        this.filteredIndicatorsFromComp.emit(this.inputIndicators);
+    };
+    IndicatorsTopicListComponent.prototype.toggleIndicator = function (indicator, value, emit) {
         if (value) {
             indicator.selected = value;
         }
@@ -38,7 +46,9 @@ var IndicatorsTopicListComponent = (function () {
                 this._selectedIndicators.push(this.inputIndicators[x]);
             }
         }
-        this.filteredIndicatorsFromComp.emit(this.inputIndicators);
+        if (emit) {
+            this.filteredIndicatorsFromComp.emit(this.inputIndicators);
+        }
     };
     IndicatorsTopicListComponent.prototype.ngOnInit = function () {
         console.log('this is the input topics for checkbox display', this.inputTopics);

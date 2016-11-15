@@ -12,7 +12,7 @@
                         <img *ngIf="getCollectionIcon(collection) !== ''" [src]="getCollectionIcon(collection)" [alt]="collection" [title]="'This indicator is part of the '+collection+' collection.'" />
                     </span>
                 </div>
-                <div *ngIf="isCustomChart">
+                <div *ngIf="isCustomChart" class="customPlaceSelectWrapper">
                     <div *ngIf="viewType === 'basic'" class="customChartTitle col-xs-12">{{indicator}}</div>
                     <div [ngClass]="viewType === 'basic' ? 'placeSelectCustomChart' : ''">
                         <span>Select community:</span>
@@ -46,7 +46,7 @@
             </div>
         </div>
     </div>
-    <div *ngIf="tileType === 'map' || (isCustomChart && viewType === 'advanced')">
+    <div *ngIf="(tileType === 'map'  || (isCustomChart && viewType === 'advanced')) && showSlider">
         <div id="slider_wrapper" [ngClass]="isCustomChart ? 'custom': ''">
             <div id="play_wrapper">
                 <button id="play" type="button" (click)="onPlayBtnClick($event);" class="btn btn-default" aria-label="Left Align">
@@ -61,8 +61,8 @@
             <div class="chart_notices col-xs-5">
                 <div *ngIf="isCountyLevel || isStatewide || isNotCombinable">
                     <span class="glyphicon glyphicon-flag"></span>
-                    <span *ngIf="isStatewide">Statewide Data Only</span>
-                    <span *ngIf="isCountyLevel">County Level Data</span>
+                    <span *ngIf="isStatewide" [innerHTML]="isHandheld ? 'Statewide Data' : 'Statewide Data Only'" ></span>
+                    <span *ngIf="isCountyLevel" [innerHTML]="isHandheld ? 'County Level' : 'County Level Data'" >County Level Data</span>
                     <span *ngIf="isNotCombinable">Data is not able to be combined</span>
                 </div>
             </div>
@@ -70,7 +70,10 @@
                 <div *ngIf="isCountyLevel && false" id="showAll">Show All</div>
                 <div *ngIf="hasMOEs" id="showMOEs">
                     <span><input id="chkBoxShowMOE" type="checkbox" [checked]="showMOES" (click)="toggleMOEs()" /></span>
-                    <span><label for="chkBoxShowMOE" [innerHTML]="isHandheld ? '<a href=\'javascript:void(0);\' (click)=\'openMoeDialog()\'>Margin of Error</a>' : 'Show <a href=\'javascript:void(0);\' (click)=\'openMoeDialog()\'>Margin of Error</a> Bars'"></label></span>
+                    <span *ngIf="isHandheld">
+                        <label for="chkBoxShowMOE"><a href="javascript:void(0);" (click)="openMoeDialog()">Margin of Error</a></label>
+                    </span>
+                    <span *ngIf="!isHandheld"><label for="chkBoxShowMOE">Show <a href="javascript:void(0);" (click)="openMoeDialog()">Margin of Error</a> Bars</label></span>
                 </div>
             </div>
         </div>

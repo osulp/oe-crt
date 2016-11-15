@@ -25,12 +25,20 @@ export class IndicatorsTopicListComponent implements OnInit {
     selTopics: Topic[] = [];
     selCollections: any[] = [];
     chkBoxVisibile: boolean = false;
+    indicatorSortAlpha: boolean = true;
     //public Indicators: Indicator[] = [];
     public _selectedIndicators: any;
 
     constructor(public _indicatorService: IndicatorsService) { }
 
-    toggleIndicator(indicator: Indicator, value?: boolean) {
+    showHideAll(showType: any) {
+        this.inputIndicators.forEach((indicator: any) => {
+                this.toggleIndicator(indicator, showType === 'show',false);
+        });
+        this.filteredIndicatorsFromComp.emit(this.inputIndicators);
+    }
+
+    toggleIndicator(indicator: Indicator, value?: boolean, emit?:boolean) {
         if (value) {
             indicator.selected = value;
         } else {
@@ -48,7 +56,9 @@ export class IndicatorsTopicListComponent implements OnInit {
                 this._selectedIndicators.push(this.inputIndicators[x]);
             }
         }
-        this.filteredIndicatorsFromComp.emit(this.inputIndicators);
+        if (emit) {
+            this.filteredIndicatorsFromComp.emit(this.inputIndicators);
+        }
     }
 
     ngOnInit() {

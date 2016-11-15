@@ -136,8 +136,8 @@
                                     <div *ngIf="filterIndicator.value !== '' || showFilterIndicator">
                                         <div id="indicator-list-header">
                                             <div class="row">
-                                                <span class="hide-show col-md-2 col-xs-6" (click)="showHideAll('hide',filterIndicator)">De-select all</span>
-                                                <span class="hide-show col-md-2 col-xs-4" (click)="showHideAll('show',filterIndicator)">Select all</span>
+                                                <span class="hide-show col-md-2 col-xs-6" (click)="showHideAll('hide',filterIndicator.value, filterIndicator)">De-select all</span>
+                                                <span class="hide-show col-md-2 col-xs-4" (click)="showHideAll('show',filterIndicator.value, filterIndicator)">Select all</span>
                                                 <span class="hide-show col-md-1 col-xs-2 fa" [ngClass]="indicatorSortAlpha ? 'fa-sort-alpha-asc' :'fa-sort-alpha-desc'" (click)="indicatorSortAlpha = !indicatorSortAlpha"></span>
                                                 <!--<span class="hide-show col-lg-7 col-md-7 col-xs-12" *ngIf="filterIndicator.value !== ''" (click)="showHideAll('visible',filterIndicator)">Select filtered results</span>-->
                                                 <!--
@@ -148,7 +148,8 @@
                                                     -->
                                             </div>
                                         </div>
-                                        <div id="indicator-list" class="container" [ngClass]="filterIndicator.value !== '' ? 'withFilter' : ''">
+                                        <div id="indicator-list" class="container">
+                                            <div *ngIf="isLoading">Loading...</div>
                                             <div *ngFor="let indicator of Indicators | indicatorTopicFilterPipe : Topics:collections : filterIndicator.value: indicatorSortAlpha; let i = index" (click)="toggleIndicator(indicator,null,true)" class="row">
                                                 <div class="col-xs-1 ind-checkbox">
                                                     <input type="checkbox" [checked]="indicator.selected" id="{{i+'ind'}}" />
@@ -165,15 +166,24 @@
                     </div>
                 </div>
                 <div class="col-lg-12 col-md-12 col-xs-12" id="selTopicsIndicatorsWrapper">
+                    <div *ngIf="isLoading">Loading...</div>
                     <div id="selectedTopicsIndicators" [ngClass]="expanded.toString() === 'true' ? 'expanded' : ''" *ngIf="showIndicatorCount">
-                        <span *ngIf="expanded.toString() === 'true'">
-                            Currently selected:
-                        </span>
-                        <div *ngIf="showAllSelected" (click)="expanded = true">
-                            <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsCountPipe: 'all':collections}}</span></div>
+                        <div *ngIf="filterVal !== ''" (click)="filterVal = '';showHideAll('show','', filterIndicator,true);">
+                            <span>Indicators filtered to match: <b>{{filterVal}}</b></span>
+                            <span class="closeButton" title="Remove this indicator filter.">
+                                <img src="assets/img/closeX.png"/>
+                            </span>
                         </div>
-                        <div *ngIf="!showAllSelected">
-                            <div *ngFor="let topic of Topics | SelectedTopicsPipe:collections" title="Open data selection window to refine selected statistics." (click)="expanded = true"><span>{{topic.topic}}</span><div class="indicatorCount" title="Total number of selected data indicators.">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic:collections}}</div><span class="closeButton" title="Remove this topic selection.  If only topic selected, removing will select all topics."><img src="assets/img/closeX.png" (click)="toggleTopic(topic)" /></span></div>
+                        <div>
+                            <span *ngIf="expanded.toString() === 'true'">
+                                Selected in topics:
+                            </span>
+                            <div *ngIf="showAllSelected" (click)="expanded = true">
+                                <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsCountPipe: 'all':collections}}</span></div>
+                            </div>
+                            <div *ngIf="!showAllSelected">
+                                <div *ngFor="let topic of Topics | SelectedTopicsPipe:collections" title="Open data selection window to refine selected statistics." (click)="expanded = true"><span><b>{{topic.topic}}</b></span><div class="indicatorCount" title="Total number of selected data indicators.">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic:collections}}</div><span class="closeButton" title="Remove this topic selection.  If only topic selected, removing will select all topics."><img src="assets/img/closeX.png" (click)="toggleTopic(topic)" /></span></div>
+                            </div>
                         </div>
                     </div>
                 </div>

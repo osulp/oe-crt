@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, Output, EventEmitter}   from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter, OnChanges}   from '@angular/core';
 import {JSONP_PROVIDERS}  from '@angular/http';
 import {IndicatorsTopicListComponent}  from '../../shared/components/index';
 import {Topic, Indicator} from '../../shared/data_models/index';
@@ -11,6 +11,7 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/share';
 
 declare var window: any;
+declare var $: any;
 
 @Component({
     moduleId: module.id,
@@ -24,7 +25,7 @@ declare var window: any;
 
 
 
-export class TopicsComponent implements OnInit {
+export class TopicsComponent implements OnInit, OnChanges {
     @Output() selectedTopicsFromComp = new EventEmitter();
     @Output() selectedIndicatorsFromComp = new EventEmitter();
     @Output() selectedCollectionsFromComp = new EventEmitter();
@@ -34,6 +35,7 @@ export class TopicsComponent implements OnInit {
     @Input() inputTopics: string;
     @Input() inputIndicators: string;
     @Input() inputCollection: string;
+    @Input() inputFilter: string;
     @Input() expanded: boolean;
 
     //selectedIndicators = new EventEmitter();
@@ -43,6 +45,7 @@ export class TopicsComponent implements OnInit {
     _selectedTopics: any;
     _inputTopics: any;
     _inputIndicators: any;
+    filterVal: any = '';
 
     visible: boolean;
     chkBoxVisibile: boolean;
@@ -57,6 +60,7 @@ export class TopicsComponent implements OnInit {
     indicatorTrigger: boolean = false;
     showFilterIndicator: boolean = false;
     indicatorSortAlpha: boolean = true;
+    isLoading: boolean = true;
     //private subscription: Subscription;
 
     constructor(
@@ -88,6 +92,7 @@ export class TopicsComponent implements OnInit {
     }
 
     toggleAllTopics(evt?: any) {
+        this.isLoading = true;
         this.showAllSelected = this.showAllSelected ? this.showAllSelected : !this.showAllSelected;
         if (this.showAllSelected) {
             this.selectAllTopics();
@@ -98,8 +103,11 @@ export class TopicsComponent implements OnInit {
         var code = event.keyCode || event.which;
         if (code === 13) {
             //select visible and close
-            this.showHideAll('show', filterIndicator, true);
+            this.showHideAll('show', filterIndicator.value, filterIndicator, true);
         }
+        //else {
+        //    this.showFilterIndicator = filterIndicator.value !== '';
+        //}
     }
 
     selectAllTopics() {
@@ -128,7 +136,7 @@ export class TopicsComponent implements OnInit {
             }
         }
 
-
+        this.isLoading = false;
         this.selectedTopicsFromComp.emit(this._selectedTopics);
         let tempIndicators = this.Indicators;
         this._selectedIndicators = [];
@@ -150,6 +158,7 @@ export class TopicsComponent implements OnInit {
         //}
         this.allTopicsFromComp.emit(this.Topics);
         this.allIndicatorsFromComp.emit(this.Indicators);
+
     }
 
     getTopics() {
@@ -160,6 +169,12 @@ export class TopicsComponent implements OnInit {
                 //console.log('input topics = ', this._inputTopics);
                 //console.log('all topics', this.Topics);
                 this.getIndicators();
+                this.initialLoad = false;
+                let inScope = this;
+                window.setTimeout(function () {
+                    inScope.isLoading = false;
+                    inScope.showIndicatorCount = true;
+                }, 1000);
             },
             (err: any) => console.error(err),
             () => console.log('done loading topics'));
@@ -191,20 +206,19 @@ export class TopicsComponent implements OnInit {
             this.selectedTopicsFromComp.emit(this._selectedTopics);
         }
         //sync indicator selections
-        for (var i = 0; i < this.Indicators.length; i++) {
-            let assocTopics = this.Indicators[i].topics.split(', ');
-            //console.log(assocTopics);
-            for (let t of this._selectedTopics) {
-                //console.log('checking t:', t);
-                if (assocTopics.indexOf(t) !== -1) {
-                    this.toggleIndicator(this.Indicators[i], true);
+        this.Indicators.forEach((indicator: Indicator) => {
+            indicator.topics.split(', ').forEach((topic: any) => {
+                if (this._selectedTopics.indexOf(topic) !== -1) {
+                    let show = this.filterVal
+                        ? this.filterVal !== '' && this.filterVal !== 'undefined'
+                            ? indicator.indicator_display.toUpperCase().indexOf(this.filterVal.toUpperCase()) !== -1
+                            : true
+                        : true;
+                    this.toggleIndicator(indicator, show);
                 }
-            }
-            //if (this._selectedTopics.indexOf(this.Indicators[i].topics) !== -1) {
-            //    this.toggleIndicator(this.Indicators[i], true);
-            //    //this._selectedIndicatorsService.toggle(this.Indicators[i], true);
-            //}
-        }
+            });
+        });
+        this.isLoading = false;
         this.allTopicsFromComp.emit(this.Topics);
         this.allIndicatorsFromComp.emit(this.Indicators);
     }
@@ -214,21 +228,14 @@ export class TopicsComponent implements OnInit {
         this.allIndicatorsFromComp.emit(this.Indicators);
     }
 
-    showHideAll(showType: any,filterInput?:any, close?:boolean) {
+    showHideAll(showType: any, filterInput?: any, domFilterInput?:any, close?:boolean) {
         this.showAll = showType === 'show';
         this.hideAll = showType === 'hide';
         let isShowing = this.showAll;
-        console.log('filtervalue',filterInput.value);
+        console.log('filtervalue',filterInput);
         this.Indicators.forEach((indicator: any) => {
-            isShowing = indicator.indicator_display.toUpperCase().indexOf(filterInput.value.toUpperCase()) !== -1;
-
-            //if (showType === 'visible') {
-            //    //console.log('filterVisible', filterInput, filterInput.value);
-            //    show = indicator.indicator_display.toUpperCase().indexOf(filterInput.value.toUpperCase()) !== -1;
-            //}
+            isShowing = indicator.indicator_display.toUpperCase().indexOf(filterInput.toUpperCase()) !== -1;
             if (isShowing) {
-                console.log('isshowing', indicator);
-                //isShowing = this.hideAll ? false : true;
                 this.toggleIndicator(indicator, this.showAll, false);
             } else if (this.showAll) {
                 //hide everything not showing
@@ -238,11 +245,15 @@ export class TopicsComponent implements OnInit {
         this.allIndicatorsFromComp.emit(this.Indicators);
         this.indicatorTrigger = !this.indicatorTrigger;
         this.hideAll = filterInput.value === '' && !this.showAll;
-        this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger });
-
+        this.hideAllFromComp.emit({ hide: this.hideAll, trigger: this.indicatorTrigger, filter:filterInput });
+        this.filterVal = filterInput;
 
         if (close) {
-            filterInput.value = '';
+            if (domFilterInput) {
+                domFilterInput.value = '';
+            }
+            //$('filterIndicator').val = '';
+            //filterInput.value = '';
             this.showFilterIndicator = false;
         }
     }
@@ -293,20 +304,9 @@ export class TopicsComponent implements OnInit {
         this._indicatorService.getIndicators().subscribe(
             (data: any) => {
                 this.Indicators = data;
-                console.log('got indicators', this.Indicators);
-                console.log('selected topics?', this._selectedTopics);
                 if (this.Indicators.length > 0) {
-                    for (var x = 0; x < this.Indicators.length; x++) {
-                        if (this._inputIndicators[0] !== '') {
-                            //turn on individual indicator from input url/selection
-                            if (this._inputIndicators.indexOf(this.Indicators[x].indicator) !== -1) {
-                                this.toggleIndicator(this.Indicators[x]);
-                            }
-                        }
-                    }
-                    console.log(this.Topics);
                     if (this._selectedTopics.length > 0) {
-                        console.log('jack has sause', this._selectedTopics, this._inputTopics);
+                        //console.log('jack has sause', this._selectedTopics, this._inputTopics);
                         this.showAllSelected = this._selectedTopics[0] !== 'undefined' ? false : true;
                         for (var x = 0; x < this.Topics.length; x++) {
                             if (this._selectedTopics.indexOf(this.Topics[x].topic) !== -1) {
@@ -314,25 +314,34 @@ export class TopicsComponent implements OnInit {
                             }
                         }
                         if (this.showAllSelected) {
-                            for (var i = 0; i < this.Indicators.length; i++) {
-                                this.toggleIndicator(this.Indicators[i], true);
-                            }
+                            this.Indicators.forEach((indicator: any) => {
+                                let show = this.filterVal
+                                    ? this.filterVal !== '' && this.filterVal !== 'undefined'
+                                        ? indicator.indicator_display.toUpperCase().indexOf(this.filterVal.toUpperCase()) !== -1
+                                        : true
+                                    : true;
+                                this.toggleIndicator(indicator, show);
+                            });
+
                         }
                     }
                 }
-                this.initialLoad = false;
-                let inScope = this;
-                window.setTimeout(function () {
-                    inScope.showIndicatorCount = true;
-                },1000);
             },
             (err: any) => console.error(err),
             () => console.log('done loading indicators'));
     }
 
-    ngOnInit() {
-        this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
+    ngOnChanges(changes: any) {
+        console.log('hallway', changes);
+        if (changes.inputFilter) {
+            this.filterVal = changes.inputFilter.currentValue;
+        }
+    }
 
+    ngOnInit() {
+        this.isLoading = true;
+        this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
+        this.filterVal = this.inputFilter !== 'undefined' ? this.inputFilter : '';
         this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['All Topics'] : this._inputTopics;
         this._inputIndicators = this.inputIndicators.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(';');
         this._selectedIndicators = this._inputIndicators;

@@ -89,7 +89,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     @Output() onSelectedYearChange = new EventEmitter();
     public geoJSONStore: any[] = [];
     elementRef: ElementRef;
-    private places = new Array<SearchResult>();
+    public places = new Array<SearchResult>();
     private subscription: Subscription;
     private geoSubscription: Subscription;
     private dataSubscription: Subscription;
@@ -118,6 +118,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     private sliderState: string = 'play';
     private isHandheld: boolean = $(window).width() < 481;// false;
     private placeTypeGeoYears: any;
+    private showSlider: boolean = true;
     private isSliderInit: boolean = false;
     private isCountyLevel: boolean = false;
     private isStatewide: boolean = false;
@@ -179,6 +180,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         console.log('series hidden');
                     }
                 }
+            },
+            column: {
+                maxPointWidth: 50
             }
         },
         title: {
@@ -393,14 +397,13 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 this.indicator_info = indicatorDesc.Desc[0];
                 if (this.indicator_info) {
                     this.isStatewide = this.indicator_info.Geog_ID === 8 ? true : false;
-                    this.showMap = this.isStatewide || this.indicator_info.ScriptName !== null ? false : true;
                     this.indicator_geo = this.indicator_info.indicator_geo;
-                    console.log('praguer', this.indicator_geo);
                     this.isCountyLevel = this.indicator_info.CountyLevel || this.indicator_geo === 'County';
                     this.isTOP = this.indicator_info.isTOP;
                     this.is10yr = this.indicator_info.is10yrPlan;
-                    this.isCustomChart = this.indicator_info.ScriptName !== null;
                     this.isSchool = this.indicator_geo.indexOf('School') !== -1;
+                    this.isCustomChart = this.indicator_info.ScriptName !== null && !this.isSchool;
+                    this.showMap = this.isStatewide || this.isCustomChart ? false : true;
                     if (this.hMapMenu) {
                         this.hMapMenu.setIndicatorGeoFilter(this.indicator_geo);
                     }
@@ -418,7 +421,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             //widthAdjust: -10,
                             //x: -30
                         });
-                        this.chart.legend.update(this.setLegendOptions(false));
+                        try {
+                            this.chart.legend.update(this.setLegendOptions(false));
+                        } catch (ex) { }
                     } else {
                         this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
                             data => {
@@ -994,7 +999,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     this._dataService.getSchoolDistrictData(schooldistricts, this.indicator, counties, cts).subscribe((data: any) => {
                         console.log('SCHOOL DATA', data);
                         this.updateDataStore([data], 'indicator');
-                        this.createGraphChart(); this.onChartDataUpdate.emit({ data: this.isCustomChart ? this.dataStore.indicatorData[this.indicator].chart_data : data, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear, metadata: data.Metadata[0] });
+                        console.log('updated data store');
+                        this.createGraphChart();
+                        this.onChartDataUpdate.emit({ data: this.isCustomChart ? this.dataStore.indicatorData[this.indicator].chart_data : data, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear, metadata: data.Metadata[0] });
 
                     }, (err: any) => console.error(err),
                         () => console.log('done loading data for graph')
@@ -1209,9 +1216,11 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     //this.checkDataStateForCharts();
                     this.initMapChart();
                     console.log('shamrock');
-                    if (!this.isSliderInit) {
+                    if (!this.isSliderInit && this._tickArray.length > 1)  {
                         this.setupTimeSlider();
                         this.isSliderInit = true;
+                    } else {
+                        this.showSlider = false;
                     }
                 }
             } catch (ex) {
@@ -1252,9 +1261,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     this.isCountyLevel = metadata.CountyLevel;
                     this.isNotCombinable = metadata.isPreCalc && this.isStatewide && this.hasCombined;
                 }
-                if (this.tileType === 'map' && !this.isStatewide && this.indicator_info.ScriptName === null) {
+                if (this.tileType === 'map' && !this.isStatewide && !this.isCustomChart ) {
                     //console.log('problem data', data[d]);
-                    console.log('say what', data[d].GeoTypes[0].geoType, data);
+                    console.log('say what', data[d].GeoTypes[0].geoType, data, this.isSchool);
                     if (this.isSchool) {
                         let geoTypeIndicatorData: any = {};
                         geoTypeIndicatorData[this.indicator] = { crt_db: data[0] };
@@ -1336,9 +1345,10 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
     getSelectedMapData() {
         //identify the array to check
-        console.log('que pasa',this.selectedPlaceType);
+        console.log('que pasa',this.selectedPlaceType, this.selectedYear);
         let selectedGeoJSONType: any = this.geoJSONStore.filter(data => { return data.layerId === this.pluralize(this.selectedPlaceType) || 'School Districts' === data.layerId; });
         //check the selected year and get layer accordingly
+        console.log('que pasa geotype', selectedGeoJSONType);
         var selectedYearGeoJSONIndex: any = 0;
         for (var y = 0; y < selectedGeoJSONType[0].features.length; y++) {
             var year = selectedGeoJSONType[0].features[y];
@@ -1639,8 +1649,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
     createGraphChart() {
         try {
-            if (this.indicator_info.ScriptName === null) {
-                console.log('fred2', this.dataStore.indicatorData[this.indicator].crt_db);
+            if (!this.isCustomChart) {
+                console.log('fred2 dss', this.dataStore.indicatorData[this.indicator].crt_db);
                 //this.placeTypeData = data;
                 this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
                 //this.Data = data.length > 0 ? data : [];
@@ -1666,7 +1676,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         plotLines: [{
                             color: 'gray',
                             dashStyle: 'longdashdot',
-                            width: 2,
+                            width: this._tickArray.length > 1 && this.viewType === 'advanced' ? 2 :0,
                             value: this.selectedYearIndex,
                             id: 'plot-line-1'
                         }],
@@ -1694,8 +1704,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             }
                         }
                     });
-
-                    this.chart.legend.update(this.setLegendOptions(true));
+                    try {
+                        this.chart.legend.update(this.setLegendOptions(true));
+                    } catch (ex) { }
 
                     this.chart.tooltip.options.shared = false;
                     this.chart.tooltip.options.useHTML = true;
@@ -1750,6 +1761,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     };
 
                     let indicatorYaxis = this.placeTypeData.Metadata[0]['Y-Axis'] !== null ? this.placeTypeData.Metadata[0]['Y-Axis'] : this.indicator;
+                    console.log('pissant', this.indicator);
                     this.chart.yAxis[0].update({
                         title: {
                             text: this.viewType === 'advanced' ? indicatorYaxis : '',
@@ -1766,8 +1778,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             width: 1,
                             color: '#808080'
                         }],
-                        floor: 0,
-                        min: 0,
+                        floor: this.indicator.indexOf('Net Job Loss') === -1 ? 0 : null,
+                        min: this.indicator.indexOf('Net Job Loss') === -1 ? 0 : null,
                         max: this.placeTypeData.Metadata[0]['Y-Axis_Max']
                     });
                     //let title = this.placeTypeData.Metadata[0]['Sub_Sub_Topic_ID'] !== null ? this.placeTypeData.Metadata[0]['Variable'] : this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator;
@@ -1828,6 +1840,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     processCustomChart() {
+        console.log('thinks it is custom chart');
         let chartScope = this;
         let categories: any[];
         try {
@@ -2044,7 +2057,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             enabled: false
                         },
                         legend: {
-                            enabled: this.viewType === 'basic' ? true : false,
+                            enabled: (this.viewType === 'basic' || this.isHandheld) ? true : false,
                             itemStyle: {
                                 fontSize: '.7em',
                                 color: 'gray'
@@ -2064,7 +2077,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 allowPointSelect: true,
                                 cursor: 'pointer',
                                 dataLabels: {
-                                    enabled: this.viewType === 'advanced' ? true : false,
+                                    enabled: this.viewType === 'advanced' && !this.isHandheld ? true : false,
                                     format: '<b>{point.name}</b><br>{point.percentage:.1f} %',
                                     style: {
                                         color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'gray',
@@ -2113,8 +2126,10 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             });
             this.selectedPlaceCustomChart = placeSelected ? this.selectedPlaceCustomChart : this.places[0];
             this.processCustomChart();
-            if (this.viewType === 'advanced') {
+            if (this.viewType === 'advanced' && this._tickArray.length > 1) {
                 this.setupTimeSlider();
+            } else {
+                this.showSlider = false;
             }
         } catch (ex) {
             console.log('errorballs', ex, this.tileType);
@@ -2184,17 +2199,32 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             let isUrban = pd.geoid.indexOf('u') !== -1;
             var isState = isOregon || isCalifornia ? true : false;
             let isCombined = pd.geoid === '';
+            let isBarChart = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data.length === 1;
+            let color = isRural
+                ? '#996699'
+                : isUrban
+                    ? '#0088CC'
+                    : isOregon
+                        ? '#244068'
+                        : isCalifornia
+                            ? '#C34500'
+                            : isCombined
+                                ? '#98BD85'
+                                : Highcharts.getOptions().colors[idx];
+            let data = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data;
+            //console.log('mustarddata', data);
             if (addedSeries.indexOf((this.isSchool ? pd.Name : pd.community) + pd.geoid) === -1 && this.hasCombined ? this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data.filter((d: any) => d !== null).length > 0 : true) {
-                //console.log('mustard', pd.community, this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data.filter((d:any) => d !== null).length > 0);
+                //console.log('mustard', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data);
                 addedSeries.push((this.isSchool ? pd.Name : pd.community) + pd.geoid);
                 this.chart.addSeries({
                     id: (this.isSchool ? pd.Name : pd.community) + pd.geoid,
                     name: this.getCommunityName(pd),
-                    type: 'line',
+                    type: isBarChart ? 'column' : 'line',
                     lineWidth: isState ? 4 : 2,
                     lineColor: isState ? '#A3A3A4' : Highcharts.getOptions().colors[idx],
                     lineOpacity: 1.0,
-                    data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data,
+                    data: data,
+                    color: color,
                     connectNulls: true,
                     threshold: 0,
                     fillOpacity: 0.85,
@@ -2268,25 +2298,31 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
     onResize(event: any) {
         //console.log('resizing...', this.indicator,this.tileType, this.chart);
-        if (this.chart) {
+        try {
+            if (this.chart) {
 
-            var runInterval = setInterval(runCheck, 2000);
-            var resizeScope = this;
-            function runCheck() {
+                var runInterval = setInterval(runCheck, 2000);
+                var resizeScope = this;
+                function runCheck() {
 
-                let newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
-                $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
+                    let newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
+                    $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
 
-                if (resizeScope.chart.legend) {
-                    //console.log('foster', resizeScope.indicator, resizeScope.tileType, resizeScope.chart.legend.display);
                     if (resizeScope.chart.legend) {
-                        //console.log('foster2', resizeScope.indicator, resizeScope.tileType, resizeScope.setLegendOptions(true));
-                        resizeScope.chart.legend.update(resizeScope.setLegendOptions(true));
+                        //console.log('foster', resizeScope.indicator, resizeScope.tileType, resizeScope.chart.legend.display);
+                        if (resizeScope.chart.legend) {
+                            //console.log('foster2', resizeScope.indicator, resizeScope.tileType, resizeScope.setLegendOptions(true));
+                            try {
+                                resizeScope.chart.legend.update(resizeScope.setLegendOptions());
+                            } catch (ex) { }
+                        }
                     }
-                }
 
-                clearInterval(runInterval);
+                    clearInterval(runInterval);
+                }
             }
+        } catch (ex) {
+            console.log('resize failed', ex);
         }
     }
 
@@ -2764,7 +2800,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         let place_data_years: any = {};
         let place_data_years_moe: any = {};
 
-        if (this.indicator_info.ScriptName !== null) {
+        if (this.isCustomChart) {
             place_data_years = this.processCustomChartData(this.indicator.ScriptName);
             let chart_data: any = {
                 place_data_years: place_data_years
@@ -2812,7 +2848,13 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         //check to see if data for end offset
                         //this.yearEndOffset = $.isNumeric(pData[_year]) ? 0 : this.yearEndOffset + 1;
                         //year_data.push(this.formatData(pData[_year]));
-                        year_data.push($.isNumeric(pData[_year]) ? parseFloat(pData[_year]) : null);
+                        console.log('pdata',pData.community, pData[_year]);
+                        if (pData[_year] === '//') {
+                            console.log('data suppressed');
+                            year_data.push('Data suppressed');
+                        } else {
+                            year_data.push($.isNumeric(pData[_year]) ? parseFloat(pData[_year]) : null);
+                        }
                         if (_year.match('-')) {
                             year_data_moe.push([parseFloat(pData[_year]) - parseFloat(pData[_year + '_MOE']), parseFloat(pData[_year]) + parseFloat(pData[_year + '_MOE'])]);
                         } else {
@@ -2907,7 +2949,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 this._tickLabels[counter] = Year;
                 this._tickArray.push(counter);
                 this._tickLabelsTime[counterTime] = labelEveryThirdYear ? (labelYearCounter === 3 || counter === 0 ? Year : ' ') : (labelEveryYear ? Year : (labelYear ? Year : ' '));
-                if (Year.match('-')) {
+                if (Year.match('-') && !this.isSchool) {
                     this.hasMOEs = true;
                 }
 
@@ -2995,6 +3037,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     getMinData(isMap: boolean, chartType?: boolean) {
         var min: any;
         var notLogrithmic = false;
+        var hasNegativevalues = false;
         console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
         let chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
         //need to combine data with moes to get proper min/ max
@@ -3015,12 +3058,13 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 } else {
                     min = min > PlaceMin ? PlaceMin : min;
                 }
+                hasNegativevalues = min < 0 ? true : hasNegativevalues;
             }
         });
         console.log('mindata', min, notLogrithmic, notLogrithmic ? 0 : min < 10 ? 0 : min );
         console.log('mindata2', this.getMaxData(true) / min);
-        return notLogrithmic ? 0
-            : this.getMaxData(true)/min < 400
+        return notLogrithmic && !hasNegativevalues ? 0
+            : this.getMaxData(true)/min < 400 && !hasNegativevalues
                 ? 0
                 : min;
     }
@@ -3114,10 +3158,14 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     //addCommas(Math.round(parseFloat(val) * 10) / 10)
                     break;
                 case '$0':
-                    returnVal = '$' + this.formatAbvNumbers(val, isLegend, 0);
+                    returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())));
+                    //returnVal = '$' + this.formatAbvNumbers(val, isLegend, 0);
                     break;
                 case '$Thousand':
                     returnVal = '$' + this.formatAbvNumbers((val * 1000), isLegend, 2);
+                    break;
+                case '$Millions':
+                    returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())) + 'mil');
                     break;
                 case '$Bill2009':
                     returnVal = '$' + Math.round(parseFloat(val) * 100) / 100 + 'bn';
@@ -3236,7 +3284,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnInit() {
-        console.log('Leave this so it does not squawk on build', this.defaultAdvChartOptions);
+        //console.log('Leave this so it does not squawk on build', this.defaultAdvChartOptions);
+        this.defaultAdvChartOptions = this.defaultAdvChartOptions;
         //this.defaultChartOptions.title = {
         //    text: this.indicator ? this.indicator : null,
         //    align: this.viewType === 'basic' ? 'left' : null
@@ -3269,7 +3318,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnChanges(changes: any) {
-        console.log('datatile changed', changes);
+        //console.log('datatile changed', changes);
         if (changes._selectedYear && this.tileType === 'graph' && this.chart) {
             this.chart.xAxis[0].removePlotLine('plot-line-1');
             this.chart.xAxis[0].addPlotLine({

@@ -20,6 +20,7 @@ var ExploreComponent = (function () {
         this._selectedPlacesService = _selectedPlacesService;
         this._router = _router;
         this.urlCollection = 'Show All';
+        this.urlFilter = '';
         this.allTopics = [];
         this.indicatorDetailView = false;
         this.showTopicsExpanded = false;
@@ -35,12 +36,41 @@ var ExploreComponent = (function () {
         this.selectedIndicators = decodeURI(curr.getParam('indicators'));
         this.selectedPlaces = decodeURI(curr.getParam('places'));
         this.urlCollection = decodeURI(curr.getParam('collection'));
+        this.urlFilter = decodeURI(curr.getParam('filter'));
         this.showTopicsExpanded = curr.getParam('show') === 'Topics';
         this.showPlacesExpanded = curr.getParam('show') === 'Places';
         console.log('routercheck', this.showTopicsExpanded, this.showPlacesExpanded);
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
     };
     ExploreComponent.prototype.onHideAll = function (evt) {
+        console.log('onhideall', evt);
+        if (evt.filter !== undefined) {
+            console.log('shark');
+            var newState = '';
+            if (evt.filter === '') {
+                var baseUrl = [location.protocol, '//', location.host, location.pathname.split(';')[0]].join('');
+                var urlQueryString = location.pathname.replace(location.pathname.split(';')[0], '').replace('/Explore', '');
+                console.log('onhideallqs', urlQueryString);
+                var splitQS = urlQueryString.split(';');
+                urlQueryString = '';
+                splitQS.forEach(function (qs, index) {
+                    urlQueryString += qs.indexOf('filter=') === -1 ? (index !== 0 ? ';' : '') + qs : '';
+                });
+                newState = baseUrl + urlQueryString;
+                newState = '<%= ENV %>' !== 'prod' ? newState.replace(new RegExp('\\.', 'g'), '%2E') : newState;
+            }
+            else {
+                var qsParams = [];
+                var filterParam = { key: 'filter', value: evt.filter };
+                qsParams.push(filterParam);
+                newState = this.updateQueryStringParam(qsParams);
+            }
+            console.log('pushing state for filter', newState);
+            window.history.pushState({}, '', newState);
+            if ('<%= ENV %>' === 'prod') {
+                ga('send', 'pageview', window.location.href);
+            }
+        }
         this.hideAll = evt;
     };
     ExploreComponent.prototype.onSelectedSearchResult = function (results) {
@@ -178,12 +208,21 @@ var ExploreComponent = (function () {
     };
     ;
     ExploreComponent.prototype.onBlurExplorePage = function (evt) {
-        console.log('blurevt', $(evt.target).closest('.multiselect').length, $(evt.target).closest('.globalselect').length);
-        if (!$(evt.target).closest('.globalselect').length) {
-            this.topicsComp.chkBoxVisibile = false;
+        try {
+            if (!$(evt.target).closest('.data-control-bar').length) {
+                this.dataComp.shareLinkComp.showShare = false;
+            }
+            if (!$(evt.target).closest('.dataset-filter').length) {
+                document.getElementById('filteredIndicator').value = '';
+                this.topicsComp.showFilterIndicator = false;
+            }
+            if (!$(evt.target).closest('.multiselect').length) {
+                this.dataComp.indTopListComps.toArray().forEach(function (child) { return child.chkBoxVisibile = false; });
+            }
         }
-        if (!$(evt.target).closest('.multiselect').length) {
-            this.dataComp.indTopListComps.toArray().forEach(function (child) { return child.chkBoxVisibile = false; });
+        catch (ex) {
+            evt.preventDefault();
+            console.log('failed to check/hide list boxes');
         }
     };
     ExploreComponent.prototype.ngOnInit = function () {
@@ -208,6 +247,10 @@ var ExploreComponent = (function () {
         core_1.ViewChild(topics_select_component_1.TopicsComponent), 
         __metadata('design:type', topics_select_component_1.TopicsComponent)
     ], ExploreComponent.prototype, "topicsComp", void 0);
+    __decorate([
+        core_1.ViewChild(indicator_detail_component_1.DetailComponent), 
+        __metadata('design:type', indicator_detail_component_1.DetailComponent)
+    ], ExploreComponent.prototype, "detailComp", void 0);
     ExploreComponent = __decorate([
         core_1.Component({
             moduleId: module.id,
