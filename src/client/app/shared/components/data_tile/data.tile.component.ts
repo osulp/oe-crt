@@ -18,6 +18,20 @@ Highcharts.setOptions({
         '#f15c80', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1']
 });
 
+// Make monochrome colors and set them as default for all pies
+//Highcharts.getOptions().plotOptions.pie.colors = (function () {
+//    var colors:any[] = [],
+//        base = Highcharts.getOptions().colors[0],
+//        i:number;
+
+//    for (i = 10; i > 0; i -= 1) {
+//        // Start out with a darkened base color (negative brighten), and end
+//        // up with a much brighter color
+//        colors.push(Highcharts.Color(base).brighten((i - 3) / 7).get());
+//    }
+//    return colors;
+//} ());
+
 //// Radialize the colors
 //Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color:any) {
 //    return {
@@ -423,7 +437,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         });
                         try {
                             this.chart.legend.update(this.setLegendOptions(false));
-                        } catch (ex) { }
+                        } catch (ex) {
+                            console.log('failed', ex);
+                        }
                     } else {
                         this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
                             data => {
@@ -482,11 +498,10 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     let place = points[p];
                     let binPlace: any;
                     var isInBin = false;
-                    console.log('here are the places from map click', chartScope.places);
                     for (var b = 0; b < chartScope.places.length; b++) {
                         console.log('map point', points[p]);
                         console.log('place bin', chartScope.places[b]);
-                        if (this.isSchool) {
+                        if (chartScope.isSchool) {
                             if (chartScope.places[b].GeoInfo) {
                                 chartScope.places[b].GeoInfo.forEach((gi: any) => {
                                     isInBin = gi.School_District.indexOf(points[p].community) !== -1 ? true : isInBin;
@@ -503,12 +518,14 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         }
                     }
                     if (!isInBin) {
+                        console.log('is not in bin!', points[p]);
                         pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map', GeoInfo:[] });
                     }
                     //pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map', Combined: false });
                 }
                 pointsAsPlacesForBin = pointsAsPlacesForBin.filter((place: any, index: number, self: any) => self.findIndex((t: any) => { return t.ResID === place.ResID && t.Name === place.Name; }) === index);
                 console.log('adding from map', chartScope.tileType, pointsAsPlacesForBin, chartScope.selectedPlaceType);
+                console.log('here are the places from map click', chartScope.places, points);
                 chartScope._selectedPlacesService.setAllbyPlaceType(pointsAsPlacesForBin, chartScope.selectedPlaceType, chartScope.indicator_geo);
             }
         });
@@ -1105,15 +1122,17 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             let numMOEValue = isACS ? placeData[0][year.Year + '_MOE_N'] : null;
                             let denomMOEValue = isACS ? placeData[0][year.Year + '_MOE_D'] : null;
 
-                            //console.log('place comb data', placeData);
-                            //console.log('num value', numValue);
-                            //console.log('denom value', denomValue);
-                            combinedNumerators = numValue !== '' && numValue !== null ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
+                            console.log('place comb data', placeData);
+                            console.log('num value', numValue);
+                            console.log('denom value', denomValue);
+                            combinedNumerators = (numValue !== '' && numValue !== null) ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
                             combinedDenoms = denomValue !== '' && denomValue !== null ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
                             if (isACS) {
                                 combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
                                 combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
                             }
+                            console.log('combinedNumerators', combinedNumerators, numValue);
+
                         } else {
                             notCombined = true;
                         }
@@ -1122,7 +1141,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         //console.log('combined num values', combinedNumerators);
                         //console.log('combined denom values', combinedDenoms);
                         combinedDenoms = combinedDenoms === 0 || combinedDenoms === null ? 1 : combinedDenoms;
-                        combinedGroupData[year.Year] = combinedNumerators / combinedDenoms * multiplyBy;
+                        combinedGroupData[year.Year] = combinedNumerators !== 0 ? combinedNumerators / combinedDenoms * multiplyBy : null;
                         if (isACS) {
                             let displayMOE: any;
                             if (combinedDenomMOEs !== 0) {
@@ -1216,11 +1235,12 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     //this.checkDataStateForCharts();
                     this.initMapChart();
                     console.log('shamrock');
-                    if (!this.isSliderInit && this._tickArray.length > 1)  {
+                    if (!this.isSliderInit && this._tickArray.length > 1) {
+                        this.showSlider = true;
                         this.setupTimeSlider();
                         this.isSliderInit = true;
                     } else {
-                        this.showSlider = false;
+                        this.showSlider = this._tickArray.length > 1;
                     }
                 }
             } catch (ex) {
@@ -1706,7 +1726,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     });
                     try {
                         this.chart.legend.update(this.setLegendOptions(true));
-                    } catch (ex) { }
+                    } catch (ex) {
+                        console.log('failed', ex);
+                    }
 
                     this.chart.tooltip.options.shared = false;
                     this.chart.tooltip.options.useHTML = true;
@@ -2046,7 +2068,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     break;
                 case 'ClientContacts211Info':
                 case 'SocialServiceProviders211Info':
+                case 'PovertyByRace':
                     //categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories;
+                    console.log('setting up chart for poverty', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data, this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories);
                     let _211InfoChartOptions = {
                         chart: {
 
@@ -2070,7 +2094,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             text: this.viewType === 'advanced' ? this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear : this.selectedCustomChartYear
                         },
                         tooltip: {
-                            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                            pointFormat: this.indicator_info.ScriptName === 'PovertyByRace' ? '<b>{point.name}</b>: {point.y:.1f}%' : '{series.name}: <b>{point.percentage:.1f}%</b>'
                         },
                         plotOptions: {
                             pie: {
@@ -2078,7 +2102,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 cursor: 'pointer',
                                 dataLabels: {
                                     enabled: this.viewType === 'advanced' && !this.isHandheld ? true : false,
-                                    format: '<b>{point.name}</b><br>{point.percentage:.1f} %',
+                                    format: this.indicator_info.ScriptName === 'PovertyByRace' ? '<b>{point.name}</b><br> {point.y:.1f}%' :'<b>{point.name}</b><br>{point.percentage:.1f} %',
                                     style: {
                                         color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'gray',
                                         fontSize: this.viewType === 'advanced' ? '1em' : '.7em',
@@ -2308,15 +2332,18 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     let newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
                     $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
 
-                    if (resizeScope.chart.legend) {
-                        //console.log('foster', resizeScope.indicator, resizeScope.tileType, resizeScope.chart.legend.display);
-                        if (resizeScope.chart.legend) {
-                            //console.log('foster2', resizeScope.indicator, resizeScope.tileType, resizeScope.setLegendOptions(true));
-                            try {
-                                resizeScope.chart.legend.update(resizeScope.setLegendOptions());
-                            } catch (ex) { }
-                        }
-                    }
+                    //if (resizeScope.chart.legend) {
+                    //    //console.log('foster', resizeScope.indicator, resizeScope.tileType, resizeScope.chart.legend.display);
+                    //    if (resizeScope.chart.legend) {
+                    //        //console.log('foster2', resizeScope.indicator, resizeScope.tileType, resizeScope.setLegendOptions(true));
+                    //        try {
+                    //            //resizeScope.chart.legend.update(resizeScope.setLegendOptions());
+                    //        } catch (ex) {
+                    //            console.log('failed', ex);
+                    //            clearInterval(runInterval);
+                    //        }
+                    //    }
+                    //}
 
                     clearInterval(runInterval);
                 }
@@ -2721,6 +2748,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             case 'IncomeHistogram':
             case 'ClientContacts211Info':
             case 'SocialServiceProviders211Info':
+            case 'PovertyByRace':
                 this.places.forEach((place: any, pidx: number) => {
                     let placeData = this.placeTypeData.Data
                         .filter((data: any) => {
@@ -2754,10 +2782,10 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 data_moe: []
                             };
                             placeData.forEach((pdm: any) => {
-                                if (this.indicator_info.ScriptName.indexOf('211') !== -1) {
+                                if (this.indicator_info.ScriptName.indexOf('211') !== -1 || this.indicator_info.ScriptName === 'PovertyByRace') {
                                     yearData.data.push({
-                                        name: pdm.Variable.replace(' Client Contacts', '').replace(' Providers', ''),
-                                        y: parseInt(pdm[year])
+                                        name: pdm.Variable.replace(' Client Contacts', '').replace(' Providers', '').replace('Percentage of population group in poverty: ', ''),
+                                        y: $.isNumeric(parseInt(pdm[year])) ? parseInt(pdm[year]) : null
                                     });
                                 } else {
                                     yearData.data.push(parseInt(pdm[year]));
@@ -2766,7 +2794,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                     }
                                 }
                                 if (idx === 1) {
-                                    categories.push(pdm['Variable']);
+                                    categories.push(pdm['Variable'].replace('Percentage of population group in poverty: ',''));
                                 }
                             });
                             placeDataYears[year] = yearData;
@@ -2774,6 +2802,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     } else {
                         console.log('no data for income or 211 chart');
                     }
+                    console.log('process custom chart poverty', categories);
                     place_data_years[place.Name] = {
                         id: place.Name,
                         name: place.Name,
@@ -2782,6 +2811,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         years: this._tickLabelsTime,
                         categories: categories
                     };
+                    console.log('process custom chart poverty', place_data_years[place.Name]);
                     this.selectedCustomChartYear = dataYears[dataYears.length - 1];
                     this.customChartYears = dataYears;
                 });

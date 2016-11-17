@@ -104,20 +104,35 @@ export class ShareLinkComponent {
         str += Metadata[0].Description_v4 !== null ? Metadata[0].Description_v4.replace(/\<br\/>/g, '') + '\r\n' : '';
         str += Metadata[0].Formula !== null ? Metadata[0].Formula : '';
         str += '\r\r\n';
+
+        console.log('data to convert to csv', reportYears,years);
         if (data.length > 0) {
             data.some((row: any) => {
+                console.log('data row', row,Object.keys(row));
                 columns = Object.keys(row)
                     .sort(this.sortAlphaNumeric)
                     .filter((colsA: any) => {
                         if (reportYears.length > 0) {
-                            return reportYears.indexOf(colsA.replace('_MOE', '')) !== -1 || colsToKeep.indexOf(colsA) !== -1;
+                            return reportYears.indexOf(colsA
+                                .replace('_MOE', '')
+                                .replace('_D', '')
+                                .replace('_N', '')
+                                .replace('_MOE_D', '')
+                                .replace('_MOE_N', '')
+                            ) !== -1 || colsToKeep.indexOf(colsA) !== -1;
                         } else {
                             return true;
                         }
                     })
                     .filter((colsB: any) => {
                         if (years.length > 0) {
-                            return years.indexOf(colsB.replace('_MOE', '')) !== -1 || colsToKeep.indexOf(colsB) !== -1;
+                            return years.indexOf(colsB
+                                .replace('_MOE', '')
+                                .replace('_D', '')
+                                .replace('_N', '')
+                                .replace('_MOE_D', '')
+                                .replace('_MOE_N', '')
+                            ) !== -1 || colsToKeep.indexOf(colsB) !== -1;
                         } else {
                             return true;
                         }
@@ -135,14 +150,17 @@ export class ShareLinkComponent {
                 line = '';
                 columns.forEach((key: any) => {
                     line += line !== '' ? ',' : '';
-                    let val = row[key];
-                    if (val !== null) {
-                        if (val.match(/^[-+]?[1-9]\.[0-9]+e[-]?[1-9][0-9]*$/)) {
-                            let precision = this.getPrecision(val);
-                            val = parseFloat((+val).toFixed(precision));
+                    console.log('row key', row, key);
+                    if (row[key]) {
+                        let val = row[key].toString();
+                        if (val !== null) {
+                            if (val.match(/^[-+]?[1-9]\.[0-9]+e[-]?[1-9][0-9]*$/)) {
+                                let precision = this.getPrecision(val);
+                                val = parseFloat((+val).toFixed(precision));
+                            }
                         }
+                        line += val === null ? '' : val.indexOf(',') !== -1 ? '\"' + val + '\"' : val;
                     }
-                    line += val === null ? '' : val.indexOf(',') !== -1 ? '\"' + val + '\"' : val;
                 });
                 str += line + '\r\n';
             });

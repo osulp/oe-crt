@@ -39,7 +39,7 @@ var ExploreComponent = (function () {
         this.urlFilter = decodeURI(curr.getParam('filter'));
         this.showTopicsExpanded = curr.getParam('show') === 'Topics';
         this.showPlacesExpanded = curr.getParam('show') === 'Places';
-        console.log('routercheck', this.showTopicsExpanded, this.showPlacesExpanded);
+        console.log('routercheck', this.showTopicsExpanded, this.selectedTopics);
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
     };
     ExploreComponent.prototype.onHideAll = function (evt) {

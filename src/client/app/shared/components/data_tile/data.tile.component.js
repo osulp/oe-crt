@@ -314,7 +314,9 @@ var DataTileComponent = (function () {
                     try {
                         _this.chart.legend.update(_this.setLegendOptions(false));
                     }
-                    catch (ex) { }
+                    catch (ex) {
+                        console.log('failed', ex);
+                    }
                 }
                 else {
                     _this.subscription = _this._selectedPlacesService.selectionChanged$.subscribe(function (data) {
@@ -349,11 +351,10 @@ var DataTileComponent = (function () {
                     var place = points[p];
                     var binPlace = void 0;
                     var isInBin = false;
-                    console.log('here are the places from map click', chartScope.places);
                     for (var b = 0; b < chartScope.places.length; b++) {
                         console.log('map point', points[p]);
                         console.log('place bin', chartScope.places[b]);
-                        if (this.isSchool) {
+                        if (chartScope.isSchool) {
                             if (chartScope.places[b].GeoInfo) {
                                 chartScope.places[b].GeoInfo.forEach(function (gi) {
                                     isInBin = gi.School_District.indexOf(points[p].community) !== -1 ? true : isInBin;
@@ -370,11 +371,13 @@ var DataTileComponent = (function () {
                         }
                     }
                     if (!isInBin) {
+                        console.log('is not in bin!', points[p]);
                         pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map', GeoInfo: [] });
                     }
                 }
                 pointsAsPlacesForBin = pointsAsPlacesForBin.filter(function (place, index, self) { return self.findIndex(function (t) { return t.ResID === place.ResID && t.Name === place.Name; }) === index; });
                 console.log('adding from map', chartScope.tileType, pointsAsPlacesForBin, chartScope.selectedPlaceType);
+                console.log('here are the places from map click', chartScope.places, points);
                 chartScope._selectedPlacesService.setAllbyPlaceType(pointsAsPlacesForBin, chartScope.selectedPlaceType, chartScope.indicator_geo);
             }
         });
@@ -841,12 +844,16 @@ var DataTileComponent = (function () {
                             var denomValue = placeData[0][year.Year + '_D'];
                             var numMOEValue = isACS ? placeData[0][year.Year + '_MOE_N'] : null;
                             var denomMOEValue = isACS ? placeData[0][year.Year + '_MOE_D'] : null;
-                            combinedNumerators = numValue !== '' && numValue !== null ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
+                            console.log('place comb data', placeData);
+                            console.log('num value', numValue);
+                            console.log('denom value', denomValue);
+                            combinedNumerators = (numValue !== '' && numValue !== null) ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
                             combinedDenoms = denomValue !== '' && denomValue !== null ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
                             if (isACS) {
                                 combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
                                 combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
                             }
+                            console.log('combinedNumerators', combinedNumerators, numValue);
                         }
                         else {
                             notCombined = true;
@@ -854,7 +861,7 @@ var DataTileComponent = (function () {
                     }
                     if (!notCombined) {
                         combinedDenoms = combinedDenoms === 0 || combinedDenoms === null ? 1 : combinedDenoms;
-                        combinedGroupData[year.Year] = combinedNumerators / combinedDenoms * multiplyBy;
+                        combinedGroupData[year.Year] = combinedNumerators !== 0 ? combinedNumerators / combinedDenoms * multiplyBy : null;
                         if (isACS) {
                             var displayMOE = void 0;
                             if (combinedDenomMOEs !== 0) {
@@ -925,11 +932,12 @@ var DataTileComponent = (function () {
                     this.initMapChart();
                     console.log('shamrock');
                     if (!this.isSliderInit && this._tickArray.length > 1) {
+                        this.showSlider = true;
                         this.setupTimeSlider();
                         this.isSliderInit = true;
                     }
                     else {
-                        this.showSlider = false;
+                        this.showSlider = this._tickArray.length > 1;
                     }
                 }
             }
@@ -1312,7 +1320,9 @@ var DataTileComponent = (function () {
                     try {
                         this.chart.legend.update(this.setLegendOptions(true));
                     }
-                    catch (ex) { }
+                    catch (ex) {
+                        console.log('failed', ex);
+                    }
                     this.chart.tooltip.options.shared = false;
                     this.chart.tooltip.options.useHTML = true;
                     this.chart.tooltip.options.formatter = function () {
@@ -1603,6 +1613,8 @@ var DataTileComponent = (function () {
                     break;
                 case 'ClientContacts211Info':
                 case 'SocialServiceProviders211Info':
+                case 'PovertyByRace':
+                    console.log('setting up chart for poverty', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data, this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories);
                     var _211InfoChartOptions = {
                         chart: {
                             renderTo: 'highchart' + this.indicator,
@@ -1625,7 +1637,7 @@ var DataTileComponent = (function () {
                             text: this.viewType === 'advanced' ? this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear : this.selectedCustomChartYear
                         },
                         tooltip: {
-                            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                            pointFormat: this.indicator_info.ScriptName === 'PovertyByRace' ? '<b>{point.name}</b>: {point.y:.1f}%' : '{series.name}: <b>{point.percentage:.1f}%</b>'
                         },
                         plotOptions: {
                             pie: {
@@ -1633,7 +1645,7 @@ var DataTileComponent = (function () {
                                 cursor: 'pointer',
                                 dataLabels: {
                                     enabled: this.viewType === 'advanced' && !this.isHandheld ? true : false,
-                                    format: '<b>{point.name}</b><br>{point.percentage:.1f} %',
+                                    format: this.indicator_info.ScriptName === 'PovertyByRace' ? '<b>{point.name}</b><br> {point.y:.1f}%' : '<b>{point.name}</b><br>{point.percentage:.1f} %',
                                     style: {
                                         color: (angular2_highcharts_1.Highcharts.theme && angular2_highcharts_1.Highcharts.theme.contrastTextColor) || 'gray',
                                         fontSize: this.viewType === 'advanced' ? '1em' : '.7em',
@@ -1816,14 +1828,6 @@ var DataTileComponent = (function () {
                 function runCheck() {
                     var newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
                     $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
-                    if (resizeScope.chart.legend) {
-                        if (resizeScope.chart.legend) {
-                            try {
-                                resizeScope.chart.legend.update(resizeScope.setLegendOptions());
-                            }
-                            catch (ex) { }
-                        }
-                    }
                     clearInterval(runInterval);
                 }
             }
@@ -2099,6 +2103,7 @@ var DataTileComponent = (function () {
             case 'IncomeHistogram':
             case 'ClientContacts211Info':
             case 'SocialServiceProviders211Info':
+            case 'PovertyByRace':
                 this.places.forEach(function (place, pidx) {
                     var placeData = _this.placeTypeData.Data
                         .filter(function (data) {
@@ -2130,10 +2135,10 @@ var DataTileComponent = (function () {
                                 data_moe: []
                             };
                             placeData.forEach(function (pdm) {
-                                if (_this.indicator_info.ScriptName.indexOf('211') !== -1) {
+                                if (_this.indicator_info.ScriptName.indexOf('211') !== -1 || _this.indicator_info.ScriptName === 'PovertyByRace') {
                                     yearData.data.push({
-                                        name: pdm.Variable.replace(' Client Contacts', '').replace(' Providers', ''),
-                                        y: parseInt(pdm[year])
+                                        name: pdm.Variable.replace(' Client Contacts', '').replace(' Providers', '').replace('Percentage of population group in poverty: ', ''),
+                                        y: $.isNumeric(parseInt(pdm[year])) ? parseInt(pdm[year]) : null
                                     });
                                 }
                                 else {
@@ -2143,7 +2148,7 @@ var DataTileComponent = (function () {
                                     }
                                 }
                                 if (idx === 1) {
-                                    categories.push(pdm['Variable']);
+                                    categories.push(pdm['Variable'].replace('Percentage of population group in poverty: ', ''));
                                 }
                             });
                             placeDataYears[year] = yearData;
@@ -2152,6 +2157,7 @@ var DataTileComponent = (function () {
                     else {
                         console.log('no data for income or 211 chart');
                     }
+                    console.log('process custom chart poverty', categories);
                     place_data_years[place.Name] = {
                         id: place.Name,
                         name: place.Name,
@@ -2160,6 +2166,7 @@ var DataTileComponent = (function () {
                         years: _this._tickLabelsTime,
                         categories: categories
                     };
+                    console.log('process custom chart poverty', place_data_years[place.Name]);
                     _this.selectedCustomChartYear = dataYears[dataYears.length - 1];
                     _this.customChartYears = dataYears;
                 });

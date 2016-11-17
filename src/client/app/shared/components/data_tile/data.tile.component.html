@@ -1,11 +1,6 @@
 <div id="data-tile-wrapper" (window:resize)="onResize($event)" class="row" [ngClass]="{'advanced':viewType === 'advanced','mapChart':tileType === 'map','featured':featured}">
     <div class="col-xs-12" id="chart-div" [ngClass]="tileType === 'map' ? 'mapChartDiv' : 'graphChartDiv'">
-        <div class="row">
-            <!--<div *ngIf="(isTOP || is10yr) && tileType === 'graph'" class="collection-icon-wrapper">
-            <span *ngIf="isTOP" class="collectionIcon">
-                <img src="assets/img/top_icon.svg" alt="Tracking Oregon's Progress Indicator" title="This indicator is part of the Tracking Oregon's Progress Collection" />
-            </span>
-        </div>-->
+        <div class="row">           
             <div *ngIf="tileType === 'graph'" class="col-xs-12 graph-chart-wrapper">
                 <div *ngIf="tileType === 'graph'" class="collection-icon-wrapper">
                     <span *ngFor="let collection of indicator_collections" class="collectionIcon">
@@ -29,8 +24,7 @@
                 <div id="map-view-wrapper">
                     <hmap-menu [(mapView)]="selectedPlaceType" [showMenuLeft]="showMenuLeft" (selMapView)="onSelectedMapViewChange($event)"></hmap-menu>
                 </div>
-                <div id="map-controls">
-                    <!--<span>Zoom:</span>-->
+                <div id="map-controls">                    
                     <span (click)="mapChart.mapZoom(20);" class="glyphicon glyphicon-home full-zoom"></span><span (click)="mapChart.mapZoom(20);" class="full-zoom">Full Extent</span>
                     <span *ngIf="selectedMapPoints.length > 0" class="selectedMapDrpDwn">
                         Selected:

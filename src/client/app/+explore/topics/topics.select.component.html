@@ -1,78 +1,3 @@
-<!--<div id="topics-row-wrapper">
-    <div class="row">
-        <div class="col-xs-12">
-            <div class="find_header row row-centered">
-                <div class="col-xs-12 col-centered" (click)="toggleTopicsWrapper()">
-                    <header class="">
-                        <div class="title"><h2 class="h2-light compact">Topic Selection</h2></div>
-                        <div class="toggle-topics">
-                            <div [ngClass]="getClass()" aria-hidden="true"></div>
-                        </div>
-                    </header>
-                </div>
-            </div>
-            <div id="topics-wrapper" class="row">
-                <div *ngIf="expanded.toString() === 'true'">
-                    <div id="topic-col-list">
-                        <div id="all-topics" [ngClass]="showAllSelected ? 'selected' : ''" (click)="toggleAllTopics($event)">All Topics</div>
-                        <div (click)="toggleTopic(topic)"
-                             [ngClass]="topic.selected ? 'selected' : ''"
-                             *ngFor="let topic of Topics | SortAlphaTopicPipe:collections">
-                            {{topic.topic}}
-                        </div>
-                    </div>
-                    <div>
-                        <div class="globalselect row">
-                            <div class="col-lg-3 col-md-3 col-xs-12">
-                                <div class="selectBox" (click)="chkBoxVisibile = !chkBoxVisibile;">
-                                    <div [ngClass]="chkBoxVisibile ? 'open' : ''" class="topic-header-indicator-filter">
-                                        <p>Show/Hide Indicators</p>
-                                    </div>
-                                </div>
-                                <div [hidden]="!chkBoxVisibile">
-                                    <div class="show-hide-all">
-                                        <span><input #filterIndicator id="filterIndicator" type="text" placeholder="Find indicators"/></span>
-                                        <span class="hide-show" (click)="showHideAll('show')">Show all</span>
-                                        <span class="hide-show" (click)="showHideAll('hide')">Hide all</span>
-                                    </div>
-                                    <div id="checkboxes">
-                                        <label *ngFor="let indicator of Indicators | indicatorTopicFilterPipe : Topics:collections : filterIndicator.value; let i = index" attr.for={{i}}><input type="checkbox" [checked]="indicator.selected" id="{{i}}" (click)="toggleIndicator(indicator,null,true)" />{{indicator.indicator_display}}</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="collection-filter" class="col-lg-9 col-md-9 col-xs-12">
-                                <div class="row">
-                                    <div class="col-lg-2 col-md-3 col-xs-12 collection-filter-label">
-                                        <span>Filter by Collection:</span>
-                                    </div>
-                                    <div class="col-lg-10 col-md-9 col-xs-12">
-                                        <span *ngFor="let collection of collections; let i = index" class="col-lg-4 col-md-6 col-xs-12">
-                                            <label attr.for={{i}} (click)="toggleCollection(collection);">
-                                                <input name="collections" type="radio" [checked]="collection.selected" id="{{i}}" />
-                                                <img width="20px" *ngIf="collection.icon_path" [src]="collection.icon_path" /> {{collection.collection === 'Show All' ? 'No filter' : collection.collection}}
-                                            </label>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div id="selectedTopicsIndicators" *ngIf="expanded.toString() === 'false'">
-                    <div *ngIf="showIndicatorCount">
-                        <div *ngIf="showAllSelected" (click)="expanded = true">
-                            <span>All Topics</span><div class="indicatorCount"><span>{{Indicators | SelectedIndicatorByTopicsCountPipe: 'all':collections}}</span></div>
-                        </div>
-                        <div *ngIf="!showAllSelected">
-                            <div *ngFor="let topic of Topics | SelectedTopicsPipe:collections" title="Open data selection window to refine selected statistics." (click)="expanded = true"><span>{{topic.topic}}</span><div class="indicatorCount" title="Total number of selected data indicators.">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic:collections}}</div><span class="closeButton" title="Remove this topic selection.  If only topic selected, removing will select all topics."><img src="assets/img/closeX.png"  (click)="toggleTopic(topic)" /></span></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>-->
 <div id="topics-row-wrapper">
     <div class="row">
         <div class="col-xs-12">
@@ -88,9 +13,6 @@
             </div>
             <div id="topics-wrapper" class="row">
                 <div *ngIf="expanded.toString() === 'true'" class="col-lg-12 col-md-12 col-xs-12">
-                    <!--<fieldset>
-                        <legend>Filter by:</legend>-->
-
                     <div class="col-lg-12 col-md-12 col-xs-12">
                         <fieldset>
                             <legend>Topics</legend>
@@ -129,7 +51,7 @@
                                 <div class="col-xs-12">
                                     <div>
                                         <span class="fa fa-search"></span>
-                                        <span><input #filterIndicator id="filteredIndicator" (keypress)="onIndicatorFilterKeyPress($event,filterIndicator)" (click)="toggleFilterIndicator(filterIndicator)" type="text" placeholder="Select indicators" /></span>
+                                        <span><input #filterIndicator id="filteredIndicator" (keypress)="onIndicatorFilterKeyPress($event,filterIndicator)" (click)="toggleFilterIndicator(filterIndicator)" type="text" [placeholder]="isMobile ? 'Select Indicators' : 'Select indicators- (hit enter or Select all to apply)'" /></span>
                                         <span id="toggle-indicator-filter" class="glyphicon" [ngClass]="showFilterIndicator ? 'glyphicon-menu-up' : 'glyphicon-menu-down'" (click)="toggleFilterIndicator(filterIndicator)">
                                         </span>
                                     </div>
@@ -139,13 +61,6 @@
                                                 <span class="hide-show col-md-2 col-xs-6" (click)="showHideAll('hide',filterIndicator.value, filterIndicator)">De-select all</span>
                                                 <span class="hide-show col-md-2 col-xs-4" (click)="showHideAll('show',filterIndicator.value, filterIndicator)">Select all</span>
                                                 <span class="hide-show col-md-1 col-xs-2 fa" [ngClass]="indicatorSortAlpha ? 'fa-sort-alpha-asc' :'fa-sort-alpha-desc'" (click)="indicatorSortAlpha = !indicatorSortAlpha"></span>
-                                                <!--<span class="hide-show col-lg-7 col-md-7 col-xs-12" *ngIf="filterIndicator.value !== ''" (click)="showHideAll('visible',filterIndicator)">Select filtered results</span>-->
-                                                <!--
-                                                <span class="hide-show" (click)="showHideAll('hide')">De-select all</span>
-                                                <span class="hide-show" (click)="showHideAll('show')">Select all</span>
-                                                <span class="hide-show fa" [ngClass]="indicatorSortAlpha ? 'fa-sort-alpha-asc' :'fa-sort-alpha-desc'" (click)="indicatorSortAlpha = !indicatorSortAlpha"></span>
-                                                <span class="hide-show" *ngIf="filterIndicator.value !== ''" (click)="showHideAll('visible',filterIndicator)">Select filtered results</span>
-                                                    -->
                                             </div>
                                         </div>
                                         <div id="indicator-list" class="container">
@@ -171,7 +86,7 @@
                         <div *ngIf="filterVal !== ''" (click)="filterVal = '';showHideAll('show','', filterIndicator,true);">
                             <span>Indicators filtered to match: <b>{{filterVal}}</b></span>
                             <span class="closeButton" title="Remove this indicator filter.">
-                                <img src="assets/img/closeX.png"/>
+                                <img src="assets/img/closeX.png" />
                             </span>
                         </div>
                         <div>

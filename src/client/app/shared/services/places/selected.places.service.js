@@ -203,10 +203,13 @@ var SelectedPlacesService = (function () {
                 function runCheck() {
                     console.log('processing queue run check', runScope.processingQueue, runScope.intervalCount);
                     runScope.intervalCount++;
-                    if (runScope.intervalCount >= 6) {
+                    if (runScope.intervalCount >= 12) {
+                        runScope.processingQueue.shift();
+                        runScope.processing = false;
                         clearInterval(runInterval);
                     }
                     if (!runScope.processing && runScope.processingQueue.length > 0) {
+                        console.log('processing interval not processing moving on to next in queue', runScope.intervalCount);
                         clearInterval(runInterval);
                         runScope.intervalCount = 0;
                         runScope.processing = true;
@@ -215,8 +218,8 @@ var SelectedPlacesService = (function () {
                             runScope.subScribeToGetAddionalPlaceInfo(runScope.processingQueue[0].places, runScope.processingQueue[0].placeType);
                         }
                         else {
-                            this.processingQueue.shift();
-                            this.processing = false;
+                            runScope.processingQueue.shift();
+                            runScope.processing = false;
                         }
                     }
                 }
@@ -230,6 +233,7 @@ var SelectedPlacesService = (function () {
     SelectedPlacesService.prototype.subScribeToGetAddionalPlaceInfo = function (places, translatedPlaceType, indicatorGeo) {
         var _this = this;
         this.getAdditionalPlaceInfo(places).subscribe(function (pinfo) {
+            console.log('jumping jack3', _this.processingQueue);
             _this.processingQueue.shift();
             console.log('jumping jack5', _this.processingQueue);
             places.forEach(function (place) {
@@ -250,8 +254,8 @@ var SelectedPlacesService = (function () {
                     place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
                 }
             });
-            _this._setAllByPlaceType.next([places, translatedPlaceType]);
             _this.processing = false;
+            _this._setAllByPlaceType.next([places, translatedPlaceType]);
         });
     };
     SelectedPlacesService.prototype.updatePlaceGroupNames = function (places, groupName, add) {

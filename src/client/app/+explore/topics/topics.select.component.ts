@@ -61,6 +61,7 @@ export class TopicsComponent implements OnInit, OnChanges {
     showFilterIndicator: boolean = false;
     indicatorSortAlpha: boolean = true;
     isLoading: boolean = true;
+    isMobile: boolean = $(window).width() < 767;
     //private subscription: Subscription;
 
     constructor(
@@ -101,6 +102,7 @@ export class TopicsComponent implements OnInit, OnChanges {
 
     onIndicatorFilterKeyPress(event: any,filterIndicator:any) {
         var code = event.keyCode || event.which;
+        //this.showHideAll('show', filterIndicator.value, filterIndicator, false);
         if (code === 13) {
             //select visible and close
             this.showHideAll('show', filterIndicator.value, filterIndicator, true);
@@ -169,7 +171,6 @@ export class TopicsComponent implements OnInit, OnChanges {
                 //console.log('input topics = ', this._inputTopics);
                 //console.log('all topics', this.Topics);
                 this.getIndicators();
-                this.initialLoad = false;
                 let inScope = this;
                 window.setTimeout(function () {
                     inScope.isLoading = false;
@@ -204,6 +205,8 @@ export class TopicsComponent implements OnInit, OnChanges {
                 return;
             }
             this.selectedTopicsFromComp.emit(this._selectedTopics);
+        } else {
+            this.initialLoad = false;
         }
         //sync indicator selections
         this.Indicators.forEach((indicator: Indicator) => {
@@ -343,6 +346,7 @@ export class TopicsComponent implements OnInit, OnChanges {
         this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
         this.filterVal = this.inputFilter !== 'undefined' ? this.inputFilter : '';
         this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['All Topics'] : this._inputTopics;
+        console.log('router topic select', this._inputTopics, this._selectedTopics);
         this._inputIndicators = this.inputIndicators.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(';');
         this._selectedIndicators = this._inputIndicators;
         this.getTopics();

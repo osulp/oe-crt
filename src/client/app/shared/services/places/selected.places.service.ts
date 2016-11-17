@@ -237,11 +237,13 @@ export class SelectedPlacesService {
                 function runCheck() {
                     console.log('processing queue run check', runScope.processingQueue, runScope.intervalCount);
                     runScope.intervalCount++;
-                    if (runScope.intervalCount >= 6) {
+                    if (runScope.intervalCount >= 12) {
+                        runScope.processingQueue.shift();
+                        runScope.processing = false;
                         clearInterval(runInterval);
                     }
                     if (!runScope.processing && runScope.processingQueue.length > 0) {
-                        //console.log('processing interval not processing moving on to next in queue', runScope.intervalCount);
+                        console.log('processing interval not processing moving on to next in queue', runScope.intervalCount);
                         clearInterval(runInterval);
                         runScope.intervalCount = 0;
                         runScope.processing = true;
@@ -249,8 +251,8 @@ export class SelectedPlacesService {
                         if (runScope.processingQueue[0].placeType !== 'SchoolDistricts') {
                             runScope.subScribeToGetAddionalPlaceInfo(runScope.processingQueue[0].places, runScope.processingQueue[0].placeType);
                         } else {
-                            this.processingQueue.shift();
-                            this.processing = false;
+                            runScope.processingQueue.shift();
+                            runScope.processing = false;
                         }
                     }
                 }
@@ -263,7 +265,7 @@ export class SelectedPlacesService {
 
     subScribeToGetAddionalPlaceInfo(places: any,translatedPlaceType:any,indicatorGeo?:any) {
         this.getAdditionalPlaceInfo(places).subscribe((pinfo: any[]) => {
-            //console.log('jumping jack3', this.processingQueue);
+            console.log('jumping jack3', this.processingQueue);
             this.processingQueue.shift();
             console.log('jumping jack5', this.processingQueue);
             places.forEach((place: any) => {
@@ -285,8 +287,8 @@ export class SelectedPlacesService {
                 //console.log('jumping ben', place);
             });
             //console.log('jumping jack4', places);
-            this._setAllByPlaceType.next([places, translatedPlaceType]);
             this.processing = false;
+            this._setAllByPlaceType.next([places, translatedPlaceType]);
         });
     }
 

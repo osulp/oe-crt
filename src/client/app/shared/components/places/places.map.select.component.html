@@ -3,10 +3,7 @@
         <div class="row row-map">
             <div class="col-xs-12">
                 <div id="viewDiv" [ngClass]="setClasses('Map')">
-                    <leaflet-map [visible]="isVisible" [refresh]="refreshMap" [selectedPlaces]="selectedSearchResults" (onPlaceSelected)="onPlaceSelectedMap($event)" [viewType]="viewType"></leaflet-map>
-                    <!--<esri-map [options]="mapOptions" (mapLoaded)="onMapLoad($event)">
-                        <esri-search [options]="searchOptions"></esri-search>
-                    </esri-map>-->
+                    <leaflet-map [visible]="isVisible" [refresh]="refreshMap" [selectedPlaces]="selectedSearchResults" (onPlaceSelected)="onPlaceSelectedMap($event)" [viewType]="viewType"></leaflet-map>                    
                 </div>
             </div>
         </div>
@@ -31,9 +28,6 @@
                         <div *ngIf="searchTerms" class="list-group">
                             <a *ngFor="let result of searchResults | async" href="javascript:void(0);" class="list-group-item" [attr.data-search-item]="result | json" (keydown)="inputKeypressHandler($event, result)" (click)="clickedSearchResult($event, result)" [ngClass]="result.hovered ? 'tabHover' : ''">
                                 <div class="search-result-wrapper">
-                                    <!--<div class="isPlace search-result-type">
-                                        {{result.Type}}
-                                    </div>-->
                                     <div class="search-result-content">
                                         <div class="search-result-name">
                                             <span>{{result.Name}}</span>

@@ -36,6 +36,7 @@ var TopicsComponent = (function () {
         this.showFilterIndicator = false;
         this.indicatorSortAlpha = true;
         this.isLoading = true;
+        this.isMobile = $(window).width() < 767;
         this.visible = true;
         this.showAllSelected = false;
         this.chkBoxVisibile = false;
@@ -108,7 +109,6 @@ var TopicsComponent = (function () {
             _this.Topics = data;
             _this.allTopicsFromComp.emit(_this.Topics);
             _this.getIndicators();
-            _this.initialLoad = false;
             var inScope = _this;
             window.setTimeout(function () {
                 inScope.isLoading = false;
@@ -138,6 +138,9 @@ var TopicsComponent = (function () {
                 return;
             }
             this.selectedTopicsFromComp.emit(this._selectedTopics);
+        }
+        else {
+            this.initialLoad = false;
         }
         this.Indicators.forEach(function (indicator) {
             indicator.topics.split(', ').forEach(function (topic) {
@@ -261,6 +264,7 @@ var TopicsComponent = (function () {
         this._inputTopics = this.inputTopics.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(',');
         this.filterVal = this.inputFilter !== 'undefined' ? this.inputFilter : '';
         this._selectedTopics = this._inputTopics.length === 1 && (this._inputTopics[0] === '' || this.inputTopics[0] === 'All Topics') ? ['All Topics'] : this._inputTopics;
+        console.log('router topic select', this._inputTopics, this._selectedTopics);
         this._inputIndicators = this.inputIndicators.replace(/\%20/g, ' ').replace(/\%26/g, '&').split(';');
         this._selectedIndicators = this._inputIndicators;
         this.getTopics();
