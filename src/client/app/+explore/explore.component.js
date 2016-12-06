@@ -132,10 +132,18 @@ var ExploreComponent = (function () {
         this.allIndicators = results;
     };
     ExploreComponent.prototype.onGetSelectedCollectionsFromComp = function (results) {
+        console.log('selected collection changed explore', results);
         this.selectedCollection = results;
         this.dataComp.collections = results;
-        this.dataComp.selectedCollection = results.filter(function (coll) { return coll.selected; })[0].collection;
+        var selColl = results.filter(function (coll) { return coll.selected; })[0].collection;
+        this.dataComp.selectedCollection = selColl;
         this.dataComp.indTopListComps.toArray().forEach(function (child) { return child.selCollections = results; });
+        var qsParams = [];
+        var collectionParam = { key: 'collection', value: selColl.replace(/\ /g, '%20').replace(/\'/g, '%27') };
+        qsParams.push(collectionParam);
+        var newState = this.updateQueryStringParam(qsParams);
+        console.log('new state!', newState);
+        window.history.replaceState({}, '', newState);
     };
     ExploreComponent.prototype.onPopState = function (evt) {
         console.log('popping state', evt);

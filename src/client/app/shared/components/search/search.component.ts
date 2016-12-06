@@ -35,6 +35,7 @@ export class SearchComponent implements OnInit {
     items: Observable<any[]>;
     tempTabIndex: number = -1;
     isMobile: boolean = false;
+    explorePushed: boolean = false;
 
     constructor(
         private _searchService: SearchTopicsPlacesService,
@@ -70,6 +71,16 @@ export class SearchComponent implements OnInit {
         this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
         this.searchTerms = '';
     }
+
+    searchByText(event: any) {
+        this.explorePushed = true;
+        if (this.searchTerms !== '') {
+            this._router.navigate(['Explore', { filter: this.searchTerms }]);
+        } else {
+            this._router.navigate(['Explore']);
+        }
+    }
+
     inputKeypressHandler(event: any) {
         var code = event.keyCode || event.which;
         if (code === 13) {
@@ -122,42 +133,44 @@ export class SearchComponent implements OnInit {
     blurHandler(event: any) {
         var searchScope = this;
         //console.log('blur', event);
-        setTimeout(function () {
-            //if tabbing on list result set input box to match the Name property, but don't clear.
-            if (document.activeElement.classList.toString() === 'list-group-item') {
-                var attr: any = 'data-search-item';
-                var listItem: any = JSON.parse(document.activeElement.attributes[attr].value);
-                var selected: SearchResult = {
-                    Name: listItem.Name.replace(/\,/g, '%2C').replace(/\./g, '%2E'),
-                    ResID: listItem.ResID,
-                    Type: listItem.Type,
-                    TypeCategory: listItem.TypeCategory,
-                    Desc: listItem.Desc
-                };
-                searchScope.selectedSearchResult = selected;
-                //if the Explore button then select the top result and go else put focus on the input
-            } else if (document.activeElement.id === 'explore-btn') {
-                //get tempResult values
-                if (searchScope.tempResults.length > 0) {
-                    var firstItem: any = searchScope.tempResults[searchScope.tempTabIndex];
+        if (!this.explorePushed) {
+            setTimeout(function () {
+                //if tabbing on list result set input box to match the Name property, but don't clear.
+                if (document.activeElement.classList.toString() === 'list-group-item') {
+                    var attr: any = 'data-search-item';
+                    var listItem: any = JSON.parse(document.activeElement.attributes[attr].value);
                     var selected: SearchResult = {
-                        Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
-                        ResID: firstItem['ResID'],
-                        Type: firstItem['Type'],
-                        TypeCategory: firstItem['TypeCategory'],
-                        Desc: firstItem['Desc']
+                        Name: listItem.Name.replace(/\,/g, '%2C').replace(/\./g, '%2E'),
+                        ResID: listItem.ResID,
+                        Type: listItem.Type,
+                        TypeCategory: listItem.TypeCategory,
+                        Desc: listItem.Desc
                     };
                     searchScope.selectedSearchResult = selected;
-                    searchScope.selectResult(selected);
-                    alert(firstItem['Name']);
+                    //if the Explore button then select the top result and go else put focus on the input
+                } else if (document.activeElement.id === 'explore-btn') {
+                    //get tempResult values
+                    if (searchScope.tempResults.length > 0) {
+                        var firstItem: any = searchScope.tempResults[searchScope.tempTabIndex];
+                        var selected: SearchResult = {
+                            Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
+                            ResID: firstItem['ResID'],
+                            Type: firstItem['Type'],
+                            TypeCategory: firstItem['TypeCategory'],
+                            Desc: firstItem['Desc']
+                        };
+                        searchScope.selectedSearchResult = selected;
+                        searchScope.selectResult(selected);
+                        alert(firstItem['Name']);
+                    } else {
+                        alert('Please select a valid search term.');
+                    }
                 } else {
-                    alert('Please select a valid search term.');
+                    searchScope.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
+                    searchScope.searchTerms = '';
                 }
-            } else {
-                searchScope.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
-                searchScope.searchTerms = '';
-            }
-        }, 1);
+            }, 1);
+        }
         //event.preventDefault();
     }
 

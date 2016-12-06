@@ -2,8 +2,8 @@
     <div class="col-md-12">
         <div class="search">
             <span class="fa fa-search"></span>
-            <input [(ngModel)]="searchTerms" #searchInput type="text" [(ngFormControl)]="term" [placeholder]="isMobile ? 'Select and explore' : 'Type in location or indicator'" (click)="inputSearchClickHandler($event);" (blur)="blurHandler($event);" (keydown)="inputKeypressHandler($event);" />
-            <div id="explore-btn">
+            <input [(ngModel)]="searchTerms" #searchInput type="text" [(ngFormControl)]="term" [placeholder]="isMobile ? 'Select and explore' : 'Search by location or indicator name'" (click)="inputSearchClickHandler($event);" (blur)="blurHandler($event);" (keydown)="inputKeypressHandler($event);" />
+            <div id="explore-btn" (mousedown)="searchByText($event)">
                 Explore
             </div>
             <div *ngIf="searchTerms" class="list-group">

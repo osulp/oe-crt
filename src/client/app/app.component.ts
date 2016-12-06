@@ -4,7 +4,7 @@ import { ROUTER_DIRECTIVES, Routes, Router} from '@angular/router';
 //import { RouteConfig, ROUTER_DIRECTIVES, Router } from '@angular/router-deprecated';
 import { HTTP_PROVIDERS} from '@angular/http';
 import { AboutComponent } from './+about/index';
-import { CollectionsComponent } from './+collections/index';
+import { CollectionsComponent,TopCollectionComponent } from './+collections/index';
 import { ExploreComponent } from './+explore/explore.component';
 import { HomeComponent } from './+home/home.component';
 //import { MyPinsComponent } from './+mypins/index';
@@ -51,6 +51,10 @@ declare var ga: Function;
     {
         path: '/Error',
         component: ErrorComponent
+    },
+    {
+        path: '/TopIndicators',
+        component: TopCollectionComponent
     }
 ])
 //@RouteConfig([

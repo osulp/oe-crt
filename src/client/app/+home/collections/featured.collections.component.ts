@@ -5,6 +5,8 @@ import {Observable}       from 'rxjs/Observable';
 import {CollectionsService} from '../../shared/services/collections/collections.service';
 import 'rxjs/add/operator/map';
 
+declare var $: any;
+
 @Component({
     moduleId: module.id,
     selector: 'featured-collections',
@@ -18,6 +20,7 @@ import 'rxjs/add/operator/map';
 
 export class FeaturedCollectionsComponent implements OnInit {
     items: Observable<string[]>;
+    isMobile: boolean = $(window).width() < 768;
 
     constructor(private _collectionsService: CollectionsService) { }
 

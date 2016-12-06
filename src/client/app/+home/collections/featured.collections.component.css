@@ -19,12 +19,12 @@
 }
 
 .featured-collection img{
-    width:100%;
+    /*width:100%;*/
     max-width:375px;
 }
 
 #find-collections-wrapper {
-    margin: 63px auto;
+    margin: 35px auto -45px auto;
     max-width: 1170px;
     padding-top: 15px;
     border-top: solid 1px #D1CDC7;
@@ -36,11 +36,34 @@
     /*border:solid red;*/
 }
 
+.goto-collection a {
+    padding:5px 0;
+    border-top: 1px solid #d1cdc7;
+    border-bottom: 1px solid #d1cdc7;
+
+}
+
+.collection-downloads{
+    padding:15px;
+    font-size:.8em;
+}
+
+.collection-downloads a{
+    font-size:1em !important;
+}
+.collection-downloads b{
+    padding-left:5px;
+}
+
+.collection-downloads .download-link{
+    color:#6F7C82;
+}
+
 .feat-col-desc {
     font-size: 14px;
     color: #6F7C82;
     line-height: 26px;
-    min-height: 100px;
+    min-height: 60px;
     margin-top: 30px;
 }
 
@@ -77,7 +100,11 @@
 
 @media (max-width:720px) {
     #find-collections-wrapper {
-        /*padding: 30px;*/
+        margin:65px auto;
+    }
+
+    .featured-collection img {
+        width:100%;
     }
 
     .featured-collection {

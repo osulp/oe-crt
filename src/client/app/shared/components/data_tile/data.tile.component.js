@@ -388,8 +388,24 @@ var DataTileComponent = (function () {
         this.places = selectedPlaces;
         this.placeNames = '';
         var checkDataState = false;
+        var showLoading = false;
+        var needUpdate = false;
+        this.places.forEach(function (p) {
+            console.log('need update', p, needUpdate);
+            needUpdate = p.UpdateOnly !== undefined ? p.UpdateOnly === false : needUpdate;
+        });
+        if (needUpdate && (this.isSchool || this.isCountyLevel)) {
+            checkDataState = false;
+            showLoading = true;
+        }
+        else {
+            checkDataState = (!needUpdate && (this.isSchool || this.isCountyLevel)) ?
+                true :
+                !needUpdate;
+        }
+        console.log('need update?', needUpdate);
         if (this.tempPlaces.length !== this.places.length) {
-            checkDataState = true;
+            console.log('temp place not the same as place length, adding ...', checkDataState);
             for (var x = 0; x < this.places.length; x++) {
                 if (this.tempPlaces.indexOf(this.places[x]) === -1 && this.getGeoIndicator(this.places[x])) {
                     this.selectedPlaceType = this.isCountyLevel ? 'Counties' : this.translatePlaceTypes(this.places[x].TypeCategory);
@@ -402,33 +418,37 @@ var DataTileComponent = (function () {
             }
         }
         else {
+            console.log('LUCKY');
             var hasSamePlaces = true;
             this.places.forEach(function (place) {
-                var tPlace = _this.tempPlaces.filter(function (tp) { return tp.Name === place.Name; });
+                var tPlace = _this.tempPlaces.filter(function (tp) { return tp.Name.trim() === place.Name.trim(); });
                 console.log('place length the same', tPlace);
                 if (tPlace.length === 0 || place.Combined) {
                     hasSamePlaces = false;
                 }
-                checkDataState = !hasSamePlaces;
             });
         }
+        console.log('prague', checkDataState, this.selectedPlaceType, this.getGeoIndicator(this.selectedPlaceType));
         if (checkDataState) {
             if (this.getGeoIndicator({ TypeCategory: this.selectedPlaceType })) {
                 console.log('thinks it needs to update');
                 this.checkDataStateForCharts();
-                if (this.tileType === 'graph') {
-                    if (this.chart) {
-                        this.chart.showLoading();
-                    }
+                showLoading = true;
+            }
+        }
+        if (showLoading) {
+            if (this.tileType === 'graph') {
+                if (this.chart) {
+                    this.chart.showLoading();
                 }
-                else {
-                    if (this.mapChart) {
-                        this.mapChart.showLoading();
-                    }
+            }
+            else {
+                if (this.mapChart) {
+                    this.mapChart.showLoading();
                 }
             }
         }
-        this.tempPlaces = this.places;
+        this.tempPlaces = selectedPlaces;
     };
     DataTileComponent.prototype.checkDataStateForCharts = function (source) {
         var _this = this;
@@ -658,7 +678,7 @@ var DataTileComponent = (function () {
         var counties = '';
         var cts = '';
         this.places.forEach(function (place, idx) {
-            console.log('ginfo1', place);
+            console.log('ginfo1', _this.places[idx].GeoInfo);
             geoids += place.ResID + (idx !== _this.places.length - 1 ? ',' : '');
             geonames += place.Name + (idx !== _this.places.length - 1 ? ',' : '');
             if (place.TypeCategory === 'SchoolDistricts') {
@@ -666,8 +686,22 @@ var DataTileComponent = (function () {
             }
             else {
                 place.GeoInfo.forEach(function (ginfo, gidx) {
-                    schooldistricts += (schooldistricts.indexOf(ginfo.School_District) === -1 && ginfo.School_District !== null ? ginfo.School_District : '') + (idx !== _this.places.length - 1 && gidx !== place.GeoInfo.length - 1 ? ',' : '');
-                    cts += (['Tracts', 'Census Tracts', 'Unincorporated Place'].indexOf(place.TypeCategory) !== -1 ? (ginfo.geoid + (gidx !== place.GeoInfo.length - 1 ? ',' : '')) : '');
+                    console.log('ginfo2', ginfo);
+                    schooldistricts += (schooldistricts.indexOf(ginfo.School_District) === -1 && ginfo.School_District !== null ?
+                        ginfo.School_District :
+                        '') + (idx !== _this.places.length - 1 || (idx === _this.places.length && gidx !== place.GeoInfo.length - 1) ?
+                        ',' :
+                        '');
+                    cts += (['Tracts', 'Census Tracts', 'Unincorporated Place'].indexOf(place.TypeCategory) !== -1 ?
+                        (ginfo.geoid +
+                            (idx !== _this.places.length - 1 || (idx === _this.places.length && gidx !== place.GeoInfo.length - 1) ?
+                                ',' :
+                                '')) :
+                        '');
+                    counties += _this.isCountyLevel ? ginfo.county_geoid + (idx !== _this.places.length - 1 || (idx === _this.places.length && gidx !== place.GeoInfo.length - 1) ?
+                        ',' :
+                        '') : '';
+                    geoids += _this.isCountyLevel ? ((geoids.lastIndexOf(',') !== geoids.length - 1 ? ',' : '') + (ginfo.county_geoid + ',')) : '';
                 });
             }
             counties += (place.TypeCategory === 'Counties' ? place.Name.replace(' County', '') + (idx !== _this.places.length - 1 ? ',' : '') : '');
@@ -677,6 +711,7 @@ var DataTileComponent = (function () {
             }
         });
         counties = counties.replace(/(^,)|(,$)/g, '');
+        console.log('cough', schooldistricts);
         schooldistricts = schooldistricts.replace(/(^,)|(,$)/g, '');
         geoids = this.places.length === 0 ? '41' : geoids;
         geonames = this.places.length === 0 ? 'Oregon' : geonames;
@@ -1890,7 +1925,7 @@ var DataTileComponent = (function () {
             if (this.isSchool) {
                 if (this.places[p].GeoInfo.length > 0) {
                     this.places[p].GeoInfo.forEach(function (gi) {
-                        isSelected = gi.School_District.indexOf(place.Name) !== -1 ? true : isSelected;
+                        isSelected = gi.School_District !== null ? gi.School_District.indexOf(place.Name) !== -1 ? true : isSelected : false;
                     });
                 }
                 else {
@@ -1935,7 +1970,14 @@ var DataTileComponent = (function () {
             }
             else if (place.TypeCategory === 'Unincorporated Place' && (pData.geoid.split(',').indexOf(place.ResID) !== -1 || place.Desc.replace(' County', '').indexOf(pData.community) !== -1)) {
                 if (_this.isCountyLevel) {
-                    returnName = returnName === '' ? (place.Desc.split(', ').length > 1 ? place.Desc.split(', ')[1].split('~')[0] : place.Desc) + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
+                    console.log('getcommunityname', place);
+                    returnName = returnName === '' ?
+                        place.GeoInfo.length > 0 ?
+                            (place.GeoInfo[0].County + ' County<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>') :
+                            (place.Desc.split(', ').length > 1 ?
+                                place.Desc.split(', ')[1].split('~')[0] :
+                                place.Desc) + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' :
+                        returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
                 }
                 else {
                     returnName = returnName === '' ? place.Desc.split('~')[0] + (place.ResID.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
@@ -2223,7 +2265,6 @@ var DataTileComponent = (function () {
                             year_data.push(null);
                             year_data_moe.push(null);
                         }
-                        console.log('pdata', pData.community, pData[_year]);
                         if (pData[_year] === '//') {
                             console.log('data suppressed');
                             year_data.push('Data suppressed');

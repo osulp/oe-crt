@@ -536,10 +536,29 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         this.places = selectedPlaces;
         this.placeNames = '';
         let checkDataState: boolean = false;
+        let showLoading: boolean = false;
+
+        let needUpdate: boolean = false;
+        this.places.forEach((p: any) => {
+            console.log('need update', p, needUpdate);
+            needUpdate = p.UpdateOnly !== undefined ? p.UpdateOnly === false : needUpdate;
+        });
+
+        if (needUpdate && (this.isSchool || this.isCountyLevel)) {
+            checkDataState = false;
+            showLoading = true;
+        } else {
+            checkDataState = (!needUpdate && (this.isSchool || this.isCountyLevel)) ?
+                true :
+                !needUpdate;
+        }
+        console.log('need update?', needUpdate);
         //check if repeated event with same places
         if (this.tempPlaces.length !== this.places.length) {
-            checkDataState = true;
-            //console.log('temp place not the same as place length, adding ...');
+            //check for update flags if for school since it needs the geoinfo to run
+
+
+            console.log('temp place not the same as place length, adding ...', checkDataState);
             for (var x = 0; x < this.places.length; x++) {
                 //console.log('place: ', this.places[x]);
                 //set selected place type based on new addition place type
@@ -558,11 +577,12 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             }
 
         } else {
+            console.log('LUCKY');
             //check if just updated geoinfo but same places
             let hasSamePlaces = true;
             this.places.forEach((place: any) => {
                // let tPlace = this.tempPlaces.filter((tp: any) => tp.Name === place.Name && tp.GroupName === place.GroupName);
-                let tPlace = this.tempPlaces.filter((tp: any) => tp.Name === place.Name);
+                let tPlace = this.tempPlaces.filter((tp: any) => tp.Name.trim() === place.Name.trim());
                 console.log('place length the same', tPlace);
                 //also check if combined
 
@@ -570,26 +590,31 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     hasSamePlaces = false;
                     //return;
                 }
-                checkDataState = !hasSamePlaces;
+                //checkDataState = !hasSamePlaces;
             });
         }
-        //console.log('prague', checkDataState, this.selectedPlaceType, this.getGeoIndicator(this.selectedPlaceType));
+
+        console.log('prague', checkDataState, this.selectedPlaceType, this.getGeoIndicator(this.selectedPlaceType));
         if (checkDataState) {
             if (this.getGeoIndicator({ TypeCategory: this.selectedPlaceType })) {
                 console.log('thinks it needs to update');
                 this.checkDataStateForCharts();
-                if (this.tileType === 'graph') {
-                    if (this.chart) {
-                        this.chart.showLoading();
-                    }
-                } else {
-                    if (this.mapChart) {
-                        this.mapChart.showLoading();
-                    }
+                showLoading = true;
+            }
+        }
+        if (showLoading) {
+            if (this.tileType === 'graph') {
+                if (this.chart) {
+                    this.chart.showLoading();
+                }
+            } else {
+                if (this.mapChart) {
+                    this.mapChart.showLoading();
                 }
             }
         }
-        this.tempPlaces = this.places;
+
+        this.tempPlaces = selectedPlaces;// this.places;
      }
 
     checkDataStateForCharts(source?: any) {
@@ -894,16 +919,30 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         //let selectedPlaces = this.places;
 
         this.places.forEach((place: any, idx: number) => {
-            console.log('ginfo1', place);
+            console.log('ginfo1', this.places[idx].GeoInfo);
             geoids += place.ResID + (idx !== this.places.length - 1 ? ',' : '');
             geonames += place.Name + (idx !== this.places.length - 1 ? ',' : '');
             if (place.TypeCategory === 'SchoolDistricts') {
                 schooldistricts += place.Name + (idx !== this.places.length - 1 ? ',' : '');
             } else {
                 place.GeoInfo.forEach((ginfo: any, gidx: number) => {
-                    //console.log('ginfo', ginfo);
-                    schooldistricts += (schooldistricts.indexOf(ginfo.School_District) === -1 && ginfo.School_District !== null ? ginfo.School_District : '') + (idx !== this.places.length - 1 && gidx !== place.GeoInfo.length - 1 ? ',' : '');
-                    cts += (['Tracts', 'Census Tracts', 'Unincorporated Place'].indexOf(place.TypeCategory) !== - 1 ? (ginfo.geoid + (gidx !== place.GeoInfo.length - 1 ? ',' : '')) : '');
+                    console.log('ginfo2', ginfo);
+                    schooldistricts += (schooldistricts.indexOf(ginfo.School_District) === -1 && ginfo.School_District !== null ?
+                        ginfo.School_District :
+                        '') + (idx !== this.places.length - 1 || (idx === this.places.length && gidx !== place.GeoInfo.length - 1) ?
+                            ',' :
+                            '');
+                    cts += (['Tracts', 'Census Tracts', 'Unincorporated Place'].indexOf(place.TypeCategory) !== - 1 ?
+                        (ginfo.geoid +
+                            //(gidx !== place.GeoInfo.length - 1 && idx <= this.places.length ?
+                            (idx !== this.places.length - 1 || (idx === this.places.length && gidx !== place.GeoInfo.length - 1) ?
+                            ',' :
+                            '')) :
+                        '');
+                    counties += this.isCountyLevel ? ginfo.county_geoid + (idx !== this.places.length - 1 || (idx === this.places.length && gidx !== place.GeoInfo.length - 1) ?
+                        ',' :
+                        '') : '';
+                    geoids += this.isCountyLevel ? ((geoids.lastIndexOf(',') !== geoids.length -1 ? ',' : '') + (ginfo.county_geoid + ',')) : '';
                 });
             }
             counties += (place.TypeCategory === 'Counties' ? place.Name.replace(' County', '') + (idx !== this.places.length - 1 ? ',' : '') : '');
@@ -914,6 +953,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         });
 
         counties = counties.replace(/(^,)|(,$)/g, '');
+        console.log('cough', schooldistricts);
         schooldistricts = schooldistricts.replace(/(^,)|(,$)/g, '');
 
         geoids = this.places.length === 0 ? '41' : geoids;
@@ -2521,7 +2561,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 //console.log('checkselectedplaceforhighmap', this.places[p], place);
                 if (this.places[p].GeoInfo.length > 0) {
                     this.places[p].GeoInfo.forEach((gi: any) => {
-                        isSelected = gi.School_District.indexOf(place.Name) !== -1 ? true : isSelected;
+                        isSelected = gi.School_District !== null ? gi.School_District.indexOf(place.Name) !== -1 ? true : isSelected : false;
                     });
                 } else {
                     isSelected = this.places[p].Name === place.Name ? true : isSelected;
@@ -2570,7 +2610,14 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             } else if (place.TypeCategory === 'Unincorporated Place' && (pData.geoid.split(',').indexOf(place.ResID) !== -1 || place.Desc.replace(' County', '').indexOf(pData.community) !== -1)) {
                 //returnName = returnName === '' ? pData.community + (pData.geoid.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
                 if (this.isCountyLevel) {
-                    returnName = returnName === '' ? (place.Desc.split(', ').length > 1 ? place.Desc.split(', ')[1].split('~')[0] : place.Desc) + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
+                    console.log('getcommunityname', place);
+                    returnName = returnName === '' ?
+                        place.GeoInfo.length > 0 ?
+                            (place.GeoInfo[0].County + ' County<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>') :
+                            (place.Desc.split(', ').length > 1 ?
+                            place.Desc.split(', ')[1].split('~')[0] :
+                                place.Desc) + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' :
+                        returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
                 } else {
                     returnName = returnName === '' ? place.Desc.split('~')[0] + (place.ResID.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
                 }
@@ -2878,7 +2925,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         //check to see if data for end offset
                         //this.yearEndOffset = $.isNumeric(pData[_year]) ? 0 : this.yearEndOffset + 1;
                         //year_data.push(this.formatData(pData[_year]));
-                        console.log('pdata',pData.community, pData[_year]);
+                        //console.log('pdata',pData.community, pData[_year]);
                         if (pData[_year] === '//') {
                             console.log('data suppressed');
                             year_data.push('Data suppressed');

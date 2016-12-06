@@ -1,9 +1,9 @@
 #featured-data-wrapper {
-    margin: 63px auto;
+    margin: 63px auto -45px auto;
     max-width: 1170px;
     padding-top: 15px;
     border-top: solid 1px #D1CDC7;
-}
+    }
 
 #featured-data {
     margin-left:-15px;

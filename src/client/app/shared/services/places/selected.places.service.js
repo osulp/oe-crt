@@ -37,9 +37,16 @@ var SelectedPlacesService = (function () {
             _this.selectionChanged$.next(data);
         });
         this.addPlace
-            .map(function (place) {
+            .map(function (args) {
             return function (state) {
-                return state.concat(place);
+                var updateExisiting = args[1];
+                console.log('usgs', updateExisiting, args, state);
+                if (updateExisiting && state.length !== 0) {
+                    state.map(function (place) {
+                        return place.ResID === args[0].ResID ? args[0] : place;
+                    });
+                }
+                return updateExisiting ? state : state.concat(args[0]);
             };
         })
             .subscribe(this.updates);
@@ -121,33 +128,50 @@ var SelectedPlacesService = (function () {
     SelectedPlacesService.prototype.load = function () {
     };
     SelectedPlacesService.prototype.add = function (place, source) {
-        this.getAdditionalPlaceInfo([place]).subscribe(function (pinfo) {
-            var geoInfo = pinfo.filter(function (pi) {
-                return pi.length > 0 ?
-                    pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim()
-                        : false
-                    : false;
-            });
-            place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
-            place.UpdateOnly = true;
-        });
-        place.UpdateOnly = false;
-        this.addPlace.next(place);
-    };
-    SelectedPlacesService.prototype.addPlaces = function (places) {
         var _this = this;
-        console.log('adding multiple places to selectedPlaces', places);
-        this.getAdditionalPlaceInfo(places).subscribe(function (pinfo) {
-            places.forEach(function (place) {
+        console.log('adding place to selectedPlaces', place);
+        if (place.TypeCategory !== 'State') {
+            this.getAdditionalPlaceInfo([place]).subscribe(function (pinfo) {
                 var geoInfo = pinfo.filter(function (pi) {
                     return pi.length > 0 ?
-                        pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim()
+                        pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() || pi[0].geoid === place.ResID
                             : false
                         : false;
                 });
                 place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+                place.UpdateOnly = true;
+                _this.addPlace.next([place, true]);
             });
-            _this.addPlace.next(places);
+            place.UpdateOnly = false;
+        }
+        else {
+            place.UpdateOnly = true;
+            place.GeoInfo = [];
+        }
+        this.addPlace.next([place, false]);
+    };
+    SelectedPlacesService.prototype.addPlaces = function (places) {
+        var _this = this;
+        console.log('adding multiple places to selectedPlaces', places);
+        places = places.map(function (p) {
+            p.UpdateOnly = p.TypeCategory === 'State';
+            p.GeoInfo = [];
+            return p;
+        });
+        this.getAdditionalPlaceInfo(places).subscribe(function (pinfo) {
+            console.log('jumping frank', pinfo);
+            places.forEach(function (place) {
+                var geoInfo = pinfo.filter(function (pi) {
+                    console.log('jumping susan', pi, place);
+                    return pi.length > 0 ?
+                        pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() || pi[0].geoid === place.ResID
+                            : false
+                        : false;
+                });
+                place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+                place.UpdateOnly = true;
+            });
+            _this.addPlace.next([places, false]);
         });
     };
     SelectedPlacesService.prototype.getAdditionalPlaceInfo = function (place) {
@@ -184,6 +208,9 @@ var SelectedPlacesService = (function () {
         var translatedPlaceType = this.translatePlaceTypes(placeType);
         console.log('processing queue', this.processingQueue, places);
         if (places.length > 0) {
+            places.forEach(function (p) {
+                p.UpdateOnly = false;
+            });
             this.processingQueue.push({ places: places, placeType: translatedPlaceType });
             if (!this.processing) {
                 this.processing = true;
@@ -235,13 +262,15 @@ var SelectedPlacesService = (function () {
         this.getAdditionalPlaceInfo(places).subscribe(function (pinfo) {
             console.log('jumping jack3', _this.processingQueue);
             _this.processingQueue.shift();
-            console.log('jumping jack5', _this.processingQueue);
+            console.log('jumping jack5', places);
             places.forEach(function (place) {
                 if (place.GeoInfo.length === 0) {
                     var geoInfo = pinfo.filter(function (pi) {
+                        console.log('jumping susan', pi, place);
                         if (pi.length > 0) {
                             if (pi[0].community) {
-                                return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                                return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() || pi[0].geoid === place.ResID
+                                    : false;
                             }
                             else {
                                 return false;
@@ -252,6 +281,7 @@ var SelectedPlacesService = (function () {
                         }
                     });
                     place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+                    place.UpdateOnly = true;
                 }
             });
             _this.processing = false;

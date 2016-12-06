@@ -8,5 +8,6 @@
     GroupName?: string;
     Combined?: boolean;
     GeoInfo?: any[];
+    UpdateOnly?: boolean;
 }
 

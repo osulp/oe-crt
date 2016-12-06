@@ -62,6 +62,10 @@ var AppComponent = (function () {
             {
                 path: '/Error',
                 component: index_4.ErrorComponent
+            },
+            {
+                path: '/TopIndicators',
+                component: index_2.TopCollectionComponent
             }
         ]), 
         __metadata('design:paramtypes', [router_1.Router])

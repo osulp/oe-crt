@@ -174,10 +174,18 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     }
 
     onGetSelectedCollectionsFromComp(results: any) {
+        console.log('selected collection changed explore', results);
         this.selectedCollection = results;
         this.dataComp.collections = results;
-        this.dataComp.selectedCollection = results.filter((coll: any) => coll.selected)[0].collection;
+        let selColl = results.filter((coll: any) => coll.selected)[0].collection;
+        this.dataComp.selectedCollection = selColl;
         this.dataComp.indTopListComps.toArray().forEach((child: any) => child.selCollections = results);
+        var qsParams: QueryStringParams[] = [];
+        var collectionParam: QueryStringParams = { key: 'collection', value: selColl.replace(/\ /g, '%20').replace(/\'/g, '%27') };
+        qsParams.push(collectionParam);
+        var newState = this.updateQueryStringParam(qsParams);
+        console.log('new state!', newState);
+        window.history.replaceState({}, '', newState);
     }
 
     onPopState(evt: any) {

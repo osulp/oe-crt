@@ -63,8 +63,9 @@
     text-align:left;
     margin-left:17.5%;
     z-index:1001;
-    /*max-height:400px;
-    overflow:scroll;*/
+    max-height:350px;
+    overflow:scroll;
+    overflow-x:hidden;
 }
 .search-result-wrapper{
     position:relative;

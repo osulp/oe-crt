@@ -66,6 +66,9 @@ var TopicsComponent = (function () {
             this.showHideAll('show', filterIndicator.value, filterIndicator, true);
         }
     };
+    TopicsComponent.prototype.clearSelectedCollection = function () {
+        this.toggleCollection({ collection: 'Show All' });
+    };
     TopicsComponent.prototype.selectAllTopics = function () {
         var _this = this;
         console.log('show all selected');
@@ -125,23 +128,18 @@ var TopicsComponent = (function () {
         this.Topics = this.Topics.slice(0, idx).concat([
             topic
         ], this.Topics.slice(idx + 1));
-        if (!this.initialLoad) {
-            this._selectedTopics = [];
-            for (var x = 0; x < this.Topics.length; x++) {
-                if (this.Topics[x].selected) {
-                    this._selectedTopics.push(this.Topics[x].topic);
-                }
+        this._selectedTopics = [];
+        for (var x = 0; x < this.Topics.length; x++) {
+            if (this.Topics[x].selected) {
+                this._selectedTopics.push(this.Topics[x].topic);
             }
-            if (this._selectedTopics.length === 0) {
-                this.showAllSelected = true;
-                this.selectAllTopics();
-                return;
-            }
-            this.selectedTopicsFromComp.emit(this._selectedTopics);
         }
-        else {
-            this.initialLoad = false;
+        if (this._selectedTopics.length === 0) {
+            this.showAllSelected = true;
+            this.selectAllTopics();
+            return;
         }
+        this.selectedTopicsFromComp.emit(this._selectedTopics);
         this.Indicators.forEach(function (indicator) {
             indicator.topics.split(', ').forEach(function (topic) {
                 if (_this._selectedTopics.indexOf(topic) !== -1) {
@@ -220,6 +218,7 @@ var TopicsComponent = (function () {
         }
     };
     TopicsComponent.prototype.toggleCollection = function (toggled_collection) {
+        this.selectedCollection = toggled_collection.collection;
         this.collections = this.collections.map(function (coll) {
             coll.selected = coll.collection === toggled_collection.collection ? true : false;
             return coll;
@@ -253,7 +252,6 @@ var TopicsComponent = (function () {
         }, function (err) { return console.error(err); }, function () { return console.log('done loading indicators'); });
     };
     TopicsComponent.prototype.ngOnChanges = function (changes) {
-        console.log('hallway', changes);
         if (changes.inputFilter) {
             this.filterVal = changes.inputFilter.currentValue;
         }
@@ -270,6 +268,7 @@ var TopicsComponent = (function () {
         this.getTopics();
         this._collectionService.get().subscribe(function (results) {
             var selectedCollection = _this.inputCollection !== 'undefined' ? _this.inputCollection : 'Show All';
+            _this.selectedCollection = selectedCollection;
             var all = { collection: 'Show All', selected: selectedCollection === 'Show All' ? true : false };
             _this.collections = results
                 .filter(function (coll) { return coll.collection_name !== 'Partner with us'; })

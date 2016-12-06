@@ -31,6 +31,7 @@ var SearchComponent = (function () {
         this.tempResults = [];
         this.tempTabIndex = -1;
         this.isMobile = false;
+        this.explorePushed = false;
         this.filter = this.filterType !== undefined ? this.filterType : this.filter;
         this.items = this.term.valueChanges
             .debounceTime(200)
@@ -54,6 +55,15 @@ var SearchComponent = (function () {
     SearchComponent.prototype.inputSearchClickHandler = function (event) {
         this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
         this.searchTerms = '';
+    };
+    SearchComponent.prototype.searchByText = function (event) {
+        this.explorePushed = true;
+        if (this.searchTerms !== '') {
+            this._router.navigate(['Explore', { filter: this.searchTerms }]);
+        }
+        else {
+            this._router.navigate(['Explore']);
+        }
     };
     SearchComponent.prototype.inputKeypressHandler = function (event) {
         var _this = this;
@@ -108,42 +118,44 @@ var SearchComponent = (function () {
     };
     SearchComponent.prototype.blurHandler = function (event) {
         var searchScope = this;
-        setTimeout(function () {
-            if (document.activeElement.classList.toString() === 'list-group-item') {
-                var attr = 'data-search-item';
-                var listItem = JSON.parse(document.activeElement.attributes[attr].value);
-                var selected = {
-                    Name: listItem.Name.replace(/\,/g, '%2C').replace(/\./g, '%2E'),
-                    ResID: listItem.ResID,
-                    Type: listItem.Type,
-                    TypeCategory: listItem.TypeCategory,
-                    Desc: listItem.Desc
-                };
-                searchScope.selectedSearchResult = selected;
-            }
-            else if (document.activeElement.id === 'explore-btn') {
-                if (searchScope.tempResults.length > 0) {
-                    var firstItem = searchScope.tempResults[searchScope.tempTabIndex];
+        if (!this.explorePushed) {
+            setTimeout(function () {
+                if (document.activeElement.classList.toString() === 'list-group-item') {
+                    var attr = 'data-search-item';
+                    var listItem = JSON.parse(document.activeElement.attributes[attr].value);
                     var selected = {
-                        Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
-                        ResID: firstItem['ResID'],
-                        Type: firstItem['Type'],
-                        TypeCategory: firstItem['TypeCategory'],
-                        Desc: firstItem['Desc']
+                        Name: listItem.Name.replace(/\,/g, '%2C').replace(/\./g, '%2E'),
+                        ResID: listItem.ResID,
+                        Type: listItem.Type,
+                        TypeCategory: listItem.TypeCategory,
+                        Desc: listItem.Desc
                     };
                     searchScope.selectedSearchResult = selected;
-                    searchScope.selectResult(selected);
-                    alert(firstItem['Name']);
+                }
+                else if (document.activeElement.id === 'explore-btn') {
+                    if (searchScope.tempResults.length > 0) {
+                        var firstItem = searchScope.tempResults[searchScope.tempTabIndex];
+                        var selected = {
+                            Name: firstItem['Name'].replace(/\,/g, '%2C').replace(/\./g, '%2E'),
+                            ResID: firstItem['ResID'],
+                            Type: firstItem['Type'],
+                            TypeCategory: firstItem['TypeCategory'],
+                            Desc: firstItem['Desc']
+                        };
+                        searchScope.selectedSearchResult = selected;
+                        searchScope.selectResult(selected);
+                        alert(firstItem['Name']);
+                    }
+                    else {
+                        alert('Please select a valid search term.');
+                    }
                 }
                 else {
-                    alert('Please select a valid search term.');
+                    searchScope.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
+                    searchScope.searchTerms = '';
                 }
-            }
-            else {
-                searchScope.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
-                searchScope.searchTerms = '';
-            }
-        }, 1);
+            }, 1);
+        }
     };
     SearchComponent.prototype.adjustListGroupTags = function () {
         var results = $('.search-result-type');

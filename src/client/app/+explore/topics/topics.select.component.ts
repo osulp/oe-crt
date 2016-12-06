@@ -62,6 +62,7 @@ export class TopicsComponent implements OnInit, OnChanges {
     indicatorSortAlpha: boolean = true;
     isLoading: boolean = true;
     isMobile: boolean = $(window).width() < 767;
+    selectedCollection: any;
     //private subscription: Subscription;
 
     constructor(
@@ -110,6 +111,10 @@ export class TopicsComponent implements OnInit, OnChanges {
         //else {
         //    this.showFilterIndicator = filterIndicator.value !== '';
         //}
+    }
+
+    clearSelectedCollection() {
+        this.toggleCollection({ collection: 'Show All' });
     }
 
     selectAllTopics() {
@@ -192,7 +197,7 @@ export class TopicsComponent implements OnInit, OnChanges {
             topic,
             ...this.Topics.slice(idx + 1)
         ];
-        if (!this.initialLoad) {
+        //if (!this.initialLoad) {
             this._selectedTopics = [];
             for (var x = 0; x < this.Topics.length; x++) {
                 if (this.Topics[x].selected) {
@@ -205,9 +210,9 @@ export class TopicsComponent implements OnInit, OnChanges {
                 return;
             }
             this.selectedTopicsFromComp.emit(this._selectedTopics);
-        } else {
-            this.initialLoad = false;
-        }
+        //} else {
+        //    this.initialLoad = false;
+        //}
         //sync indicator selections
         this.Indicators.forEach((indicator: Indicator) => {
             indicator.topics.split(', ').forEach((topic: any) => {
@@ -296,6 +301,7 @@ export class TopicsComponent implements OnInit, OnChanges {
 
     toggleCollection(toggled_collection: any) {
         //toggled_collection.selected = true;
+        this.selectedCollection = toggled_collection.collection;
         this.collections = this.collections.map((coll: any) => {
             coll.selected = coll.collection === toggled_collection.collection ? true : false;
             return coll;
@@ -335,7 +341,7 @@ export class TopicsComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes: any) {
-        console.log('hallway', changes);
+        //console.log('hallway', changes);
         if (changes.inputFilter) {
             this.filterVal = changes.inputFilter.currentValue;
         }
@@ -352,6 +358,7 @@ export class TopicsComponent implements OnInit, OnChanges {
         this.getTopics();
         this._collectionService.get().subscribe((results: any) => {
             let selectedCollection = this.inputCollection !== 'undefined' ? this.inputCollection : 'Show All';
+            this.selectedCollection = selectedCollection;
             let all = { collection: 'Show All', selected: selectedCollection === 'Show All' ? true : false };
             this.collections = results
                 .filter((coll: any) => { return coll.collection_name !== 'Partner with us'; })

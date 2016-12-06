@@ -11,7 +11,7 @@ export class SelectedPlacesService {
     //search based selections
     selectionChanged$: ReplaySubject<any[]> = new ReplaySubject<any[]>(1);
     updates: Subject<any> = new Subject<any>();
-    addPlace: Subject<any> = new Subject<any>();
+    addPlace: Subject<[any[], boolean]> = new Subject<any>();
     removePlace: Subject<any> = new Subject<any>();
     updatePlaces: Subject<[any[], string, boolean]> = new Subject<any>();
     _setAllByPlaceType: Subject<[any, string]> = new Subject<any>();
@@ -46,9 +46,18 @@ export class SelectedPlacesService {
             });
 
         this.addPlace
-            .map((place: any) => {
+            .map((args: any) => {
                 return (state: any) => {
-                    return state.concat(place);
+                    //check not already added
+                    let updateExisiting = args[1];
+                    console.log('usgs', updateExisiting, args,state);
+                    if (updateExisiting && state.length !== 0) {
+                        state.map((place: any) => {
+                            return place.ResID === args[0].ResID ? args[0] : place;
+                        });
+                    }
+                    return updateExisiting ? state : state.concat(args[0]);
+                    //return state.concat(args[0]);
                 };
             })
             .subscribe(this.updates);
@@ -143,40 +152,51 @@ export class SelectedPlacesService {
 
 
     add(place: any, source?: any): void {
-        //console.log('adding place to selectedPlaces', place);
-        this.getAdditionalPlaceInfo([place]).subscribe((pinfo: any) => {
-            let geoInfo = pinfo.filter((pi: any[]) => {
-                return pi.length > 0 ?
-                    pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim()
-                        : false
-                    : false;
-            });
-            place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
-            place.UpdateOnly = true;
-            //this.addPlace.next(place);
-        });
-        place.UpdateOnly = false;
-        this.addPlace.next(place);
-    }
-
-    addPlaces(places: any[]) {
-        console.log('adding multiple places to selectedPlaces', places);
-        this.getAdditionalPlaceInfo(places).subscribe((pinfo: any) => {
-            //console.log('jumping frank', pinfo);
-            places.forEach((place: any) => {
+        console.log('adding place to selectedPlaces', place);
+        if (place.TypeCategory !== 'State') {
+            this.getAdditionalPlaceInfo([place]).subscribe((pinfo: any) => {
                 let geoInfo = pinfo.filter((pi: any[]) => {
-                    //console.log('jumping susan', pi, place);
                     return pi.length > 0 ?
-                        pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim()
+                        pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() || pi[0].geoid === place.ResID
                             : false
                         : false;
                 });
                 place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+                place.UpdateOnly = true;
+                this.addPlace.next([place, true]);
+            });
+            place.UpdateOnly = false;
+        } else {
+            place.UpdateOnly = true;
+            place.GeoInfo = [];
+        }
+        this.addPlace.next([place, false]);
+    }
+
+    addPlaces(places: any[]) {
+        console.log('adding multiple places to selectedPlaces', places);
+        places = places.map((p: any) => {
+            p.UpdateOnly = p.TypeCategory === 'State';
+            p.GeoInfo = [];
+            return p;
+        });
+        this.getAdditionalPlaceInfo(places).subscribe((pinfo: any) => {
+            console.log('jumping frank', pinfo);
+            places.forEach((place: any) => {
+                let geoInfo = pinfo.filter((pi: any[]) => {
+                    console.log('jumping susan', pi, place);
+                    return pi.length > 0 ?
+                        pi[0].community ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() || pi[0].geoid === place.ResID
+                            : false
+                        : false;
+                });
+                place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+                place.UpdateOnly = true;
                 //this.addPlace.next(places);
             //console.log('jumping ben', place);
         });
         //console.log('jumping jack5', places);
-        this.addPlace.next(places);
+        this.addPlace.next([places,false]);
     });
 
 }
@@ -219,6 +239,10 @@ export class SelectedPlacesService {
         let translatedPlaceType = this.translatePlaceTypes(placeType);
         console.log('processing queue', this.processingQueue, places);
         if (places.length > 0) {
+            //set places with update status
+            places.forEach((p: any) => {
+                p.UpdateOnly = false;
+            });
             this.processingQueue.push({ places: places, placeType: translatedPlaceType });
             if (!this.processing) {
                 this.processing = true;
@@ -267,14 +291,15 @@ export class SelectedPlacesService {
         this.getAdditionalPlaceInfo(places).subscribe((pinfo: any[]) => {
             console.log('jumping jack3', this.processingQueue);
             this.processingQueue.shift();
-            console.log('jumping jack5', this.processingQueue);
+            console.log('jumping jack5', places);
             places.forEach((place: any) => {
                 if (place.GeoInfo.length === 0) {
                     let geoInfo = pinfo.filter((pi: any[]) => {
-                        //console.log('jumping susan', pi, place);
+                        console.log('jumping susan', pi, place);
                         if (pi.length > 0) {
                             if (pi[0].community) {
-                                return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() : false;
+                                return pi.length > 0 ? pi[0].community.replace(' County', '').trim() === place.Name.replace(' County', '').trim() || pi[0].geoid === place.ResID
+                                    : false;
                             } else {
                                 return false;
                             }
@@ -283,6 +308,7 @@ export class SelectedPlacesService {
                         }
                     });
                     place.GeoInfo = geoInfo.length > 0 ? geoInfo[0] : [];
+                    place.UpdateOnly = true;
                 }
                 //console.log('jumping ben', place);
             });

@@ -12,14 +12,16 @@
                     <span class="hide-show col-md-2 col-xs-4" (click)="showHideAll('show')">Select all</span>
                     <span class="hide-show col-md-1 col-xs-2 fa" [ngClass]="indicatorSortAlpha ? 'fa-sort-alpha-asc' :'fa-sort-alpha-desc'" (click)="indicatorSortAlpha = !indicatorSortAlpha"></span>
                 </div>
-            </div>            
+            </div>
             <div id="indicator-list" [ngClass]="selTopics[0].topic.length > 18 ? 'double' : ''" class="col-lg-5 col-md-6 col-xs-10">
                 <div *ngFor="let indicator of inputIndicators | indicatorTopicFilterPipe : selTopics[0]:selCollections:false:indicatorSortAlpha" (click)="toggleIndicator(indicator,!indicator.selected,true)" class="row">
                     <div class="col-xs-1 ind-checkbox">
                         <input type="checkbox" [checked]="indicator.selected" id="{{i+'ind'}}" />
                     </div>
-                    <div class="col-xs-11 ind-label">
-                        <label attr.for="{{i+'ind'}}">{{indicator.indicator_display}}</label>
+                    <div class="col-xs-11 ind-label" (click)="toggleIndicator(indicator,!indicator.selected,true)">
+                        <label attr.for="{{i+'ind'}}">
+                            {{indicator.indicator_display}}
+                        </label>
                     </div>
                 </div>
             </div>

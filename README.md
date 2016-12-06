@@ -1,3 +1,34 @@
+# Communities Reporter Tool Overview
+
+This code repo is build using Angular2.  At the point of release, RC1 was the stable version used.  Newer versions of Angular2 have substantial breaking changes, especially with component declarations and routing.
+
+To run this application with live reload, type:
+npm start
+
+To build for production, type:
+gulp build.prod
+
+The primary code base is in src/client/app.  
+
+When building to production, the output is in dist/prod.
+
+Copy the compiled output to the live site folder.
+
+Did not get uglify working as part of the production build process, so after compiling the production code, minifiy/uglify the prod/js/app.js file at 
+
+https://skalman.github.io/UglifyJS-online/
+
+Tends to reduce the size by about 30%.
+
+Code in the src/client/app folder uses Angular2 structure recommendations with lazy loading of primary components indicated with a + preface for folder names.
+
+Components,services, pipes, models that are used more than once are in the shared folder.
+
+
+
+
+
+
 # Introduction
 
 [![Angular 2 Style Guide](https://mgechev.github.io/angular2-style-guide/images/badge.svg)](https://angular.io/styleguide)

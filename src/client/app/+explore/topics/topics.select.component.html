@@ -100,6 +100,9 @@
                                 <div *ngFor="let topic of Topics | SelectedTopicsPipe:collections" title="Open data selection window to refine selected statistics." (click)="expanded = true"><span><b>{{topic.topic}}</b></span><div class="indicatorCount" title="Total number of selected data indicators.">{{Indicators | SelectedIndicatorByTopicsCountPipe: topic:collections}}</div><span class="closeButton" title="Remove this topic selection.  If only topic selected, removing will select all topics."><img src="assets/img/closeX.png" (click)="toggleTopic(topic)" /></span></div>
                             </div>
                         </div>
+                        <div *ngIf="['Show All',''].indexOf(selectedCollection) === -1 ">
+                            Selected collection: <b>{{selectedCollection}}</b><span class="closeButton" title="Remove this topic selection.  If only topic selected, removing will select all topics."><img src="assets/img/closeX.png" (click)="clearSelectedCollection()" /></span>
+                        </div>
                     </div>
                 </div>
             </div>
