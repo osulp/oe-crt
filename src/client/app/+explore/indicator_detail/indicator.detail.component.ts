@@ -34,6 +34,7 @@ export class DetailComponent implements OnInit {
     showGraph: boolean;
     showTable: boolean;
     isCustomChart: boolean = false;
+    isTextData: boolean = false;
     customChartSelections: any = {};
     _customChartSelections: any = {};
     selectedSearchResult: SearchResult;
@@ -257,11 +258,12 @@ export class DetailComponent implements OnInit {
         //console.log('DECODED!', this.inputIndicator);
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(
             (data: any) => {
-                //console.log('indicator detail repsonse from indicator description service:!', data);
+                console.log('indicator detail repsonse from indicator description service:!', data);
                 let indicator_info = data.Desc[0];
                 if (indicator_info) {
                     this.indicatorDesc = data.Desc;// IndicatorDescSer
                     this.relatedIndicators = data.RelatedIndicators;
+                    this.isTextData = indicator_info.Represented_ID === 10 ? true : false;
                     //console.log('indicatorDesc service', data);
                     //this.indicatorTitle = indicator_info.Sub_Topic_ID !== null
                     //    ? indicator_info.Sub_Topic_Name + ' ('+ indicator_info.Variable + ')'

@@ -115,6 +115,11 @@ var SearchComponent = (function () {
         if (code === 9) {
             event.preventDefault();
         }
+        window.setTimeout(function () {
+            if ($('.tabHover').length > 0) {
+                $('.tabHover')[0].scrollIntoView({ block: 'end', behavior: 'smooth' });
+            }
+        }, 100);
     };
     SearchComponent.prototype.blurHandler = function (event) {
         var searchScope = this;

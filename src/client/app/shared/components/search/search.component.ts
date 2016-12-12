@@ -127,6 +127,14 @@ export class SearchComponent implements OnInit {
         if (code === 9) {
             event.preventDefault();
         }
+
+        window.setTimeout(function () {
+            //console.log('scrollintoview?', $('.tabHover'));
+            if ($('.tabHover').length > 0) {
+                $('.tabHover')[0].scrollIntoView({ block: 'end', behavior: 'smooth' });
+            }
+        },100);
+
         //window.setTimeout(this.adjustListGroupTags, 500);
     }
 

@@ -179,6 +179,12 @@ var DataComponent = (function () {
             this.showScrollUpCount = 1;
         }
         else if (windowWidth < 1200) {
+            this.showIndicatorDefault = 8;
+            this.showIndicatorCount = 6;
+            this.showTopicIndicatorCount = 6;
+            this.scrollDownDistance = 12;
+            this.scrollUpDistance = 10;
+            this.showIncrement = 6;
             this.showScrollUpCount = 2;
         }
         var windowHeight = $(window).height();

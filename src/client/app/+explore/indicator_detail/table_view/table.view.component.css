@@ -54,6 +54,15 @@
             font-size:1em !important;
         }
 
+.no-place-warning {
+   padding-left:50px;
+   font-style:italic;
+   color:rgba(195, 69, 0, 0.67);
+}
+.no-place-warning span{
+    margin-right:10px;
+}
+
 @media only screen and (max-width : 768px) {
     .tableYear {
         max-width:none;

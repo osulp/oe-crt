@@ -18,6 +18,8 @@ Highcharts.setOptions({
         '#f15c80', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1']
 });
 
+
+
 // Make monochrome colors and set them as default for all pies
 //Highcharts.getOptions().plotOptions.pie.colors = (function () {
 //    var colors:any[] = [],
@@ -152,6 +154,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     private customChartYears: any[] = [];
     private isCustomChart: boolean = false;
     private selectedPlaceCustomChart: any;
+    //private selectedPlacesCustomChart: any[] = [];
 
 
     private xAxisCategories: any = {};
@@ -423,7 +426,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     }
                     this.indicator_collections = this.indicator_info.collections ? this.indicator_info.collections.split(', ') : [];
 
-                    if (this.indicator_info.Represented_ID === 10 && this.tileType === 'graph') {
+                    if (this.indicator_info.Represented_ID === 10 && this.tileType === 'graph' && this.viewType === 'basic') {
                         this.chart.showLoading('Chart not available. See map and table view');
                         this.chart.setTitle({
                             text: this.viewType === 'basic' || this.isHandheld ? this.indicator.replace('<br>', ' ') : null,
@@ -486,6 +489,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         // Wrap point.select to get to the total selected points
         Highcharts.wrap(Highcharts.Point.prototype, 'select', function (proceed: any) {
             proceed.apply(this, Array.prototype.slice.call(arguments, 1));
+            console.log('selecting via map', proceed, this, chartScope);
             //LOGIC:
             //For map tiles, need to handle the selection of map places, "points"
             //For map based selections, need to add to place search bin
@@ -517,6 +521,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             pointsAsPlacesForBin.push(binPlace);
                         }
                     }
+
                     if (!isInBin) {
                         console.log('is not in bin!', points[p]);
                         pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map', GeoInfo:[] });
@@ -524,41 +529,25 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     //pointsAsPlacesForBin.push({ Name: place.id + (chartScope.selectedPlaceType === 'Counties' ? ' County' : ''), ResID: place.geoid, Type: 'Place', TypeCategory: chartScope.selectedPlaceType, Source: 'map', Combined: false });
                 }
                 pointsAsPlacesForBin = pointsAsPlacesForBin.filter((place: any, index: number, self: any) => self.findIndex((t: any) => { return t.ResID === place.ResID && t.Name === place.Name; }) === index);
-                console.log('adding from map', chartScope.tileType, pointsAsPlacesForBin, chartScope.selectedPlaceType);
-                console.log('here are the places from map click', chartScope.places, points);
+                console.log('queue adding from map', chartScope.tileType, pointsAsPlacesForBin, chartScope.selectedPlaceType);
+                console.log('queue here are the places from map click', chartScope.places, points);
                 chartScope._selectedPlacesService.setAllbyPlaceType(pointsAsPlacesForBin, chartScope.selectedPlaceType, chartScope.indicator_geo);
+                //if (chartScope.indicator_info.Represented_ID === 10) {
+                //    chartScope.onChartDataUpdate.emit({ data:chartScope.dataStore, customPlace: chartScope.selectedPlaceCustomChart, customYear:chartScope.selectedCustomChartYear, metadata:chartScope.indicator_info });
+                //}
             }
         });
     }
 
     onPlacesChanged(selectedPlaces: SearchResult[]) {
-        console.log('adding DataTile place change', selectedPlaces,this.tempPlaces);
+        console.log('adding DataTile place change', selectedPlaces, this.tempPlaces);
         this.places = selectedPlaces;
         this.placeNames = '';
         let checkDataState: boolean = false;
-        let showLoading: boolean = false;
-
-        let needUpdate: boolean = false;
-        this.places.forEach((p: any) => {
-            console.log('need update', p, needUpdate);
-            needUpdate = p.UpdateOnly !== undefined ? p.UpdateOnly === false : needUpdate;
-        });
-
-        if (needUpdate && (this.isSchool || this.isCountyLevel)) {
-            checkDataState = false;
-            showLoading = true;
-        } else {
-            checkDataState = (!needUpdate && (this.isSchool || this.isCountyLevel)) ?
-                true :
-                !needUpdate;
-        }
-        console.log('need update?', needUpdate);
         //check if repeated event with same places
         if (this.tempPlaces.length !== this.places.length) {
-            //check for update flags if for school since it needs the geoinfo to run
-
-
-            console.log('temp place not the same as place length, adding ...', checkDataState);
+            checkDataState = true;
+            //console.log('temp place not the same as place length, adding ...');
             for (var x = 0; x < this.places.length; x++) {
                 //console.log('place: ', this.places[x]);
                 //set selected place type based on new addition place type
@@ -577,12 +566,11 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             }
 
         } else {
-            console.log('LUCKY');
             //check if just updated geoinfo but same places
             let hasSamePlaces = true;
             this.places.forEach((place: any) => {
-               // let tPlace = this.tempPlaces.filter((tp: any) => tp.Name === place.Name && tp.GroupName === place.GroupName);
-                let tPlace = this.tempPlaces.filter((tp: any) => tp.Name.trim() === place.Name.trim());
+                // let tPlace = this.tempPlaces.filter((tp: any) => tp.Name === place.Name && tp.GroupName === place.GroupName);
+                let tPlace = this.tempPlaces.filter((tp: any) => tp.Name === place.Name);
                 console.log('place length the same', tPlace);
                 //also check if combined
 
@@ -590,43 +578,38 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     hasSamePlaces = false;
                     //return;
                 }
-                //checkDataState = !hasSamePlaces;
+                checkDataState = !hasSamePlaces;
             });
         }
-
-        console.log('prague', checkDataState, this.selectedPlaceType, this.getGeoIndicator(this.selectedPlaceType));
+        //console.log('prague', checkDataState, this.selectedPlaceType, this.getGeoIndicator(this.selectedPlaceType));
         if (checkDataState) {
             if (this.getGeoIndicator({ TypeCategory: this.selectedPlaceType })) {
                 console.log('thinks it needs to update');
                 this.checkDataStateForCharts();
-                showLoading = true;
-            }
-        }
-        if (showLoading) {
-            if (this.tileType === 'graph') {
-                if (this.chart) {
-                    this.chart.showLoading();
-                }
-            } else {
-                if (this.mapChart) {
-                    this.mapChart.showLoading();
+                if (this.tileType === 'graph') {
+                    if (this.chart) {
+                        this.chart.showLoading();
+                    }
+                } else {
+                    if (this.mapChart) {
+                        this.mapChart.showLoading();
+                    }
                 }
             }
         }
-
-        this.tempPlaces = selectedPlaces;// this.places;
+        this.tempPlaces = this.places;
      }
 
     checkDataStateForCharts(source?: any) {
-        //console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbb', this.indicator_info);
+        console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbb', this.indicator_info);
         let loadingGeoJSON = this.tileType === 'map' && this.showMap ? this.checkLoadGeoJSON() : false;
-        //console.log('lodaindGeoJSON', loadingGeoJSON, this.tileType);
+        console.log('lodaindGeoJSON', loadingGeoJSON, this.tileType);
         if (this.tileType === 'graph') {
             //sets placetypes for graph knowing about county level data warnings, etc.
             this.getPlaceTypes('graph');
         }
         let loadMoreData = this.tileType === 'graph' ? true : this.checkUpdateData();
-        //console.log('loadMoreData', loadMoreData, this.tileType);
+        console.log('loadMoreData', loadMoreData, this.tileType);
         if (!loadingGeoJSON && loadMoreData) {
             console.log('need to load data.  chart type: ', this.tileType);
             //check that if on advanced page only load for indicator not all indicators
@@ -667,6 +650,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
                     this.places.forEach((place: any) => {
                         inSelectedPlaces = place.Name.replace(' County', '') === selPt.id.replace(' County', '') && place.ResID === selPt.geoid ? true : inSelectedPlaces;
+                        console.log('inselectedplaces', inSelectedPlaces, place, selectedPlaces);
                         if (!inSelectedPlaces && place.TypeCategory !== 'Counties') {
                             if (place.GeoInfo.length > 0) {
                                 place.GeoInfo.forEach((gi: any) => {
@@ -919,7 +903,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         //let selectedPlaces = this.places;
 
         this.places.forEach((place: any, idx: number) => {
-            console.log('ginfo1', this.places[idx].GeoInfo);
+            //console.log('ginfo1', this.places[idx].GeoInfo);
             geoids += place.ResID + (idx !== this.places.length - 1 ? ',' : '');
             geonames += place.Name + (idx !== this.places.length - 1 ? ',' : '');
             if (place.TypeCategory === 'SchoolDistricts') {
@@ -1069,6 +1053,18 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         (data: any) => {
                             console.log('regular indicator data', data);
                             if (data.Data.length > 0) {
+                                //if (this.isCustomChart) {
+                                //    let uniqueDataPlaces = [];
+                                //    data.Data.forEach((dp: any) => {
+                                //        if (uniqueDataPlaces.indexOf(dp.geoid) === -1) {
+                                //            uniqueDataPlaces.push(dp.geoid);
+                                //            this.selectedPlacesCustomChart.push({
+                                //                Name: dp.community,
+                                //                ResID: dp.geoid
+                                //            })
+                                //        }
+                                //    }
+                                //}
                                 this.updateDataStore([data], 'indicator');
                                 this.createGraphChart();
 
@@ -1468,7 +1464,13 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         sliderScope.mapChart.series[seriesIndex].setData(data);
                         sliderScope.selectedMapPoints = sliderScope.mapChart.getSelectedPoints();
                         sliderScope.mapChart.redraw();
-                        sliderScope.onSelectedYearChange.emit({ year: sliderScope.selectedYear, index: sliderScope.selectedYearIndex, indicator:sliderScope.indicator });
+                        sliderScope.onSelectedYearChange.emit({ year: sliderScope.selectedYear, index: sliderScope.selectedYearIndex, indicator: sliderScope.indicator });
+
+                        if (sliderScope.indicator_info.Represented_ID === 10) {
+                            console.log('sliderscope?', sliderScope.dataStore);
+                            sliderScope.onChartDataUpdate.emit({ data: sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data });
+                        }
+
                         //detailChart.xAxis[0].removePlotLine('plot-line-1');
                         //detailChart.xAxis[0].addPlotLine({
                         //    value: selectedYearIndex,
@@ -1528,9 +1530,10 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
 
     initMapChart() {
-        console.log('CREATIN MAP CHART', this.mapChart);
+        //console.log('CREATIN MAP CHART', this.mapChart, this.mapOptions);
 
         var mapScope = this;
+        var isTextData: boolean = false;
         (this.mapOptions as any).xAxis = {
             min: mapScope.mapChartZoomSettings.xMin ? parseInt(mapScope.mapChartZoomSettings.xMin) : null,
             max: mapScope.mapChartZoomSettings.xMax ? parseInt(mapScope.mapChartZoomSettings.xMax) : null,
@@ -1587,21 +1590,47 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             }
         };
         var colorAxis = this.mapChart.colorAxis[0];
-        console.log('logarithmic?', this.getMinData(true, true), this.getMinData(true, true) > 0 ? 'logarithmic' : null);
-        colorAxis.update({
-            type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,// 'logarithmic',
-            //min: 0,//null,//0,
-            min: this.getMinData(true),
-            max: this.getMaxData(true),
-            endOnTick: false,
-            startOnTick: true,
-            maxColor: this.placeTypeData.Metadata[0].Color_hex ? this.placeTypeData.Metadata[0].Color_hex : '#003399',
-            labels: {
-                formatter: function () {
-                    return mapScope.formatValue(this.value, true);
+        //console.log('logarithmic?', this.getMinData(true, true), this.getMinData(true, true) > 0 ? 'logarithmic' : null, this.indicator_info);
+        if (this.indicator_info.Represented_ID === 10) {
+            isTextData = true;
+            let dataClasses = this.getDataClasses();
+            console.log('dataClasses', dataClasses);
+            colorAxis.update({
+                dataClasses: dataClasses,
+                showInLegend: false,
+                minColor: 'white',
+                maxColor: 'white',
+                tickColor: 'white',
+                lineColor: 'white',
+                labels: {
+                    enabled:false
+                },
+                gridLineWidth: 0,
+                //dataClassColors:'category'
+                //min: null,
+                //max: null,
+                //type: null,
+                //endOnTick: null,
+                //startOnTick: null,
+                //maxColor: null,
+
+            });
+        } else {
+            colorAxis.update({
+                type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,// 'logarithmic',
+                //min: 0,//null,//0,
+                min: this.getMinData(true),
+                max: this.getMaxData(true),
+                endOnTick: false,
+                startOnTick: true,
+                maxColor: this.placeTypeData.Metadata[0].Color_hex ? this.placeTypeData.Metadata[0].Color_hex : '#003399',
+                labels: {
+                    formatter: function () {
+                        return mapScope.formatValue(this.value, true);
+                    }
                 }
-            }
-        });
+            });
+        }
         //console.log('colorAxis min', this.getMinData(true));
         //console.log('colorAxis max', this.getMaxData(true));
 
@@ -1653,9 +1682,35 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     color: '#a7a7a7'
                 },
                 select: {
-                    color: '#BADA55' // this.getSelectColor()//; '#BADA55'
+                    color: '#BADA55' // : 'red' //  this.getSelectColor(this),//; '#BADA55'
+                    //borderColor: isTextData ? 'black' : null
                 }
-            }
+            },
+            //point:
+            //{
+            //    events: {
+            //        select: function () {
+            //            console.log('what up bitch', this.selected,this.color);
+            //            if (!this.selected) {
+            //                //this.setState('select');
+            //                this.update({
+            //                    marker: {
+            //                        fillColor: this.color,
+            //                        borderColor: 'red',
+            //                        borderWidth: '4px'
+            //                    }
+            //                })
+            //            }
+            //            //this.setState("select");
+            //            //this.update({
+            //            //    marker: {
+            //            //        fillColor: 'red',
+            //            //        lineColor: 'red',
+            //            //    }
+            //            //})
+            //        }
+            //    }
+            //}
         };
         console.log('checkshit',series);
         this.mapChart.addSeries(series, true);
@@ -1673,44 +1728,47 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     fontStyle: 'italic'
                 }
             });
-        this.mapChart.redraw();
+        //this.mapChart.redraw();
         window.setTimeout(function () {
             //console.log('sausage', sessionStorage);
             mapScope.mapChart.hideLoading();
             //mapScope.mapChart.redraw();
             mapScope.selectedMapPoints = mapScope.mapChart.getSelectedPoints();
         }, 500);
+        if (this.indicator_info.Represented_ID === 10) {
+            this.onChartDataUpdate.emit({ data: this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data, customPlace: this.selectedPlaceCustomChart, textYears: this.placeTypeData.Years, metadata: this.placeTypeData.Metadata[0] });
+        }
         //this.selectedMapPoints = this.mapChart.getSelectedPoints();
     }
 
-    //getSelectColor() {
-    //    console.log('getting select color');
-    //    let color = '#BADA55';
-    //    let returnColor = {
-    //        radialGradient: {
-    //            cx: 0.5,
-    //            cy: 0.5,
-    //            r: 0.45
-    //        },
-    //        stops: [
-    //            [0, color],
-    //            [1, color],
-    //            [2, color],
-    //            [3, color],
-    //            [4, color],
-    //            [5, color],
-    //            [6, color],
-    //            [7, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
-    //        ]
-    //    };
-    //    console.log('return select color', returnColor);
-    //    return returnColor;
-    //}
+    getSelectColor(context: any) {
+        console.log('getting select color', context);
+        let color = '#BADA55';
+        let returnColor = {
+            radialGradient: {
+                cx: 0.5,
+                cy: 0.5,
+                r: 0.45
+            },
+            stops: [
+                [0, color],
+                [1, color],
+                [2, color],
+                [3, color],
+                [4, color],
+                [5, color],
+                [6, color],
+                [7, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+        console.log('return select color', returnColor);
+        return returnColor;
+    }
 
     createGraphChart() {
         try {
             if (!this.isCustomChart) {
-                console.log('fred2 dss', this.dataStore.indicatorData[this.indicator].crt_db);
+                //console.log('fred2 dss', this.dataStore.indicatorData[this.indicator].crt_db);
                 //this.placeTypeData = data;
                 this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
                 //this.Data = data.length > 0 ? data : [];
@@ -1719,7 +1777,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 this.processDataYear();
                 this.processYearTicks();
                 this.selectedYearIndex = this._tickArray.length - 1;// - this.yearEndOffset;
-                console.log('countycheck-1', this.placeTypeData);
+                //console.log('countycheck-1', this.placeTypeData);
                 this.Data = this.placeTypeData.Data;
                 //this.onChartDataUpdate.emit(data);
                 //check if metadata, if not custom chart, need to do other stuff
@@ -1889,6 +1947,45 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
+    getDataClasses() {
+        //get unique classes from data and create data classes for map
+        let uniqueVals: any[] = [];
+        let dataClasses: any[] = [];
+        let uniqueIdx: number = 0;
+        this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data.forEach((cd: any, idx:number) => {
+            if (uniqueVals.indexOf(cd.value) === -1 && cd.value !== undefined) {
+                uniqueVals.push(cd.value);
+                //let dataClass: {} = {
+                //    from: cd.value,
+                //    to: cd.value,
+                //    color: Highcharts.getOptions().colors[uniqueIdx],
+                //    name: cd.value
+                //}
+                //dataClasses.push(dataClass);
+                uniqueIdx++;
+            }
+        });
+        uniqueVals
+            .sort((a: any, b: any) => {
+                if (a !== null && b !== null) {
+                    return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+                }
+        })
+            .forEach((cd: any, idx: number) => {
+                let dataClass: {} = {
+                    from: cd,
+                    to: cd,
+                    color: Highcharts.getOptions().colors[idx],
+                    name: cd
+                };
+            dataClasses.push(dataClass);
+            });
+        return dataClasses;
+        //return dataClasses.sort((a: any, b: any) => {
+        //    return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+        //});
+    }
+
     onSelectedPlaceChangedCustomChart(selected: any) {
         console.log('place changed', selected, this.dataStore);
         this.selectedPlaceCustomChart = selected; // { Name: select.value };
@@ -1902,7 +1999,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     processCustomChart() {
-        console.log('thinks it is custom chart');
+        console.log('thinks it is custom chart', this.indicator_info.ScriptName);
         let chartScope = this;
         let categories: any[];
         try {
@@ -2109,8 +2206,15 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 case 'ClientContacts211Info':
                 case 'SocialServiceProviders211Info':
                 case 'PovertyByRace':
-                    //categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories;
-                    console.log('setting up chart for poverty', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data, this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories);
+                    let chartTitle: any = this.isCountyLevel ?
+                        this.selectedPlaceCustomChart.GeoInfo.length > 0 ?
+                            this.selectedPlaceCustomChart.GeoInfo[0].County + ' County: ' + this.selectedCustomChartYear + '<br> (for ' + this.selectedPlaceCustomChart.Name + ')' :
+                            this.viewType === 'advanced' ?
+                                this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear :
+                                this.selectedCustomChartYear :
+                        this.viewType === 'advanced' ?
+                            this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear :
+                            this.selectedCustomChartYear;
                     let _211InfoChartOptions = {
                         chart: {
 
@@ -2131,7 +2235,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             text: ''
                         },
                         subtitle: {
-                            text: this.viewType === 'advanced' ? this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear : this.selectedCustomChartYear
+                            text: chartTitle
                         },
                         tooltip: {
                             pointFormat: this.indicator_info.ScriptName === 'PovertyByRace' ? '<b>{point.name}</b>: {point.y:.1f}%' : '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -2161,6 +2265,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data
                         }]
                     };
+                    console.log('setting chart options', _211InfoChartOptions);
                     this.chart.destroy();
                     this.chart = new Highcharts.Chart(_211InfoChartOptions);
                     break;
@@ -2363,7 +2468,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     onResize(event: any) {
         //console.log('resizing...', this.indicator,this.tileType, this.chart);
         try {
-            if (this.chart) {
+            if (this.chart || this.mapChart) {
 
                 var runInterval = setInterval(runCheck, 2000);
                 var resizeScope = this;
@@ -2577,10 +2682,21 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
             }
             //console.log('countylevel checking', this.places[p], place);
-            if (!this.isSchool) {
-                if (this.places[p].Desc) {
-                    let split: number = this.places[p].ResID.length > 9 ? 1 : 0;
-                    isSelected = this.isCountyLevel ? (this.places[p].Desc.split(', ').length > split ? this.places[p].Desc.split(', ')[split].replace(' County', '') === place.community.replace(' County', '').trim() : isSelected) : isSelected;
+            //if (!this.isSchool) {
+            //    if (this.places[p].Desc) {
+            //        let split: number = this.places[p].ResID.length > 9 ? 1 : 0;
+            //        isSelected = this.isCountyLevel ?
+            //            (this.places[p].Desc.split(', ').length > split ? this.places[p].Desc.split(', ')[split].replace(' County', '') === place.community.replace(' County', '').trim() :
+            //                isSelected) :
+            //            isSelected;
+            //    }
+            //}
+            if (this.isCountyLevel && this.places[p].TypeCategory !== 'Counties') {
+                if (this.places[p].GeoInfo.length > 0) {
+                    this.places[p].GeoInfo.forEach((gi: any) => {
+                        //console.log('countylevel checking', gi, place);
+                        isSelected = gi.county_geoid === place.geoid ? true : isSelected;
+                    });
                 }
             }
         }
@@ -2799,7 +2915,12 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 this.places.forEach((place: any, pidx: number) => {
                     let placeData = this.placeTypeData.Data
                         .filter((data: any) => {
-                            return data.geoid ? data.geoid === place.ResID : false;
+                            if (this.isCountyLevel && place.GeoInfo.length > 0) {
+                                console.log('december');
+                                return place.GeoInfo[0].county_geoid === data.geoid;
+                            } else {
+                                return data.geoid ? data.geoid === place.ResID : false;
+                            }
                         })
                         .sort(this.incomeSort);
                     let placeDataYears: any[] = [];
@@ -3395,7 +3516,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     ngOnChanges(changes: any) {
-        //console.log('datatile changed', changes);
+        console.log('datatile changed', changes);
         if (changes._selectedYear && this.tileType === 'graph' && this.chart) {
             this.chart.xAxis[0].removePlotLine('plot-line-1');
             this.chart.xAxis[0].addPlotLine({

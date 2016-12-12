@@ -1,6 +1,6 @@
 <div>
     <table id="tableData" cellpadding="10" cellspacing="10">
-        <template [ngIf]="!isCustomTable">
+        <template [ngIf]="!isCustomTable && !isTextDataTable">
             <tr>
                 <td></td>
                 <td class="theading" align="center" *ngFor="let data of tableData">{{data.community ? data.community : data.Name}}</td>
@@ -28,6 +28,20 @@
                         <span class="dataValMoe">(+/- {{td.data_moe}})</span>
                     </div>
                 </td>
+            </tr>
+        </template>
+        <template [ngIf]="isTextDataTable && tableData.length > 0">
+            <tr>
+                <td></td>
+                <td class="theading" align="center" *ngFor="let place of selectedPlaces">{{place.name}}</td>
+            </tr>
+            <tr>
+                <td *ngFor="let td of tableData;  let i = index" align="center" [ngClass]="i === 0 ? 'tableYear' : ''">{{td}}</td>
+            </tr>
+        </template>
+        <template [ngIf]="isTextDataTable && tableData.length === 0">
+            <tr>
+                <td class="no-place-warning"><span class="glyphicon glyphicon-alert"></span>Please select a place of interest on map to see table data.</td>
             </tr>
         </template>
     </table>

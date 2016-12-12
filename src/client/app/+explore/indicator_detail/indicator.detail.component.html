@@ -30,7 +30,7 @@
                     <span class="toggleViewIcn" [ngClass]="showMap ? 'viewSelected' : ''"></span>
                     <span [innerHTML]="isMobile ? 'Map' : 'Map View'"></span>
                 </div>
-                <div class="col-xs-4 toggleView" (click)="setToggleView('graph')">
+                <div *ngIf="!isTextData" class="col-xs-4 toggleView" (click)="setToggleView('graph')">
                     <span class="toggleViewIcn" [ngClass]="showGraph ? 'viewSelected' : ''"></span><span [innerHTML]="isMobile ? 'Graph' : 'Graph View'"></span>
                 </div>
                 <div class="col-xs-4 toggleView" (click)="setToggleView('table')">
@@ -65,13 +65,13 @@
                 </div>
             </div>
             <div class="row">
-                <div *ngIf="!isStatewide && !isCustomChart" [ngClass]="!showGraph ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
+                <div *ngIf="!isStatewide && !isCustomChart" [ngClass]="!showGraph || isTextData ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
                     <div #mapView class="detail-tile map-chart" [hidden]="!showMap">
                         <!--MAP VIEW-->
-                        <data-tile [indicator]="inputIndicator" (onSelectedYearChange)="onSelectedYearChange($event)" [tileType]="'map'" [viewType]="'advanced'"></data-tile>
+                        <data-tile [indicator]="inputIndicator" (onSelectedYearChange)="onSelectedYearChange($event)"  (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [tileType]="'map'" [viewType]="'advanced'"></data-tile>
                     </div>
                 </div>
-                <div [ngClass]="!showMap || isStatewide || isCustomChart ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
+                <div *ngIf="!isTextData" [ngClass]="!showMap || isStatewide || isCustomChart ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
                     <div #graphView class="detail-tile" [hidden]="!showGraph">
                         <!--GRAPH VIEW-->
                         <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="" [_selectedYear]="selectedYear" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'"></data-tile>

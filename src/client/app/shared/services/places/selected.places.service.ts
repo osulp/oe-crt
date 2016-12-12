@@ -49,15 +49,15 @@ export class SelectedPlacesService {
             .map((args: any) => {
                 return (state: any) => {
                     //check not already added
-                    let updateExisiting = args[1];
-                    console.log('usgs', updateExisiting, args,state);
-                    if (updateExisiting && state.length !== 0) {
-                        state.map((place: any) => {
-                            return place.ResID === args[0].ResID ? args[0] : place;
-                        });
-                    }
-                    return updateExisiting ? state : state.concat(args[0]);
-                    //return state.concat(args[0]);
+                    //let updateExisiting = args[1];
+                    //console.log('usgs', updateExisiting, args,state);
+                    //if (updateExisiting && state.length !== 0) {
+                    //    state.map((place: any) => {
+                    //        return place.ResID === args[0].ResID ? args[0] : place;
+                    //    });
+                    //}
+                    //return updateExisiting ? state : state.concat(args[0]);
+                    return state.concat(args[0]);
                 };
             })
             .subscribe(this.updates);
@@ -169,8 +169,9 @@ export class SelectedPlacesService {
         } else {
             place.UpdateOnly = true;
             place.GeoInfo = [];
+            this.addPlace.next([place, false]);
         }
-        this.addPlace.next([place, false]);
+        //this.addPlace.next([place, false]);
     }
 
     addPlaces(places: any[]) {
@@ -237,50 +238,59 @@ export class SelectedPlacesService {
 
     setAllbyPlaceType(places: any[], placeType: string, indicatorGeo?:string): void {
         let translatedPlaceType = this.translatePlaceTypes(placeType);
-        console.log('processing queue', this.processingQueue, places);
+        console.log('set all by place type',placeType,places,indicatorGeo);
         if (places.length > 0) {
             //set places with update status
-            places.forEach((p: any) => {
-                p.UpdateOnly = false;
-            });
-            this.processingQueue.push({ places: places, placeType: translatedPlaceType });
-            if (!this.processing) {
-                this.processing = true;
-                this.intervalCount = 0;
-                this._setAllByPlaceType.next([this.processingQueue[0].places, this.processingQueue[0].placeType]);
-                if (placeType !== 'SchoolDistricts') {
-                    this.subScribeToGetAddionalPlaceInfo(this.processingQueue[0].places, this.processingQueue[0].placeType, indicatorGeo);
-                } else {
-                    this.processingQueue.shift();
-                    this.processing = false;
-                }
+            //places.forEach((p: any) => {
+            //    p.UpdateOnly = false;
+            //});
+
+
+            if (placeType !== 'SchoolDistricts') {
+                this.subScribeToGetAddionalPlaceInfo(places, placeType, indicatorGeo);
             } else {
-                //console.log('still processing', this.processing);
-                let runScope = this;
-                var runInterval = setInterval(runCheck, 100);
-                function runCheck() {
-                    console.log('processing queue run check', runScope.processingQueue, runScope.intervalCount);
-                    runScope.intervalCount++;
-                    if (runScope.intervalCount >= 12) {
-                        runScope.processingQueue.shift();
-                        runScope.processing = false;
-                        clearInterval(runInterval);
-                    }
-                    if (!runScope.processing && runScope.processingQueue.length > 0) {
-                        console.log('processing interval not processing moving on to next in queue', runScope.intervalCount);
-                        clearInterval(runInterval);
-                        runScope.intervalCount = 0;
-                        runScope.processing = true;
-                        runScope._setAllByPlaceType.next([runScope.processingQueue[0].places, runScope.processingQueue[0].placeType]);
-                        if (runScope.processingQueue[0].placeType !== 'SchoolDistricts') {
-                            runScope.subScribeToGetAddionalPlaceInfo(runScope.processingQueue[0].places, runScope.processingQueue[0].placeType);
-                        } else {
-                            runScope.processingQueue.shift();
-                            runScope.processing = false;
-                        }
-                    }
-                }
+                this._setAllByPlaceType.next([places, placeType]);
             }
+
+
+            //this.processingQueue.push({ places: places, placeType: translatedPlaceType });
+            //if (!this.processing) {
+            //    this.processing = true;
+            //    this.intervalCount = 0;
+            //    this._setAllByPlaceType.next([this.processingQueue[0].places, this.processingQueue[0].placeType]);
+            //    if (placeType !== 'SchoolDistricts') {
+            //        this.subScribeToGetAddionalPlaceInfo(this.processingQueue[0].places, this.processingQueue[0].placeType, indicatorGeo);
+            //    } else {
+            //        this.processingQueue.shift();
+            //        this.processing = false;
+            //    }
+            //} else {
+            //    //console.log('still processing', this.processing);
+            //    let runScope = this;
+            //    var runInterval = setInterval(runCheck, 100);
+            //    function runCheck() {
+            //        console.log('processing queue run check', runScope.processingQueue, runScope.intervalCount);
+            //        runScope.intervalCount++;
+            //        if (runScope.intervalCount >= 12) {
+            //            runScope.processingQueue.shift();
+            //            runScope.processing = false;
+            //            clearInterval(runInterval);
+            //        }
+            //        if (!runScope.processing && runScope.processingQueue.length > 0) {
+            //            console.log('processing interval not processing moving on to next in queue', runScope.intervalCount);
+            //            clearInterval(runInterval);
+            //            runScope.intervalCount = 0;
+            //            runScope.processing = true;
+            //            runScope._setAllByPlaceType.next([runScope.processingQueue[0].places, runScope.processingQueue[0].placeType]);
+            //            if (runScope.processingQueue[0].placeType !== 'SchoolDistricts') {
+            //                runScope.subScribeToGetAddionalPlaceInfo(runScope.processingQueue[0].places, runScope.processingQueue[0].placeType);
+            //            } else {
+            //                runScope.processingQueue.shift();
+            //                runScope.processing = false;
+            //            }
+            //        }
+            //    }
+            //}
         } else {
             this.processingQueue = [];
             this._setAllByPlaceType.next([places, translatedPlaceType]);

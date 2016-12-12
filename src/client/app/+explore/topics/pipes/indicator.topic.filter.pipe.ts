@@ -45,9 +45,9 @@ export class IndicatorTopicFilterPipe implements PipeTransform {
                 //    return b.indicator_display.localeCompare(a.indicator_display);
                 //}
                 if (sortAlpha) {
-                    return a.indicator.toUpperCase().localeCompare(b.indicator.toUpperCase());
+                    return a.indicator_display.toUpperCase().localeCompare(b.indicator_display.toUpperCase());
                 } else {
-                    return b.indicator.toUpperCase().localeCompare(a.indicator.toUpperCase());
+                    return b.indicator_display.toUpperCase().localeCompare(a.indicator_display.toUpperCase());
                 }
             })
             : [];

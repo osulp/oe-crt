@@ -301,7 +301,7 @@ var DataTileComponent = (function () {
                     _this.hMapMenu.setIndicatorGeoFilter(_this.indicator_geo);
                 }
                 _this.indicator_collections = _this.indicator_info.collections ? _this.indicator_info.collections.split(', ') : [];
-                if (_this.indicator_info.Represented_ID === 10 && _this.tileType === 'graph') {
+                if (_this.indicator_info.Represented_ID === 10 && _this.tileType === 'graph' && _this.viewType === 'basic') {
                     _this.chart.showLoading('Chart not available. See map and table view');
                     _this.chart.setTitle({
                         text: _this.viewType === 'basic' || _this.isHandheld ? _this.indicator.replace('<br>', ' ') : null,
@@ -343,6 +343,7 @@ var DataTileComponent = (function () {
         var chartScope = this;
         angular2_highcharts_1.Highcharts.wrap(angular2_highcharts_1.Highcharts.Point.prototype, 'select', function (proceed) {
             proceed.apply(this, Array.prototype.slice.call(arguments, 1));
+            console.log('selecting via map', proceed, this, chartScope);
             if (chartScope.tileType === 'map' && chartScope.showMap) {
                 var points = chartScope.mapChart.getSelectedPoints();
                 chartScope.selectedMapPoints = points;
@@ -376,8 +377,8 @@ var DataTileComponent = (function () {
                     }
                 }
                 pointsAsPlacesForBin = pointsAsPlacesForBin.filter(function (place, index, self) { return self.findIndex(function (t) { return t.ResID === place.ResID && t.Name === place.Name; }) === index; });
-                console.log('adding from map', chartScope.tileType, pointsAsPlacesForBin, chartScope.selectedPlaceType);
-                console.log('here are the places from map click', chartScope.places, points);
+                console.log('queue adding from map', chartScope.tileType, pointsAsPlacesForBin, chartScope.selectedPlaceType);
+                console.log('queue here are the places from map click', chartScope.places, points);
                 chartScope._selectedPlacesService.setAllbyPlaceType(pointsAsPlacesForBin, chartScope.selectedPlaceType, chartScope.indicator_geo);
             }
         });
@@ -388,24 +389,8 @@ var DataTileComponent = (function () {
         this.places = selectedPlaces;
         this.placeNames = '';
         var checkDataState = false;
-        var showLoading = false;
-        var needUpdate = false;
-        this.places.forEach(function (p) {
-            console.log('need update', p, needUpdate);
-            needUpdate = p.UpdateOnly !== undefined ? p.UpdateOnly === false : needUpdate;
-        });
-        if (needUpdate && (this.isSchool || this.isCountyLevel)) {
-            checkDataState = false;
-            showLoading = true;
-        }
-        else {
-            checkDataState = (!needUpdate && (this.isSchool || this.isCountyLevel)) ?
-                true :
-                !needUpdate;
-        }
-        console.log('need update?', needUpdate);
         if (this.tempPlaces.length !== this.places.length) {
-            console.log('temp place not the same as place length, adding ...', checkDataState);
+            checkDataState = true;
             for (var x = 0; x < this.places.length; x++) {
                 if (this.tempPlaces.indexOf(this.places[x]) === -1 && this.getGeoIndicator(this.places[x])) {
                     this.selectedPlaceType = this.isCountyLevel ? 'Counties' : this.translatePlaceTypes(this.places[x].TypeCategory);
@@ -418,45 +403,44 @@ var DataTileComponent = (function () {
             }
         }
         else {
-            console.log('LUCKY');
             var hasSamePlaces = true;
             this.places.forEach(function (place) {
-                var tPlace = _this.tempPlaces.filter(function (tp) { return tp.Name.trim() === place.Name.trim(); });
+                var tPlace = _this.tempPlaces.filter(function (tp) { return tp.Name === place.Name; });
                 console.log('place length the same', tPlace);
                 if (tPlace.length === 0 || place.Combined) {
                     hasSamePlaces = false;
                 }
+                checkDataState = !hasSamePlaces;
             });
         }
-        console.log('prague', checkDataState, this.selectedPlaceType, this.getGeoIndicator(this.selectedPlaceType));
         if (checkDataState) {
             if (this.getGeoIndicator({ TypeCategory: this.selectedPlaceType })) {
                 console.log('thinks it needs to update');
                 this.checkDataStateForCharts();
-                showLoading = true;
-            }
-        }
-        if (showLoading) {
-            if (this.tileType === 'graph') {
-                if (this.chart) {
-                    this.chart.showLoading();
+                if (this.tileType === 'graph') {
+                    if (this.chart) {
+                        this.chart.showLoading();
+                    }
                 }
-            }
-            else {
-                if (this.mapChart) {
-                    this.mapChart.showLoading();
+                else {
+                    if (this.mapChart) {
+                        this.mapChart.showLoading();
+                    }
                 }
             }
         }
-        this.tempPlaces = selectedPlaces;
+        this.tempPlaces = this.places;
     };
     DataTileComponent.prototype.checkDataStateForCharts = function (source) {
         var _this = this;
+        console.log('bbbbbbbbbbbbbbbbbbbbbbbbbbbbb', this.indicator_info);
         var loadingGeoJSON = this.tileType === 'map' && this.showMap ? this.checkLoadGeoJSON() : false;
+        console.log('lodaindGeoJSON', loadingGeoJSON, this.tileType);
         if (this.tileType === 'graph') {
             this.getPlaceTypes('graph');
         }
         var loadMoreData = this.tileType === 'graph' ? true : this.checkUpdateData();
+        console.log('loadMoreData', loadMoreData, this.tileType);
         if (!loadingGeoJSON && loadMoreData) {
             console.log('need to load data.  chart type: ', this.tileType);
             if (window.location.href.indexOf('indicator=') !== -1) {
@@ -488,6 +472,7 @@ var DataTileComponent = (function () {
                     var inSelectedPlaces = false;
                     _this.places.forEach(function (place) {
                         inSelectedPlaces = place.Name.replace(' County', '') === selPt.id.replace(' County', '') && place.ResID === selPt.geoid ? true : inSelectedPlaces;
+                        console.log('inselectedplaces', inSelectedPlaces, place, selectedPlaces);
                         if (!inSelectedPlaces && place.TypeCategory !== 'Counties') {
                             if (place.GeoInfo.length > 0) {
                                 place.GeoInfo.forEach(function (gi) {
@@ -678,7 +663,6 @@ var DataTileComponent = (function () {
         var counties = '';
         var cts = '';
         this.places.forEach(function (place, idx) {
-            console.log('ginfo1', _this.places[idx].GeoInfo);
             geoids += place.ResID + (idx !== _this.places.length - 1 ? ',' : '');
             geonames += place.Name + (idx !== _this.places.length - 1 ? ',' : '');
             if (place.TypeCategory === 'SchoolDistricts') {
@@ -1127,6 +1111,10 @@ var DataTileComponent = (function () {
                     sliderScope.selectedMapPoints = sliderScope.mapChart.getSelectedPoints();
                     sliderScope.mapChart.redraw();
                     sliderScope.onSelectedYearChange.emit({ year: sliderScope.selectedYear, index: sliderScope.selectedYearIndex, indicator: sliderScope.indicator });
+                    if (sliderScope.indicator_info.Represented_ID === 10) {
+                        console.log('sliderscope?', sliderScope.dataStore);
+                        sliderScope.onChartDataUpdate.emit({ data: sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data });
+                    }
                 }
             }
         });
@@ -1175,8 +1163,8 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.initMapChart = function () {
-        console.log('CREATIN MAP CHART', this.mapChart);
         var mapScope = this;
+        var isTextData = false;
         this.mapOptions.xAxis = {
             min: mapScope.mapChartZoomSettings.xMin ? parseInt(mapScope.mapChartZoomSettings.xMin) : null,
             max: mapScope.mapChartZoomSettings.xMax ? parseInt(mapScope.mapChartZoomSettings.xMax) : null,
@@ -1229,20 +1217,38 @@ var DataTileComponent = (function () {
             }
         };
         var colorAxis = this.mapChart.colorAxis[0];
-        console.log('logarithmic?', this.getMinData(true, true), this.getMinData(true, true) > 0 ? 'logarithmic' : null);
-        colorAxis.update({
-            type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,
-            min: this.getMinData(true),
-            max: this.getMaxData(true),
-            endOnTick: false,
-            startOnTick: true,
-            maxColor: this.placeTypeData.Metadata[0].Color_hex ? this.placeTypeData.Metadata[0].Color_hex : '#003399',
-            labels: {
-                formatter: function () {
-                    return mapScope.formatValue(this.value, true);
+        if (this.indicator_info.Represented_ID === 10) {
+            isTextData = true;
+            var dataClasses = this.getDataClasses();
+            console.log('dataClasses', dataClasses);
+            colorAxis.update({
+                dataClasses: dataClasses,
+                showInLegend: false,
+                minColor: 'white',
+                maxColor: 'white',
+                tickColor: 'white',
+                lineColor: 'white',
+                labels: {
+                    enabled: false
+                },
+                gridLineWidth: 0,
+            });
+        }
+        else {
+            colorAxis.update({
+                type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,
+                min: this.getMinData(true),
+                max: this.getMaxData(true),
+                endOnTick: false,
+                startOnTick: true,
+                maxColor: this.placeTypeData.Metadata[0].Color_hex ? this.placeTypeData.Metadata[0].Color_hex : '#003399',
+                labels: {
+                    formatter: function () {
+                        return mapScope.formatValue(this.value, true);
+                    }
                 }
-            }
-        });
+            });
+        }
         var seriesLength = this.mapChart.series.length;
         for (var i = seriesLength - 1; i > -1; i--) {
             this.mapChart.series[i].remove();
@@ -1280,7 +1286,7 @@ var DataTileComponent = (function () {
                 select: {
                     color: '#BADA55'
                 }
-            }
+            },
         };
         console.log('checkshit', series);
         this.mapChart.addSeries(series, true);
@@ -1297,22 +1303,45 @@ var DataTileComponent = (function () {
                 fontStyle: 'italic'
             }
         });
-        this.mapChart.redraw();
         window.setTimeout(function () {
             mapScope.mapChart.hideLoading();
             mapScope.selectedMapPoints = mapScope.mapChart.getSelectedPoints();
         }, 500);
+        if (this.indicator_info.Represented_ID === 10) {
+            this.onChartDataUpdate.emit({ data: this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data, customPlace: this.selectedPlaceCustomChart, textYears: this.placeTypeData.Years, metadata: this.placeTypeData.Metadata[0] });
+        }
+    };
+    DataTileComponent.prototype.getSelectColor = function (context) {
+        console.log('getting select color', context);
+        var color = '#BADA55';
+        var returnColor = {
+            radialGradient: {
+                cx: 0.5,
+                cy: 0.5,
+                r: 0.45
+            },
+            stops: [
+                [0, color],
+                [1, color],
+                [2, color],
+                [3, color],
+                [4, color],
+                [5, color],
+                [6, color],
+                [7, angular2_highcharts_1.Highcharts.Color(color).brighten(-0.3).get('rgb')]
+            ]
+        };
+        console.log('return select color', returnColor);
+        return returnColor;
     };
     DataTileComponent.prototype.createGraphChart = function () {
         try {
             if (!this.isCustomChart) {
-                console.log('fred2 dss', this.dataStore.indicatorData[this.indicator].crt_db);
                 this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
                 this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
                 this.processDataYear();
                 this.processYearTicks();
                 this.selectedYearIndex = this._tickArray.length - 1;
-                console.log('countycheck-1', this.placeTypeData);
                 this.Data = this.placeTypeData.Data;
                 if (this.placeTypeData.Metadata.length > 0) {
                     var chartScope = this;
@@ -1441,6 +1470,33 @@ var DataTileComponent = (function () {
             }
         }
     };
+    DataTileComponent.prototype.getDataClasses = function () {
+        var uniqueVals = [];
+        var dataClasses = [];
+        var uniqueIdx = 0;
+        this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data.forEach(function (cd, idx) {
+            if (uniqueVals.indexOf(cd.value) === -1 && cd.value !== undefined) {
+                uniqueVals.push(cd.value);
+                uniqueIdx++;
+            }
+        });
+        uniqueVals
+            .sort(function (a, b) {
+            if (a !== null && b !== null) {
+                return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            }
+        })
+            .forEach(function (cd, idx) {
+            var dataClass = {
+                from: cd,
+                to: cd,
+                color: angular2_highcharts_1.Highcharts.getOptions().colors[idx],
+                name: cd
+            };
+            dataClasses.push(dataClass);
+        });
+        return dataClasses;
+    };
     DataTileComponent.prototype.onSelectedPlaceChangedCustomChart = function (selected) {
         console.log('place changed', selected, this.dataStore);
         this.selectedPlaceCustomChart = selected;
@@ -1454,7 +1510,7 @@ var DataTileComponent = (function () {
     };
     DataTileComponent.prototype.processCustomChart = function () {
         var _this = this;
-        console.log('thinks it is custom chart');
+        console.log('thinks it is custom chart', this.indicator_info.ScriptName);
         var chartScope = this;
         var categories;
         try {
@@ -1649,7 +1705,15 @@ var DataTileComponent = (function () {
                 case 'ClientContacts211Info':
                 case 'SocialServiceProviders211Info':
                 case 'PovertyByRace':
-                    console.log('setting up chart for poverty', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data, this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories);
+                    var chartTitle = this.isCountyLevel ?
+                        this.selectedPlaceCustomChart.GeoInfo.length > 0 ?
+                            this.selectedPlaceCustomChart.GeoInfo[0].County + ' County: ' + this.selectedCustomChartYear + '<br> (for ' + this.selectedPlaceCustomChart.Name + ')' :
+                            this.viewType === 'advanced' ?
+                                this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear :
+                                this.selectedCustomChartYear :
+                        this.viewType === 'advanced' ?
+                            this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear :
+                            this.selectedCustomChartYear;
                     var _211InfoChartOptions = {
                         chart: {
                             renderTo: 'highchart' + this.indicator,
@@ -1669,7 +1733,7 @@ var DataTileComponent = (function () {
                             text: ''
                         },
                         subtitle: {
-                            text: this.viewType === 'advanced' ? this.selectedPlaceCustomChart.Name + ': ' + this.selectedCustomChartYear : this.selectedCustomChartYear
+                            text: chartTitle
                         },
                         tooltip: {
                             pointFormat: this.indicator_info.ScriptName === 'PovertyByRace' ? '<b>{point.name}</b>: {point.y:.1f}%' : '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -1699,6 +1763,7 @@ var DataTileComponent = (function () {
                                 data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data
                             }]
                     };
+                    console.log('setting chart options', _211InfoChartOptions);
                     this.chart.destroy();
                     this.chart = new angular2_highcharts_1.Highcharts.Chart(_211InfoChartOptions);
                     break;
@@ -1857,7 +1922,7 @@ var DataTileComponent = (function () {
     };
     DataTileComponent.prototype.onResize = function (event) {
         try {
-            if (this.chart) {
+            if (this.chart || this.mapChart) {
                 var runInterval = setInterval(runCheck, 2000);
                 var resizeScope = this;
                 function runCheck() {
@@ -1942,10 +2007,11 @@ var DataTileComponent = (function () {
                     }
                 }
             }
-            if (!this.isSchool) {
-                if (this.places[p].Desc) {
-                    var split = this.places[p].ResID.length > 9 ? 1 : 0;
-                    isSelected = this.isCountyLevel ? (this.places[p].Desc.split(', ').length > split ? this.places[p].Desc.split(', ')[split].replace(' County', '') === place.community.replace(' County', '').trim() : isSelected) : isSelected;
+            if (this.isCountyLevel && this.places[p].TypeCategory !== 'Counties') {
+                if (this.places[p].GeoInfo.length > 0) {
+                    this.places[p].GeoInfo.forEach(function (gi) {
+                        isSelected = gi.county_geoid === place.geoid ? true : isSelected;
+                    });
                 }
             }
         }
@@ -2149,7 +2215,13 @@ var DataTileComponent = (function () {
                 this.places.forEach(function (place, pidx) {
                     var placeData = _this.placeTypeData.Data
                         .filter(function (data) {
-                        return data.geoid ? data.geoid === place.ResID : false;
+                        if (_this.isCountyLevel && place.GeoInfo.length > 0) {
+                            console.log('december');
+                            return place.GeoInfo[0].county_geoid === data.geoid;
+                        }
+                        else {
+                            return data.geoid ? data.geoid === place.ResID : false;
+                        }
                     })
                         .sort(_this.incomeSort);
                     var placeDataYears = [];
@@ -2654,6 +2726,7 @@ var DataTileComponent = (function () {
         });
     };
     DataTileComponent.prototype.ngOnChanges = function (changes) {
+        console.log('datatile changed', changes);
         if (changes._selectedYear && this.tileType === 'graph' && this.chart) {
             this.chart.xAxis[0].removePlotLine('plot-line-1');
             this.chart.xAxis[0].addPlotLine({

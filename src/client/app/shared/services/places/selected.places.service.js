@@ -39,14 +39,7 @@ var SelectedPlacesService = (function () {
         this.addPlace
             .map(function (args) {
             return function (state) {
-                var updateExisiting = args[1];
-                console.log('usgs', updateExisiting, args, state);
-                if (updateExisiting && state.length !== 0) {
-                    state.map(function (place) {
-                        return place.ResID === args[0].ResID ? args[0] : place;
-                    });
-                }
-                return updateExisiting ? state : state.concat(args[0]);
+                return state.concat(args[0]);
             };
         })
             .subscribe(this.updates);
@@ -147,8 +140,8 @@ var SelectedPlacesService = (function () {
         else {
             place.UpdateOnly = true;
             place.GeoInfo = [];
+            this.addPlace.next([place, false]);
         }
-        this.addPlace.next([place, false]);
     };
     SelectedPlacesService.prototype.addPlaces = function (places) {
         var _this = this;
@@ -206,50 +199,13 @@ var SelectedPlacesService = (function () {
     };
     SelectedPlacesService.prototype.setAllbyPlaceType = function (places, placeType, indicatorGeo) {
         var translatedPlaceType = this.translatePlaceTypes(placeType);
-        console.log('processing queue', this.processingQueue, places);
+        console.log('set all by place type', placeType, places, indicatorGeo);
         if (places.length > 0) {
-            places.forEach(function (p) {
-                p.UpdateOnly = false;
-            });
-            this.processingQueue.push({ places: places, placeType: translatedPlaceType });
-            if (!this.processing) {
-                this.processing = true;
-                this.intervalCount = 0;
-                this._setAllByPlaceType.next([this.processingQueue[0].places, this.processingQueue[0].placeType]);
-                if (placeType !== 'SchoolDistricts') {
-                    this.subScribeToGetAddionalPlaceInfo(this.processingQueue[0].places, this.processingQueue[0].placeType, indicatorGeo);
-                }
-                else {
-                    this.processingQueue.shift();
-                    this.processing = false;
-                }
+            if (placeType !== 'SchoolDistricts') {
+                this.subScribeToGetAddionalPlaceInfo(places, placeType, indicatorGeo);
             }
             else {
-                var runScope = this;
-                var runInterval = setInterval(runCheck, 100);
-                function runCheck() {
-                    console.log('processing queue run check', runScope.processingQueue, runScope.intervalCount);
-                    runScope.intervalCount++;
-                    if (runScope.intervalCount >= 12) {
-                        runScope.processingQueue.shift();
-                        runScope.processing = false;
-                        clearInterval(runInterval);
-                    }
-                    if (!runScope.processing && runScope.processingQueue.length > 0) {
-                        console.log('processing interval not processing moving on to next in queue', runScope.intervalCount);
-                        clearInterval(runInterval);
-                        runScope.intervalCount = 0;
-                        runScope.processing = true;
-                        runScope._setAllByPlaceType.next([runScope.processingQueue[0].places, runScope.processingQueue[0].placeType]);
-                        if (runScope.processingQueue[0].placeType !== 'SchoolDistricts') {
-                            runScope.subScribeToGetAddionalPlaceInfo(runScope.processingQueue[0].places, runScope.processingQueue[0].placeType);
-                        }
-                        else {
-                            runScope.processingQueue.shift();
-                            runScope.processing = false;
-                        }
-                    }
-                }
+                this._setAllByPlaceType.next([places, placeType]);
             }
         }
         else {

@@ -213,6 +213,19 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
             this.showIncrement = 2;
             this.showScrollUpCount = 1;
         } else if (windowWidth < 1200) {
+            //showIndicatorDefault: number = 9;
+            //showIndicatorCount: number = 6;
+            //showTopicIndicatorCount: number = 6;
+            //showIncrement: number = 3;
+            //scrollDownDistance: number = 8;
+            //scrollUpDistance: number = 10;
+
+            this.showIndicatorDefault = 8;
+            this.showIndicatorCount = 6;
+            this.showTopicIndicatorCount = 6;
+            this.scrollDownDistance = 12;
+            this.scrollUpDistance = 10;
+            this.showIncrement = 6;
             this.showScrollUpCount = 2;
         }
 

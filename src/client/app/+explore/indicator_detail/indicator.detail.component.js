@@ -24,6 +24,7 @@ var DetailComponent = (function () {
         this._chartData = [];
         this.chartData = [];
         this.isCustomChart = false;
+        this.isTextData = false;
         this.customChartSelections = {};
         this._customChartSelections = {};
         this.selectedPlaceType = 'Oregon';
@@ -197,10 +198,12 @@ var DetailComponent = (function () {
             .replace(/\%24/g, '$')
             .replace(/\+/g, '%2B');
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(function (data) {
+            console.log('indicator detail repsonse from indicator description service:!', data);
             var indicator_info = data.Desc[0];
             if (indicator_info) {
                 _this.indicatorDesc = data.Desc;
                 _this.relatedIndicators = data.RelatedIndicators;
+                _this.isTextData = indicator_info.Represented_ID === 10 ? true : false;
                 _this.indicatorTitle = indicator_info.Dashboard_Chart_Title
                     ? indicator_info.Dashboard_Chart_Title
                     : indicator_info.Variable;
