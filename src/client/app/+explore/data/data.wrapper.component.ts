@@ -169,31 +169,11 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     }
 
     onResize(event: any) {
-        let windowWidth = $(window).width();
-        this.isMobile = windowWidth < 767;
-        if (windowWidth < 767) {
-            //this.scrollDownDistance = 5;
-            //this.scrollUpDistance = 5;
-            //this.showIncrement = 1;
-        } else if (windowWidth < 993) {
-            //this.scrollDownDistance = 3;
-            //this.scrollUpDistance = 3;
-            //this.showIncrement = 2;
-            this.showScrollUpCount = 1;
-        } else if (windowWidth < 1200) {
-            this.showScrollUpCount = 2;
-        } else {
-            this.showScrollUpCount = 3;
-        }
+        console.log('snow');
+        //this.setScrollSettings();
     }
 
-    ngOnInit() {
-        //check input topics set all topics to all
-        this.resultView = 'graph';
-        //console.log('Data Component: Collections Input ' + this.inputCollections);
-        this.checkTopicIndicatorLoaded();
-        this.hideAll = false;
-        //check screen size and adjust scroll load settings accordingly
+    setScrollSettings() {
         let windowWidth = $(window).width();
         this.isMobile = windowWidth < 767;
         if (windowWidth < 767) {
@@ -228,10 +208,20 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
             this.showIncrement = 6;
             this.showScrollUpCount = 2;
         }
+    }
 
-        let windowHeight = $(window).height();
-        let bodyHeight = $('body').height();
-        console.log('windowHeight', windowHeight, bodyHeight);
+    ngOnInit() {
+        //check input topics set all topics to all
+        this.resultView = 'graph';
+        //console.log('Data Component: Collections Input ' + this.inputCollections);
+        this.checkTopicIndicatorLoaded();
+        this.hideAll = false;
+        //check screen size and adjust scroll load settings accordingly
+        this.setScrollSettings();
+
+        //let windowHeight = $(window).height();
+        //let bodyHeight = $('body').height();
+        //console.log('windowHeight', windowHeight, bodyHeight);
 
         //if (windowHeight > 800) {
         //    this.scrollDownDistance = 12;

@@ -1113,6 +1113,7 @@ var DataTileComponent = (function () {
                     sliderScope.onSelectedYearChange.emit({ year: sliderScope.selectedYear, index: sliderScope.selectedYearIndex, indicator: sliderScope.indicator });
                     if (sliderScope.indicator_info.Represented_ID === 10) {
                         console.log('sliderscope?', sliderScope.dataStore);
+                        sliderScope.initMapChart();
                         sliderScope.onChartDataUpdate.emit({ data: sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data });
                     }
                 }
@@ -1163,6 +1164,7 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.initMapChart = function () {
+        console.log('CREATIN MAP CHART', this.mapChart, this.mapOptions);
         var mapScope = this;
         var isTextData = false;
         this.mapOptions.xAxis = {
@@ -1233,6 +1235,7 @@ var DataTileComponent = (function () {
                 },
                 gridLineWidth: 0,
             });
+            this.mapChart.legend.update(this.setLegendOptions(true));
         }
         else {
             colorAxis.update({
@@ -1475,7 +1478,7 @@ var DataTileComponent = (function () {
         var dataClasses = [];
         var uniqueIdx = 0;
         this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data.forEach(function (cd, idx) {
-            if (uniqueVals.indexOf(cd.value) === -1 && cd.value !== undefined) {
+            if (uniqueVals.indexOf(cd.value) === -1 && cd.value !== undefined && cd.value !== null && cd.value !== '') {
                 uniqueVals.push(cd.value);
                 uniqueIdx++;
             }
@@ -1928,6 +1931,17 @@ var DataTileComponent = (function () {
                 function runCheck() {
                     var newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
                     $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
+                    if (resizeScope.mapChart && resizeScope.indicator_info.Represented_ID === 10) {
+                        if (resizeScope.mapChart.legend) {
+                            try {
+                                resizeScope.mapChart.legend.update(resizeScope.setLegendOptions());
+                            }
+                            catch (ex) {
+                                console.log('failed', ex);
+                                clearInterval(runInterval);
+                            }
+                        }
+                    }
                     clearInterval(runInterval);
                 }
             }
@@ -1938,6 +1952,7 @@ var DataTileComponent = (function () {
     };
     DataTileComponent.prototype.setLegendOptions = function (show) {
         try {
+            var returnObj = {};
             var domTile = this.related ? $(this.elementRef.nativeElement) : $('#data-tile-wrapper');
             var domTileWidth = $(domTile).width() !== 0
                 ? $(domTile).width()
@@ -1945,7 +1960,7 @@ var DataTileComponent = (function () {
                     ? this.elementRef.nativeElement.offsetParent.offsetWidth - 50
                     : 400;
             console.log('domtilewidth', this.indicator, domTileWidth, this.elementRef.nativeElement.offsetParent.offsetWidth);
-            return {
+            returnObj = {
                 itemStyle: {
                     color: '#4d4d4d'
                 },
@@ -1953,6 +1968,17 @@ var DataTileComponent = (function () {
                     text: this.isStatewide || !show ? null : 'LEGEND: <span style="font-size: 9px; color: #666; font-weight: normal">(Click to hide series in chart)</span>'
                 }
             };
+            if (this.indicator_info.Represented_ID === 10) {
+                if ((domTileWidth < 800 && (this.getDataClasses().length > 3))) {
+                    console.log('wishthati');
+                    returnObj.align = 'center';
+                    returnObj.x = domTileWidth < 400 ? 40 : 20;
+                }
+                else if (this.getDataClasses().length > 8) {
+                    returnObj.x = 30;
+                }
+            }
+            return returnObj;
         }
         catch (ex) {
             return null;

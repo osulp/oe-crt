@@ -140,24 +140,9 @@ var DataComponent = (function () {
         }
     };
     DataComponent.prototype.onResize = function (event) {
-        var windowWidth = $(window).width();
-        this.isMobile = windowWidth < 767;
-        if (windowWidth < 767) {
-        }
-        else if (windowWidth < 993) {
-            this.showScrollUpCount = 1;
-        }
-        else if (windowWidth < 1200) {
-            this.showScrollUpCount = 2;
-        }
-        else {
-            this.showScrollUpCount = 3;
-        }
+        console.log('snow');
     };
-    DataComponent.prototype.ngOnInit = function () {
-        this.resultView = 'graph';
-        this.checkTopicIndicatorLoaded();
-        this.hideAll = false;
+    DataComponent.prototype.setScrollSettings = function () {
         var windowWidth = $(window).width();
         this.isMobile = windowWidth < 767;
         if (windowWidth < 767) {
@@ -187,9 +172,12 @@ var DataComponent = (function () {
             this.showIncrement = 6;
             this.showScrollUpCount = 2;
         }
-        var windowHeight = $(window).height();
-        var bodyHeight = $('body').height();
-        console.log('windowHeight', windowHeight, bodyHeight);
+    };
+    DataComponent.prototype.ngOnInit = function () {
+        this.resultView = 'graph';
+        this.checkTopicIndicatorLoaded();
+        this.hideAll = false;
+        this.setScrollSettings();
     };
     DataComponent.prototype.ngAfterViewInit = function () {
         console.log(this.indTopListComps);

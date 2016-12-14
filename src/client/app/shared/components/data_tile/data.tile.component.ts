@@ -1468,6 +1468,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
                         if (sliderScope.indicator_info.Represented_ID === 10) {
                             console.log('sliderscope?', sliderScope.dataStore);
+                            sliderScope.initMapChart();
                             sliderScope.onChartDataUpdate.emit({ data: sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data });
                         }
 
@@ -1530,7 +1531,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
 
     initMapChart() {
-        //console.log('CREATIN MAP CHART', this.mapChart, this.mapOptions);
+        console.log('CREATIN MAP CHART', this.mapChart, this.mapOptions);
 
         var mapScope = this;
         var isTextData: boolean = false;
@@ -1615,6 +1616,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 //maxColor: null,
 
             });
+            this.mapChart.legend.update(this.setLegendOptions(true));
         } else {
             colorAxis.update({
                 type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,// 'logarithmic',
@@ -1953,7 +1955,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         let dataClasses: any[] = [];
         let uniqueIdx: number = 0;
         this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data.forEach((cd: any, idx:number) => {
-            if (uniqueVals.indexOf(cd.value) === -1 && cd.value !== undefined) {
+            if (uniqueVals.indexOf(cd.value) === -1 && cd.value !== undefined && cd.value !== null && cd.value !== '') {
                 uniqueVals.push(cd.value);
                 //let dataClass: {} = {
                 //    from: cd.value,
@@ -2477,18 +2479,18 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     let newWidth = resizeScope.elementRef.nativeElement.offsetWidth - 100 > $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width() ? resizeScope.elementRef.nativeElement.offsetWidth - 100 : $(resizeScope.isCustomChart ? '.graph-chart' : '.map-chart').width();
                     $('.ui-slider-wrapper').css('width', newWidth - 93 + 'px');
 
-                    //if (resizeScope.chart.legend) {
-                    //    //console.log('foster', resizeScope.indicator, resizeScope.tileType, resizeScope.chart.legend.display);
-                    //    if (resizeScope.chart.legend) {
-                    //        //console.log('foster2', resizeScope.indicator, resizeScope.tileType, resizeScope.setLegendOptions(true));
-                    //        try {
-                    //            //resizeScope.chart.legend.update(resizeScope.setLegendOptions());
-                    //        } catch (ex) {
-                    //            console.log('failed', ex);
-                    //            clearInterval(runInterval);
-                    //        }
-                    //    }
-                    //}
+                    if (resizeScope.mapChart && resizeScope.indicator_info.Represented_ID === 10) {
+                        //console.log('foster', resizeScope.indicator, resizeScope.tileType, resizeScope.chart.legend.display);
+                        if (resizeScope.mapChart.legend) {
+                            //console.log('foster2', resizeScope.indicator, resizeScope.tileType, resizeScope.setLegendOptions(true));
+                            try {
+                                resizeScope.mapChart.legend.update(resizeScope.setLegendOptions());
+                            } catch (ex) {
+                                console.log('failed', ex);
+                                clearInterval(runInterval);
+                            }
+                        }
+                    }
 
                     clearInterval(runInterval);
                 }
@@ -2498,10 +2500,11 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
-    setLegendOptions(show?:boolean) {
+    setLegendOptions(show?: boolean) {
         //console.log('legendOptions', $('#data-tile-wrapper').width(), this.elementRef.nativeElement.offsetWidth, $(this.elementRef.nativeElement).width());
         //let domTile = $('#data-tile-wrapper');
         try {
+            let returnObj: any = {};
             let domTile = this.related ? $(this.elementRef.nativeElement) : $('#data-tile-wrapper');
             //let domTile = $('#data-tile-wrapper');
             let domTileWidth = $(domTile).width() !== 0
@@ -2511,17 +2514,26 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     : 400;
             //let domTileWidth = $('#highchart' + this.indicator).width();
             console.log('domtilewidth', this.indicator, domTileWidth, this.elementRef.nativeElement.offsetParent.offsetWidth);
-            return {
-                //width: this.viewType === 'basic' ? domTileWidth : 400,
-                //itemWidth: this.viewType === 'basic' ? (domTileWidth - 20) / 2 : 200,
+            returnObj = {
                 itemStyle: {
-                   // width: this.viewType === 'basic' ? (domTileWidth - 40) / 2 : 180,
+                    // width: this.viewType === 'basic' ? (domTileWidth - 40) / 2 : 180,
                     color: '#4d4d4d'
                 },
                 title: {
                     text: this.isStatewide || !show ? null : 'LEGEND: <span style="font-size: 9px; color: #666; font-weight: normal">(Click to hide series in chart)</span>'
                 }
             };
+            if (this.indicator_info.Represented_ID === 10) {
+                if ((domTileWidth < 800 && (this.getDataClasses().length > 3))) {
+                    console.log('wishthati');
+                    //returnObj.width = (domTileWidth * .7);
+                    returnObj.align = 'center';
+                    returnObj.x = domTileWidth < 400 ? 40 : 20;
+                } else if (this.getDataClasses().length > 8) {
+                    returnObj.x = 30;
+                }
+            }
+            return returnObj;
         } catch (ex) {
             //console.log('resize legend failed', ex);
             return null;
