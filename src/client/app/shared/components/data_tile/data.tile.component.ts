@@ -1151,18 +1151,18 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             //console.log('pData Group', pData);
                             return pData.geoid === place.ResID;
                         });
-                        console.log(placeData);
+                        //console.log('chickens',placeData);
                         if (placeData.length > 0) {
                             let numValue = placeData[0][year.Year + '_N'];
                             let denomValue = placeData[0][year.Year + '_D'];
                             let numMOEValue = isACS ? placeData[0][year.Year + '_MOE_N'] : null;
                             let denomMOEValue = isACS ? placeData[0][year.Year + '_MOE_D'] : null;
 
-                            console.log('place comb data', placeData);
-                            console.log('num value', numValue);
-                            console.log('denom value', denomValue);
+                            //console.log('place comb data', placeData);
+                            //console.log('num value', numValue);
+                            //console.log('denom value', denomValue);
                             combinedNumerators = (numValue !== '' && numValue !== null) ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
-                            combinedDenoms = denomValue !== '' && denomValue !== null ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
+                            combinedDenoms = ['',1,null].indexOf(denomValue) !== -1 ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
                             if (isACS) {
                                 combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
                                 combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
@@ -1174,8 +1174,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         }
                     }
                     if (!notCombined) {
-                        //console.log('combined num values', combinedNumerators);
-                        //console.log('combined denom values', combinedDenoms);
+                        //console.log('chickens combined num values', combinedNumerators,year.Year);
+                        //console.log('chickens combined denom values', combinedDenoms);
                         combinedDenoms = combinedDenoms === 0 || combinedDenoms === null ? 1 : combinedDenoms;
                         combinedGroupData[year.Year] = combinedNumerators !== 0 ? combinedNumerators / combinedDenoms * multiplyBy : null;
                         if (isACS) {
@@ -1194,12 +1194,13 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
                 //remove place from combined data
                 for (var place of group) {
+                    //console.log('chicken filtered combinedData', combinedData.Data);
                     combinedData.Data = combinedData.Data.filter((pData: any) => { return pData.geoid !== place.ResID && pData.community !== place.Name; });
-                    //console.log('filtered combinedData', combinedData.Data);
+                    //console.log('chicken filtered combinedData2', combinedData.Data);
                 }
 
                 combinedData.Data.push(combinedGroupData);
-                console.log('combined data added', combinedData);
+                //console.log('combined data added', combinedData);
             }
         }
         return combinedData;

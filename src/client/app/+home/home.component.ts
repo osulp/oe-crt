@@ -18,6 +18,6 @@ import {SponsorsComponent} from './sponsors/sponsors.component';
 export class HomeComponent implements OnInit {
     ngOnInit() {
         console.log('pushState', window.location.href, window.history.state);
-        window.history.pushState({}, 'CRT Home', window.location.href);
+        //window.history.pushState({}, 'CRT Home', window.location.href);
     }
 }

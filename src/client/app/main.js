@@ -43,7 +43,7 @@ var AppExceptionHandler = (function (_super) {
         this.getDependencies();
         console.log('error handler', exception);
         toastr.clear();
-        toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + '<img width="170px" src="/assets/img/error-dog.png" />');
+        toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.');
         _super.prototype.call.call(this, exception, stackTrace, reason);
     };
     AppExceptionHandler.prototype.getDependencies = function () {

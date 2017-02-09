@@ -857,17 +857,13 @@ var DataTileComponent = (function () {
                         var placeData = combinedData.Data.filter(function (pData) {
                             return pData.geoid === place.ResID;
                         });
-                        console.log(placeData);
                         if (placeData.length > 0) {
                             var numValue = placeData[0][year.Year + '_N'];
                             var denomValue = placeData[0][year.Year + '_D'];
                             var numMOEValue = isACS ? placeData[0][year.Year + '_MOE_N'] : null;
                             var denomMOEValue = isACS ? placeData[0][year.Year + '_MOE_D'] : null;
-                            console.log('place comb data', placeData);
-                            console.log('num value', numValue);
-                            console.log('denom value', denomValue);
                             combinedNumerators = (numValue !== '' && numValue !== null) ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
-                            combinedDenoms = denomValue !== '' && denomValue !== null ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
+                            combinedDenoms = ['', 1, null].indexOf(denomValue) !== -1 ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
                             if (isACS) {
                                 combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
                                 combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
@@ -899,7 +895,6 @@ var DataTileComponent = (function () {
                     combinedData.Data = combinedData.Data.filter(function (pData) { return pData.geoid !== place.ResID && pData.community !== place.Name; });
                 }
                 combinedData.Data.push(combinedGroupData);
-                console.log('combined data added', combinedData);
             }
         }
         return combinedData;
