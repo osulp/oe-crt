@@ -1027,12 +1027,16 @@ var DataTileComponent = (function () {
         }
     };
     DataTileComponent.prototype.getPlaceData = function () {
+        console.log('Checking on place data', this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data);
         var returnData;
         if (this.tileType === 'map' && this.showMap) {
             returnData = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data.place_data;
         }
         else {
             returnData = this.dataStore.indicatorData[this.indicator].chart_data.place_data;
+        }
+        if (this.indicator_info.Represented_ID !== 10) {
+            returnData.forEach(function (data) { return data.value ? data.value = +data.value : false; });
         }
         return returnData.filter(function (data) { return typeof data.value === 'number'; });
     };

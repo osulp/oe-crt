@@ -1380,12 +1380,16 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     getPlaceData() {
-        //console.log('Checking on place data', this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data);
+        console.log('Checking on place data', this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data.place_data);
         let returnData: any;
         if (this.tileType === 'map' && this.showMap) {
             returnData = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data.place_data;
         } else {
             returnData = this.dataStore.indicatorData[this.indicator].chart_data.place_data;
+        }
+
+        if (this.indicator_info.Represented_ID !== 10) {
+            returnData.forEach((data: any) => data.value ? data.value = +data.value : false);
         }
         return returnData.filter((data: any) => typeof data.value === 'number');
     }
