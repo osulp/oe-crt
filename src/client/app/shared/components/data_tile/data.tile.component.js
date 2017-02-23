@@ -1878,29 +1878,40 @@ var DataTileComponent = (function () {
                     }
                 }, true);
                 if (_this.hasMOEs) {
-                    _this.chart.addSeries({
-                        name: pd.community + pd.geoid + ' Margin of Error',
-                        whiskerLength: 10,
-                        whiskerColor: isState ? 'gray' : angular2_highcharts_1.Highcharts.getOptions().colors[idx],
-                        stemColor: isState ? 'gray' : angular2_highcharts_1.Highcharts.getOptions().colors[idx],
-                        stemDashStyle: 'Dash',
-                        type: 'errorbar',
-                        data: _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data,
-                        linkedTo: pd.community + pd.geoid,
-                        visible: _this.showMOES
-                    }, false);
-                    var maxMoe = _this.getMaxMOE(_this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data);
-                    var minMoe = _this.getMinMOE(_this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data);
-                    if (maxMoe !== undefined) {
-                        var extremes = _this.chart.yAxis[0].getExtremes();
-                        maxMoe = maxMoe < extremes.max ? extremes.max : maxMoe;
-                        minMoe = minMoe > 0 ? 0 : minMoe;
-                        _this.chart.yAxis[0].setExtremes(minMoe, maxMoe);
+                    console.log('adding moe', _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data);
+                    var moe_data_check = _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data
+                        .filter(function (m) {
+                        return m ? m.filter(function (moe) { return $.isNumeric(moe); }).length > 0 : false;
+                    });
+                    console.log('moe check?', moe_data_check);
+                    if (moe_data_check.length > 0) {
+                        _this.chart.addSeries({
+                            name: pd.community + pd.geoid + ' Margin of Error',
+                            whiskerLength: 10,
+                            whiskerColor: isState ? 'gray' : angular2_highcharts_1.Highcharts.getOptions().colors[idx],
+                            stemColor: isState ? 'gray' : angular2_highcharts_1.Highcharts.getOptions().colors[idx],
+                            stemDashStyle: 'Dash',
+                            type: 'errorbar',
+                            data: _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data,
+                            linkedTo: _this.getCommunityName(pd),
+                            visible: _this.showMOES
+                        }, false);
+                        var maxMoe = _this.getMaxMOE(_this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data);
+                        var minMoe = _this.getMinMOE(_this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data);
+                        if (maxMoe !== undefined) {
+                            var extremes = _this.chart.yAxis[0].getExtremes();
+                            maxMoe = maxMoe < extremes.max ? extremes.max : maxMoe;
+                            minMoe = minMoe > 0 ? 0 : minMoe;
+                            _this.chart.yAxis[0].setExtremes(minMoe, maxMoe);
+                        }
                     }
-                    _this.chart.redraw();
                 }
             }
         });
+        var extremes = this.chart.yAxis[0].getExtremes();
+        console.log('get extremes', extremes);
+        this.chart.redraw();
+        this.chart.yAxis[0].setExtremes();
     };
     DataTileComponent.prototype.toggleMOEs = function () {
         var _this = this;
