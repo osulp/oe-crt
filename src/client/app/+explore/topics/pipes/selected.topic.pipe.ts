@@ -29,57 +29,60 @@ import {Topic} from '../../../shared/data_models/index';
 export class SelectedTopicsPipe implements PipeTransform {
     transform(topics: Topic[], collection: any, topicIndicatorCount: any): any {
         console.log('selectedTopicsPipe', topicIndicatorCount, collection);
-        if (topics !== undefined && collection) {
-            let selectedCollection = collection.filter((coll: any) => coll.selected);
-            let isAllTopics = topics.filter(topic => topic.selected).length === 0;
-            if (selectedCollection.length > 0) {
-                let selectedTopics = topics.filter((topic: Topic) => {
-                    if (topicIndicatorCount ? topicIndicatorCount[topic.topic]: false) {
-                        if (topic.selected || isAllTopics) {
-                            return selectedCollection[0].collection !== 'Show All'
-                                ? topic.collections
-                                    ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1
-                                        ? topicIndicatorCount[topic.topic][selectedCollection[0].collection].maxCount > 0
+        try {
+            if (topics && collection) {
+                let selectedCollection = collection.filter((coll: any) => coll.selected);
+                let isAllTopics = topics.filter(topic => topic.selected).length === 0;
+                if (selectedCollection.length > 0) {
+                    let selectedTopics = topics.filter((topic: Topic) => {
+                        if (topicIndicatorCount ? topicIndicatorCount[topic.topic] : false) {
+                            if (topic.selected || isAllTopics) {
+                                return selectedCollection[0].collection !== 'Show All'
+                                    ? topic.collections
+                                        ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1
+                                            ? topicIndicatorCount[topic.topic][selectedCollection[0].collection].maxCount > 0
+                                            : false
                                         : false
-                                    : false
-                                : topicIndicatorCount[topic.topic]
+                                    : topicIndicatorCount[topic.topic]
+                                        ? topicIndicatorCount[topic.topic]['Show All'].maxCount > 0
+                                        : true;
+                            } else {
+                                return topicIndicatorCount[topic.topic]
                                     ? topicIndicatorCount[topic.topic]['Show All'].maxCount > 0
                                     : true;
+                            }
+                            //console.log('topic filter check', topic, topicIndicatorCount[topic.topic]);
                         } else {
-                            return topicIndicatorCount[topic.topic]
-                                ? topicIndicatorCount[topic.topic]['Show All'].maxCount > 0
-                                : true;
+                            return topic.selected && (selectedCollection[0].collection !== 'Show All'
+                                ? topic.collections
+                                    ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1
+                                    : false
+                                : true);
                         }
-                        //console.log('topic filter check', topic, topicIndicatorCount[topic.topic]);
+                    });
+                    console.log('selectedCRTTOPICs', topics, collection, selectedCollection, selectedTopics);
+                    if (selectedTopics.length === 0) {
+                        //filter by selected collection
+                        return topics.filter(topic => selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true).sort((a: any, b: any) => a.topic.localeCompare(b.topic));
                     } else {
-                        return topic.selected && (selectedCollection[0].collection !== 'Show All'
-                            ? topic.collections
-                                ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1
-                                : false
-                            : true);
+                        return selectedTopics.sort((a: any, b: any) => a.topic.localeCompare(b.topic));
                     }
-                });
-                console.log('selectedCRTTOPICs', topics, collection, selectedCollection, selectedTopics);
-                if (selectedTopics.length === 0) {
-                    //filter by selected collection
-                    return topics.filter(topic => selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true).sort((a: any, b: any) => a.topic.localeCompare(b.topic));
                 } else {
+                    let selectedTopics = topics.filter((topic: Topic) => {
+                        if (topicIndicatorCount) {
+                            return topicIndicatorCount[topic.topic][selectedCollection].maxCount > 0 && topic.selected;
+                        } else {
+                            return topic.selected;
+                        }
+                    });
                     return selectedTopics.sort((a: any, b: any) => a.topic.localeCompare(b.topic));
                 }
-            } else {
-                let selectedTopics = topics.filter((topic:Topic) => {
-                    if (topicIndicatorCount) {
-                        return topicIndicatorCount[topic.topic][selectedCollection].maxCount > 0 && topic.selected;
-                    } else {
-                        return topic.selected;
-                    }
-                });
-                return selectedTopics.sort((a: any, b: any) => a.topic.localeCompare(b.topic));
             }
+        } catch (ex) {
+            console.log('error in selected topic pipe', ex);
+            return topics;
         }
+
     }
-
-
-
 }
 

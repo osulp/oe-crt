@@ -2751,10 +2751,13 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 } else {
                     returnName = pData.Name === 'Statewide' ? 'Oregon' : pData.Name;
                 }
-            } else if (place.TypeCategory === 'Unincorporated Place' && (pData.geoid.split(',').indexOf(place.ResID) !== -1 || place.Desc.replace(' County', '').indexOf(pData.community) !== -1)) {
+            } else if (place.TypeCategory === 'Unincorporated Place'
+                && pData.geoType === 'Census Tract'
+                && (pData.geoid.split(',').indexOf(place.ResID) !== -1 || place.Desc.replace(' County', '').indexOf(pData.community) !== -1)
+            ) {
                 //returnName = returnName === '' ? pData.community + (pData.geoid.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
                 if (this.isCountyLevel) {
-                    console.log('getcommunityname', place);
+                    //console.log('getcommunityname', place);
                     returnName = returnName === '' ?
                         place.GeoInfo.length > 0 ?
                             (place.GeoInfo[0].County + ' County<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>') :
@@ -2763,7 +2766,15 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 place.Desc) + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' :
                         returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
                 } else {
-                    returnName = returnName === '' ? place.Desc.split('~')[0] + (place.ResID.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
+                    console.log('returnName', place, returnName);
+                    returnName = returnName === ''
+                        ? place.Desc.split('~')[0]
+                        + (place.ResID.length === 5
+                            ? ' County'
+                            : '')
+                        + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains '
+                        + place.Name.trim() + ')</em></span>'
+                        : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';
                 }
 
             } else if (this.isCountyLevel && (place.TypeCategory === 'Incorporated City' || place.TypeCategory === 'Incorporated Town' || place.TypeCategory === 'Census Designated Place') && place.Desc.replace(' County', '') === pData.community) {

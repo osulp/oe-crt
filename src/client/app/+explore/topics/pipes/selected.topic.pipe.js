@@ -13,56 +13,62 @@ var SelectedTopicsPipe = (function () {
     }
     SelectedTopicsPipe.prototype.transform = function (topics, collection, topicIndicatorCount) {
         console.log('selectedTopicsPipe', topicIndicatorCount, collection);
-        if (topics !== undefined && collection) {
-            var selectedCollection = collection.filter(function (coll) { return coll.selected; });
-            var isAllTopics = topics.filter(function (topic) { return topic.selected; }).length === 0;
-            if (selectedCollection.length > 0) {
-                var selectedTopics = topics.filter(function (topic) {
-                    if (topicIndicatorCount ? topicIndicatorCount[topic.topic] : false) {
-                        if (topic.selected || isAllTopics) {
-                            return selectedCollection[0].collection !== 'Show All'
-                                ? topic.collections
-                                    ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1
-                                        ? topicIndicatorCount[topic.topic][selectedCollection[0].collection].maxCount > 0
+        try {
+            if (topics && collection) {
+                var selectedCollection = collection.filter(function (coll) { return coll.selected; });
+                var isAllTopics = topics.filter(function (topic) { return topic.selected; }).length === 0;
+                if (selectedCollection.length > 0) {
+                    var selectedTopics = topics.filter(function (topic) {
+                        if (topicIndicatorCount ? topicIndicatorCount[topic.topic] : false) {
+                            if (topic.selected || isAllTopics) {
+                                return selectedCollection[0].collection !== 'Show All'
+                                    ? topic.collections
+                                        ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1
+                                            ? topicIndicatorCount[topic.topic][selectedCollection[0].collection].maxCount > 0
+                                            : false
                                         : false
-                                    : false
-                                : topicIndicatorCount[topic.topic]
+                                    : topicIndicatorCount[topic.topic]
+                                        ? topicIndicatorCount[topic.topic]['Show All'].maxCount > 0
+                                        : true;
+                            }
+                            else {
+                                return topicIndicatorCount[topic.topic]
                                     ? topicIndicatorCount[topic.topic]['Show All'].maxCount > 0
                                     : true;
+                            }
                         }
                         else {
-                            return topicIndicatorCount[topic.topic]
-                                ? topicIndicatorCount[topic.topic]['Show All'].maxCount > 0
-                                : true;
+                            return topic.selected && (selectedCollection[0].collection !== 'Show All'
+                                ? topic.collections
+                                    ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1
+                                    : false
+                                : true);
                         }
+                    });
+                    console.log('selectedCRTTOPICs', topics, collection, selectedCollection, selectedTopics);
+                    if (selectedTopics.length === 0) {
+                        return topics.filter(function (topic) { return selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true; }).sort(function (a, b) { return a.topic.localeCompare(b.topic); });
                     }
                     else {
-                        return topic.selected && (selectedCollection[0].collection !== 'Show All'
-                            ? topic.collections
-                                ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1
-                                : false
-                            : true);
+                        return selectedTopics.sort(function (a, b) { return a.topic.localeCompare(b.topic); });
                     }
-                });
-                console.log('selectedCRTTOPICs', topics, collection, selectedCollection, selectedTopics);
-                if (selectedTopics.length === 0) {
-                    return topics.filter(function (topic) { return selectedCollection[0].collection !== 'Show All' ? topic.collections ? topic.collections.split(', ').indexOf(selectedCollection[0].collection) !== -1 : false : true; }).sort(function (a, b) { return a.topic.localeCompare(b.topic); });
                 }
                 else {
+                    var selectedTopics = topics.filter(function (topic) {
+                        if (topicIndicatorCount) {
+                            return topicIndicatorCount[topic.topic][selectedCollection].maxCount > 0 && topic.selected;
+                        }
+                        else {
+                            return topic.selected;
+                        }
+                    });
                     return selectedTopics.sort(function (a, b) { return a.topic.localeCompare(b.topic); });
                 }
             }
-            else {
-                var selectedTopics = topics.filter(function (topic) {
-                    if (topicIndicatorCount) {
-                        return topicIndicatorCount[topic.topic][selectedCollection].maxCount > 0 && topic.selected;
-                    }
-                    else {
-                        return topic.selected;
-                    }
-                });
-                return selectedTopics.sort(function (a, b) { return a.topic.localeCompare(b.topic); });
-            }
+        }
+        catch (ex) {
+            console.log('error in selected topic pipe', ex);
+            return topics;
         }
     };
     SelectedTopicsPipe = __decorate([
