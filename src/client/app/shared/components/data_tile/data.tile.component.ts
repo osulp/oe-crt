@@ -1151,23 +1151,34 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             //console.log('pData Group', pData);
                             return pData.geoid === place.ResID;
                         });
-                        //console.log('chickens',placeData);
+                        console.log('chickens',placeData);
                         if (placeData.length > 0) {
-                            let numValue = placeData[0][year.Year + '_N'];
-                            let denomValue = placeData[0][year.Year + '_D'];
-                            let numMOEValue = isACS ? placeData[0][year.Year + '_MOE_N'] : null;
-                            let denomMOEValue = isACS ? placeData[0][year.Year + '_MOE_D'] : null;
-
+                            let numValue = placeData[0][year.Year + '_N']
+                                ? placeData[0][year.Year + '_N'].trim()
+                                : null;
+                            let denomValue = placeData[0][year.Year + '_D']
+                                ? placeData[0][year.Year + '_D'].trim()
+                                : null;
+                            let numMOEValue = isACS
+                                ? placeData[0][year.Year + '_MOE_N']
+                                    ? placeData[0][year.Year + '_MOE_N'].trim()
+                                    : null
+                                : null;
+                            let denomMOEValue = isACS
+                                ? placeData[0][year.Year + '_MOE_D']
+                                    ? placeData[0][year.Year + '_MOE_D'].trim()
+                                    : null
+                                : null;
                             //console.log('place comb data', placeData);
                             //console.log('num value', numValue);
                             //console.log('denom value', denomValue);
                             combinedNumerators = (numValue !== '' && numValue !== null) ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
-                            combinedDenoms = ['', 1, null].indexOf(denomValue) !== -1 ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
+                            combinedDenoms = ['', 1, null].indexOf(denomValue) === -1 ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
                             if (isACS) {
                                 combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
                                 combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
                             }
-                            console.log('combinedNumerators', combinedNumerators, numValue);
+                            console.log('combinedNumerators', combinedNumerators, numValue, combinedDenoms, denomValue);
 
                         } else {
                             notCombined = true;
@@ -1200,7 +1211,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
 
                 combinedData.Data.push(combinedGroupData);
-                //console.log('combined data added', combinedData);
+                console.log('combined data added', combinedData);
             }
         }
         return combinedData;
@@ -2388,69 +2399,73 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 ? '#98BD85'
                                 : Highcharts.getOptions().colors[idx];
             let data = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data;
-            //console.log('mustarddata', data);
-            if (addedSeries.indexOf((this.isSchool ? pd.Name : pd.community) + pd.geoid) === -1 && this.hasCombined ? this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data.filter((d: any) => d !== null).length > 0 : true) {
-                //console.log('mustard', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data);
-                addedSeries.push((this.isSchool ? pd.Name : pd.community) + pd.geoid);
-                this.chart.addSeries({
-                    id: (this.isSchool ? pd.Name : pd.community) + pd.geoid,
-                    name: this.getCommunityName(pd),
-                    type: isBarChart ? 'column' : 'line',
-                    lineWidth: isState ? 4 : 2,
-                    lineColor: isState ? '#A3A3A4' : Highcharts.getOptions().colors[idx],
-                    lineOpacity: 1.0,
-                    data: data,
-                    color: color,
-                    connectNulls: true,
-                    threshold: 0,
-                    fillOpacity: 0.85,
-                    animation: {
-                        duration: 500
-                    },
-                    marker: {
-                        fillColor: isState ? '#FFFFFF' : Highcharts.getOptions().colors[idx],
+            //console.log('mustarddata', data, addedSeries,pd, this.hasCombined);
+            if (addedSeries.indexOf((this.isSchool ? pd.Name : pd.community) + pd.geoid) === -1 && this.hasCombined ?
+                this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data.filter((d: any) => d !== null).length > 0
+                : true) {
+                if (addedSeries.indexOf((this.isSchool ? pd.Name : pd.community) + pd.geoid) === -1) {
+                    //console.log('mustard', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data);
+                    addedSeries.push((this.isSchool ? pd.Name : pd.community) + pd.geoid);
+                    this.chart.addSeries({
+                        id: (this.isSchool ? pd.Name : pd.community) + pd.geoid,
+                        name: this.getCommunityName(pd),
+                        type: isBarChart ? 'column' : 'line',
                         lineWidth: isState ? 4 : 2,
-                        lineColor: isRural
-                            ? '#996699'
-                            : isUrban
-                                ? '#0088CC'
-                                : isOregon
-                                    ? '#244068'
-                                    : isCalifornia
-                                        ? '#C34500'
-                                        : isCombined
-                                            ? '#98BD85'
-                                            : Highcharts.getOptions().colors[idx],
-                        radius: this.placeTypeData.Years.length > 10 ? 3.5 : 4,
-                        symbol: 'circle'
-                    }
-                }, true);
-                if (this.hasMOEs) {
-                    console.log('adding moe', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data);
-                    const moe_data_check = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data
-                        .filter((m: any[]) => {
-                            return m ? m.filter(moe => $.isNumeric(moe)).length > 0 : false;
-                        });
-                    console.log('moe check?', moe_data_check);
-                    if (moe_data_check.length > 0) {
-                        this.chart.addSeries({
-                            name: pd.community + pd.geoid + ' Margin of Error',
-                            whiskerLength: 10,
-                            whiskerColor: isState ? 'gray' : Highcharts.getOptions().colors[idx],
-                            stemColor: isState ? 'gray' : Highcharts.getOptions().colors[idx],
-                            stemDashStyle: 'Dash',
-                            type: 'errorbar',
-                            data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data,
-                            linkedTo: this.getCommunityName(pd), // pd.community + pd.geoid,
-                            visible: this.showMOES
-                        }, false);
-                        var maxMoe = this.getMaxMOE(this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data);
-                        var minMoe = this.getMinMOE(this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data);
-                        if (maxMoe !== undefined) {
-                            var extremes = this.chart.yAxis[0].getExtremes();
-                            maxMoe = maxMoe < extremes.max ? extremes.max : maxMoe;
-                            minMoe = minMoe > 0 ? 0 : minMoe;
-                            this.chart.yAxis[0].setExtremes(minMoe, maxMoe);
+                        lineColor: isState ? '#A3A3A4' : Highcharts.getOptions().colors[idx],
+                        lineOpacity: 1.0,
+                        data: data,
+                        color: color,
+                        connectNulls: true,
+                        threshold: 0,
+                        fillOpacity: 0.85,
+                        animation: {
+                            duration: 500
+                        },
+                        marker: {
+                            fillColor: isState ? '#FFFFFF' : Highcharts.getOptions().colors[idx],
+                            lineWidth: isState ? 4 : 2,
+                            lineColor: isRural
+                                ? '#996699'
+                                : isUrban
+                                    ? '#0088CC'
+                                    : isOregon
+                                        ? '#244068'
+                                        : isCalifornia
+                                            ? '#C34500'
+                                            : isCombined
+                                                ? '#98BD85'
+                                                : Highcharts.getOptions().colors[idx],
+                            radius: this.placeTypeData.Years.length > 10 ? 3.5 : 4,
+                            symbol: 'circle'
+                        }
+                    }, true);
+                    if (this.hasMOEs) {
+                        console.log('adding moe', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data);
+                        const moe_data_check = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data
+                            .filter((m: any[]) => {
+                                return m ? m.filter(moe => $.isNumeric(moe)).length > 0 : false;
+                            });
+                        console.log('moe check?', moe_data_check);
+                        if (moe_data_check.length > 0) {
+                            this.chart.addSeries({
+                                name: pd.community + pd.geoid + ' Margin of Error',
+                                whiskerLength: 10,
+                                whiskerColor: isState ? 'gray' : Highcharts.getOptions().colors[idx],
+                                stemColor: isState ? 'gray' : Highcharts.getOptions().colors[idx],
+                                stemDashStyle: 'Dash',
+                                type: 'errorbar',
+                                data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data,
+                                linkedTo: this.getCommunityName(pd), // pd.community + pd.geoid,
+                                visible: this.showMOES
+                            }, false);
+                            var maxMoe = this.getMaxMOE(this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data);
+                            var minMoe = this.getMinMOE(this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data);
+                            if (maxMoe !== undefined) {
+                                var extremes = this.chart.yAxis[0].getExtremes();
+                                maxMoe = maxMoe < extremes.max ? extremes.max : maxMoe;
+                                minMoe = minMoe > 0 ? 0 : minMoe;
+                                this.chart.yAxis[0].setExtremes(minMoe, maxMoe);
+                            }
                         }
                     }
                 }
@@ -2733,7 +2748,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
     getCommunityName(pData: any) {
         //find if unincorporated place or showing county level data
-        //console.log('getCommunityName', this.places, pData, this.isCountyLevel);
+        console.log('getCommunityName', this.places, pData, this.isCountyLevel);
         let returnName = '';
         this.places.forEach((place: SearchResult) => {
             //console.log('returnName schoolz', place, pData);
@@ -2753,6 +2768,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
             } else if (place.TypeCategory === 'Unincorporated Place'
                 && pData.geoType === 'Census Tract'
+                && !place.Combined
                 && (pData.geoid.split(',').indexOf(place.ResID) !== -1 || place.Desc.replace(' County', '').indexOf(pData.community) !== -1)
             ) {
                 //returnName = returnName === '' ? pData.community + (pData.geoid.length === 5 ? ' County' : '') + '<br><em><span style="color:#a7a7a7; font-size:.8em;">(contains ' + place.Name.trim() + ')</em></span>' : returnName.split(')</em></span>')[0] + ',' + place.Name.trim() + ')</em></span>';

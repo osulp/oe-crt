@@ -291,7 +291,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         //this.selectedTopics = this._routeParams.getParam('topics');
         //this.selectedTopics = this.getParameterByName('topics');
         console.log('topics from init?', this.selectedTopics);
-        //toastr.info('Are you the 6 fingered man?');
+        //throw 'fake error';
         this.subscription = this._selectedPlacesService.selectionChanged$.subscribe(
             data => {
                 console.log('subscribe throwing event');

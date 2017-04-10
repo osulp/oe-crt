@@ -40,11 +40,40 @@ var AppExceptionHandler = (function (_super) {
         this.injector = injector;
     }
     AppExceptionHandler.prototype.call = function (exception, stackTrace, reason) {
-        this.getDependencies();
-        console.log('error handler', exception);
-        toastr.clear();
-        toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.');
-        _super.prototype.call.call(this, exception, stackTrace, reason);
+        var errorcount = this.getCookie('errorcount');
+        var newerrorcount = errorcount === '' ? 1 : parseInt(errorcount) + 1;
+        if (newerrorcount < 5) {
+            console.log('error handler', newerrorcount);
+            this.setCookie('errorcount', (parseInt(errorcount) + 1).toString());
+            window.setTimeout(location.reload(), 100);
+        }
+        else {
+            this.getDependencies();
+            console.log('error handler', exception);
+            toastr.clear();
+            toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.');
+            _super.prototype.call.call(this, exception, stackTrace, reason);
+        }
+    };
+    AppExceptionHandler.prototype.setCookie = function (cname, cvalue) {
+        var d = new Date();
+        d.setTime(d.getTime() + (60 * 1000));
+        var expires = 'expires=' + d.toUTCString();
+        document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+    };
+    AppExceptionHandler.prototype.getCookie = function (cname) {
+        var name = cname + '=';
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return '';
     };
     AppExceptionHandler.prototype.getDependencies = function () {
         if (!this.router) {

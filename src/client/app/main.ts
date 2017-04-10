@@ -33,33 +33,65 @@ export class AppExceptionHandler extends ExceptionHandler {
     }
 
     call(exception: any, stackTrace?: any, reason?: string): void {
-        this.getDependencies();
-        console.log('error handler', exception);
-        // Display an info toast with no title
-        //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + ('<%= ENV %>' !== 'prod' ? '<br />Error details: <br />' + exception : ''));
-        //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + '<br />Error details: <br />' + exception);
-        toastr.clear();
-        toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.');
-        //this.router.navigate(['Error', { error: exception }]);
-        //if (exception.status === 401) {
-        //    // Show login
-        //    this.router.navigate(['/Error']);
-        //}
+        //window.setTimeout(location.reload(),100);
+        //check errorcount cookie
+        var errorcount = this.getCookie('errorcount');
+        let newerrorcount = errorcount === '' ? 1 : parseInt(errorcount) + 1;
+        if (newerrorcount < 5) {
+            console.log('error handler', newerrorcount);
+            this.setCookie('errorcount', (parseInt(errorcount) + 1).toString());
+            window.setTimeout(location.reload(), 100);
+        } else {
+            this.getDependencies();
+            console.log('error handler', exception);
+            // Display an info toast with no title
+            //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + ('<%= ENV %>' !== 'prod' ? '<br />Error details: <br />' + exception : ''));
+            //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + '<br />Error details: <br />' + exception);
+            toastr.clear();
+            toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.');
+            //this.router.navigate(['Error', { error: exception }]);
+            //if (exception.status === 401) {
+            //    // Show login
+            //    this.router.navigate(['/Error']);
+            //}
 
-        // Get error messages if http exception
-        //let msgs = [];
-        //if (exception instanceof Response) {
-        //    msgs = this.getMessagesFromResponse(exception);
-        //} else {
+            // Get error messages if http exception
+            //let msgs = [];
+            //if (exception instanceof Response) {
+            //    msgs = this.getMessagesFromResponse(exception);
+            //} else {
 
-        //    // Otherwise show generic error
-        //    msgs.push('Something went wrong');
-        //}
+            //    // Otherwise show generic error
+            //    msgs.push('Something went wrong');
+            //}
 
-        //// Show messages
-        //msgs.forEach((msg) => this.toaster.error(msg));
+            //// Show messages
+            //msgs.forEach((msg) => this.toaster.error(msg));
 
-        super.call(exception, stackTrace, reason);
+            super.call(exception, stackTrace, reason);
+        }
+    }
+
+    setCookie(cname: any, cvalue: any) {
+        var d = new Date();
+        d.setTime(d.getTime() + (60 * 1000));
+        var expires = 'expires=' + d.toUTCString();
+        document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+    }
+
+    getCookie(cname: any) {
+        var name = cname + '=';
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return '';
     }
 
     private getDependencies() {
