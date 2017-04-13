@@ -19,3 +19,9 @@
 .FAQ_Answer {
     margin-left:50px;
 }
+
+@media (max-width:500px) {
+    iframe{
+        width:250px;
+    }
+}
