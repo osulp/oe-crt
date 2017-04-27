@@ -875,9 +875,6 @@ var DataTileComponent = (function () {
                                     ? placeData[0][year.Year + '_MOE_D'].trim()
                                     : null
                                 : null;
-                            console.log('place comb data', placeData);
-                            console.log('num value', numValue);
-                            console.log('denom value', denomValue);
                             combinedNumerators = (numValue !== '' && numValue !== null) ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
                             combinedDenoms = ['', 1, null].indexOf(denomValue) === -1 ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
                             if (isACS) {
@@ -1906,14 +1903,14 @@ var DataTileComponent = (function () {
                         console.log('moe check?', moe_data_check);
                         if (moe_data_check.length > 0) {
                             _this.chart.addSeries({
-                                name: pd.community + pd.geoid + ' Margin of Error',
+                                name: pd.community + ' Margin of Error',
                                 whiskerLength: 10,
                                 whiskerColor: isState ? 'gray' : angular2_highcharts_1.Highcharts.getOptions().colors[idx],
                                 stemColor: isState ? 'gray' : angular2_highcharts_1.Highcharts.getOptions().colors[idx],
                                 stemDashStyle: 'Dash',
                                 type: 'errorbar',
                                 data: _this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data,
-                                linkedTo: _this.getCommunityName(pd),
+                                linkedTo: (_this.isSchool ? pd.Name : pd.community) + pd.geoid,
                                 visible: _this.showMOES
                             }, false);
                             var maxMoe = _this.getMaxMOE(_this.dataStore.indicatorData[_this.indicator].chart_data.place_data_years_moe[pd.community].data);

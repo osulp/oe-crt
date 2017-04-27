@@ -2448,14 +2448,14 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         console.log('moe check?', moe_data_check);
                         if (moe_data_check.length > 0) {
                             this.chart.addSeries({
-                                name: pd.community + pd.geoid + ' Margin of Error',
+                                name: pd.community + ' Margin of Error',
                                 whiskerLength: 10,
                                 whiskerColor: isState ? 'gray' : Highcharts.getOptions().colors[idx],
                                 stemColor: isState ? 'gray' : Highcharts.getOptions().colors[idx],
                                 stemDashStyle: 'Dash',
                                 type: 'errorbar',
                                 data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data,
-                                linkedTo: this.getCommunityName(pd), // pd.community + pd.geoid,
+                                linkedTo: (this.isSchool ? pd.Name : pd.community) + pd.geoid,  // this.getCommunityName(pd), // pd.community + pd.geoid,
                                 visible: this.showMOES
                             }, false);
                             var maxMoe = this.getMaxMOE(this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data);
