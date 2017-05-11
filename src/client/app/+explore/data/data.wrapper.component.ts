@@ -22,7 +22,7 @@ declare var $: any;
 export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     @Input() inputTopics: Topic[] = [];
     @Input() inputIndicators: Indicator[] = [];
-    @Input() inputCollections: any[] = [];
+    @Input() collections: any[];
     @Input() inputPlaces: any;
     @Input() _hideAll: any;
     @ViewChildren(IndicatorsTopicListComponent) indTopListComps: QueryList<IndicatorsTopicListComponent>;
@@ -30,7 +30,6 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
     @ViewChildren(DataTileComponent) dataTiles: QueryList<DataTileComponent>;
     resultView: string;
     topicIndicatorCount: any = {};
-    collections: any[] = [];
     selectedCollection: string = 'Show All';
     processedTopics: number = 0;
     showIndicatorDefault: number = 9;

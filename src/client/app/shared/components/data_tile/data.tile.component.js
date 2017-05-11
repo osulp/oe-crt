@@ -62,7 +62,6 @@ var DataTileComponent = (function () {
         this.hasCombined = false;
         this.isTOP = false;
         this.is10yr = false;
-        this.collections = [];
         this.indicator_collections = [];
         this.indicator_geo = 'County';
         this.yearStartOffset = 0;
@@ -289,6 +288,7 @@ var DataTileComponent = (function () {
         this._indicatorDescService.getIndicator(this.indicator.replace(/\+/g, '%2B').replace(/\&/g, '%26').replace(/\=/g, '%3D')).subscribe(function (indicatorDesc) {
             _this.indicator_info = indicatorDesc.Desc[0];
             if (_this.indicator_info) {
+                console.log('this.indicator_info', _this.indicator_info);
                 _this.isStatewide = _this.indicator_info.Geog_ID === 8 ? true : false;
                 _this.indicator_geo = _this.indicator_info.indicator_geo;
                 _this.isCountyLevel = _this.indicator_info.CountyLevel || _this.indicator_geo === 'County';
@@ -2759,10 +2759,6 @@ var DataTileComponent = (function () {
     DataTileComponent.prototype.zoomToPlace = function (evt, point) {
         this.mapChart.get(point).zoomTo();
     };
-    DataTileComponent.prototype.getCollectionIcon = function (collection) {
-        var collInfo = this.collections.filter(function (coll) { return coll.collection === collection; });
-        return collInfo.length > 0 ? collInfo[0].icon_path : '';
-    };
     DataTileComponent.prototype.openMoeDialog = function () {
         $('#moe-dialog').dialog('open');
     };
@@ -2774,9 +2770,6 @@ var DataTileComponent = (function () {
                 this.dataStore[pt].indicatorData = {};
                 this.dataStore[pt].mapData = {};
             }
-        }
-        else {
-            this.collections = window.crt_collections ? window.crt_collections : [];
         }
         $('#moe-dialog').dialog({
             autoOpen: false,
@@ -2834,6 +2827,10 @@ var DataTileComponent = (function () {
         core_1.Input(), 
         __metadata('design:type', Boolean)
     ], DataTileComponent.prototype, "related", void 0);
+    __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Array)
+    ], DataTileComponent.prototype, "collections", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object)

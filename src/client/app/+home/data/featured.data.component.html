@@ -2,7 +2,7 @@
     <div id="featured-data" class="col-xs-12">
         <h2>Featured Data</h2>
         <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid" *ngFor="let featured of featuredIndicators">
-            <data-tile #dataTile [tileType]="'graph'" [indicator]="featured.indicator" [viewType]="'basic'" [featured]="featured.featured_geoids"></data-tile>
+            <data-tile #dataTile [tileType]="'graph'" [indicator]="featured.indicator" [viewType]="'basic'" [featured]="featured.featured_geoids" [collections]="collections"></data-tile>
         </div>
     </div>
 </div>

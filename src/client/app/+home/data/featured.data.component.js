@@ -8,12 +8,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var core_1 = require('@angular/core');
-var index_1 = require('../../shared/services/indicators/index');
+var index_1 = require('../../shared/services/index');
 var index_2 = require('../../shared/components/data_tile/index');
 var http_1 = require('@angular/http');
 var FeaturedDataComponent = (function () {
-    function FeaturedDataComponent(_featuredIndicatorService) {
+    function FeaturedDataComponent(_featuredIndicatorService, _collectionService) {
         this._featuredIndicatorService = _featuredIndicatorService;
+        this._collectionService = _collectionService;
         this.featuredIndicators = [];
     }
     FeaturedDataComponent.prototype.ngOnInit = function () {
@@ -22,6 +23,7 @@ var FeaturedDataComponent = (function () {
             console.log('featuredIndicators', featInd);
             _this.featuredIndicators = featInd;
         });
+        this._collectionService.get().subscribe(function (c) { return _this.collections = c; });
     };
     FeaturedDataComponent = __decorate([
         core_1.Component({
@@ -29,10 +31,10 @@ var FeaturedDataComponent = (function () {
             selector: 'featured-data',
             templateUrl: 'featured.data.component.html',
             styleUrls: ['featured.data.component.css'],
-            providers: [index_1.FeaturedIndicatorsService, http_1.JSONP_PROVIDERS],
+            providers: [index_1.FeaturedIndicatorsService, index_1.CollectionsService, http_1.JSONP_PROVIDERS],
             directives: [index_2.DataTileComponent]
         }), 
-        __metadata('design:paramtypes', [index_1.FeaturedIndicatorsService])
+        __metadata('design:paramtypes', [index_1.FeaturedIndicatorsService, index_1.CollectionsService])
     ], FeaturedDataComponent);
     return FeaturedDataComponent;
 })();

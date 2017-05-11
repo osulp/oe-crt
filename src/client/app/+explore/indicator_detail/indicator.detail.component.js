@@ -227,6 +227,10 @@ var DetailComponent = (function () {
         __metadata('design:type', Object)
     ], DetailComponent.prototype, "inputPlaces", void 0);
     __decorate([
+        core_1.Input(), 
+        __metadata('design:type', Object)
+    ], DetailComponent.prototype, "collections", void 0);
+    __decorate([
         core_1.ViewChild(index_1.PlacesMapSelectComponent), 
         __metadata('design:type', index_1.PlacesMapSelectComponent)
     ], DetailComponent.prototype, "placeMap", void 0);

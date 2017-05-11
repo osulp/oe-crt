@@ -19,9 +19,7 @@ var DataComponent = (function () {
         this._dataService = _dataService;
         this.inputTopics = [];
         this.inputIndicators = [];
-        this.inputCollections = [];
         this.topicIndicatorCount = {};
-        this.collections = [];
         this.selectedCollection = 'Show All';
         this.processedTopics = 0;
         this.showIndicatorDefault = 9;
@@ -208,7 +206,7 @@ var DataComponent = (function () {
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Array)
-    ], DataComponent.prototype, "inputCollections", void 0);
+    ], DataComponent.prototype, "collections", void 0);
     __decorate([
         core_1.Input(), 
         __metadata('design:type', Object)

@@ -74,7 +74,7 @@
                 <div *ngIf="!isTextData" [ngClass]="!showMap || isStatewide || isCustomChart ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
                     <div #graphView class="detail-tile" [hidden]="!showGraph">
                         <!--GRAPH VIEW-->
-                        <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="" [_selectedYear]="selectedYear" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'"></data-tile>
+                        <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="" [_selectedYear]="selectedYear" [collections]="collections" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'"></data-tile>
                     </div>
                 </div>
                 <div class="col-xs-12">

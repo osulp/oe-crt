@@ -16,8 +16,8 @@
     </div>
     <div class="col-xs-12">
         <div class="row">
-            <data [inputTopics]="allTopics" [inputIndicators]="allIndicators" [inputCollections]="selectedCollections" [inputPlaces]="selectedPlaces" [_hideAll]="hideAll"></data>
+            <data [inputTopics]="allTopics" [inputIndicators]="allIndicators" [collections]="collections" [inputPlaces]="selectedPlaces" [_hideAll]="hideAll"></data>
         </div>
     </div>
 </div>
-<indicator-detail *ngIf="indicatorDetailView" [inputIndicator]="selectedIndicator" [inputPlaces]="selectedPlaces"></indicator-detail>
+<indicator-detail *ngIf="indicatorDetailView" [inputIndicator]="selectedIndicator" [inputPlaces]="selectedPlaces" [collections]="collections"></indicator-detail>

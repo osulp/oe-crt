@@ -8,7 +8,7 @@ import {DataComponent} from './data/data.wrapper.component';
 import {DetailComponent} from './indicator_detail/indicator.detail.component';
 import {SearchComponent} from '../shared/components/index';
 import {SearchResult, Topic, Indicator} from '../shared/data_models/index';
-import {SelectedPlacesService} from '../shared/services/index';
+import {SelectedPlacesService, CollectionsService} from '../shared/services/index';
 
 declare var $: any;
 declare var window: any;
@@ -29,7 +29,7 @@ interface QueryStringParams {
     templateUrl: 'explore.component.html',
     styleUrls: ['explore.component.css'],
     directives: [SearchComponent, TopicsComponent, PlacesWrapperComponent, DataComponent, DetailComponent],
-    providers: [SelectedPlacesService]
+    providers: [SelectedPlacesService,CollectionsService]
 })
 
 export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
@@ -50,6 +50,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     indicatorDetailView: boolean = false;
     initialIndicator: boolean;
     selectedSearchResult: SearchResult;
+    collections: any[] = [];
     subscription: Subscription;
     showTopicsExpanded: boolean = false;
     showPlacesExpanded: boolean = false;
@@ -58,6 +59,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
 
     constructor(
         public _selectedPlacesService: SelectedPlacesService,
+        public _collectionsService: CollectionsService,
         private _router: Router
     ) {
         this.initialIndicator = true;
@@ -301,6 +303,27 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
             err => console.error(err),
             () => console.log('done with subscribe event places selected')
         );
+        console.log('crt collections', window.crt_collections);
+        this._collectionsService.get().subscribe((c: any) => {
+            this.collections = c;
+            //console.log('collections?', c);
+            //if (this.dataComp) {
+            //    this.dataComp.dataTiles.forEach((dt: any) => {
+            //        console.log('hearme', dt);
+            //        dt.collections = c;
+            //    });
+            //}
+            //if (this.detailComp) {
+            //    this.detailComp.dataTiles.forEach((dt: any) => {
+            //        if (dt.tileType === 'graph') {
+            //            console.log('hearme', dt);
+            //            dt.collections = c;
+            //        }
+            //    });
+            //}
+            window.crt_collections = c;
+        });
+        console.log('crt collections2', window.crt_collections);
         //window.history.pushState({}, '', window.location.href);
         //Sthis._selectedPlacesService
     }

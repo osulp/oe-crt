@@ -99,6 +99,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     @Input() viewType: any;//basic/advanced
     @Input() featured: any;//variable and geoids
     @Input() related: boolean;
+    @Input() collections: any[];
     @Input() _selectedYear: any;
     @ViewChild(HmapMenuComponent) hMapMenu: HmapMenuComponent;
     @Output() onChartDataUpdate = new EventEmitter();
@@ -143,7 +144,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     private hasCombined: boolean = false;
     private isTOP: boolean = false;
     private is10yr: boolean = false;
-    private collections: any[] = [];
+    //private collections: any[] = [];
     private indicator_collections: any[] = [];
     private indicator_geo: any = 'County';
     private yearStartOffset: number = 0;
@@ -413,6 +414,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             (indicatorDesc: any) => {
                 this.indicator_info = indicatorDesc.Desc[0];
                 if (this.indicator_info) {
+                    console.log('this.indicator_info', this.indicator_info);
                     this.isStatewide = this.indicator_info.Geog_ID === 8 ? true : false;
                     this.indicator_geo = this.indicator_info.indicator_geo;
                     this.isCountyLevel = this.indicator_info.CountyLevel || this.indicator_geo === 'County';
@@ -3528,10 +3530,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         this.mapChart.get(point).zoomTo();
     }
 
-    getCollectionIcon(collection: any) {
-        let collInfo = this.collections.filter((coll: any) => coll.collection === collection);
-        return collInfo.length > 0 ? collInfo[0].icon_path : '';
-    }
+
     openMoeDialog() {
         $('#moe-dialog').dialog('open');
     }
@@ -3551,10 +3550,6 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 this.dataStore[pt].indicatorData = {};
                 this.dataStore[pt].mapData = {};
             }
-        } else {
-            //gets set in datawrapper
-            //TODO: turn into observable service, or roll into indicator info as optional separate table
-            this.collections = window.crt_collections ? window.crt_collections : [];
         }
 
         $('#moe-dialog').dialog({

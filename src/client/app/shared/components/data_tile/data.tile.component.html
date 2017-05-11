@@ -4,7 +4,9 @@
             <div *ngIf="tileType === 'graph'" class="col-xs-12 graph-chart-wrapper">
                 <div *ngIf="tileType === 'graph'" class="collection-icon-wrapper">
                     <span *ngFor="let collection of indicator_collections" class="collectionIcon">
-                        <img *ngIf="getCollectionIcon(collection) !== ''" [src]="getCollectionIcon(collection)" [alt]="collection" [title]="'This indicator is part of the '+collection+' collection.'" />
+                        <span *ngFor="let coll of collections">
+                            <img *ngIf="coll.collection_name === collection || coll.collection === collection" [src]="coll.collection_icon_path ? coll.collection_icon_path : coll.icon_path" [title]="'This indicator is part of the '+collection+' collection.'"  />
+                        </span>
                     </span>
                 </div>
                 <div *ngIf="isCustomChart" class="customPlaceSelectWrapper">

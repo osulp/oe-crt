@@ -24,6 +24,7 @@ declare var window: any;
 export class DetailComponent implements OnInit {
     @Input() inputIndicator: any;
     @Input() inputPlaces: any;
+    @Input() collections: any;
     @ViewChild(PlacesMapSelectComponent) placeMap: PlacesMapSelectComponent;
     @ViewChildren(DataTileComponent) dataTiles: QueryList<DataTileComponent>;
     @ViewChild(ShareLinkComponent) shareLinkComp: ShareLinkComponent;

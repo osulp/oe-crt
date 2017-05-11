@@ -16,8 +16,9 @@ var indicator_detail_component_1 = require('./indicator_detail/indicator.detail.
 var index_1 = require('../shared/components/index');
 var index_2 = require('../shared/services/index');
 var ExploreComponent = (function () {
-    function ExploreComponent(_selectedPlacesService, _router) {
+    function ExploreComponent(_selectedPlacesService, _collectionsService, _router) {
         this._selectedPlacesService = _selectedPlacesService;
+        this._collectionsService = _collectionsService;
         this._router = _router;
         this.urlCollection = 'Show All';
         this.urlFilter = '';
@@ -241,6 +242,26 @@ var ExploreComponent = (function () {
             console.log(data);
             _this.onPlacesChanged(data);
         }, function (err) { return console.error(err); }, function () { return console.log('done with subscribe event places selected'); });
+        console.log('crt collections', window.crt_collections);
+        window.crt_collections = this._collectionsService.get().subscribe(function (c) {
+            console.log('collections?', c);
+            if (_this.dataComp) {
+                _this.dataComp.dataTiles.forEach(function (dt) {
+                    console.log('hearme', dt);
+                    dt.collections = c;
+                });
+            }
+            if (_this.detailComp) {
+                _this.detailComp.dataTiles.forEach(function (dt) {
+                    if (dt.tileType === 'graph') {
+                        console.log('hearme', dt);
+                        dt.collections = c;
+                    }
+                });
+            }
+            window.crt_collections = c;
+        });
+        console.log('crt collections2', window.crt_collections);
     };
     ExploreComponent.prototype.ngOnDestroy = function () {
         if (this.subscription !== undefined) {
@@ -266,9 +287,9 @@ var ExploreComponent = (function () {
             templateUrl: 'explore.component.html',
             styleUrls: ['explore.component.css'],
             directives: [index_1.SearchComponent, topics_select_component_1.TopicsComponent, places_wrapper_component_1.PlacesWrapperComponent, data_wrapper_component_1.DataComponent, indicator_detail_component_1.DetailComponent],
-            providers: [index_2.SelectedPlacesService]
+            providers: [index_2.SelectedPlacesService, index_2.CollectionsService]
         }), 
-        __metadata('design:paramtypes', [index_2.SelectedPlacesService, router_1.Router])
+        __metadata('design:paramtypes', [index_2.SelectedPlacesService, index_2.CollectionsService, router_1.Router])
     ], ExploreComponent);
     return ExploreComponent;
 })();

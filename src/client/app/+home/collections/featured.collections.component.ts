@@ -26,7 +26,7 @@ export class FeaturedCollectionsComponent implements OnInit {
 
     search(term: string) {
         //this._topicService.search(term).then(items => this.items = items);
-        this.items = this._collectionsService.get();
+        this.items = this._collectionsService.get()
     }
 
     gotoCollection(collection: any) {
