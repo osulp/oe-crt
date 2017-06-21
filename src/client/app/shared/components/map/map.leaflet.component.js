@@ -249,6 +249,7 @@ var MapLeafletComponent = (function () {
     MapLeafletComponent.prototype.handlePopupPlaceClick = function (mapScope) {
         $('.ptPlaceWrapper').on('click', function (feature) {
             var place = $(feature.currentTarget).data('feature');
+            console.log('saw the blood', place, mapScope);
             if (!mapScope.viewType) {
                 var places = '';
                 if (place.ResID.indexOf('41') === 0) {
@@ -269,6 +270,7 @@ var MapLeafletComponent = (function () {
                 console.log('removing layer', identLayer);
                 mapScope.identifiedLayer.removeLayer(identLayer[0]);
                 console.log('identLayer', mapScope.identifiedLayer.getLayers());
+                console.log('saw the blood', $(feature.currentTarget).data('feature'));
                 mapScope.onPlaceSelected.emit($(feature.currentTarget).data('feature'));
             }
         });
@@ -420,7 +422,7 @@ var MapLeafletComponent = (function () {
                     needsUpdate = true;
                 }
                 if (needsUpdate) {
-                    console.log('updating map');
+                    console.log('updating map', changes.selectedPlaces.currentValue);
                     var selPlaces = changes.selectedPlaces.currentValue;
                     this.runSelectedPlaceQueries(selPlaces);
                 }
@@ -440,11 +442,13 @@ var MapLeafletComponent = (function () {
         this.processedCounty = false;
         this.processedTract = false;
         var selectedCities = selPlaces.filter(function (place) {
-            return place.TypeCategory === 'Incorporated City' || place.TypeCategory === 'Incorporated Town' || place.TypeCategory === 'Census Designated Place' || place.TypeCategory === 'Places';
+            return ['Incorporated City', 'Incorporated Town', 'Census Designated Place', 'Places'].indexOf(place.TypeCategory) !== -1;
         });
-        var selectedCounties = selPlaces.filter(function (place) { return place.TypeCategory === 'Counties' || place.TypeCategory === 'County'; });
+        var selectedCounties = selPlaces.filter(function (place) {
+            return ['Counties', 'County'].indexOf(place.TypeCategory) !== -1;
+        });
         var selectedTracts = selPlaces.filter(function (place) {
-            return place.TypeCategory === 'Census Tract' || place.TypeCategory === 'Unincorporated Place';
+            return ['Census Tract', 'Tracts', 'Unincorporated Place'].indexOf(place.TypeCategory) !== -1;
         });
         var mapScope = this;
         this.selectedLayer.clearLayers();
