@@ -900,7 +900,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         let schooldistricts = '';
         let counties = '';
         let cts = '';
-        //console.log('test selectedplaces');
+        console.log('getting data', this.places);
         //console.log(selectedPlaces);
         //let selectedPlaces = this.places;
 
@@ -1787,6 +1787,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
     createGraphChart() {
         try {
+            console.log('is custom chart!', this.isCustomChart);
             if (!this.isCustomChart) {
                 //console.log('fred2 dss', this.dataStore.indicatorData[this.indicator].crt_db);
                 //this.placeTypeData = data;
@@ -2140,6 +2141,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     this.chart = new Highcharts.Chart(pyramidOptions);
                     break;
                 case 'IncomeHistogram':
+                case 'FoodProcessEmps':
                     categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories
                         .filter((cat: any) => {
                             return this.selectedCustomChartYear !== '1990' ? cat !== '> $150,000' : (cat !== '$150,000 - 199,999' && cat !== '> $200,000');
@@ -2212,7 +2214,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         },
 
                         series: [{
-                            name: this.selectedPlaceCustomChart.Name + ' Income Distribution',
+                            name: this.selectedPlaceCustomChart.Name + (this.indicator_info.ScriptName === 'IncomeHistogram' ? ' Income Distribution' : ' Food Processing Employees'),
                             data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data
                                 .filter((data: any, idx: number) => {
                                     return this.selectedCustomChartYear !== '1990' ? idx !== 8 : idx !== 7 && idx !== 9;
@@ -2226,7 +2228,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 case 'ClientContacts211Info':
                 case 'SocialServiceProviders211Info':
                 case 'PovertyByRace':
-                    let chartTitle: any = this.isCountyLevel ?
+                case 'NAICS_Farms':
+                    console.log('carnivore', this.selectedPlaceCustomChart);
+                    let chartTitle: any = this.isCountyLevel && this.selectedPlaceCustomChart.TypeCategory !== 'Counties' ?
                         this.selectedPlaceCustomChart.GeoInfo.length > 0 ?
                             this.selectedPlaceCustomChart.GeoInfo[0].County + ' County: ' + this.selectedCustomChartYear + '<br> (for ' + this.selectedPlaceCustomChart.Name + ')' :
                             this.viewType === 'advanced' ?
@@ -2258,7 +2262,11 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             text: chartTitle
                         },
                         tooltip: {
-                            pointFormat: this.indicator_info.ScriptName === 'PovertyByRace' ? '<b>{point.name}</b>: {point.y:.1f}%' : '{series.name}: <b>{point.percentage:.1f}%</b>'
+                            pointFormat: this.indicator_info.ScriptName === 'PovertyByRace'
+                                ? '<b>{point.name}</b>: {point.y:.1f}%'
+                                : this.indicator_info.ScriptName === 'NAICS_Farms'
+                                    ? '{series.name}: {point.y:.0f} Farms <b>{point.percentage:.1f}%</b>'
+                                    : '{series.name}: <b>{point.percentage:.1f}%</b>'
                         },
                         plotOptions: {
                             pie: {
@@ -2266,7 +2274,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 cursor: 'pointer',
                                 dataLabels: {
                                     enabled: this.viewType === 'advanced' && !this.isHandheld ? true : false,
-                                    format: this.indicator_info.ScriptName === 'PovertyByRace' ? '<b>{point.name}</b><br> {point.y:.1f}%' : '<b>{point.name}</b><br>{point.percentage:.1f} %',
+                                    format: this.indicator_info.ScriptName === 'PovertyByRace'
+                                        ? '<b>{point.name}</b><br> {point.y:.1f}%'
+                                        : '<b>{point.name}</b><br>{point.percentage:.1f} %',
                                     style: {
                                         color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'gray',
                                         fontSize: this.viewType === 'advanced' ? '1em' : '.7em',
@@ -2829,6 +2839,16 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
+    employeeSort(a: any, b: any) {
+        let aSimple = a.Variable.replace('Food Processor ', '').split('-')[0];
+        let bSimple = b.Variable.replace('Food Processor ', '').split('-')[0];
+        if (aSimple.indexOf('250+') !== -1) {
+            return 1000;
+        } else {
+            return aSimple - bSimple;
+        }
+    }
+
     processCustomChartData(chartType: any) {
         let place_data_years: any = {};
         if (this.places.length === 0) {
@@ -2969,6 +2989,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             case 'ClientContacts211Info':
             case 'SocialServiceProviders211Info':
             case 'PovertyByRace':
+            case 'NAICS_Farms':
+            case 'FoodProcessEmps':
                 this.places.forEach((place: any, pidx: number) => {
                     let placeData = this.placeTypeData.Data
                         .filter((data: any) => {
@@ -2979,7 +3001,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 return data.geoid ? data.geoid === place.ResID : false;
                             }
                         })
-                        .sort(this.incomeSort);
+                        .sort(this.indicator_info.ScriptName === 'FoodProcessEmps' ? this.employeeSort : this.incomeSort);
                     let placeDataYears: any[] = [];
                     let dataYears: any[] = [];
                     let categories: any[] = [];
@@ -3007,7 +3029,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 data_moe: []
                             };
                             placeData.forEach((pdm: any) => {
-                                if (this.indicator_info.ScriptName.indexOf('211') !== -1 || this.indicator_info.ScriptName === 'PovertyByRace') {
+                                if (this.indicator_info.ScriptName.indexOf('211') !== -1 || this.indicator_info.ScriptName === 'PovertyByRace' || this.indicator_info.ScriptName === 'NAICS_Farms') {
                                     yearData.data.push({
                                         name: pdm.Variable.replace(' Client Contacts', '').replace(' Providers', '').replace('Percentage of population group in poverty: ', ''),
                                         y: $.isNumeric(parseInt(pdm[year])) ? parseInt(pdm[year]) : null

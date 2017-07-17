@@ -505,7 +505,13 @@ var MapLeafletComponent = (function () {
                 .run(function (err, featureCollection, response) {
                 mapScope.selectedLayer.addData(featureCollection.features);
                 var currLayers = mapScope.crt_layers.getLayers();
-                currLayers.indexOf(mapScope.crt_layer_tracts_id) === -1 ? currLayers.push(mapScope.crt_layer_tracts_id) : currLayers.splice(currLayers.indexOf(mapScope.crt_layer_tracts_id), 1);
+                console.log('currlayers', currLayers, mapScope.crt_layer_tracts_id);
+                if (currLayers.indexOf(mapScope.crt_layer_tracts_id) === -1) {
+                    currLayers.push(mapScope.crt_layer_tracts_id);
+                }
+                else {
+                }
+                console.log('currlayers', currLayers);
                 mapScope.crt_layers.setLayers(currLayers);
                 mapScope.tractBtn.state('layer-active');
                 mapScope.processedTract = true;
@@ -517,7 +523,7 @@ var MapLeafletComponent = (function () {
         var runInterval = setInterval(runCheck, 500);
         function runCheck() {
             if (mapScope.processedCity && mapScope.processedCounty && mapScope.processedTract) {
-                console.log('finished getting query results');
+                console.log('finished getting query results', mapScope.selectedLayer.getLayers());
                 clearInterval(runInterval);
                 if (mapScope.selectedLayer.getLayers().length > 0) {
                     var center = mapScope.selectedLayer.getBounds().getCenter();
@@ -529,6 +535,7 @@ var MapLeafletComponent = (function () {
                     }
                 }
                 else {
+                    console.log('setting initial map view');
                     mapScope.setInitialMapView();
                 }
             }

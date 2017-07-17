@@ -662,6 +662,7 @@ var DataTileComponent = (function () {
         var schooldistricts = '';
         var counties = '';
         var cts = '';
+        console.log('getting data', this.places);
         this.places.forEach(function (place, idx) {
             geoids += place.ResID + (idx !== _this.places.length - 1 ? ',' : '');
             geonames += place.Name + (idx !== _this.places.length - 1 ? ',' : '');
@@ -1352,6 +1353,7 @@ var DataTileComponent = (function () {
     };
     DataTileComponent.prototype.createGraphChart = function () {
         try {
+            console.log('is custom chart!', this.isCustomChart);
             if (!this.isCustomChart) {
                 this.placeTypeData = this.dataStore.indicatorData[this.indicator].crt_db;
                 this.selectedYear = this.placeTypeData.Years[this.placeTypeData.Years.length - this.yearEndOffset - 1];
@@ -1644,6 +1646,7 @@ var DataTileComponent = (function () {
                     this.chart = new angular2_highcharts_1.Highcharts.Chart(pyramidOptions);
                     break;
                 case 'IncomeHistogram':
+                case 'FoodProcessEmps':
                     categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories
                         .filter(function (cat) {
                         return _this.selectedCustomChartYear !== '1990' ? cat !== '> $150,000' : (cat !== '$150,000 - 199,999' && cat !== '> $200,000');
@@ -1708,7 +1711,7 @@ var DataTileComponent = (function () {
                             }
                         },
                         series: [{
-                                name: this.selectedPlaceCustomChart.Name + ' Income Distribution',
+                                name: this.selectedPlaceCustomChart.Name + (this.indicator_info.ScriptName === 'IncomeHistogram' ? ' Income Distribution' : ' Food Processing Employees'),
                                 data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data
                                     .filter(function (data, idx) {
                                     return _this.selectedCustomChartYear !== '1990' ? idx !== 8 : idx !== 7 && idx !== 9;
@@ -1721,7 +1724,9 @@ var DataTileComponent = (function () {
                 case 'ClientContacts211Info':
                 case 'SocialServiceProviders211Info':
                 case 'PovertyByRace':
-                    var chartTitle = this.isCountyLevel ?
+                case 'NAICS_Farms':
+                    console.log('carnivore', this.selectedPlaceCustomChart);
+                    var chartTitle = this.isCountyLevel && this.selectedPlaceCustomChart.TypeCategory !== 'Counties' ?
                         this.selectedPlaceCustomChart.GeoInfo.length > 0 ?
                             this.selectedPlaceCustomChart.GeoInfo[0].County + ' County: ' + this.selectedCustomChartYear + '<br> (for ' + this.selectedPlaceCustomChart.Name + ')' :
                             this.viewType === 'advanced' ?
@@ -1752,7 +1757,11 @@ var DataTileComponent = (function () {
                             text: chartTitle
                         },
                         tooltip: {
-                            pointFormat: this.indicator_info.ScriptName === 'PovertyByRace' ? '<b>{point.name}</b>: {point.y:.1f}%' : '{series.name}: <b>{point.percentage:.1f}%</b>'
+                            pointFormat: this.indicator_info.ScriptName === 'PovertyByRace'
+                                ? '<b>{point.name}</b>: {point.y:.1f}%'
+                                : this.indicator_info.ScriptName === 'NAICS_Farms'
+                                    ? '{series.name}: {point.y:.0f} Farms <b>{point.percentage:.1f}%</b>'
+                                    : '{series.name}: <b>{point.percentage:.1f}%</b>'
                         },
                         plotOptions: {
                             pie: {
@@ -1760,7 +1769,9 @@ var DataTileComponent = (function () {
                                 cursor: 'pointer',
                                 dataLabels: {
                                     enabled: this.viewType === 'advanced' && !this.isHandheld ? true : false,
-                                    format: this.indicator_info.ScriptName === 'PovertyByRace' ? '<b>{point.name}</b><br> {point.y:.1f}%' : '<b>{point.name}</b><br>{point.percentage:.1f} %',
+                                    format: this.indicator_info.ScriptName === 'PovertyByRace'
+                                        ? '<b>{point.name}</b><br> {point.y:.1f}%'
+                                        : '<b>{point.name}</b><br>{point.percentage:.1f} %',
                                     style: {
                                         color: (angular2_highcharts_1.Highcharts.theme && angular2_highcharts_1.Highcharts.theme.contrastTextColor) || 'gray',
                                         fontSize: this.viewType === 'advanced' ? '1em' : '.7em',
@@ -2146,6 +2157,16 @@ var DataTileComponent = (function () {
             return x - y;
         }
     };
+    DataTileComponent.prototype.employeeSort = function (a, b) {
+        var aSimple = a.Variable.replace('Food Processor ', '').split('-')[0];
+        var bSimple = b.Variable.replace('Food Processor ', '').split('-')[0];
+        if (aSimple.indexOf('250+') !== -1) {
+            return 1000;
+        }
+        else {
+            return aSimple - bSimple;
+        }
+    };
     DataTileComponent.prototype.processCustomChartData = function (chartType) {
         var _this = this;
         var place_data_years = {};
@@ -2277,6 +2298,8 @@ var DataTileComponent = (function () {
             case 'ClientContacts211Info':
             case 'SocialServiceProviders211Info':
             case 'PovertyByRace':
+            case 'NAICS_Farms':
+            case 'FoodProcessEmps':
                 this.places.forEach(function (place, pidx) {
                     var placeData = _this.placeTypeData.Data
                         .filter(function (data) {
@@ -2288,7 +2311,7 @@ var DataTileComponent = (function () {
                             return data.geoid ? data.geoid === place.ResID : false;
                         }
                     })
-                        .sort(_this.incomeSort);
+                        .sort(_this.indicator_info.ScriptName === 'FoodProcessEmps' ? _this.employeeSort : _this.incomeSort);
                     var placeDataYears = [];
                     var dataYears = [];
                     var categories = [];
@@ -2314,7 +2337,7 @@ var DataTileComponent = (function () {
                                 data_moe: []
                             };
                             placeData.forEach(function (pdm) {
-                                if (_this.indicator_info.ScriptName.indexOf('211') !== -1 || _this.indicator_info.ScriptName === 'PovertyByRace') {
+                                if (_this.indicator_info.ScriptName.indexOf('211') !== -1 || _this.indicator_info.ScriptName === 'PovertyByRace' || _this.indicator_info.ScriptName === 'NAICS_Farms') {
                                     yearData.data.push({
                                         name: pdm.Variable.replace(' Client Contacts', '').replace(' Providers', '').replace('Percentage of population group in poverty: ', ''),
                                         y: $.isNumeric(parseInt(pdm[year])) ? parseInt(pdm[year]) : null
