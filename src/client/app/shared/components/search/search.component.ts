@@ -85,7 +85,7 @@ export class SearchComponent implements OnInit {
         var code = event.keyCode || event.which;
         if (code === 13) {
             //get tempResult values
-            if (this.tempResults.length > 0) {
+            if (this.tempResults.length > 0 && this.tempTabIndex !== -1) {
                 let searchScope = this;
                 window.setTimeout(function () {
                     var firstItem: any = searchScope.tempResults[searchScope.tempTabIndex === -1 ? 0 : searchScope.tempTabIndex];
@@ -100,7 +100,8 @@ export class SearchComponent implements OnInit {
                     searchScope.selectResult(selected);
                 }, 500);
             } else {
-                alert('Please select a valid search term.');
+                //console.log('temptab index ', this.tempTabIndex);
+                //alert('Please select a valid search term.');
             }
             this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
             this.searchTerms = '';

@@ -25,12 +25,12 @@ var IndicatorsTopicListComponent = (function () {
     IndicatorsTopicListComponent.prototype.showHideAll = function (showType) {
         var _this = this;
         this.inputIndicators.forEach(function (indicator) {
-            _this.toggleIndicator(indicator, showType === 'show', false);
+            _this.toggleIndicator(indicator, showType === 'show' ? true : false, false);
         });
         this.filteredIndicatorsFromComp.emit(this.inputIndicators);
     };
     IndicatorsTopicListComponent.prototype.toggleIndicator = function (indicator, value, emit) {
-        if (value) {
+        if (value !== null) {
             indicator.selected = value;
         }
         else {

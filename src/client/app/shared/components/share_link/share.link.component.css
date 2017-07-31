@@ -29,6 +29,18 @@ display: inline;
     padding: 2px;
 }
 
+#share-buttons span{
+    padding:0 2px;
+}
+#share-buttons span:hover, #share-buttons img:hover {
+    cursor:pointer;
+    text-decoration:underline;
+}
+
+#share-buttons hr {
+    margin:0 0 -15px 0;
+}
+
 #share-btns div:hover, #share-btns.detail div:hover{
     cursor:pointer;
     border-color:rgb(0, 0, 0);

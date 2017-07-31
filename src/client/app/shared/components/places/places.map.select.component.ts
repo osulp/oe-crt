@@ -233,7 +233,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     inputKeypressHandler(event: any, result: SearchResult) {
         var code = event.keyCode || event.which;
         if (code === 13) {
-            if (this.tempResults.length > 0) {
+            if (this.tempResults.length > 0 && this.tempTabIndex !== -1) {
                 let searchScope = this;
                 window.setTimeout(function () {
                     var firstItem: any = searchScope.tempResults[searchScope.tempTabIndex === -1 ? 0 : searchScope.tempTabIndex];
@@ -248,7 +248,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
                     searchScope.addPlace(selected);
                 }, 500);
             } else {
-                alert('Please select a valid search term.');
+                //alert('Please select a valid search term.');
             }
             this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
             this.searchTerms = '';

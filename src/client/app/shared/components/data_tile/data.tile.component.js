@@ -69,6 +69,7 @@ var DataTileComponent = (function () {
         this.showMap = true;
         this.customChartYears = [];
         this.isCustomChart = false;
+        this.processedMapPointColors = 0;
         this.xAxisCategories = {};
         this.defaultChartOptions = {
             chart: {
@@ -263,7 +264,7 @@ var DataTileComponent = (function () {
                 followPointer: false,
                 borderWidth: 1,
                 shadow: false
-            },
+            }
         };
         this.dataStore = {
             Counties: {},
@@ -345,6 +346,7 @@ var DataTileComponent = (function () {
             proceed.apply(this, Array.prototype.slice.call(arguments, 1));
             console.log('selecting via map', proceed, this, chartScope);
             if (chartScope.tileType === 'map' && chartScope.showMap) {
+                chartScope.selectedPlaceColor = this.color;
                 var points = chartScope.mapChart.getSelectedPoints();
                 chartScope.selectedMapPoints = points;
                 var pointsAsPlacesForBin = [];
@@ -530,6 +532,7 @@ var DataTileComponent = (function () {
                             console.log('ptIndex', ptIndex);
                             if (ptIndex !== undefined) {
                                 console.log('selecting!!!!!!!!!!!!!!!!!!!!1', this.mapChart.series[mapSeries].data[ptIndex]);
+                                this.selectedPlaceColor = this.mapChart.series[mapSeries].data[ptIndex].color;
                                 this.mapChart.series[mapSeries].data[ptIndex].update({ selected: true });
                             }
                         }
@@ -876,13 +879,19 @@ var DataTileComponent = (function () {
                                     ? placeData[0][year.Year + '_MOE_D'].trim()
                                     : null
                                 : null;
+                            var denomValCheck = [];
+                            denomValCheck.push(denomValue);
                             combinedNumerators = (numValue !== '' && numValue !== null) ? (combinedNumerators + parseFloat(numValue)) : combinedNumerators;
-                            combinedDenoms = ['', 1, null].indexOf(denomValue) === -1 ? (combinedDenoms + parseFloat(denomValue)) : combinedDenoms;
+                            combinedDenoms = ['', 1, null].indexOf(denomValue) === -1
+                                ? combinedDenoms === 1 && parseFloat(denomValue) === 1
+                                    ? 1
+                                    : (combinedDenoms + parseFloat(denomValue))
+                                : combinedDenoms;
                             if (isACS) {
                                 combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
                                 combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
                             }
-                            console.log('combinedNumerators', combinedNumerators, numValue, combinedDenoms, denomValue);
+                            console.log('combinedNumerators', combinedNumerators, numValue, combinedDenoms, denomValue, denomValCheck);
                         }
                         else {
                             notCombined = true;
@@ -1301,7 +1310,9 @@ var DataTileComponent = (function () {
                     color: '#a7a7a7'
                 },
                 select: {
-                    color: '#BADA55'
+                    color: this.getSelectColor(this),
+                    borderColor: '#C34500',
+                    borderWidth: '3px'
                 }
             },
         };
@@ -1321,33 +1332,30 @@ var DataTileComponent = (function () {
             }
         });
         window.setTimeout(function () {
+            console.log('sausage', sessionStorage);
             mapScope.mapChart.hideLoading();
             mapScope.selectedMapPoints = mapScope.mapChart.getSelectedPoints();
+            mapScope.mapChart.series[0].data.forEach(function (d) {
+                if (mapScope.selectedMapPoints.map(function (mp) { return mp.geoid; }).indexOf(d.geoid) !== -1) {
+                    d.update({ selected: true });
+                }
+            });
+            var mapPathGroup = $("#highmap path[class*='highcharts-name-']").parent();
+            var mapPaths = $("#highmap path[class*='highcharts-name-']");
+            mapPaths.detach().sort(function (a, b) {
+                return parseInt($(a).attr('stroke-width').replace('px', '')) - parseInt($(b).attr('stroke-width').replace('px', ''));
+            });
+            mapPathGroup.append(mapPaths);
         }, 500);
         if (this.indicator_info.Represented_ID === 10) {
             this.onChartDataUpdate.emit({ data: this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data, customPlace: this.selectedPlaceCustomChart, textYears: this.placeTypeData.Years, metadata: this.placeTypeData.Metadata[0] });
         }
     };
     DataTileComponent.prototype.getSelectColor = function (context) {
-        console.log('getting select color', context);
-        var color = '#BADA55';
-        var returnColor = {
-            radialGradient: {
-                cx: 0.5,
-                cy: 0.5,
-                r: 0.45
-            },
-            stops: [
-                [0, color],
-                [1, color],
-                [2, color],
-                [3, color],
-                [4, color],
-                [5, color],
-                [6, color],
-                [7, angular2_highcharts_1.Highcharts.Color(color).brighten(-0.3).get('rgb')]
-            ]
-        };
+        var returnColor = this.selectedPlaceColor;
+        if (!this.selectedPlaceColor) {
+            returnColor = '#a7a7a7';
+        }
         console.log('return select color', returnColor);
         return returnColor;
     };
@@ -1683,7 +1691,7 @@ var DataTileComponent = (function () {
                         yAxis: {
                             min: 0,
                             title: {
-                                text: '# of Households'
+                                text: this.indicator_info.ScriptName === 'IncomeHistogram' ? '# of Households' : '# of food processors'
                             }
                         },
                         plotOptions: {
@@ -1711,7 +1719,7 @@ var DataTileComponent = (function () {
                             }
                         },
                         series: [{
-                                name: this.selectedPlaceCustomChart.Name + (this.indicator_info.ScriptName === 'IncomeHistogram' ? ' Income Distribution' : ' Food Processing Employees'),
+                                name: this.selectedPlaceCustomChart.Name + (this.indicator_info.ScriptName === 'IncomeHistogram' ? ' Income Distribution' : ' Food Processors by Number of Employees'),
                                 data: this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data[this.selectedCustomChartYear].data
                                     .filter(function (data, idx) {
                                     return _this.selectedCustomChartYear !== '1990' ? idx !== 8 : idx !== 7 && idx !== 9;
@@ -2570,38 +2578,43 @@ var DataTileComponent = (function () {
         return counter;
     };
     DataTileComponent.prototype.getMinData = function (isMap, chartType) {
-        var min;
-        var notLogrithmic = false;
-        var hasNegativevalues = false;
-        console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
-        var chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
-        var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
-        $.each(pdy, function () {
-            if (this.geoid.length > 3) {
-                var arr = $.grep(this.data, function (n) { return (n); });
-                if (chartType && arr.length !== this.data.length) {
-                    notLogrithmic = true;
+        if (isMap && this.indicator_info["Dashboard_Chart_Y_Axis_Min"] !== null) {
+            return parseFloat(this.indicator_info["Dashboard_Chart_Y_Axis_Min"]);
+        }
+        else {
+            var min;
+            var notLogrithmic = false;
+            var hasNegativevalues = false;
+            console.log('checking chart_data', this.selectedPlaceType, this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data, this.dataStore);
+            var chart_data = this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data;
+            var pdy = $.extend(true, {}, isMap ? chart_data.place_data_years : this.hasMOEs ? chart_data.place_data_years_moe : chart_data.place_data_years);
+            $.each(pdy, function () {
+                if (this.geoid.length > 3) {
+                    var arr = $.grep(this.data, function (n) { return (n); });
+                    if (chartType && arr.length !== this.data.length) {
+                        notLogrithmic = true;
+                    }
+                    var PlaceMin = isMap ? arr.sort(function (a, b) { return a - b; })[0] : this.hasMOEs ? arr.sort(function (a, b) { return a[1] - b[1]; })[0] : null;
+                    min = min === undefined ? isMap ? PlaceMin : this.hasMOEs ? PlaceMin[0] : min : min;
+                    if (isMap) {
+                        min = min > PlaceMin ? PlaceMin : min;
+                    }
+                    else if (this.hasMOEs) {
+                        min = min > PlaceMin[0] ? PlaceMin[0] : min;
+                    }
+                    else {
+                        min = min > PlaceMin ? PlaceMin : min;
+                    }
+                    hasNegativevalues = min < 0 ? true : hasNegativevalues;
                 }
-                var PlaceMin = isMap ? arr.sort(function (a, b) { return a - b; })[0] : this.hasMOEs ? arr.sort(function (a, b) { return a[1] - b[1]; })[0] : null;
-                min = min === undefined ? isMap ? PlaceMin : this.hasMOEs ? PlaceMin[0] : min : min;
-                if (isMap) {
-                    min = min > PlaceMin ? PlaceMin : min;
-                }
-                else if (this.hasMOEs) {
-                    min = min > PlaceMin[0] ? PlaceMin[0] : min;
-                }
-                else {
-                    min = min > PlaceMin ? PlaceMin : min;
-                }
-                hasNegativevalues = min < 0 ? true : hasNegativevalues;
-            }
-        });
-        console.log('mindata', min, notLogrithmic, notLogrithmic ? 0 : min < 10 ? 0 : min);
-        console.log('mindata2', this.getMaxData(true) / min);
-        return notLogrithmic && !hasNegativevalues ? 0
-            : this.getMaxData(true) / min < 400 && !hasNegativevalues
-                ? 0
-                : min;
+            });
+            console.log('mindata', min, notLogrithmic, notLogrithmic ? 0 : min < 10 ? 0 : min);
+            console.log('mindata2', this.getMaxData(true) / min);
+            return notLogrithmic && !hasNegativevalues ? 0
+                : this.getMaxData(true) / min < 400 && !hasNegativevalues
+                    ? 0
+                    : min;
+        }
     };
     DataTileComponent.prototype.getMaxData = function (isMap) {
         if (this.indicator_info['Dashboard_Chart_Y_Axis_Max'] !== null) {

@@ -33,13 +33,13 @@ export class IndicatorsTopicListComponent implements OnInit {
 
     showHideAll(showType: any) {
         this.inputIndicators.forEach((indicator: any) => {
-                this.toggleIndicator(indicator, showType === 'show',false);
+            this.toggleIndicator(indicator, showType === 'show' ? true : false, false);
         });
         this.filteredIndicatorsFromComp.emit(this.inputIndicators);
     }
 
-    toggleIndicator(indicator: Indicator, value?: boolean, emit?:boolean) {
-        if (value) {
+    toggleIndicator(indicator: Indicator, value?: boolean, emit?: boolean) {
+        if (value !== null) {
             indicator.selected = value;
         } else {
             indicator.toggleSelected();

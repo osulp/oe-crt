@@ -7,9 +7,12 @@
         <span id="share-link-wrapper" class="arrow_box" *ngIf="showShare">
             <span id="share-buttons">
                 <b>SHARE:</b><br />
+                <span class="fa fa-clipboard" aria-hidden="true"></span><span (click)="shareHandler('copy')">Copy URL to Clipboard</span>
+                <hr />
+                <br />
                 <img (click)="shareHandler('email')" src="assets/img/email.png" alt="Email" _ngcontent-icy-15="">
                 <img (click)="shareHandler('facebook')" src="assets/img/facebook.png" alt="Facebook">
-                <img  (click)="shareHandler('google')" src="assets/img/google.png" alt="Google">
+                <img (click)="shareHandler('google')" src="assets/img/google.png" alt="Google">
                 <img (click)="shareHandler('linkedin')" src="assets/img/linkedin.png" alt="LinkedIn">
                 <img (click)="shareHandler('twitter')" src="assets/img/twitter.png" alt="Twitter">
                 <img (click)="shareHandler('pinterest')" src="assets/img/pinterest.png" alt="Pinterest">

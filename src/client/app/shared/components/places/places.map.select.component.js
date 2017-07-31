@@ -158,7 +158,7 @@ var PlacesMapSelectComponent = (function () {
         var _this = this;
         var code = event.keyCode || event.which;
         if (code === 13) {
-            if (this.tempResults.length > 0) {
+            if (this.tempResults.length > 0 && this.tempTabIndex !== -1) {
                 var searchScope = this;
                 window.setTimeout(function () {
                     var firstItem = searchScope.tempResults[searchScope.tempTabIndex === -1 ? 0 : searchScope.tempTabIndex];
@@ -174,7 +174,6 @@ var PlacesMapSelectComponent = (function () {
                 }, 500);
             }
             else {
-                alert('Please select a valid search term.');
             }
             this.term.updateValue('', { emitEvent: true, emitModelToViewChange: true });
             this.searchTerms = '';
