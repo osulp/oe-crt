@@ -156,8 +156,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     private isCustomChart: boolean = false;
     private selectedPlaceCustomChart: any;
     private selectedPlaceColor: any;
-    private processedMapPointColors: any = 0;
-    //private selectedPlacesCustomChart: any[] = [];
+    private dataAttempts: any = 0;
 
 
     private xAxisCategories: any = {};
@@ -303,6 +302,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     private mapChart: any;
     private mapChartZoomSettings: any = {};
     private selectedMapPoints: any = [];
+    private temp_map_path_color: any;
     //private mapSeriesStore: any = {};
 
     constructor(
@@ -321,6 +321,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         this.tempPlaces = new Array<SearchResult>();
         this.xAxisCategories = [];
         this.Data = [];
+        let scope = this;
         this.mapOptions = {
             chart: {
                 renderTo: 'highmap',
@@ -372,6 +373,60 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     zoomOut: {
                         x: this.isHandheld ? 0 : 8,
                         y: 20
+                    }
+                }
+            },
+            plotOptions: {
+                map: {
+                    point: {
+                        events: {
+                            //select: function (selectScope: any,funk:any) {
+                            //    console.log('juniper', selectScope,funk);
+                            //    scope.selectedPlaceColor = selectScope.target.color;
+                            //    return true;
+                            //}
+                            //mouseOver: function (mouseinscope: any) {
+                            //    console.log('mouse in', mouseinscope, scope);
+                            //    if (mouseinscope.target['NAME'] && mouseinscope.target['selected'] === true) {
+                            //        console.log('lemons', mouseinscope.target.color);
+                            //        //mouseinscope.target
+                            //        //    .series.update({
+                            //        //    states: {
+                            //        //        select: {
+                            //        //            color: mouseinscope.target.color
+                            //        //        }
+                            //        //    }
+                            //        //});
+                            //        //scope.mapChart.series[0].data.forEach((d:any)=> {
+                            //        //    if (d.geoid === mouseinscope.target.geoid) {
+                            //        //        console.log('updating color?', scope.temp_map_path_color);
+                            //        //        d.update({ color: mouseinscope.target.color });
+                            //        //        //d.update({ color: 'Red'});
+                            //        //    }
+                            //        //});
+                            //    }
+                            //    //scope.selectAndOrderMapPaths();
+                            //}
+
+                            //    console.log('mousein', mouseinscope);
+                            //    if (mouseinscope.target.selected) {
+                            //        scope.temp_map_path_color = mouseinscope.target.color;
+                            //    }
+                            //},
+                            //mouseOut: function (mouseoutscope:any) {
+                            //    console.log('mouse out', mouseoutscope, scope.temp_map_path_color);
+                            //    if (mouseoutscope.target.selected) {
+                            //        scope.mapChart.series[0].data.forEach((d:any)=> {
+                            //            if (d.geoid === mouseoutscope.target.geoid) {
+                            //                console.log('updating color?', scope.temp_map_path_color);
+                            //                //d.update({ color: scope.temp_map_path_color });
+                            //                //d.update({ color: 'Red'});
+                            //            }
+                            //        });
+                            //    }
+                            //    //scope.selectAndOrderMapPaths();
+                            //}
+                        }
                     }
                 }
             },
@@ -655,7 +710,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
                     this.places.forEach((place: any) => {
                         inSelectedPlaces = place.Name.replace(' County', '') === selPt.id.replace(' County', '') && place.ResID === selPt.geoid ? true : inSelectedPlaces;
-                        console.log('inselectedplaces', inSelectedPlaces, place, selectedPlaces);
+                        //console.log('inselectedplaces', inSelectedPlaces, place, selectedPlaces);
                         if (!inSelectedPlaces && place.TypeCategory !== 'Counties') {
                             if (place.GeoInfo.length > 0) {
                                 place.GeoInfo.forEach((gi: any) => {
@@ -1050,7 +1105,15 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         this.createGraphChart();
                         this.onChartDataUpdate.emit({ data: this.isCustomChart ? this.dataStore.indicatorData[this.indicator].chart_data : data, customPlace: this.selectedPlaceCustomChart, customYear: this.selectedCustomChartYear, metadata: data.Metadata[0] });
 
-                    }, (err: any) => console.error(err),
+                    }, (err: any) => {
+                        console.error('error getting data!', err, this.indicator, this.dataAttempts);
+                        if (this.dataAttempts < 3) {
+                            this.dataAttempts++;
+                            this.getData();
+                        } else {
+                            this.dataAttempts = 0;
+                        }
+                    },
                         () => console.log('done loading data for graph')
                     );
                 } else {
@@ -1498,6 +1561,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             console.log('sliderscope?', sliderScope.dataStore);
                             sliderScope.initMapChart();
                             sliderScope.onChartDataUpdate.emit({ data: sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data });
+                        } else {
+                            window.setTimeout(sliderScope.selectAndOrderMapPaths(), 500);
                         }
 
                         //detailChart.xAxis[0].removePlotLine('plot-line-1');
@@ -1592,10 +1657,10 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         //set tooltip display
         this.mapChart.tooltip.options.formatter = function () {
             var displayValue = mapScope.formatValue(this.point.value, false) + '</b>';
-            //console.log('keep select', this.point);
-            if (this.point.selected) {
-                this.point.setState('select');
-            }
+            //console.log('keep select', this.point.color);
+            //if (this.point.selected) {
+            //    this.point.setState('select');
+            //}
             if (this.point.value === undefined) {
                 return '<span>' + this.point.properties.name + ' County</span><br/><span style="font-size: 10px">Not Available or Insufficient Data</span>';
             } else {
@@ -1736,26 +1801,40 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             });
         //this.mapChart.redraw();
         window.setTimeout(function () {
-            console.log('sausage', sessionStorage);
-            mapScope.mapChart.hideLoading();
-            //mapScope.mapChart.redraw();
-            mapScope.selectedMapPoints = mapScope.mapChart.getSelectedPoints();
-            mapScope.mapChart.series[0].data.forEach((d: any) => {
-                if (mapScope.selectedMapPoints.map((mp: any) => mp.geoid).indexOf(d.geoid) !== -1) {
-                    d.update({ selected: true });
-                }
-            });
-            let mapPathGroup = $("#highmap path[class*='highcharts-name-']").parent();
-            let mapPaths = $("#highmap path[class*='highcharts-name-']");
-            mapPaths.detach().sort((a: any, b: any) => {
-                return parseInt($(a).attr('stroke-width').replace('px', '')) - parseInt($(b).attr('stroke-width').replace('px', ''));
-            });
-            mapPathGroup.append(mapPaths);
+            //console.log('sausage', sessionStorage);
+            //mapScope.mapChart.hideLoading();
+            ////mapScope.mapChart.redraw();
+            //mapScope.selectedMapPoints = mapScope.mapChart.getSelectedPoints();
+            //mapScope.mapChart.series[0].data.forEach((d: any) => {
+            //    if (mapScope.selectedMapPoints.map((mp: any) => mp.geoid).indexOf(d.geoid) !== -1) {
+            //        d.update({ selected: true });
+            //    }
+            //});
+            mapScope.selectAndOrderMapPaths();
         }, 500);
         if (this.indicator_info.Represented_ID === 10) {
             this.onChartDataUpdate.emit({ data: this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data, customPlace: this.selectedPlaceCustomChart, textYears: this.placeTypeData.Years, metadata: this.placeTypeData.Metadata[0] });
         }
         //this.selectedMapPoints = this.mapChart.getSelectedPoints();
+    }
+
+    selectAndOrderMapPaths() {
+        console.log('sausage', sessionStorage);
+        this.mapChart.hideLoading();
+        //mapScope.mapChart.redraw();
+        this.selectedMapPoints = this.mapChart.getSelectedPoints();
+        this.mapChart.series[0].data.forEach((d: any) => {
+            if (this.selectedMapPoints.map((mp: any) => mp.geoid).indexOf(d.geoid) !== -1) {
+                d.update({ selected: false });
+                d.update({ selected: true });
+            }
+        });
+        let mapPathGroup = $("#highmap path[class*='highcharts-name-']").parent();
+        let mapPaths = $("#highmap path[class*='highcharts-name-']");
+        mapPaths.detach().sort((a: any, b: any) => {
+            return parseInt($(a).attr('stroke-width').replace('px', '')) - parseInt($(b).attr('stroke-width').replace('px', ''));
+        });
+        mapPathGroup.append(mapPaths);
     }
 
     getSelectColor(context: any) {
@@ -1779,7 +1858,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         //};
         let returnColor = this.selectedPlaceColor;
         if (!this.selectedPlaceColor) {
-            returnColor = '#a7a7a7';
+            returnColor = '#a7a7a7';// this.temp_map_path_color;// null;// '#a7a7a7';
         }
         console.log('return select color', returnColor);
         return returnColor;
@@ -1843,11 +1922,6 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             }
                         }
                     });
-                    try {
-                        this.chart.legend.update(this.setLegendOptions(true));
-                    } catch (ex) {
-                        console.log('failed', ex);
-                    }
 
                     this.chart.tooltip.options.shared = false;
                     this.chart.tooltip.options.useHTML = true;
@@ -1952,6 +2026,12 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
                     this.addSeriesDataToGraphChart();
                     this.chart.hideLoading();
+                    try {
+                        this.chart.legend.update(this.setLegendOptions(true));
+                    } catch (ex) {
+                        console.log('failed', ex);
+                    }
+                    this.chart.redraw();
                 } else {
                     //console.log('no chart for' + this.indicator);
                 }
@@ -2578,7 +2658,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             }
             return returnObj;
         } catch (ex) {
-            //console.log('resize legend failed', ex);
+            console.log('resize legend failed', ex);
             return null;
         }
     }
@@ -3312,8 +3392,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     getMinData(isMap: boolean, chartType?: boolean) {
-        if (isMap && this.indicator_info["Dashboard_Chart_Y_Axis_Min"] !== null) {
-            return parseFloat(this.indicator_info["Dashboard_Chart_Y_Axis_Min"]);
+        if (isMap && this.indicator_info['Dashboard_Chart_Y_Axis_Min'] !== null) {
+            return parseFloat(this.indicator_info['Dashboard_Chart_Y_Axis_Min']);
         } else {
             var min: any;
             var notLogrithmic = false;
@@ -3415,50 +3495,57 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     formatValue(val: any, isLegend: boolean) {
-        var returnVal = val;
-        if (this.placeTypeData.Metadata[0].Variable_Represent !== null) {
-            switch (this.placeTypeData.Metadata[0].Variable_Represent.trim()) {
-                case '%':
-                    returnVal = Math.round(parseFloat(val) * 100) / 100 + '%';
-                    break;
-                case '%1':
-                    returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
-                    break;
-                case '%Tenth':
-                    returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
-                    break;
-                case '0':
-                    returnVal = isLegend ? this.formatAbvNumbers(val, true, 0) : this.addCommas(Math.round(parseInt(val)).toString());
-                    //isLegend ? (val > 999 ? addCommas((val / 1000).toFixed(0)) + 'k' : val) : addCommas(Math.round(parseInt(val)));
-                    break;
-                case '2':
-                    returnVal = this.addCommas((Math.round(parseFloat(val) * 100) / 100).toString());
-                    break;
-                case '$':
-                    returnVal = '$' + this.formatAbvNumbers(val, isLegend, 1);
-                    //addCommas(Math.round(parseFloat(val) * 10) / 10)
-                    break;
-                case '$0':
-                    returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())));
-                    //returnVal = '$' + this.formatAbvNumbers(val, isLegend, 0);
-                    break;
-                case '$Thousand':
-                    returnVal = '$' + this.formatAbvNumbers((val * 1000), isLegend, 2);
-                    break;
-                case '$Millions':
-                    returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())) + 'mil');
-                    break;
-                case '$Bill2009':
-                    returnVal = '$' + Math.round(parseFloat(val) * 100) / 100 + 'bn';
-                    break;
-                case '#Jobs':
-                    returnVal = val > 999 ? (val / 1000).toFixed(0) + 'k Jobs' : val;
-                    break;
-                default:
-                    break;
+
+        if (val === '//' || !$.isNumeric(val)) {
+            return '// Data suppressed';
+        } else {
+            var returnVal = val;
+
+            if (this.placeTypeData.Metadata[0].Variable_Represent !== null) {
+                //console.log('stump', val, this.placeTypeData.Metadata[0].Variable_Represent.trim());
+                switch (this.placeTypeData.Metadata[0].Variable_Represent.trim()) {
+                    case '%':
+                        returnVal = Math.round(parseFloat(val) * 100) / 100 + '%';
+                        break;
+                    case '%1':
+                        returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
+                        break;
+                    case '%Tenth':
+                        returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
+                        break;
+                    case '0':
+                        returnVal = isLegend ? this.formatAbvNumbers(val, true, 0) : this.addCommas(Math.round(parseInt(val)).toString());
+                        //isLegend ? (val > 999 ? addCommas((val / 1000).toFixed(0)) + 'k' : val) : addCommas(Math.round(parseInt(val)));
+                        break;
+                    case '2':
+                        returnVal = this.addCommas((Math.round(parseFloat(val) * 100) / 100).toString());
+                        break;
+                    case '$':
+                        returnVal = '$' + this.formatAbvNumbers(val, isLegend, 1);
+                        //addCommas(Math.round(parseFloat(val) * 10) / 10)
+                        break;
+                    case '$0':
+                        returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())));
+                        //returnVal = '$' + this.formatAbvNumbers(val, isLegend, 0);
+                        break;
+                    case '$Thousand':
+                        returnVal = '$' + this.formatAbvNumbers((val * 1000), isLegend, 2);
+                        break;
+                    case '$Millions':
+                        returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())) + 'mil');
+                        break;
+                    case '$Bill2009':
+                        returnVal = '$' + Math.round(parseFloat(val) * 100) / 100 + 'bn';
+                        break;
+                    case '#Jobs':
+                        returnVal = val > 999 ? (val / 1000).toFixed(0) + 'k Jobs' : val;
+                        break;
+                    default:
+                        break;
+                }
             }
+            return returnVal;
         }
-        return returnVal;
     }
 
     formatAbvNumbers(val: any, isLegend: boolean, numDecimals: number) {

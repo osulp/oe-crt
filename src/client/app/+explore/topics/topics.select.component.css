@@ -359,10 +359,10 @@ fieldset legend {
     padding-right:20px;
     display:inline-block;
 }
-#selectedTopicsIndicators span:hover{
+/*#selectedTopicsIndicators span:hover{
     text-decoration:underline;
     cursor:pointer;
-}
+}*/
 #selectedTopicsIndicators img {
     margin-left:5px;
 }

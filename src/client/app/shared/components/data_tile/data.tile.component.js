@@ -69,7 +69,7 @@ var DataTileComponent = (function () {
         this.showMap = true;
         this.customChartYears = [];
         this.isCustomChart = false;
-        this.processedMapPointColors = 0;
+        this.dataAttempts = 0;
         this.xAxisCategories = {};
         this.defaultChartOptions = {
             chart: {
@@ -203,6 +203,7 @@ var DataTileComponent = (function () {
         this.tempPlaces = new Array();
         this.xAxisCategories = [];
         this.Data = [];
+        var scope = this;
         this.mapOptions = {
             chart: {
                 renderTo: 'highmap',
@@ -253,6 +254,13 @@ var DataTileComponent = (function () {
                     zoomOut: {
                         x: this.isHandheld ? 0 : 8,
                         y: 20
+                    }
+                }
+            },
+            plotOptions: {
+                map: {
+                    point: {
+                        events: {}
                     }
                 }
             },
@@ -474,7 +482,6 @@ var DataTileComponent = (function () {
                     var inSelectedPlaces = false;
                     _this.places.forEach(function (place) {
                         inSelectedPlaces = place.Name.replace(' County', '') === selPt.id.replace(' County', '') && place.ResID === selPt.geoid ? true : inSelectedPlaces;
-                        console.log('inselectedplaces', inSelectedPlaces, place, selectedPlaces);
                         if (!inSelectedPlaces && place.TypeCategory !== 'Counties') {
                             if (place.GeoInfo.length > 0) {
                                 place.GeoInfo.forEach(function (gi) {
@@ -780,7 +787,16 @@ var DataTileComponent = (function () {
                         console.log('updated data store');
                         _this.createGraphChart();
                         _this.onChartDataUpdate.emit({ data: _this.isCustomChart ? _this.dataStore.indicatorData[_this.indicator].chart_data : data, customPlace: _this.selectedPlaceCustomChart, customYear: _this.selectedCustomChartYear, metadata: data.Metadata[0] });
-                    }, function (err) { return console.error(err); }, function () { return console.log('done loading data for graph'); });
+                    }, function (err) {
+                        console.error('error getting data!', err, _this.indicator, _this.dataAttempts);
+                        if (_this.dataAttempts < 3) {
+                            _this.dataAttempts++;
+                            _this.getData();
+                        }
+                        else {
+                            _this.dataAttempts = 0;
+                        }
+                    }, function () { return console.log('done loading data for graph'); });
                 }
                 else {
                     console.log('prague', geoids, geonames, indicatorForService);
@@ -1139,6 +1155,9 @@ var DataTileComponent = (function () {
                         sliderScope.initMapChart();
                         sliderScope.onChartDataUpdate.emit({ data: sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data });
                     }
+                    else {
+                        window.setTimeout(sliderScope.selectAndOrderMapPaths(), 500);
+                    }
                 }
             }
         });
@@ -1215,9 +1234,6 @@ var DataTileComponent = (function () {
         this.mapChart.legend.title.attr({ text: this.placeTypeData.Metadata[0]['Y-Axis'] ? this.placeTypeData.Metadata[0]['Y-Axis'] : '' });
         this.mapChart.tooltip.options.formatter = function () {
             var displayValue = mapScope.formatValue(this.point.value, false) + '</b>';
-            if (this.point.selected) {
-                this.point.setState('select');
-            }
             if (this.point.value === undefined) {
                 return '<span>' + this.point.properties.name + ' County</span><br/><span style="font-size: 10px">Not Available or Insufficient Data</span>';
             }
@@ -1332,24 +1348,29 @@ var DataTileComponent = (function () {
             }
         });
         window.setTimeout(function () {
-            console.log('sausage', sessionStorage);
-            mapScope.mapChart.hideLoading();
-            mapScope.selectedMapPoints = mapScope.mapChart.getSelectedPoints();
-            mapScope.mapChart.series[0].data.forEach(function (d) {
-                if (mapScope.selectedMapPoints.map(function (mp) { return mp.geoid; }).indexOf(d.geoid) !== -1) {
-                    d.update({ selected: true });
-                }
-            });
-            var mapPathGroup = $("#highmap path[class*='highcharts-name-']").parent();
-            var mapPaths = $("#highmap path[class*='highcharts-name-']");
-            mapPaths.detach().sort(function (a, b) {
-                return parseInt($(a).attr('stroke-width').replace('px', '')) - parseInt($(b).attr('stroke-width').replace('px', ''));
-            });
-            mapPathGroup.append(mapPaths);
+            mapScope.selectAndOrderMapPaths();
         }, 500);
         if (this.indicator_info.Represented_ID === 10) {
             this.onChartDataUpdate.emit({ data: this.dataStore[this.selectedPlaceType].indicatorData[this.indicator].chart_data, customPlace: this.selectedPlaceCustomChart, textYears: this.placeTypeData.Years, metadata: this.placeTypeData.Metadata[0] });
         }
+    };
+    DataTileComponent.prototype.selectAndOrderMapPaths = function () {
+        var _this = this;
+        console.log('sausage', sessionStorage);
+        this.mapChart.hideLoading();
+        this.selectedMapPoints = this.mapChart.getSelectedPoints();
+        this.mapChart.series[0].data.forEach(function (d) {
+            if (_this.selectedMapPoints.map(function (mp) { return mp.geoid; }).indexOf(d.geoid) !== -1) {
+                d.update({ selected: false });
+                d.update({ selected: true });
+            }
+        });
+        var mapPathGroup = $("#highmap path[class*='highcharts-name-']").parent();
+        var mapPaths = $("#highmap path[class*='highcharts-name-']");
+        mapPaths.detach().sort(function (a, b) {
+            return parseInt($(a).attr('stroke-width').replace('px', '')) - parseInt($(b).attr('stroke-width').replace('px', ''));
+        });
+        mapPathGroup.append(mapPaths);
     };
     DataTileComponent.prototype.getSelectColor = function (context) {
         var returnColor = this.selectedPlaceColor;
@@ -1407,12 +1428,6 @@ var DataTileComponent = (function () {
                             }
                         }
                     });
-                    try {
-                        this.chart.legend.update(this.setLegendOptions(true));
-                    }
-                    catch (ex) {
-                        console.log('failed', ex);
-                    }
                     this.chart.tooltip.options.shared = false;
                     this.chart.tooltip.options.useHTML = true;
                     this.chart.tooltip.options.formatter = function () {
@@ -1479,6 +1494,13 @@ var DataTileComponent = (function () {
                     });
                     this.addSeriesDataToGraphChart();
                     this.chart.hideLoading();
+                    try {
+                        this.chart.legend.update(this.setLegendOptions(true));
+                    }
+                    catch (ex) {
+                        console.log('failed', ex);
+                    }
+                    this.chart.redraw();
                 }
                 else {
                 }
@@ -2028,6 +2050,7 @@ var DataTileComponent = (function () {
             return returnObj;
         }
         catch (ex) {
+            console.log('resize legend failed', ex);
             return null;
         }
     };
@@ -2578,8 +2601,8 @@ var DataTileComponent = (function () {
         return counter;
     };
     DataTileComponent.prototype.getMinData = function (isMap, chartType) {
-        if (isMap && this.indicator_info["Dashboard_Chart_Y_Axis_Min"] !== null) {
-            return parseFloat(this.indicator_info["Dashboard_Chart_Y_Axis_Min"]);
+        if (isMap && this.indicator_info['Dashboard_Chart_Y_Axis_Min'] !== null) {
+            return parseFloat(this.indicator_info['Dashboard_Chart_Y_Axis_Min']);
         }
         else {
             var min;
@@ -2671,47 +2694,52 @@ var DataTileComponent = (function () {
         return parseInt(precision);
     };
     DataTileComponent.prototype.formatValue = function (val, isLegend) {
-        var returnVal = val;
-        if (this.placeTypeData.Metadata[0].Variable_Represent !== null) {
-            switch (this.placeTypeData.Metadata[0].Variable_Represent.trim()) {
-                case '%':
-                    returnVal = Math.round(parseFloat(val) * 100) / 100 + '%';
-                    break;
-                case '%1':
-                    returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
-                    break;
-                case '%Tenth':
-                    returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
-                    break;
-                case '0':
-                    returnVal = isLegend ? this.formatAbvNumbers(val, true, 0) : this.addCommas(Math.round(parseInt(val)).toString());
-                    break;
-                case '2':
-                    returnVal = this.addCommas((Math.round(parseFloat(val) * 100) / 100).toString());
-                    break;
-                case '$':
-                    returnVal = '$' + this.formatAbvNumbers(val, isLegend, 1);
-                    break;
-                case '$0':
-                    returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())));
-                    break;
-                case '$Thousand':
-                    returnVal = '$' + this.formatAbvNumbers((val * 1000), isLegend, 2);
-                    break;
-                case '$Millions':
-                    returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())) + 'mil');
-                    break;
-                case '$Bill2009':
-                    returnVal = '$' + Math.round(parseFloat(val) * 100) / 100 + 'bn';
-                    break;
-                case '#Jobs':
-                    returnVal = val > 999 ? (val / 1000).toFixed(0) + 'k Jobs' : val;
-                    break;
-                default:
-                    break;
-            }
+        if (val === '//' || !$.isNumeric(val)) {
+            return '// Data suppressed';
         }
-        return returnVal;
+        else {
+            var returnVal = val;
+            if (this.placeTypeData.Metadata[0].Variable_Represent !== null) {
+                switch (this.placeTypeData.Metadata[0].Variable_Represent.trim()) {
+                    case '%':
+                        returnVal = Math.round(parseFloat(val) * 100) / 100 + '%';
+                        break;
+                    case '%1':
+                        returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
+                        break;
+                    case '%Tenth':
+                        returnVal = Math.round(parseFloat(val) * 10) / 10 + '%';
+                        break;
+                    case '0':
+                        returnVal = isLegend ? this.formatAbvNumbers(val, true, 0) : this.addCommas(Math.round(parseInt(val)).toString());
+                        break;
+                    case '2':
+                        returnVal = this.addCommas((Math.round(parseFloat(val) * 100) / 100).toString());
+                        break;
+                    case '$':
+                        returnVal = '$' + this.formatAbvNumbers(val, isLegend, 1);
+                        break;
+                    case '$0':
+                        returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())));
+                        break;
+                    case '$Thousand':
+                        returnVal = '$' + this.formatAbvNumbers((val * 1000), isLegend, 2);
+                        break;
+                    case '$Millions':
+                        returnVal = '$' + (isLegend ? this.formatAbvNumbers(val, isLegend, 0) : this.addCommas((Math.round(parseFloat(val)).toString())) + 'mil');
+                        break;
+                    case '$Bill2009':
+                        returnVal = '$' + Math.round(parseFloat(val) * 100) / 100 + 'bn';
+                        break;
+                    case '#Jobs':
+                        returnVal = val > 999 ? (val / 1000).toFixed(0) + 'k Jobs' : val;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return returnVal;
+        }
     };
     DataTileComponent.prototype.formatAbvNumbers = function (val, isLegend, numDecimals) {
         return (val > 999999999 ? (this.addCommas((val / 1000000000).toFixed(isLegend ? (val / 1000000000) < 10 ? 1 : 0 : numDecimals)) + 'bn') : val > 999999 ? (this.addCommas((val / 1000000).toFixed(isLegend ? (val / 1000000) < 10 ? 1 : 0 : numDecimals)) + 'mil') : val > 999 ? (this.addCommas((val / 1000).toFixed(isLegend ? (val / 1000) < 10 ? 1 : 0 : numDecimals)) + 'k') : val);
