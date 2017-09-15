@@ -20,6 +20,14 @@
                                 </span>
                             </a>
                         </div>
+                        <div *ngIf="item.collection_name === 'Community Food Systems'">
+                            <a class="a_top_download" href="http://oe.oregonexplorer.info/externalcontent/rural/IntrotoCFSIndicators_9.8.17.pdf" target="_self">
+                                <span class="glyphicon glyphicon-download-alt"></span><b>Download</b>
+                                <span class="download-link">
+                                    CFS Indicators for Oregon: An Introduction (2017)
+                                </span>
+                            </a>
+                        </div>
                         <div *ngIf="item.collection_name.indexOf('Tracking') !== -1">
                             <a class="a_top_download" href="http://oe.oregonexplorer.info/externalcontent/rural/TOP_Indicators_Oregon_2015_FINAL.pdf" target="_self">
                                 <span class="glyphicon glyphicon-download-alt"></span><b>Download</b>

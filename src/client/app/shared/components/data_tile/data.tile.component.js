@@ -203,7 +203,6 @@ var DataTileComponent = (function () {
         this.tempPlaces = new Array();
         this.xAxisCategories = [];
         this.Data = [];
-        var scope = this;
         this.mapOptions = {
             chart: {
                 renderTo: 'highmap',

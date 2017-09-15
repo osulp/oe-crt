@@ -302,8 +302,6 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     private mapChart: any;
     private mapChartZoomSettings: any = {};
     private selectedMapPoints: any = [];
-    private temp_map_path_color: any;
-    //private mapSeriesStore: any = {};
 
     constructor(
         @Inject(ElementRef) elementRef: ElementRef,
@@ -321,7 +319,6 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         this.tempPlaces = new Array<SearchResult>();
         this.xAxisCategories = [];
         this.Data = [];
-        let scope = this;
         this.mapOptions = {
             chart: {
                 renderTo: 'highmap',
