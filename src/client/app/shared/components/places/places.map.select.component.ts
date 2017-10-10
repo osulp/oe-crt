@@ -372,6 +372,7 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
     addPlace(place: SearchResult) {
         //check if already added
         //place.Desc = place.Desc.replace(/\./g, '%2E');
+        place.Name = place.Name.replace(/\%2C/g, ',');
         let isDupe = this.selectedSearchResults.filter((sp: any) => sp.Name === place.Name && sp.TypeCategory === place.TypeCategory);
         if (isDupe.length === 0) {
             //this.selectedSearchResults.push(place);

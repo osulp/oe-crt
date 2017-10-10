@@ -270,6 +270,7 @@ var PlacesMapSelectComponent = (function () {
         this._selectedPlacesService.remove(place);
     };
     PlacesMapSelectComponent.prototype.addPlace = function (place) {
+        place.Name = place.Name.replace(/\%2C/g, ',');
         var isDupe = this.selectedSearchResults.filter(function (sp) { return sp.Name === place.Name && sp.TypeCategory === place.TypeCategory; });
         if (isDupe.length === 0) {
             place.GeoInfo = [];

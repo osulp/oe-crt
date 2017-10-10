@@ -83,6 +83,7 @@ export class SearchComponent implements OnInit {
 
     inputKeypressHandler(event: any) {
         var code = event.keyCode || event.which;
+        console.log('code value is', code);
         if (code === 13) {
             //get tempResult values
             if (this.tempResults.length > 0 && this.tempTabIndex !== -1) {

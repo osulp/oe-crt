@@ -68,6 +68,7 @@ var SearchComponent = (function () {
     SearchComponent.prototype.inputKeypressHandler = function (event) {
         var _this = this;
         var code = event.keyCode || event.which;
+        console.log('code value is', code);
         if (code === 13) {
             if (this.tempResults.length > 0 && this.tempTabIndex !== -1) {
                 var searchScope = this;
