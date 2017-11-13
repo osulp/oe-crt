@@ -287,9 +287,9 @@ var PlacesMapSelectComponent = (function () {
             return pCheck.length === 0;
         });
         console.log('places map select adding unique places', uniquePlaces);
-        this.selectedSearchResults.concat(places);
+        this.selectedSearchResults.concat(uniquePlaces);
         this.selPlacesEvt.emit(this.selectedSearchResults);
-        this._selectedPlacesService.addPlaces(places);
+        this._selectedPlacesService.addPlaces(uniquePlaces);
     };
     PlacesMapSelectComponent.prototype.addPlaceCompare = function (compareType) {
         var compareResult = {

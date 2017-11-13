@@ -50,9 +50,14 @@ var AppExceptionHandler = (function (_super) {
         else {
             this.getDependencies();
             console.log('error handler', exception);
-            toastr.clear();
-            toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.');
-            _super.prototype.call.call(this, exception, stackTrace, reason);
+            if (window.location.href.match('communitiesreporter')) {
+                window.location.href = window.location.href.replace('communitiesreporter', 'CommunitiesReporter');
+            }
+            else {
+                toastr.clear();
+                toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.');
+                _super.prototype.call.call(this, exception, stackTrace, reason);
+            }
         }
     };
     AppExceptionHandler.prototype.setCookie = function (cname, cvalue) {

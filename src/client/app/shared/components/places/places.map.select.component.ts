@@ -402,14 +402,15 @@ export class PlacesMapSelectComponent implements OnInit, OnChanges {
         console.log('places map select adding places', places);
         let uniquePlaces = places.filter((place: any) => {
             let pCheck = this.selectedSearchResults.filter((splace: any) => {
+
                 return splace.Name === place.Name;
             });
             return pCheck.length === 0;
         });
         console.log('places map select adding unique places', uniquePlaces);
-        this.selectedSearchResults.concat(places);
+        this.selectedSearchResults.concat(uniquePlaces);
         this.selPlacesEvt.emit(this.selectedSearchResults);
-        this._selectedPlacesService.addPlaces(places);
+        this._selectedPlacesService.addPlaces(uniquePlaces);
 
         //var indexPos = this.selectedSearchResults.map(function (e) { return e.Name.trim().replace(' County', ''); }).indexOf(place.Name.trim().replace(' County', ''));
         //if (indexPos === -1) {

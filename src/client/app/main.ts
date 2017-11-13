@@ -1,9 +1,9 @@
 import { APP_BASE_HREF } from '@angular/common';
-import { enableProdMode, provide, ExceptionHandler, Injectable,Injector} from '@angular/core';
+import { enableProdMode, provide, ExceptionHandler, Injectable, Injector} from '@angular/core';
 import { bootstrap } from '@angular/platform-browser-dynamic';
 import { ROUTER_PROVIDERS, Router } from '@angular/router';
 //import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
-import {HTTP_PROVIDERS,JSONP_PROVIDERS} from '@angular/http';
+import {HTTP_PROVIDERS, JSONP_PROVIDERS} from '@angular/http';
 //import {PlaceInfoService} from './shared/services/places/index';
 //import { AppExceptionHandler} from './shared/error-handle/app.exception.handler';
 //import {DND_PROVIDERS} from 'ng2-dnd/ng2-dnd';
@@ -16,7 +16,7 @@ declare var toastr: any;
 if ('<%= ENV %>' === 'prod') { enableProdMode(); }
 
 export class ArrayLogger {
-    res:any = [];
+    res: any = [];
     log(s: any): void { this.res.push(s); }
     logError(s: any): void { this.res.push(s); }
     logGroup(s: any): void { this.res.push(s); }
@@ -44,31 +44,35 @@ export class AppExceptionHandler extends ExceptionHandler {
         } else {
             this.getDependencies();
             console.log('error handler', exception);
-            // Display an info toast with no title
-            //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + ('<%= ENV %>' !== 'prod' ? '<br />Error details: <br />' + exception : ''));
-            //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + '<br />Error details: <br />' + exception);
-            toastr.clear();
-            toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.');
-            //this.router.navigate(['Error', { error: exception }]);
-            //if (exception.status === 401) {
-            //    // Show login
-            //    this.router.navigate(['/Error']);
-            //}
+            if (window.location.href.match('communitiesreporter')) {
+                window.location.href = window.location.href.replace('communitiesreporter', 'CommunitiesReporter');
+            } else {
+                // Display an info toast with no title
+                //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + ('<%= ENV %>' !== 'prod' ? '<br />Error details: <br />' + exception : ''));
+                //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + '<br />Error details: <br />' + exception);
+                toastr.clear();
+                toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.');
+                //this.router.navigate(['Error', { error: exception }]);
+                //if (exception.status === 401) {
+                //    // Show login
+                //    this.router.navigate(['/Error']);
+                //}
 
-            // Get error messages if http exception
-            //let msgs = [];
-            //if (exception instanceof Response) {
-            //    msgs = this.getMessagesFromResponse(exception);
-            //} else {
+                // Get error messages if http exception
+                //let msgs = [];
+                //if (exception instanceof Response) {
+                //    msgs = this.getMessagesFromResponse(exception);
+                //} else {
 
-            //    // Otherwise show generic error
-            //    msgs.push('Something went wrong');
-            //}
+                //    // Otherwise show generic error
+                //    msgs.push('Something went wrong');
+                //}
 
-            //// Show messages
-            //msgs.forEach((msg) => this.toaster.error(msg));
+                //// Show messages
+                //msgs.forEach((msg) => this.toaster.error(msg));
 
-            super.call(exception, stackTrace, reason);
+                super.call(exception, stackTrace, reason);
+            }
         }
     }
 
