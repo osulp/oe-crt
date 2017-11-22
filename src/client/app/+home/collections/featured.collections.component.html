@@ -8,7 +8,7 @@
                     <img src="{{item.collection_image_path}}" />
                     <p class="feat-col-desc">{{item.collection_desc}}</p>
                     <div class="goto-collection">
-                        <a *ngIf="item.collection_name !== 'Partner with us'" [routerLink]="['./Explore', {collection:item.collection_name}]">Explore {{item.collection_name}} Data<span class="oe-more glyphicon glyphicon-menu-right"></span></a>
+                        <a *ngIf="item.collection_name !== 'Partner with us'" [routerLink]="[baseHREF+ '/Explore', {collection:item.collection_name}]">Explore {{item.collection_name}} Data<span class="oe-more glyphicon glyphicon-menu-right"></span></a>
                         <a *ngIf="item.collection_name === 'Partner with us'" href="mailto:vince.adams@oregonstate.edu?subject=Interested in partnering for a Featured Collection on the Communities Reporter Tool"><span [innerHTML]="isMobile ? 'Email us for more information' : 'Email our Outreach Coordinator for more information'"></span><span class="oe-more glyphicon glyphicon-menu-right"></span></a>
                     </div>
                     <div class="collection-downloads">

@@ -16,6 +16,7 @@ var FeaturedCollectionsComponent = (function () {
     function FeaturedCollectionsComponent(_collectionsService) {
         this._collectionsService = _collectionsService;
         this.isMobile = $(window).width() < 768;
+        this.baseHREF = '<%= ENV %>' === 'prod' ? 'rural/CommunitiesReporter/' : '';
     }
     FeaturedCollectionsComponent.prototype.search = function (term) {
         this.items = this._collectionsService.get();

@@ -769,6 +769,7 @@ var DataTileComponent = (function () {
             if (combinedGroups.length > 0 && !this.isStatewide && !this.isSchool) {
                 console.log('combine data call', geoids);
                 this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(function (data) {
+                    console.log('detailed data response', data);
                     var combinedData = _this.processCombinedData(data);
                     console.log('hotdog', combinedData);
                     _this.updateDataStore([combinedData], 'indicator');
@@ -906,15 +907,15 @@ var DataTileComponent = (function () {
                                 combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
                                 combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
                             }
-                            console.log('combinedNumerators', combinedNumerators, numValue, combinedDenoms, denomValue, denomValCheck);
+                            console.log('combinedNumerators', year.Year, combinedNumerators, numValue, combinedDenoms, denomValue, denomValCheck);
                         }
                         else {
                             notCombined = true;
                         }
                     }
                     if (!notCombined) {
-                        combinedDenoms = combinedDenoms === 0 || combinedDenoms === null ? 1 : combinedDenoms;
-                        combinedGroupData[year.Year] = combinedNumerators !== 0 ? combinedNumerators / combinedDenoms * multiplyBy : null;
+                        var hasEnoughData = !(combinedDenoms === 0 || combinedDenoms === null) && combinedNumerators !== 0;
+                        combinedGroupData[year.Year] = hasEnoughData ? combinedNumerators / combinedDenoms * multiplyBy : null;
                         if (isACS) {
                             var displayMOE = void 0;
                             if (combinedDenomMOEs !== 0) {

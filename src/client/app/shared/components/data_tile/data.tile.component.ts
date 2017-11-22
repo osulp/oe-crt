@@ -1081,7 +1081,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 console.log('combine data call', geoids);
                 this._dataService.getIndicatorDetailDataWithMetadata(geoids, indicatorForService).subscribe(
                     (data: any) => {
-                        //console.log('detailed data response', data);
+                        console.log('detailed data response', data);
                         //combine data by group-names
                         let combinedData = this.processCombinedData(data);
                         console.log('hotdog', combinedData);
@@ -1250,7 +1250,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 combinedNumMOEs = numMOEValue !== '' && numMOEValue !== null ? (combinedNumMOEs + parseFloat(numMOEValue)) : combinedNumMOEs;
                                 combinedDenomMOEs = denomMOEValue !== '' && denomMOEValue !== null ? (combinedDenomMOEs + parseFloat(denomValue)) : combinedDenomMOEs;
                             }
-                            console.log('combinedNumerators', combinedNumerators, numValue, combinedDenoms, denomValue, denomValCheck);
+                            console.log('combinedNumerators', year.Year, combinedNumerators, numValue, combinedDenoms, denomValue, denomValCheck);
 
                         } else {
                             notCombined = true;
@@ -1259,8 +1259,11 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     if (!notCombined) {
                         //console.log('chickens combined num values', combinedNumerators,year.Year);
                         //console.log('chickens combined denom values', combinedDenoms);
-                        combinedDenoms = combinedDenoms === 0 || combinedDenoms === null ? 1 : combinedDenoms;
-                        combinedGroupData[year.Year] = combinedNumerators !== 0 ? combinedNumerators / combinedDenoms * multiplyBy : null;
+                        let hasEnoughData = !(combinedDenoms === 0 || combinedDenoms === null) && combinedNumerators !== 0;
+                        //combinedDenoms = combinedDenoms === 0 || combinedDenoms === null
+                        //    ? 1
+                        //    : combinedDenoms;
+                        combinedGroupData[year.Year] = hasEnoughData ? combinedNumerators / combinedDenoms * multiplyBy : null;
                         if (isACS) {
                             let displayMOE: any;
                             if (combinedDenomMOEs !== 0) {

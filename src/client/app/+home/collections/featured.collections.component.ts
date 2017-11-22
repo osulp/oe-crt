@@ -21,6 +21,7 @@ declare var $: any;
 export class FeaturedCollectionsComponent implements OnInit {
     items: Observable<string[]>;
     isMobile: boolean = $(window).width() < 768;
+    baseHREF: string= '<%= ENV %>' === 'prod' ? 'rural/CommunitiesReporter/' : '';
 
     constructor(private _collectionsService: CollectionsService) { }
 
