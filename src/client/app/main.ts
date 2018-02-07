@@ -33,47 +33,48 @@ export class AppExceptionHandler extends ExceptionHandler {
     }
 
     call(exception: any, stackTrace?: any, reason?: string): void {
+        console.log(exception, stackTrace, reason);
         //window.setTimeout(location.reload(),100);
-        //check errorcount cookie
-        var errorcount = this.getCookie('errorcount');
-        let newerrorcount = errorcount === '' ? 1 : parseInt(errorcount) + 1;
-        if (newerrorcount < 5) {
-            console.log('error handler', newerrorcount);
-            this.setCookie('errorcount', (parseInt(errorcount) + 1).toString());
-            window.setTimeout(location.reload(), 100);
-        } else {
-            this.getDependencies();
-            console.log('error handler', exception);
-            if (window.location.href.match('communitiesreporter')) {
-                window.location.href = window.location.href.replace('communitiesreporter', 'CommunitiesReporter');
-            } else {
-                // Display an info toast with no title
-                //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + ('<%= ENV %>' !== 'prod' ? '<br />Error details: <br />' + exception : ''));
-                //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + '<br />Error details: <br />' + exception);
-                toastr.clear();
-                toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.');
-                //this.router.navigate(['Error', { error: exception }]);
-                //if (exception.status === 401) {
-                //    // Show login
-                //    this.router.navigate(['/Error']);
-                //}
+        ////check errorcount cookie
+        //var errorcount = this.getCookie('errorcount');
+        //let newerrorcount = errorcount === '' ? 1 : parseInt(errorcount) + 1;
+        //if (newerrorcount < 5) {
+        //    console.log('error handler', newerrorcount);
+        //    this.setCookie('errorcount', (parseInt(errorcount) + 1).toString());
+        //    window.setTimeout(location.reload(), 100);
+        //} else {
+        //    this.getDependencies();
+        //    console.log('error handler', exception);
+        //    if (window.location.href.match('communitiesreporter')) {
+        //        window.location.href = window.location.href.replace('communitiesreporter', 'CommunitiesReporter');
+        //    } else {
+        //        // Display an info toast with no title
+        //        //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + ('<%= ENV %>' !== 'prod' ? '<br />Error details: <br />' + exception : ''));
+        //        //toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.' + '<br />Error details: <br />' + exception);
+        //        toastr.clear();
+        //        toastr['warning']('Error!<br /><br />', 'Sorry, there was a problem.  We are working through the glitches in this new tool, so you may need to refresh page.  If the problem continues, let us know so we can look into fixing it.');
+        //        //this.router.navigate(['Error', { error: exception }]);
+        //        //if (exception.status === 401) {
+        //        //    // Show login
+        //        //    this.router.navigate(['/Error']);
+        //        //}
 
-                // Get error messages if http exception
-                //let msgs = [];
-                //if (exception instanceof Response) {
-                //    msgs = this.getMessagesFromResponse(exception);
-                //} else {
+        //        // Get error messages if http exception
+        //        //let msgs = [];
+        //        //if (exception instanceof Response) {
+        //        //    msgs = this.getMessagesFromResponse(exception);
+        //        //} else {
 
-                //    // Otherwise show generic error
-                //    msgs.push('Something went wrong');
-                //}
+        //        //    // Otherwise show generic error
+        //        //    msgs.push('Something went wrong');
+        //        //}
 
-                //// Show messages
-                //msgs.forEach((msg) => this.toaster.error(msg));
+        //        //// Show messages
+        //        //msgs.forEach((msg) => this.toaster.error(msg));
 
-                super.call(exception, stackTrace, reason);
-            }
-        }
+        //        super.call(exception, stackTrace, reason);
+        //    }
+        //}
     }
 
     setCookie(cname: any, cvalue: any) {

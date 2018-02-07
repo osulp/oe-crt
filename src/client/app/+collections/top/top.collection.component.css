@@ -121,11 +121,19 @@
    margin-left:1em;
 }
 
+.a_top_download_archive{
+     text-decoration: none;
+   border-bottom:1px dotted;
+   color:#A4412E;
+   margin-left:2em;
+   font-size:.8em !important;
+}
+
 .downloads
 {
 line-height:1.6em !important;
 margin-top:5px;
-font-size:.8em;
+font-size:.9em;
 }
     .downloads small {
         margin-left:3em;

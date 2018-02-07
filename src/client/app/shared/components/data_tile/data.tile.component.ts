@@ -2302,8 +2302,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         }]
                     };
                     this.chart.destroy();
+                    console.log('incomeDistOptions', incomeDistOptions);
                     this.chart = new Highcharts.Chart(incomeDistOptions);
-
+                    console.log('incomeDistOptionsLoaded!', this.chart);
                     break;
                 case 'ClientContacts211Info':
                 case 'SocialServiceProviders211Info':
@@ -2658,7 +2659,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             }
             return returnObj;
         } catch (ex) {
-            console.log('resize legend failed', ex);
+            console.log('resize legend failed', this.indicator_info, ex);
             return null;
         }
     }

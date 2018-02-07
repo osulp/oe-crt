@@ -88,31 +88,39 @@ export class DataComponent implements OnInit, AfterViewInit, OnChanges {
 
 
     onScrollDown() {
-        let incrementedIndicatorCount = false;
-        this.SelectedTopics.forEach((topic: Topic, idx: number) => {
-            if ((this.topicIndicatorCount[topic.topic][this.selectedCollection].showCount < this.topicIndicatorCount[topic.topic][this.selectedCollection].maxCount || this.topicIndicatorCount[topic.topic][this.selectedCollection].maxCount < this.showIndicatorDefault) && !incrementedIndicatorCount) {
-                this.topicIndicatorCount[topic.topic][this.selectedCollection].showCount += this.showIncrement;
-                incrementedIndicatorCount = this.topicIndicatorCount[topic.topic][this.selectedCollection].maxCount < this.showIndicatorDefault ? false : true;
-                this.showTopicMax = idx + 1;
-            }
-        });
-        console.log('scrollingdown', this.topicIndicatorCount);
+        try {
+            let incrementedIndicatorCount = false;
+            this.SelectedTopics.forEach((topic: Topic, idx: number) => {
+                if ((this.topicIndicatorCount[topic.topic][this.selectedCollection].showCount < this.topicIndicatorCount[topic.topic][this.selectedCollection].maxCount || this.topicIndicatorCount[topic.topic][this.selectedCollection].maxCount < this.showIndicatorDefault) && !incrementedIndicatorCount) {
+                    this.topicIndicatorCount[topic.topic][this.selectedCollection].showCount += this.showIncrement;
+                    incrementedIndicatorCount = this.topicIndicatorCount[topic.topic][this.selectedCollection].maxCount < this.showIndicatorDefault ? false : true;
+                    this.showTopicMax = idx + 1;
+                }
+            });
+            console.log('scrollingdown', this.topicIndicatorCount);
+        } catch (ex) {
+            console.log('error scrolling down', ex);
+        }
     }
 
     onScrollUp() {
-        let decrementedIndicatorCount = false;
-        this.SelectedTopics.forEach((topic: Topic, idx: number) => {
-            if (this.topicIndicatorCount[topic.topic][this.selectedCollection].showCount < this.topicIndicatorCount[topic.topic][this.selectedCollection].maxCount && !decrementedIndicatorCount) {
-                this.topicIndicatorCount[topic.topic][this.selectedCollection].showCount -= this.showIncrement;
-                decrementedIndicatorCount = true;
-                this.showTopicMax = idx + 1;
-            }
-            if ($(window).scrollTop() === 0) {
-                this.topicIndicatorCount[topic.topic][this.selectedCollection].showCount = this.showIndicatorDefault;
-                this.showTopicMax = 1;
-            }
-        });
-        console.log('scollingup', this.topicIndicatorCount);
+        try {
+            let decrementedIndicatorCount = false;
+            this.SelectedTopics.forEach((topic: Topic, idx: number) => {
+                if (this.topicIndicatorCount[topic.topic][this.selectedCollection].showCount < this.topicIndicatorCount[topic.topic][this.selectedCollection].maxCount && !decrementedIndicatorCount) {
+                    this.topicIndicatorCount[topic.topic][this.selectedCollection].showCount -= this.showIncrement;
+                    decrementedIndicatorCount = true;
+                    this.showTopicMax = idx + 1;
+                }
+                if ($(window).scrollTop() === 0) {
+                    this.topicIndicatorCount[topic.topic][this.selectedCollection].showCount = this.showIndicatorDefault;
+                    this.showTopicMax = 1;
+                }
+            });
+            console.log('scollingup', this.topicIndicatorCount);
+        } catch (ex) {
+            console.log('error scrolling up', ex);
+        }
     }
 
     createTopicIndicatorObj() {
