@@ -1672,11 +1672,13 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         displayValue += mapScope.formatValue(((parseFloat(chart_data.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][1]) - parseFloat(chart_data.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][0])) / 2), false);
                         displayValue += ' )</span>';
                     }
-                    var SeriesName = (this.point.series.name.split(':').length > 1 ? this.point.series.name.split(':')[0] + ':<br />' + this.point.series.name.split(':')[1] : this.point.series.name).replace('%3A', ':');
+                    var SeriesName = (this.point.series.name.split(':').length > 1 ? this.point.series.name.split(':')[0] + ':<br />' + this.point.series.name.split(':')[1] : this.point.series.name).replace('%3A', ':').replace('%26', '&');
                     var returnHTML = '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size: 10px"> ' + SeriesName + '</span>';
                     returnHTML += '<br/><b>' + this.point.id + ' ' + (mapScope.selectedPlaceType === 'Counties' ? 'County' : '') + ': ' + displayValue;
-                    returnHTML += '<br/><span style="color:#a7a7a7;">-----------------------------------------</span><br/><em><span style="font-size:10px; color:' + mapScope.placeTypeData.Metadata[0].Color_hex;
-                    returnHTML += '; font-weight:bold; font-style:italic">( Click to view chart  ---   To compare: Hold Shift + Click )</span></em>';
+                    if (mapScope.placeTypeData.Metadata[0].Variable_Represent.trim() !== 'Text') {
+                        returnHTML += '<br/><span style="color:#a7a7a7;">-----------------------------------------</span><br/><em><span style="font-size:10px; color:' + mapScope.placeTypeData.Metadata[0].Color_hex;
+                        returnHTML += '; font-weight:bold; font-style:italic">( Click to view chart  ---   To compare: Hold Shift + Click )</span></em>';
+                    }
                     return returnHTML;
                 } else {
                     return '<span style="font-size: 10px">Not Available or Insufficient Data</span>';
@@ -2114,8 +2116,14 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     console.log('padding', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].maxVal);
                     categories = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].categories
                         .filter((cat: any) => {
-                            return !isHousing ? true : this.selectedCustomChartYear !== '1990' ? cat !== 'under 25' && cat !== '75+' : (cat !== '85+' && cat !== '75-84' && cat !== '15-24');
+                            return !isHousing
+                                ? true
+                                : this.selectedCustomChartYear !== '1990'
+                                    ? cat !== 'under 25' && cat !== '75+'
+                                    : (cat !== '85+' && cat !== '75-84');
+                            //return this.selectedCustomChartYear !== '1990' ? cat !== 'under 25' && cat !== '75+' : (cat !== '85+' && cat !== '75-84' && cat !== '15-24');
                         });
+                    console.log('custom chart categories', categories);
                     let pyramidOptions = {
                         chart: {
                             renderTo: 'highchart' + this.indicator,
@@ -2204,14 +2212,14 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             name: isHousing ? 'Owners' : 'Males',
                             data: isHousing ? this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.owners[this.selectedCustomChartYear].data
                                 .filter((data: any, idx: number) => {
-                                    return this.indicator_info.ScriptName.indexOf('Estimate') !== -1 ? true : this.selectedCustomChartYear !== '1990' ? [0, 7].indexOf(idx) === -1 : [1, 8, 9].indexOf(idx) === -1;
+                                    return this.indicator_info.ScriptName.indexOf('Estimate') !== -1 ? true : this.selectedCustomChartYear !== '1990' ? [6].indexOf(idx) === -1 : [7, 8].indexOf(idx) === -1;
                                 })
                                 : this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.males[this.selectedCustomChartYear].data
                         }, {
                                 name: isHousing ? 'Renters' : 'Females',
                                 data: isHousing ? this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.renters[this.selectedCustomChartYear].data
                                     .filter((data: any, idx: number) => {
-                                        return this.indicator_info.ScriptName.indexOf('Estimate') !== -1 ? true : this.selectedCustomChartYear !== '1990' ? [0, 7].indexOf(idx) === -1 : [1, 8, 9].indexOf(idx) === -1;
+                                        return this.indicator_info.ScriptName.indexOf('Estimate') !== -1 ? true : this.selectedCustomChartYear !== '1990' ? [6].indexOf(idx) === -1 : [7, 8].indexOf(idx) === -1;
                                     })
                                     : this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.females[this.selectedCustomChartYear].data
                             }
@@ -3496,8 +3504,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     formatValue(val: any, isLegend: boolean) {
-
-        if (val === '//' || !$.isNumeric(val)) {
+        if (val === '//' || (!$.isNumeric(val) && this.placeTypeData.Metadata[0].Variable_Represent.trim() !== 'Text')) {
             return '// Data suppressed';
         } else {
             var returnVal = val;
