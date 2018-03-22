@@ -3082,6 +3082,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             case 'PovertyByRace':
             case 'NAICS_Farms':
             case 'FoodProcessEmps':
+
                 this.places.forEach((place: any, pidx: number) => {
                     let placeData = this.placeTypeData.Data
                         .filter((data: any) => {
@@ -3132,7 +3133,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                         y: $.isNumeric(parseInt(pdm[year])) ? parseInt(pdm[year]) : null
                                     });
                                 } else {
-                                    yearData.data.push(parseInt(pdm[year]));
+                                    yearData.data.push(parseInt(Number(pdm[year]).toPrecision()));
                                     if (year.indexOf('-') !== -1) {
                                         yearData.data_moe.push(parseFloat(pdm[year + '_MOE']));
                                     }
@@ -3146,7 +3147,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     } else {
                         console.log('no data for income or 211 chart');
                     }
-                    console.log('process custom chart poverty', categories);
+                    console.log('process custom chart poverty', categories, placeDataYears);
                     place_data_years[place.Name] = {
                         id: place.Name,
                         name: place.Name,
@@ -3516,9 +3517,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             return '// Data suppressed';
         } else {
             var returnVal = val;
-
             if (this.placeTypeData.Metadata[0].Variable_Represent !== null) {
-                //console.log('stump', val, this.placeTypeData.Metadata[0].Variable_Represent.trim());
+                console.log('stump', val, this.placeTypeData.Metadata[0].Variable_Represent.trim());
                 switch (this.placeTypeData.Metadata[0].Variable_Represent.trim()) {
                     case '%':
                         returnVal = Math.round(parseFloat(val) * 100) / 100 + '%';
