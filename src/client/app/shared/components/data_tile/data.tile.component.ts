@@ -2496,7 +2496,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         ? '#244068'
                         : isCalifornia
                             ? '#C34500'
-                            : isCombined
+                            : isCombined && this.checkCombineGroups().length === 1
                                 ? '#98BD85'
                                 : Highcharts.getOptions().colors[idx];
             let data = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data;
@@ -2523,7 +2523,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             duration: 500
                         },
                         marker: {
-                            fillColor: isState ? '#FFFFFF' : Highcharts.getOptions().colors[idx],
+                            fillColor: isState
+                                ? '#FFFFFF'
+                                : Highcharts.getOptions().colors[idx],
                             lineWidth: isState ? 4 : 2,
                             lineColor: isRural
                                 ? '#996699'
@@ -2533,7 +2535,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                         ? '#244068'
                                         : isCalifornia
                                             ? '#C34500'
-                                            : isCombined
+                                            : isCombined && this.checkCombineGroups().length === 1
                                                 ? '#98BD85'
                                                 : Highcharts.getOptions().colors[idx],
                             radius: this.placeTypeData.Years.length > 10 ? 3.5 : 4,
@@ -3120,7 +3122,13 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             placeData.forEach((pdm: any) => {
                                 if (this.indicator_info.ScriptName.indexOf('211') !== -1 || this.indicator_info.ScriptName === 'PovertyByRace' || this.indicator_info.ScriptName === 'NAICS_Farms') {
                                     yearData.data.push({
-                                        name: pdm.Variable.replace(' Client Contacts', '').replace(' Providers', '').replace('Percentage of population group in poverty: ', ''),
+                                        name: pdm.Variable
+                                            .replace('211info ', '')
+                                            .replace(' Contacts Prop', '')
+                                            .replace(' Providers Prop','')
+                                            .replace(' Client Contacts', '')
+                                            .replace(' Providers', '')
+                                            .replace('Percentage of population group in poverty: ', ''),
                                         y: $.isNumeric(parseInt(pdm[year])) ? parseInt(pdm[year]) : null
                                     });
                                 } else {
