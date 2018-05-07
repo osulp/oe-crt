@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { ROUTER_DIRECTIVES } from '@angular/router';
+
 
 /**
  * This class represents the lazy loaded AboutComponent.
@@ -7,6 +9,9 @@ import { Component } from '@angular/core';
   moduleId: module.id,
   selector: 'sd-collections',
   templateUrl: 'collections.component.html',
-  styleUrls: ['collections.component.css']
+  styleUrls: ['collections.component.css'],
+   directives: [ROUTER_DIRECTIVES]
 })
-export class CollectionsComponent {}
+export class CollectionsComponent {
+    baseHREF: string = '<%= ENV %>' === 'prod' ? './../rural/CommunitiesReporter/' : '';
+}
