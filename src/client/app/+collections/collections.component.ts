@@ -12,4 +12,6 @@ import { ROUTER_DIRECTIVES } from '@angular/router';
   styleUrls: ['collections.component.css'],
    directives: [ROUTER_DIRECTIVES]
 })
-export class CollectionsComponent {}
+export class CollectionsComponent {
+    baseHREF: string = '<%= ENV %>' === 'prod' ? './../rural/CommunitiesReporter/' : '';
+}
