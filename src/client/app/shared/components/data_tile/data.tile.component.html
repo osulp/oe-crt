@@ -2,10 +2,14 @@
     <div class="col-xs-12" id="chart-div" [ngClass]="tileType === 'map' ? 'mapChartDiv' : 'graphChartDiv'">
         <div class="row">
             <div *ngIf="tileType === 'graph'" class="col-xs-12 graph-chart-wrapper">
-                <div *ngIf="tileType === 'graph'" class="collection-icon-wrapper">
+                <div *ngIf="isDrilldown">
+                    <span (click)="drillup()">Go Back</span>
+                    <span [innerHTML]="drillDownPlace + ': ' + indicator + ' by ' + drillDownType"></span>
+                </div>
+                <div class="collection-icon-wrapper">
                     <span *ngFor="let collection of indicator_collections" class="collectionIcon">
                         <span *ngFor="let coll of collections">
-                            <img *ngIf="coll.collection_name === collection || coll.collection === collection" [src]="coll.collection_icon_path ? coll.collection_icon_path : coll.icon_path" [title]="'This indicator is part of the '+collection+' collection.'"  />
+                            <img *ngIf="coll.collection_name === collection || coll.collection === collection" [src]="coll.collection_icon_path ? coll.collection_icon_path : coll.icon_path" [title]="'This indicator is part of the '+collection+' collection.'" />
                         </span>
                     </span>
                 </div>
@@ -57,8 +61,8 @@
             <div class="chart_notices col-xs-5">
                 <div *ngIf="isCountyLevel || isStatewide || isNotCombinable">
                     <span class="glyphicon glyphicon-flag"></span>
-                    <span *ngIf="isStatewide" [innerHTML]="isHandheld ? 'Statewide Data' : 'Statewide Data Only'" ></span>
-                    <span *ngIf="isCountyLevel" [innerHTML]="isHandheld ? 'County Level' : 'County Level Data'" >County Level Data</span>
+                    <span *ngIf="isStatewide" [innerHTML]="isHandheld ? 'Statewide Data' : 'Statewide Data Only'"></span>
+                    <span *ngIf="isCountyLevel" [innerHTML]="isHandheld ? 'County Level' : 'County Level Data'">County Level Data</span>
                     <span *ngIf="isNotCombinable">Data is not able to be combined</span>
                 </div>
             </div>

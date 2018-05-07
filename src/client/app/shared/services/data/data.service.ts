@@ -47,6 +47,19 @@ export class DataService {
         }
     }
 
+    getDrilldownIndicatorData(subtopic: string, geoid: string) {
+        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/communityData';
+        var params = new URLSearchParams();
+        params.set('subtopic', subtopic);
+        params.set('drilldown', '1');
+        params.set('geoid', geoid);
+        params.set('f', 'json');
+        params.set('callback', 'JSONP_CALLBACK');
+        return this.jsonp
+            .get(serviceUrl, { search: params })
+            .map((request: any) => <string[]>request.json());
+    }
+
     getIndicatorDataWithMetadata(geoids: string, geonames: string, indicator: string) {
         let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/communityData';
         var params = new URLSearchParams();
