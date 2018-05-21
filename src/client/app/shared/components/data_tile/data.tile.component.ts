@@ -84,6 +84,8 @@ interface Chart {
     hideLoading: any;
     destroy: any;
     zoomOut: any;
+    renderer: any;
+    zoomGroupButton: any;
 }
 
 @Component({
@@ -1362,6 +1364,22 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     this.updateDataStore(data, 'indicator', ddObj);
                     this.processDataYear(ddObj);
                     this.addSeriesDataToGraphChart(null, ddObj);
+
+                    this.chart.renderer.button('< Go Back', null, null,
+                        (drillup: any) => {
+                            this.drillUp();
+                        }, {
+                            zIndex: 20
+                        }).attr({
+                            align: 'left',
+                            title: 'Reset zoom level 1:1'
+                        }).add(this.chart.zoomGroupButton).align({
+                            align: 'left',
+                            x: 10,
+                            y: 10
+                        }, false, null);
+
+
                     //this.showDrillDownData();
                     //this._selectedDataService.add(data);
                 },
@@ -1371,6 +1389,10 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         }
     }
 
+    drillUp() {
+        this.isDrilldown = false;
+        this.createGraphChart();
+    }
     showDrillDownData() {
         //if (this.dataStore.indicatorData[this.indicator].chart_dd_data) {
         //    if (this.dataStore.indicatorData[this.indicator].chart_dd_data.place_data_year_dd) {
@@ -2048,7 +2070,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 //}
                             }
 
-                            //var drillDownMsg = this.hasDrillDowns && !this.drilldownShowing && (this.isStateDDOnly && this.point.series.name === "Oregon" || !this.isStateDDOnly) && !this.hasDrillDownCategories ? '<span style="font-size:10px"><em>(Click on line to see demographics)</em></span>' : "";
+                            let drillDownMsg = this.hasDrillDowns && !this.drilldownShowing && (this.isStateDDOnly && this.point.series.name === "Oregon" || !this.isStateDDOnly) && !this.hasDrillDownCategories ? '<span style="font-size:10px"><em>(Click on line to see demographics)</em></span>' : "";
 
                             return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size:10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><span><b>' + displayValue + '</span><br/>';// + drillDownMsg;
                         }
