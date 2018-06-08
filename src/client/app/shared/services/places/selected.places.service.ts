@@ -208,6 +208,8 @@ export class SelectedPlacesService {
         place.forEach((p: any) => {
             var params = new URLSearchParams();
             params.set('place', p.Name); // the user's search value
+            params.set('geoid', p.ResID);
+            params.set('geoType', p.TypeCategory);
             params.set('f', 'json');
             params.set('callback', 'JSONP_CALLBACK');
             //console.log('initialstate', this.selectedPlaces);

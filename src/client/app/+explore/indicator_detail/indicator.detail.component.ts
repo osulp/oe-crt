@@ -57,6 +57,9 @@ export class DetailComponent implements OnInit {
     pageUrl: any;
     selectedYear: any = '';
     isMobile: boolean = false;
+    hasDrilldowns: boolean = false;
+    drillDowns: any[] = [];
+    drillDownType: any;
 
 
     constructor(private _indicatorDescService: IndicatorDescService,
@@ -69,30 +72,34 @@ export class DetailComponent implements OnInit {
         if (this.selectedSearchResult !== undefined) {
             if (results.Type.toLowerCase() === 'indicator') {
                 //this._router.navigate(['Explore', { indicator: encodeURIComponent(results.Name), topics: results.TypeCategory.split(';')[1] }]);
-                console.log('search result change', this.placeMap.selectedPlaces, this.placeMap.selectedSearchResults);
-                let places: string = '';
-                this.placeMap.selectedSearchResults.forEach((place: any, idx:number) => {
-                    let place_simple = {
-                        Name: place.Name,
-                        ResID: place.ResID,
-                        TypeCategory: place.TypeCategory,
-                        Desc: place.Desc,
-                        Combined: place.Combined,
-                        GroupName: place.GroupName
-                    };
-                    places += encodeURIComponent(JSON.stringify(place_simple));
-                    places += idx !== this.placeMap.selectedSearchResults.length - 1 ? ',' : '';
-                });
-                console.log('indicator detail: places simple', places);
-
-                this._router.navigate(['Explore', {
-                    indicator: encodeURIComponent(results.Name.replace('(', '%28').replace(')', '%29')),
-                    places: places
-                    //places: encodeURIComponent(JSON.stringify(this.placeMap.selectedSearchResults).replace('[', '').replace(']', ''))
-                }]);
-                this.detailUrlChanges++;
+                this.goToNewExplorePage(results.Name.replace('(', '%28').replace(')', '%29'));
             }
         }
+    }
+
+    goToNewExplorePage(indicator: string) {
+        console.log('search result change', this.placeMap.selectedPlaces, this.placeMap.selectedSearchResults);
+        let places: string = '';
+        this.placeMap.selectedSearchResults.forEach((place: any, idx: number) => {
+            let place_simple = {
+                Name: place.Name,
+                ResID: place.ResID,
+                TypeCategory: place.TypeCategory,
+                Desc: place.Desc,
+                Combined: place.Combined,
+                GroupName: place.GroupName
+            };
+            places += encodeURIComponent(JSON.stringify(place_simple));
+            places += idx !== this.placeMap.selectedSearchResults.length - 1 ? ',' : '';
+        });
+        console.log('indicator detail: places simple', places);
+
+        this._router.navigate(['Explore', {
+            indicator: encodeURIComponent(indicator),
+            places: places
+            //places: encodeURIComponent(JSON.stringify(this.placeMap.selectedSearchResults).replace('[', '').replace(']', ''))
+        }]);
+        this.detailUrlChanges++;
     }
 
     getClass() {
@@ -235,6 +242,44 @@ export class DetailComponent implements OnInit {
         return month + '/' + day + '/' + year;
     }
 
+    getDDRemoveText(drillDowns: any[]) {
+        //////////////////////
+        // Function to find similiar words to remove for drilldown series name display
+        // Compares the drill down categories against each other and keeps the words that are the same in the  same order
+        /////////////////////
+        var removeText = '';
+        var prevArray: any[] = [],
+            curArray: any[] = [];
+        drillDowns.forEach((dd: any) => {
+            //console.log('removeText', dd, drillDowns, prevArray, curArray);
+            curArray = dd['Indicator'].split(' ');
+            let removeTextArray: any[] = removeText.split(' ');
+            if (prevArray.length !== 0) {
+                for (var x = 0; x < prevArray.length; x++) {
+                    console.log('removeCandidate', prevArray[x]);
+                    if (prevArray[x] === curArray[x]
+                        && removeTextArray[x] !== prevArray[x]
+                        && removeText.indexOf(prevArray[x]) === -1
+                    ) {
+                        removeText += prevArray[x] + ' ';
+                    } else {
+                        removeText = removeText;
+                    }
+                }
+            } else {
+                prevArray = curArray;
+            }
+        });
+
+        removeText = removeText.split(':')[0] + ':';
+        return removeText;
+    }
+
+    onDDIndicatorChange(ddIndicator: any) {
+        console.log('ddInidicator', ddIndicator);
+        this.goToNewExplorePage(ddIndicator);
+    }
+
     ngOnInit() {
         this.detailUrlChanges = 0;
         //console.log('detailurlchanges', this.detailUrlChanges, history);
@@ -265,15 +310,38 @@ export class DetailComponent implements OnInit {
                     this.indicatorDesc = data.Desc;// IndicatorDescSer
                     this.relatedIndicators = data.RelatedIndicators;
                     this.isTextData = indicator_info.Represented_ID === 10 ? true : false;
+                    this.indicatorTitle = indicator_info.Dashboard_Chart_Title
+                        ? indicator_info.Dashboard_Chart_Title
+                        : indicator_info.Variable;
+
+                    if (data.DrilldownIndicators) {
+                        this.hasDrilldowns = true;
+                        let ddTypeArr = data.DrilldownIndicators.filter((dd: any) => dd.Sub_Sub_Topic !== 'Total');
+                        this.drillDownType = ddTypeArr[0].Sub_Sub_Topic ? ddTypeArr[0].Sub_Sub_Topic : '';
+                        this.indicatorDesc.ddRemoveText = this.getDDRemoveText(data.DrilldownIndicators);
+                        this.drillDowns = data.DrilldownIndicators.map((dd: any) => {
+                            console.log('corpus loop', dd, this.inputIndicator, this.indicatorTitle);
+                            let returnVal = dd.Indicator;
+                            //let colonSeparator = this.indicatorDesc.ddRemoveText.indexOf(':') !== -1;
+                            this.indicatorDesc.ddRemoveText.split(' ').forEach((removeText: string) => {
+                                returnVal = returnVal.replace(removeText, '');
+                            });
+                            return {
+                                'ddDisplay': returnVal,
+                                'indicator': dd.Indicator,
+                                'selected': dd.Indicator === this.indicatorTitle ? 'selected' : null
+                            };
+                        });
+                        console.log('corpus', this.drillDowns, $('label.dropdown:after').css('right', '200px'));
+
+                    }
                     //console.log('indicatorDesc service', data);
                     //this.indicatorTitle = indicator_info.Sub_Topic_ID !== null
                     //    ? indicator_info.Sub_Topic_Name + ' ('+ indicator_info.Variable + ')'
                     //    : indicator_info.Dashboard_Chart_Title
                     //        ? indicator_info.Dashboard_Chart_Title
                     //        : indicator_info.Variable;
-                    this.indicatorTitle = indicator_info.Dashboard_Chart_Title
-                            ? indicator_info.Dashboard_Chart_Title
-                            : indicator_info.Variable;
+
                     this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
                     this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
                     this.isCountyLevel = indicator_info.CountyLevel;

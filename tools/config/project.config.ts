@@ -15,7 +15,7 @@ export class ProjectConfig extends SeedConfig {
         super();
         this.PORT = '5556';
         this.APP_TITLE = 'Community Reporter Tool';
-        this.APP_BASE = this.ENV === 'prod' ? '/rural/CommunitiesReporter/' : '/';
+        this.APP_BASE = this.ENV === 'prod' ? '/rural/CommunitiesReporterDev/' : '/';
         let additional_deps: InjectableDependency[] = [
             { src: `bootstrap/dist/css/bootstrap.${this.getInjectableStyleExtension()}`, inject: true, env: 'dev' }
             ,{ src: `bootstrap/dist/js/bootstrap.js`, inject: true  }

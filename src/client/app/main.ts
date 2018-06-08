@@ -1,7 +1,7 @@
 import { APP_BASE_HREF } from '@angular/common';
 import { enableProdMode, provide, ExceptionHandler, Injectable, Injector} from '@angular/core';
 import { bootstrap } from '@angular/platform-browser-dynamic';
-import { ROUTER_PROVIDERS, Router } from '@angular/router';
+import { ROUTER_PROVIDERS } from '@angular/router';
 //import { ROUTER_PROVIDERS } from '@angular/router-deprecated';
 import {HTTP_PROVIDERS, JSONP_PROVIDERS} from '@angular/http';
 //import {PlaceInfoService} from './shared/services/places/index';
@@ -25,7 +25,7 @@ export class ArrayLogger {
 
 @Injectable()
 export class AppExceptionHandler extends ExceptionHandler {
-    private router: Router;
+    //private router: Router;
     //private toaster: ToastsManager;
 
     constructor(private injector: Injector) {
@@ -77,36 +77,36 @@ export class AppExceptionHandler extends ExceptionHandler {
         //}
     }
 
-    setCookie(cname: any, cvalue: any) {
-        var d = new Date();
-        d.setTime(d.getTime() + (60 * 1000));
-        var expires = 'expires=' + d.toUTCString();
-        document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
-    }
+    //setCookie(cname: any, cvalue: any) {
+    //    var d = new Date();
+    //    d.setTime(d.getTime() + (60 * 1000));
+    //    var expires = 'expires=' + d.toUTCString();
+    //    document.cookie = cname + '=' + cvalue + ';' + expires + ';path=/';
+    //}
 
-    getCookie(cname: any) {
-        var name = cname + '=';
-        var ca = document.cookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) === ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) === 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return '';
-    }
+    //getCookie(cname: any) {
+    //    var name = cname + '=';
+    //    var ca = document.cookie.split(';');
+    //    for (var i = 0; i < ca.length; i++) {
+    //        var c = ca[i];
+    //        while (c.charAt(0) === ' ') {
+    //            c = c.substring(1);
+    //        }
+    //        if (c.indexOf(name) === 0) {
+    //            return c.substring(name.length, c.length);
+    //        }
+    //    }
+    //    return '';
+    //}
 
-    private getDependencies() {
-        if (!this.router) {
-            this.router = this.injector.get(Router);
-        }
-        //if (!this.toaster) {
-        //    this.toaster = this.injector.get(ToastsManager);
-        //}
-    }
+    //private getDependencies() {
+    //    if (!this.router) {
+    //        this.router = this.injector.get(Router);
+    //    }
+    //    //if (!this.toaster) {
+    //    //    this.toaster = this.injector.get(ToastsManager);
+    //    //}
+    //}
 
 }
 

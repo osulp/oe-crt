@@ -47,7 +47,18 @@
         <div class="col-xs-12">
             <div class="row">
                 <div id="indicator-title-wrapper" class="col-lg-10 col-md-10 col-xs-10">
-                    <div>
+                    <div *ngIf="hasDrilldowns">
+                        <h2>                            {{indicatorDesc.ddRemoveText}}
+                            <label class="dropdown">
+                                <select #sel id="ddSelect" (change)="onDDIndicatorChange(sel.value)">
+                                    <option *ngFor="let ddIndicator of drillDowns" [ngValue]="ddIndicator" [value]="ddIndicator.indicator" [selected]="ddIndicator.selected" (click) ="onDDIndicatorChange(sel.value)">
+                                        {{ddIndicator.ddDisplay}}
+                                    </option>
+                                </select>
+                            </label>
+                        </h2>
+                    </div>
+                    <div *ngIf="!hasDrilldowns">
                         <h2 [innerHTML]="indicatorTitle"></h2>
                     </div>
                     <div class="subtitle">
@@ -68,13 +79,13 @@
                 <div *ngIf="!isStatewide && !isCustomChart" [ngClass]="!showGraph || isTextData ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
                     <div #mapView class="detail-tile map-chart" [hidden]="!showMap">
                         <!--MAP VIEW-->
-                        <data-tile [indicator]="inputIndicator" (onSelectedYearChange)="onSelectedYearChange($event)"  (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [tileType]="'map'" [viewType]="'advanced'"></data-tile>
+                        <data-tile [indicator]="inputIndicator" (onSelectedYearChange)="onSelectedYearChange($event)" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [tileType]="'map'" [viewType]="'advanced'"></data-tile>
                     </div>
                 </div>
                 <div *ngIf="!isTextData" [ngClass]="!showMap || isStatewide || isCustomChart ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
                     <div #graphView class="detail-tile" [hidden]="!showGraph">
                         <!--GRAPH VIEW-->
-                        <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="" [_selectedYear]="selectedYear" [collections]="collections" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'"></data-tile>
+                        <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="" [_selectedYear]="selectedYear" [collections]="collections" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'"  ></data-tile>
                     </div>
                 </div>
                 <div class="col-xs-12">

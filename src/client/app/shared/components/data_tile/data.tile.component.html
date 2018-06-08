@@ -3,8 +3,11 @@
         <div class="row">
             <div *ngIf="tileType === 'graph'" class="col-xs-12 graph-chart-wrapper">
                 <div *ngIf="isDrilldown">
-                    <span (click)="drillup()">Go Back</span>
-                    <span [innerHTML]="drillDownPlace + ': ' + indicator + ' by ' + drillDownType"></span>
+                    <!--<span (click)="drillup()">Go Back</span>-->
+                    <span [innerHTML]="drillDownPlace + ': ' + indicator_info.drilldown_remove_text + ' by ' + drillDownType"></span>
+                </div>
+                <div *ngIf="hasDrillDowns && !isDrilldown" class="drillDownMsg">
+                    <span [innerHTML]="'Click on a line to see further breakdown by ' + drillDownType + '.'"></span>
                 </div>
                 <div class="collection-icon-wrapper">
                     <span *ngFor="let collection of indicator_collections" class="collectionIcon">

@@ -112,6 +112,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     @Output() onSelectedYearChange = new EventEmitter();
     public geoJSONStore: any[] = [];
     elementRef: ElementRef;
+    drillDownPlace: any = '';
     public places = new Array<SearchResult>();
     private subscription: Subscription;
     private geoSubscription: Subscription;
@@ -164,8 +165,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     private selectedPlaceColor: any;
     private dataAttempts: any = 0;
     private isDrilldown: boolean = false;
-    private drillDownPlace: any;
-    private drillDownType: any = 'Race/Ethnicity';
+    private drillDownType: any = '';
+    private goBackBtn: any;
+    private drillDownGeogs: any = [];
 
 
     private xAxisCategories: any = {};
@@ -176,11 +178,11 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             //marginLeft: 15,
             //spacingLeft: 60,
             //spacingRight: 15,
-            events: {
-                drilldown: function (e: any) {
-                    console.log('benny is drillin', e);
-                }
-            },
+            //events: {
+            //    drilldown: function (e: any) {
+            //        console.log('benny is drillin', e);
+            //    }
+            //},
             spacingTop: 15,
             zoomType: 'x',
             resetZoomButton: {
@@ -481,6 +483,20 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         this._indicatorDescService.getIndicator(this.indicator.replace(/\+/g, '%2B').replace(/\&/g, '%26').replace(/\=/g, '%3D')).subscribe(
             (indicatorDesc: any) => {
                 this.indicator_info = indicatorDesc.Desc[0];
+                if (indicatorDesc.DrilldownIndicators) {
+                    console.log('drilldown place support', indicatorDesc.DrilldownIndicators);
+
+                    this.indicator_info.drilldown_indicators = indicatorDesc.DrilldownIndicators;
+                    this.indicator_info.drilldown_remove_text = this.getDDRemoveText(this.indicator_info.drilldown_indicators, '', 'Indicator');
+                    let ddTypeArr = indicatorDesc.DrilldownIndicators.filter((dd: any) => dd.Sub_Sub_Topic !== 'Total');
+                    this.drillDownType = ddTypeArr[0].Sub_Sub_Topic ? ddTypeArr[0].Sub_Sub_Topic : '';
+
+                    this.drillDownGeogs = indicatorDesc.DrilldownIndicators
+                        .map((dd: any) => dd.Variable_Geog_Desc)
+                        .filter((val: any, idx: number, self: any) => self.indexOf(val) === idx);
+                    console.log('drilldown place support', this.drillDownGeogs);
+
+                }
                 if (this.indicator_info) {
                     console.log('this.indicator_info', this.indicator_info);
                     this.isStatewide = this.indicator_info.Geog_ID === 8 ? true : false;
@@ -1345,11 +1361,20 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     getDrillDownData(evt: any) {
-        console.log('getting drilldown data for ', evt.point.series.name, evt);
-        let searchGeoid = this.places.find((p: any) => p.Name === evt.point.series.name).ResID;
-        console.log('search Geoid is:  ', searchGeoid);
+        this.chart.showLoading();
+        console.log('getting drilldown data for ', evt.point.series.name, evt, this.drillDownGeogs);
+        let ddOnlyForCounty = this.drillDownGeogs.indexOf('County') !== -1 && evt.point.series.options.geo_type !== 'State';
+        console.log('freebird', ddOnlyForCounty, this);
+        // let searchGeoid = ddOnlyForCounty ? searchGeoidObj.GeoInfo[0].county_geoid : searchGeoidObj.ResID;
+        let searchGeoidObj = this.places.find((p: any) => {
+            return p.Name.trim() === evt.point.series.name || (p.Desc ? p.Desc.trim().contains(evt.point.series.name) : false);
+        });
+        console.log('search Geoid is:  ', searchGeoidObj);
+        let searchGeoid = ddOnlyForCounty ? searchGeoidObj.GeoInfo[0].county_geoid : searchGeoidObj.ResID;
+        console.log('search Geoid is: ', searchGeoid);
+
         if (searchGeoid) {
-            this.drillDownPlace = evt.point.series.name;
+            this.drillDownPlace = ddOnlyForCounty ? searchGeoidObj.GeoInfo[0].County + ' County' : evt.point.series.name;
             let subtopic = this.placeTypeData.Metadata[0].Sub_Topic_Name;
             this._dataService.getDrilldownIndicatorData(subtopic, searchGeoid).subscribe(
                 (data: any) => {
@@ -1358,26 +1383,33 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     let ddObj = {
                         place: evt.point.series.name,
                         subtopic: subtopic,
-                        data: data
-                    }
+                        data: data,
+                        ddOnlyForCounty: ddOnlyForCounty,
+                        ddCounty: this.drillDownPlace.replace(' County', '')
+                    };
                     this.isDrilldown = true;
                     this.updateDataStore(data, 'indicator', ddObj);
                     this.processDataYear(ddObj);
                     this.addSeriesDataToGraphChart(null, ddObj);
 
-                    this.chart.renderer.button('< Go Back', null, null,
-                        (drillup: any) => {
-                            this.drillUp();
-                        }, {
-                            zIndex: 20
-                        }).attr({
-                            align: 'left',
-                            title: 'Reset zoom level 1:1'
-                        }).add(this.chart.zoomGroupButton).align({
-                            align: 'left',
-                            x: 10,
-                            y: 10
-                        }, false, null);
+                    if (!this.goBackBtn) {
+                        this.goBackBtn = this.chart.renderer.button('< Go Back', null, null,
+                            (drillup: any) => {
+                                this.drillUp();
+                            }, {
+                                zIndex: 20
+                            }).attr({
+                                align: 'left',
+                                title: 'Reset zoom level 1:1'
+                            }).add(this.chart.zoomGroupButton).align({
+                                align: 'left',
+                                x: 10,
+                                y: 10
+                            }, false, null);
+                    } else {
+                        this.goBackBtn.show();
+                    }
+                    this.chart.hideLoading();
 
 
                     //this.showDrillDownData();
@@ -1391,21 +1423,12 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
     drillUp() {
         this.isDrilldown = false;
+        this.goBackBtn.hide();
         this.createGraphChart();
-    }
-    showDrillDownData() {
-        //if (this.dataStore.indicatorData[this.indicator].chart_dd_data) {
-        //    if (this.dataStore.indicatorData[this.indicator].chart_dd_data.place_data_year_dd) {
-        //        for (let ddSeries in this.dataStore.indicatorData[this.indicator].chart_dd_data.place_data_year_dd) {
-
-        //        }
-        //    }
-        //}
-        //console.log('attaching drilldown data', this.placeTypeData);
     }
 
     onSelectedDataChanged(data: any) {
-        console.log('Community Data throwing event', this.Data);
+        console.log('Community Data throwing event', this.Data, data);
         this.updateDataStore(data, 'indicator');
         //add check to see if place indicator set does not equal input send add request
         if (data.length > 0) {
@@ -1423,6 +1446,11 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
                 console.log('ptd', this.placeTypeData);
                 this.hasDrillDowns = this.placeTypeData.Metadata[0].Sub_Topic_Name !== 'none';
+                //if (this.hasDrillDowns && this.placeTypeData.SubTopicCategories.length > 0) {
+                //    this.drillDownType = this.placeTypeData.SubTopicCategories[0].Sub_Sub_Topic;
+                //    console.log('meadow', this.drillDownType, this.placeTypeData);
+                //}
+
                 //Process the data for it to work with Highmaps
                 this.processDataYear();
                 this.processYearTicks();
@@ -1455,12 +1483,6 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     this.mapChart.showLoading('Sorry, this map is not currently available.  ' + ('<%= ENV %>' !== 'prod' ? ex.message : ''));
                 }
             }
-            //else {
-            //    this.Data = this.placeTypeData.Data;
-            //    if (this.isCountyLevel) {
-            //        this.createGraphChart();
-            //    }
-            //}
         } else {
             console.log('DATA SUBSCRIPTION thinks there is no data');
             //this.getData();
@@ -1471,9 +1493,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         //identify what type of data and add to proper place type object
         //console.log('SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS', data, dataType);
         if (drilldown) {
-            let drilldownData: any = {};
             //lookup parent level data
-            console.log('adding to data store', this.dataStore.indicatorData[this.indicator]);
+            console.log('adding drilldown to data store', this.dataStore.indicatorData[this.indicator]);
             if (!this.dataStore.indicatorData[this.indicator].drilldown_data) {
                 this.dataStore.indicatorData[this.indicator].drilldown_data = {};
             }
@@ -1489,7 +1510,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
         } else if (dataType === 'indicator') {
             //check if data is statewide, county or not combinable
-            console.log('fred', this.dataStore, this.tileType);
+            console.log('fred', this.dataStore, this.tileType, data);
             //filter data by geoType
             for (var d = 0; d < data.length; d++) {
                 let indicatorData: any = {};
@@ -2052,27 +2073,39 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             var displayValue = chartScope.formatValue(this.y, false) + '</b>';
                             var isMoeYear = this.x.match('-') && ['American Community Survey', 'Combined Decennial/ACS', 'County Level Census/ACS', 'MaritalStatusEstimate'].indexOf(chartScope.placeTypeData.Metadata[0].data_source) !== -1;
                             if (isMoeYear) {
-                                //if (!drilldownShowing) {
-                                //console.log('hoevered place: ', hoveredPlace);
-                                //console.log('data store', chartScope.dataStore);
-                                let value1 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][1]);
-                                let value2 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][0]);
-                                let moeValue = (value1 - value2) / 2;
-                                //console.log(moeValue);
-                                displayValue += '<span style="font-size:8px">  (+/- ' + chartScope.formatValue(moeValue, false) + ' )</span>';
-                                //}
-                                //else {//only show MOE drill downs for State right now
-                                //    try {
-                                //        displayValue += '<span style="font-size:8px">  (+/- ' + formatValue((drill_data.years_moe[this.series.name].data[selectedYearIndexArray[this.x]][1] - drill_data.years_moe[this.series.name].data[selectedYearIndexArray[this.x]][0]) / 2) + ' )</span>';
-                                //    }
-                                //    catch (ex)
-                                //    { }
-                                //}
+                                if (!chartScope.isDrilldown) {
+                                    //console.log('data store', chartScope.dataStore);
+                                    let value1 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[chartScope.isDrilldown ? chartScope.drillDownPlace : hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][1]);
+                                    let value2 = parseFloat(chartScope.dataStore.indicatorData[chartScope.indicator].chart_data.place_data_years_moe[chartScope.isDrilldown ? chartScope.drillDownPlace : hoveredPlace].data[chartScope.selectedYearIndexArray[this.x]][0]);
+                                    let moeValue = (value1 - value2) / 2;
+                                    //console.log(moeValue);
+                                    displayValue += '<span style="font-size:8px">  (+/- ' + chartScope.formatValue(moeValue, false) + ' )</span>';
+                                } else {//only show MOE drill downs for State right now
+                                    try {
+                                        console.log('jando', this, chartScope.dataStore.indicatorData[chartScope.indicator].chart_dd_data.place_data_years_moe_dd, chartScope.indicator, chartScope.drillDownPlace, this.series.options.orig_name, chartScope.selectedYearIndexArray, this.x);
+                                        //let moeValue = (value1 - value2) / 2:
+                                        let value1 = chartScope.dataStore.indicatorData[chartScope.indicator].chart_dd_data.place_data_years_moe_dd[chartScope.drillDownPlace.replace(' County', '') + ': ' + this.series.options.orig_name].data[chartScope.selectedYearIndexArray[this.x]][1];
+                                        let value2 = chartScope.dataStore.indicatorData[chartScope.indicator].chart_dd_data.place_data_years_moe_dd[chartScope.drillDownPlace.replace(' County', '') + ': ' + this.series.options.orig_name].data[chartScope.selectedYearIndexArray[this.x]][0];
+                                        let moeValue = (value1 - value2) / 2;
+                                        displayValue += '<span style="font-size:8px">  (+/- ' + chartScope.formatValue(moeValue, false) + ' )</span>';
+                                        console.log('jando', displayValue);
+                                        //displayValue += '<span style="font-size:8px">  (+/- ' + chartScope.formatValue((chartScope.dataStore.drill_data.years_moe[this.series.name].data[chartScope.selectedYearIndexArray[this.x]][1] - chartScope.dataStore.drill_data.years_moe[this.series.name].data[chartScope.selectedYearIndexArray[this.x]][0]) / 2) + ' )</span>';
+                                    } catch (ex) {
+                                        console.log('error:' + ex.message);
+                                    }
+                                }
                             }
 
-                            let drillDownMsg = this.hasDrillDowns && !this.drilldownShowing && (this.isStateDDOnly && this.point.series.name === "Oregon" || !this.isStateDDOnly) && !this.hasDrillDownCategories ? '<span style="font-size:10px"><em>(Click on line to see demographics)</em></span>' : "";
+                            //let drillDownMsg = this.hasDrillDowns && !this.drilldownShowing && (this.isStateDDOnly && this.point.series.name === "Oregon" || !this.isStateDDOnly) && !this.hasDrillDownCategories ? '<span style="font-size:10px"><em>(Click on line to see demographics)</em></span>' : "";
+                            //check if supported for place type
+                            let ddOnlyForCounty = chartScope.drillDownGeogs.indexOf('County') !== -1;
+                            console.log('freebird', ddOnlyForCounty, this);
+                            let ddCountyOnlyMsg = ddOnlyForCounty && ['County','State'].indexOf(this.series.options.geo_type) === -1 ? '<br/><span>Drilldown only available at the county level</span>' : '';
 
-                            return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size:10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><span><b>' + displayValue + '</span><br/>';// + drillDownMsg;
+                            let drillDownMsg = chartScope.hasDrillDowns && !chartScope.isDrilldown ? '<span style="font-size:10px"><em>(Click on line to see demographics)</em></span>' : '';
+                            console.log('there be dragons?', chartScope.isDrilldown);
+
+                            return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size:10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><span><b>' + displayValue + '</span><br/>' + drillDownMsg + ddCountyOnlyMsg;
                         }
                     };
 
@@ -2584,14 +2617,20 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         let addedSeries: any[] = [];
         sortedPlaceData.forEach((pd: any, idx: number) => {
             //for (var x = 0; x < selectedPlaceData.length; x++) {
-            console.log('sortedplacedata', pd);
+            console.log('sortedplacedata', pd,this.dataStore.indicatorData);
             let isOregon = oregonGeoids.indexOf(pd.geoid) !== -1 ? true : false;
             let isCalifornia = californiaGeoids.indexOf(pd.geoid) !== -1 ? true : false;
             let isRural = pd.geoid.indexOf('r') !== -1;
             let isUrban = pd.geoid.indexOf('u') !== -1;
             var isState = isOregon || isCalifornia ? true : false;
             let isCombined = pd.geoid === '';
-            let isBarChart = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data.length === 1;
+            let pdCommunityName = this.isSchool
+                ? pd.Name
+                : drilldown
+                    ? drilldown.place.replace(' County', '')
+                    : pd.community;
+            let pdDDCommunityName = drilldown ? drilldown.ddOnlyForCounty ? drilldown.ddCounty : drilldown.place.replace(' County', '') : '';
+            let isBarChart = this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[pdCommunityName].data.length === 1;
             let color = isRural
                 ? '#996699'
                 : isUrban
@@ -2605,27 +2644,24 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 : Highcharts.getOptions().colors[idx];
             console.log('scherwma', drilldown, this.dataStore);
             let data = !drilldown
-                ? (this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data)
-                : this.dataStore.indicatorData[this.indicator].chart_dd_data.place_data_years_dd[drilldown.place.replace(' County', '') + ": " + pd.Variable].data;
+                ? (this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[pdCommunityName].data)
+                : this.dataStore.indicatorData[this.indicator].chart_dd_data.place_data_years_dd[pdDDCommunityName + ': ' + pd.Variable].data;
             //console.log('mustarddata', data, addedSeries,pd, this.hasCombined);
-            if (addedSeries.indexOf((this.isSchool
-                ? pd.Name
-                : pd.community) + pd.geoid) === -1 && this.hasCombined
-                ?
-                this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[(this.isSchool ? pd.Name : pd.community)].data.filter((d: any) => d !== null).length > 0
+            if (addedSeries.indexOf((drilldown ? pdDDCommunityName : pdCommunityName) + pd.geoid) === -1
+                && this.hasCombined
+                ? this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[pdCommunityName].data.filter((d: any) => d !== null).length > 0
                 : true) {
                 let seriesID = drilldown
-                    ? pd.Variable.replace(this.getDDRemoveText(drilldown.data, pd.Variable), "")
-                    : (
-                        this.isSchool
-                            ? pd.Name
-                            : pd.community) + pd.geoid;
+                    ? this.lookUpDDLabel(drilldown.data, pd.Variable) //(pd.Variable.replace(this.getDDRemoveText(drilldown.data, pd.Variable), "")
+                    : (pdCommunityName) + pd.geoid;
                 if (addedSeries.indexOf(seriesID) === -1) {
-                    console.log('mustard', seriesID, data);
+                    console.log('mustard', seriesID, data, pd);
                     addedSeries.push(seriesID);
                     this.chart.addSeries({
                         id: seriesID,
-                        name: drilldown? seriesID : this.getCommunityName(pd),
+                        name: drilldown ? seriesID : this.getCommunityName(pd),
+                        orig_name: pd.Variable,
+                        geo_type: pd.geoType,
                         type: isBarChart ? 'column' : 'line',
                         lineWidth: isState && !drilldown ? 4 : 2,
                         lineColor: isState && !drilldown ? '#A3A3A4' : Highcharts.getOptions().colors[idx],
@@ -2667,9 +2703,10 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         //(evt: any) => { alert('test'); console.log('series clicked!', evt); });
                     }
                     if (this.hasMOEs) {
-                        console.log('adding moe', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data);
-                        let moe_data = !drilldown ? this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data
-                            : this.dataStore.indicatorData[this.indicator].chart_dd_data.place_data_years_moe_dd[drilldown.place.replace(' County','') + ': ' + pd.Variable].data
+                        //console.log('adding moe', this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data);
+                        let moe_data = !drilldown
+                            ? this.dataStore.indicatorData[this.indicator].chart_data.place_data_years_moe[pd.community].data
+                            : this.dataStore.indicatorData[this.indicator].chart_dd_data.place_data_years_moe_dd[pdDDCommunityName + ': ' + pd.Variable].data;
                         const moe_data_check =  moe_data
                             .filter((m: any[]) => {
                                 return m ? m.filter(moe => $.isNumeric(moe)).length > 0 : false;
@@ -2719,34 +2756,53 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
     }
 
-    getDDRemoveText(ddMeta: any[], field: string) {
+    lookUpDDLabel(ddMeta:any[], field: string) {
+        //console.log('bennyfus', ddMeta, field, this.indicator_info.drilldown_indicators);
+        let returnVal = '';
+        if (this.indicator_info.drilldown_indicators) {
+            let dd_variable = this.indicator_info.drilldown_indicators.filter((dd: any) => {
+                //console.log('bennyfusx', dd,field);
+                return dd.Variable === field;
+            });
+            if (dd_variable.length > 0) {
+                returnVal = dd_variable[0].Indicator;
+                //console.log('bennyfus1', returnVal);
+                //remove duplicate text to shorten display
+                this.indicator_info.drilldown_remove_text.split(' ').forEach((removeText: string) => {
+                    returnVal = returnVal.replace(removeText, '');
+                });
+            }
+        }
+        console.log('bennyfus return text', returnVal);
+        return returnVal;
+    }
+
+    getDDRemoveText(ddMeta: any[], field: string, searchField?:string) {
         //////////////////////
         // Function to find similiar words to remove for drilldown series name display
         // Compares the drill down categories against each other and keeps the words that are the same in the  same order
         /////////////////////
-        var removeText = "";
+        var removeText = '';
         var prevArray: any[] = [],
             curArray: any[] = [];
         ddMeta.forEach((dd: any) => {
             //console.log('removeText', dd, field, prevArray, curArray);
-            curArray = dd.Variable.split(' ');
+            curArray = dd[searchField ? searchField : 'Variable'].split(' ');
             let removeTextArray: any[] = removeText.split(' ');
             if (prevArray.length !== 0) {
                 for (var x = 0; x < prevArray.length; x++) {
                     //console.log('removeCandidate', prevArray[x]);
-                    if (prevArray[x] === curArray[x] && removeTextArray[x] !== prevArray[x]) {
+                    if (prevArray[x] === curArray[x] && removeTextArray[x] !== prevArray[x] && removeText.indexOf(prevArray[x]) === -1) {
                         removeText += prevArray[x] + ' ';
-                    }
-                    else {
+                    } else {
                         removeText = removeText;
                     }
                 }
-            }
-            else {
+            } else {
                 prevArray = curArray;
             }
         });
-        //console.log('remove text', removeText);
+        console.log('remove text', removeText, ddMeta);
         return removeText;
     }
 
@@ -3356,7 +3412,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             //console.log('pyramid', chart_data);
         } else {
 
-            console.log('place_data check', this.placeTypeData, this.dataStore, this.dataStore[this.pluralize(this.selectedPlaceType)]);
+            //console.log('place_data check', this.placeTypeData, this.dataStore, this.dataStore[this.pluralize(this.selectedPlaceType)]);
             this.placeTypeData = this.getPlaceTypeData();
             let dd_data: any[] = drilldown ? this.dataStore.indicatorData[this.indicator].drilldown_data[drilldown.place][drilldown.subtopic] : [];
 
@@ -3364,7 +3420,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
                  //this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].crt_db;
             ptdToProcess.Data.forEach((pData: any) => {
-                console.log('pData in the house', pData);
+                //console.log('pData in the house', pData);
                 if (!drilldown) {
                     //FOR MAP VIEW
                     let statewideFilter: any[] = ['Oregon', 'Statewide', 'Rural Oregon', 'Urban Oregon', 'California', 'Rural California', 'Urban California'];
@@ -3551,7 +3607,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             let chart_dd_data: any = {
                 place_data_years_dd: place_data_years_dd,
                 place_data_years_moe_dd: place_data_years_moe_dd
-            }
+            };
             if (this.tileType === 'map' && this.showMap) {
                 this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].chart_data = chart_data;
             } else {
