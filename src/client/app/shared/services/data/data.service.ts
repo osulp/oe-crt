@@ -9,7 +9,7 @@ export class DataService {
     constructor(private jsonp: Jsonp) { }
 
     get(geoids: string, indicators: string) {
-        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/communityData';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/communityData';
         var params = new URLSearchParams();
         params.set('geoids', geoids);
         params.set('indicators', indicators);
@@ -23,7 +23,7 @@ export class DataService {
     getAllbyGeoType(geoType: string, indicator: string) {
         console.log('GETTING ALL BY GEOTYPE', geoType, indicator);
         if (geoType === 'Schools') {
-            let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/schools';
+            let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/schools';
             var params = new URLSearchParams();
             params.set('schooldistrict', '1');
             params.set('indicator', indicator);
@@ -35,7 +35,7 @@ export class DataService {
                 .map((request: any) => <string[]>request.json());
 
         } else {
-            let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/communityData';
+            let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/communityData';
             var params = new URLSearchParams();
             params.set('geoType', geoType);
             params.set('indicator', indicator);
@@ -48,7 +48,7 @@ export class DataService {
     }
 
     getDrilldownIndicatorData(subtopic: string, geoid: string) {
-        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/communityData';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/communityData';
         var params = new URLSearchParams();
         params.set('subtopic', subtopic);
         params.set('drilldown', '1');
@@ -61,7 +61,7 @@ export class DataService {
     }
 
     getIndicatorDataWithMetadata(geoids: string, geonames: string, indicator: string) {
-        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/communityData';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/communityData';
         var params = new URLSearchParams();
         params.set('viewType', 'basic');
         params.set('indicator', indicator);
@@ -75,7 +75,7 @@ export class DataService {
     }
 
     getIndicatorDetailDataWithMetadata(geoids: string, indicator: string) {
-        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/communityData';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/communityData';
         var params = new URLSearchParams();
         params.set('viewType', 'combined');
         params.set('indicator', indicator);
@@ -90,7 +90,7 @@ export class DataService {
     getIndicatorDataWithMetadataBatch(geoids: string, indicators: any[]) {
         let observables: any[] = [];
         indicators.forEach((indicator: any) => {
-            let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/communityData';
+            let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/communityData';
             var params = new URLSearchParams();
             params.set('viewType', 'basic');
             params.set('indicator', indicator.indicator.replace(/\+/g, '%2B').replace(/\&/g, '%26').replace(/\=/g, '%3D'));
@@ -106,7 +106,7 @@ export class DataService {
     }
 
     getSchoolDistrictData(school_districts: string, indicator: string,counties:string,cts:string) {
-        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/schools';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/schools';
         var params = new URLSearchParams();
         params.set('schooldistrict', '1');
         params.set('indicator', indicator);

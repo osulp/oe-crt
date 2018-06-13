@@ -15,7 +15,7 @@ var TopicsService = (function () {
         this.jsonp = jsonp;
     }
     TopicsService.prototype.getCRTTopics = function () {
-        var serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/topics';
+        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/topics';
         var params = new http_1.URLSearchParams();
         params.set('f', 'json');
         params.set('crt', 'true');

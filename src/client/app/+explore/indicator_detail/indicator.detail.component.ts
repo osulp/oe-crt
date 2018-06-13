@@ -4,6 +4,7 @@ import {JSONP_PROVIDERS}  from '@angular/http';
 import {Router} from '@angular/router';
 import {DataTileComponent,PlacesMapSelectComponent, ShareLinkComponent} from '../../shared/components/index';
 import {IndicatorDescService, SelectedDataService} from '../../shared/services/index';
+import {DrilldownCategoryFilterPipe} from '../../shared/pipes/index';
 import {SearchResult} from '../../shared/data_models/index';
 import {SearchComponent} from '../../shared/components/index';
 import {TableViewComponent} from './table_view/table.view.component';
@@ -18,13 +19,15 @@ declare var window: any;
     templateUrl: 'indicator.detail.component.html',
     styleUrls: ['indicator.detail.component.css'],
     providers: [JSONP_PROVIDERS, IndicatorDescService, SelectedDataService],
-    directives: [PlacesMapSelectComponent, DataTileComponent, SearchComponent, TableViewComponent, ShareLinkComponent]
+    directives: [PlacesMapSelectComponent, DataTileComponent, SearchComponent, TableViewComponent, ShareLinkComponent],
+    pipes: [DrilldownCategoryFilterPipe]
 })
 
 export class DetailComponent implements OnInit {
     @Input() inputIndicator: any;
     @Input() inputPlaces: any;
     @Input() collections: any;
+    @Input() selectedDDCategory: any = '';
     @ViewChild(PlacesMapSelectComponent) placeMap: PlacesMapSelectComponent;
     @ViewChildren(DataTileComponent) dataTiles: QueryList<DataTileComponent>;
     @ViewChild(ShareLinkComponent) shareLinkComp: ShareLinkComponent;
@@ -60,6 +63,7 @@ export class DetailComponent implements OnInit {
     hasDrilldowns: boolean = false;
     drillDowns: any[] = [];
     drillDownType: any;
+    drillDownCategories: any[] = [];
 
 
     constructor(private _indicatorDescService: IndicatorDescService,
@@ -195,6 +199,11 @@ export class DetailComponent implements OnInit {
         this.selectedYear = year;
     }
 
+    ddCategoryClick(evt: any) {
+        console.log('ddCategory clicked!', evt);
+        this.selectedDDCategory = evt.target.value;
+    }
+
     onChartDataUpdate(data: any) {
         console.log('Chart data emitted to indicator detail', data);
         this._chartData = data;
@@ -319,6 +328,7 @@ export class DetailComponent implements OnInit {
                         let ddTypeArr = data.DrilldownIndicators.filter((dd: any) => dd.Sub_Sub_Topic !== 'Total');
                         this.drillDownType = ddTypeArr[0].Sub_Sub_Topic ? ddTypeArr[0].Sub_Sub_Topic : '';
                         this.indicatorDesc.ddRemoveText = this.getDDRemoveText(data.DrilldownIndicators);
+
                         this.drillDowns = data.DrilldownIndicators.map((dd: any) => {
                             console.log('corpus loop', dd, this.inputIndicator, this.indicatorTitle);
                             let returnVal = dd.Indicator;
@@ -329,10 +339,25 @@ export class DetailComponent implements OnInit {
                             return {
                                 'ddDisplay': returnVal,
                                 'indicator': dd.Indicator,
-                                'selected': dd.Indicator === this.indicatorTitle ? 'selected' : null
+                                'variable': dd.Variable,
+                                'selected': dd.Indicator === this.indicatorTitle ? 'selected' : null,
+                                'category': data.DrilldownIndicators.filter((di:any) => di.Sub_Sub_Topic === dd.Sub_Sub_Topic).length > 1 || dd.Sub_Sub_Topic === 'Total' ? dd.Sub_Sub_Topic : 'Other'
                             };
                         });
-                        console.log('corpus', this.drillDowns, $('label.dropdown:after').css('right', '200px'));
+                        this.drillDownCategories.push('All');
+                        this.drillDowns.forEach((dd: any) => {
+                            if (this.drillDownCategories.indexOf(dd.category) === -1) {
+                                this.drillDownCategories.push(dd.category);
+                            }
+                        });
+                        this.drillDownCategories.sort((a: any, b: any) => {
+                            if (b === 'Other') {
+                                return a -b ;
+                            } else {
+                                return b - a;
+                            }
+                        })
+                        //console.log('corpus', this.drillDowns, $('label.dropdown:after').css('right', '200px'));
 
                     }
                     //console.log('indicatorDesc service', data);

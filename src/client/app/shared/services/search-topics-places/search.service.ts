@@ -5,7 +5,7 @@ export class SearchTopicsPlacesService {
     constructor(private jsonp: Jsonp) { }
     search(term: string, filter?: string) {
         console.log('search service: ', term, filter);
-        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/search';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/search';
         var params = new URLSearchParams();
         params.set('term', term); // the user's search value
         if (filter) {

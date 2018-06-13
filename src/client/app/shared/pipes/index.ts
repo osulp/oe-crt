@@ -4,5 +4,6 @@
 export * from './indicator.topic.filter.pipe';
 export * from './place.bin.group.combine.pipe';
 export * from './map.chart.place.zoom.pipe';
+export * from './drilldown.category.filter.pipe';
 
 

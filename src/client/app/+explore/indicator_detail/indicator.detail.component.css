@@ -334,6 +334,53 @@
     min-height:50px;
 }
 
+.ddCategories{
+    margin-top: -2em;
+}
+/* HTML5 Boilerplate accessible hidden styles */
+[type="radio"] {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+[type="radio"] + span {
+    display: block;
+    font-weight:lighter;
+    color:#C34500;
+}
+
+    /* the basic, unchecked style */
+    [type="radio"] + span:before {
+        content: '';
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        vertical-align: -0.25em;
+        border-radius: 1em;
+        border: 0.125em solid #fff;
+        box-shadow: 0 0 0 0.15em #D1CDC7;
+        margin-right: 0.75em;
+        -moz-transition: 0.5s ease all;
+        -o-transition: 0.5s ease all;
+        -webkit-transition: 0.5s ease all;
+        transition: 0.5s ease all;
+    }
+
+/* the checked style using the :checked pseudo class */
+[type="radio"]:checked + span:before {
+    background: #C34500;
+    box-shadow: 0 0 0 0.25em #D1CDC7;
+}
+
+    [type="radio"]:checked + span {
+        color:#6F7C82;
+    }
 
 label.dropdown select {
 	padding: 10px 42px 10px 10px;

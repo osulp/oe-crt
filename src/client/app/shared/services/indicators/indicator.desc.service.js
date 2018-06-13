@@ -15,7 +15,7 @@ var IndicatorDescService = (function () {
     }
     IndicatorDescService.prototype.getIndicator = function (inputIndicator) {
         console.log('indicator service, indicator', inputIndicator);
-        var serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/indicators';
+        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/indicators';
         var params = new http_1.URLSearchParams();
         params.set('indicator', inputIndicator);
         params.set('f', 'json');

@@ -4,7 +4,7 @@ import {Jsonp, URLSearchParams} from '@angular/http';
 export class CollectionsService {
     constructor(private jsonp: Jsonp) { }
     get() {
-        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/collections';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/collections';
         var params = new URLSearchParams();
         //params.set('search', term); // the user's search value
         //params.set('action', 'opensearch');

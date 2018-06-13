@@ -14,7 +14,7 @@ var CollectionsService = (function () {
         this.jsonp = jsonp;
     }
     CollectionsService.prototype.get = function () {
-        var serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/collections';
+        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/collections';
         var params = new http_1.URLSearchParams();
         params.set('f', 'json');
         params.set('callback', 'JSONP_CALLBACK');

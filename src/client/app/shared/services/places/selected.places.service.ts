@@ -204,7 +204,7 @@ export class SelectedPlacesService {
 
     getAdditionalPlaceInfo(place: any[]) {
         let observables: any[] = [];
-        let serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/places';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/places';
         place.forEach((p: any) => {
             var params = new URLSearchParams();
             params.set('place', p.Name); // the user's search value

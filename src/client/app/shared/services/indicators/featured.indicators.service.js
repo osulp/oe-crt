@@ -14,7 +14,7 @@ var FeaturedIndicatorsService = (function () {
         this.jsonp = jsonp;
     }
     FeaturedIndicatorsService.prototype.getFeaturedIndicators = function () {
-        var serviceUrl = 'http://oe.oregonexplorer.info/rural/crt_rest_api/indicators';
+        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/indicators';
         var params = new http_1.URLSearchParams();
         params.set('f', 'json');
         params.set('featured', '');

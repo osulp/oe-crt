@@ -54,6 +54,7 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
     subscription: Subscription;
     showTopicsExpanded: boolean = false;
     showPlacesExpanded: boolean = false;
+    drillDownCategory: any = '';
     initLoad: boolean = true;
     hideAll: any = { hide: false, trigger: null };
 
@@ -76,7 +77,8 @@ export class ExploreComponent implements OnInit, OnActivate, OnDestroy {
         this.urlFilter = decodeURI(curr.getParam('filter'));
         this.showTopicsExpanded = curr.getParam('show') === 'Topics';
         this.showPlacesExpanded = curr.getParam('show') === 'Places';
-        console.log('routercheck', this.showTopicsExpanded, this.selectedTopics);
+        this.drillDownCategory = curr.getParam('ddCat') ? decodeURI(curr.getParam('ddCat')) : 'All';
+        //console.log('routercheck', this.drillDownCategory, this.selectedTopics);
         this.indicatorDetailView = this.selectedIndicator !== null && this.selectedIndicator !== 'undefined' ? true : false;
     }
     onHideAll(evt: any) {
