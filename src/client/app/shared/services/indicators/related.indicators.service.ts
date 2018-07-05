@@ -7,7 +7,7 @@ import {Indicator} from '../../data_models/indicator.model';
 export class IndicatorsService {
     constructor(public jsonp: Jsonp) { }
     getIndicators() {
-        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/indicators';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api/indicators';
         var params = new URLSearchParams();
         params.set('f', 'json');
         params.set('callback', 'JSONP_CALLBACK');

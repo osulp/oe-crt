@@ -82,20 +82,35 @@ export class DetailComponent implements OnInit {
     }
 
     goToNewExplorePage(indicator: string) {
-        console.log('search result change', this.placeMap.selectedPlaces, this.placeMap.selectedSearchResults);
+        console.log('search result change', this.placeMap.selectedPlaces, this.placeMap.selectedSearchResults, this.dataTiles);
         let places: string = '';
-        this.placeMap.selectedSearchResults.forEach((place: any, idx: number) => {
-            let place_simple = {
-                Name: place.Name,
-                ResID: place.ResID,
-                TypeCategory: place.TypeCategory,
-                Desc: place.Desc,
-                Combined: place.Combined,
-                GroupName: place.GroupName
-            };
-            places += encodeURIComponent(JSON.stringify(place_simple));
-            places += idx !== this.placeMap.selectedSearchResults.length - 1 ? ',' : '';
-        });
+        if (this.dataTiles.length > 0) {
+            this.dataTiles.first.places.forEach((place: any, idx: number) => {
+                let place_simple = {
+                    Name: place.Name,
+                    ResID: place.ResID,
+                    TypeCategory: place.TypeCategory,
+                    Desc: place.Desc,
+                    Combined: place.Combined,
+                    GroupName: place.GroupName
+                };
+                places += encodeURIComponent(JSON.stringify(place_simple));
+                places += idx !== this.dataTiles.first.places.length - 1 ? ',' : '';
+            });
+        } else {
+            this.placeMap.selectedSearchResults.forEach((place: any, idx: number) => {
+                let place_simple = {
+                    Name: place.Name,
+                    ResID: place.ResID,
+                    TypeCategory: place.TypeCategory,
+                    Desc: place.Desc,
+                    Combined: place.Combined,
+                    GroupName: place.GroupName
+                };
+                places += encodeURIComponent(JSON.stringify(place_simple));
+                places += idx !== this.placeMap.selectedSearchResults.length - 1 ? ',' : '';
+            });
+        }
         console.log('indicator detail: places simple', places);
 
         this._router.navigate(['Explore', {
@@ -261,7 +276,15 @@ export class DetailComponent implements OnInit {
             curArray: any[] = [];
         drillDowns.forEach((dd: any) => {
             //console.log('removeText', dd, drillDowns, prevArray, curArray);
+            //if (dd['Indicator'].split(':').length > 1) {
+            //    curArray = dd['Indicator'].split(':')[1].split(' ');
+            //} else {
+            //    curArray = dd['Indicator'].split(' ');
+            //}
+
             curArray = dd['Indicator'].split(' ');
+
+            console.log('prague 2019', curArray);
             let removeTextArray: any[] = removeText.split(' ');
             if (prevArray.length !== 0) {
                 for (var x = 0; x < prevArray.length; x++) {
@@ -281,6 +304,7 @@ export class DetailComponent implements OnInit {
         });
 
         removeText = removeText.split(':')[0] + ':';
+        console.log('frumpy removetext', removeText);
         return removeText;
     }
 
@@ -328,35 +352,56 @@ export class DetailComponent implements OnInit {
                         let ddTypeArr = data.DrilldownIndicators.filter((dd: any) => dd.Sub_Sub_Topic !== 'Total');
                         this.drillDownType = ddTypeArr[0].Sub_Sub_Topic ? ddTypeArr[0].Sub_Sub_Topic : '';
                         this.indicatorDesc.ddRemoveText = this.getDDRemoveText(data.DrilldownIndicators);
+                        this.indicatorDesc.ddBaseIndicator = this.indicatorTitle.split(':')[0] + ':';
 
                         this.drillDowns = data.DrilldownIndicators.map((dd: any) => {
                             console.log('corpus loop', dd, this.inputIndicator, this.indicatorTitle);
                             let returnVal = dd.Indicator;
                             //let colonSeparator = this.indicatorDesc.ddRemoveText.indexOf(':') !== -1;
-                            this.indicatorDesc.ddRemoveText.split(' ').forEach((removeText: string) => {
-                                returnVal = returnVal.replace(removeText, '');
-                            });
+                            if (dd.Indicator.split(':').length > 1) {
+                                returnVal = dd.Indicator.split(':')[1];
+                            } else {
+                                this.indicatorDesc.ddRemoveText.split(' ').forEach((removeText: string) => {
+                                    returnVal = returnVal.replace(removeText, '');
+                                });
+                            }
+
                             return {
                                 'ddDisplay': returnVal,
                                 'indicator': dd.Indicator,
                                 'variable': dd.Variable,
                                 'selected': dd.Indicator === this.indicatorTitle ? 'selected' : null,
-                                'category': data.DrilldownIndicators.filter((di:any) => di.Sub_Sub_Topic === dd.Sub_Sub_Topic).length > 1 || dd.Sub_Sub_Topic === 'Total' ? dd.Sub_Sub_Topic : 'Other'
+                                'category': data.DrilldownIndicators.filter((di:any) => di.Sub_Sub_Topic === dd.Sub_Sub_Topic).length > 1 || dd.Sub_Sub_Topic === 'Total' ? dd.Sub_Sub_Topic : dd.Sub_Sub_Topic
                             };
-                        });
-                        this.drillDownCategories.push('All');
-                        this.drillDowns.forEach((dd: any) => {
-                            if (this.drillDownCategories.indexOf(dd.category) === -1) {
-                                this.drillDownCategories.push(dd.category);
-                            }
-                        });
-                        this.drillDownCategories.sort((a: any, b: any) => {
-                            if (b === 'Other') {
-                                return a -b ;
-                            } else {
-                                return b - a;
-                            }
                         })
+                            .sort((a: any, b: any) => { return a.ddDisplay.localeCompare(b.ddDisplay)});
+                        //if only one type of drilldown type not including total, don't add 'All'
+                        let uniqueCats = this.drillDowns
+                            .map((dd: any) => dd.category)
+                            .filter((val: any, idx: number, self: any) => self.indexOf(val) === idx && val !== 'Total');
+                        if (uniqueCats.length > 1) {
+                            this.drillDownCategories.push({
+                                'category': 'All',
+                                'selected': true
+                            });
+                        }
+                        uniqueCats.forEach((ddCat: any) => {
+                            this.drillDownCategories.push({
+                                'category': ddCat,
+                                'selected': uniqueCats.length === 1 ? true : false
+                            });
+                        });
+                        //this.drillDownCategories.sort();
+                        this.drillDownCategories.sort((a: any, b: any) => {
+                            return a.category.localeCompare(b.category);
+                            //if (a.category === 'Other') {
+                            //    return 1000;
+                            //} else if (b.category === 'Other') {
+                            //    return -1000;
+                            //} else {
+                            //    return b.category - a.category;
+                            //}
+                        });
                         //console.log('corpus', this.drillDowns, $('label.dropdown:after').css('right', '200px'));
 
                     }

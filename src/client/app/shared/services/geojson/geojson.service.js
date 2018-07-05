@@ -31,7 +31,7 @@ var GetGeoJSONService = (function () {
     };
     GetGeoJSONService.prototype.load = function (placeType, mostRecent) {
         var observables = [];
-        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/geojson';
+        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api/geojson';
         for (var p = 0; p < placeType.length; p++) {
             var params = new http_1.URLSearchParams();
             params.set('f', 'json');

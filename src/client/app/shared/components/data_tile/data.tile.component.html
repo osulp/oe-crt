@@ -2,13 +2,32 @@
     <div class="col-xs-12" id="chart-div" [ngClass]="tileType === 'map' ? 'mapChartDiv' : 'graphChartDiv'">
         <div class="row">
             <div *ngIf="tileType === 'graph'" class="col-xs-12 graph-chart-wrapper">
-                <div *ngIf="isDrilldown && viewType === 'advanced'">
-                    <!--<span (click)="drillup()">Go Back</span>-->
-                    <span [innerHTML]="drillDownPlace + ': ' + indicator_info.drilldown_remove_text + ' by ' + drillDownType"></span>
+                <div *ngIf="hasDrillDowns && viewType === 'advanced'">
+                    <div class="row">
+                        <b *ngIf="isDrilldown" class="col-xs-12" [innerHTML]="drillDownPlace + ': ' + placeTypeData.Metadata[0].Sub_Topic_Name.replace('<br>','  ')"></b>
+                    </div>
+                    <div class="row">
+                        <div class="drillDownMsg col-xs-7" [innerHTML]="!isDrilldown ? 'Click on a line to see breakdowns by: ' : 'View by: '"></div>
+                        <div class="col-xs-4 dd-cat-select-wrapper">
+                            <label class="dropdown">
+                                <select #ddCatSel id="ddCatSelect" (change)="onDDCatChange(ddCatSel.value)">
+                                    <option *ngFor="let ddCat of drillDownCategories" [ngValue]="ddCat" [value]="ddCat.category" [selected]="ddCat.selected">
+                                        {{ddCat.category}}
+                                    </option>
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!--<div *ngIf="isDrilldown && viewType === 'advanced'">
+
+                    <div [innerHTML]="drillDownPlace + ': ' + indicator_info.drilldown_remove_text + ' by ' + drillDownType"></div>
                 </div>
                 <div *ngIf="hasDrillDowns && !isDrilldown && viewType === 'advanced'" class="drillDownMsg">
                     <span [innerHTML]="'Click on a line to see further breakdown by ' + drillDownType + '.'"></span>
-                </div>
+                </div>-->
+
                 <div class="collection-icon-wrapper">
                     <span *ngFor="let collection of indicator_collections" class="collectionIcon">
                         <span *ngFor="let coll of collections">
@@ -27,7 +46,7 @@
                         </select>
                     </div>
                 </div>
-                <chart #highchart [id]="'highchart'+indicator" [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph graph-chart" [ngClass]="isCustomChart ? 'custom' : ''"></chart>
+                <chart #highchart [id]="'highchart'+indicator" [options]="viewType === 'advanced' ? defaultAdvChartOptions : defaultChartOptions" (load)="saveInstance($event.context)" class="graph graph-chart" [ngClass]="isCustomChart ? 'custom' : hasDrillDowns ? 'drilldown' : ''"></chart>
             </div>
             <div id="map-chart-wrapper" *ngIf="tileType === 'map'">
                 <div id="map-view-wrapper">

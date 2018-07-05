@@ -170,7 +170,7 @@ var SelectedPlacesService = (function () {
     SelectedPlacesService.prototype.getAdditionalPlaceInfo = function (place) {
         var _this = this;
         var observables = [];
-        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/places';
+        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api/places';
         place.forEach(function (p) {
             var params = new http_1.URLSearchParams();
             params.set('place', p.Name);

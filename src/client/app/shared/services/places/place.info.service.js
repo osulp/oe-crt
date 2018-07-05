@@ -14,7 +14,7 @@ var PlaceInfoService = (function () {
         this.jsonp = jsonp;
     }
     PlaceInfoService.prototype.getInfo = function (place) {
-        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/places';
+        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api/places';
         var params = new http_1.URLSearchParams();
         params.set('place', place);
         params.set('f', 'json');

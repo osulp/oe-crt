@@ -1,13 +1,3 @@
-
-/*#region app */
-/*@font-face {
-	font-family: avenir;
-	src: url('avenir.woff');
-}*/
-
-
-/*@import url(https://fonts.googleapis.com/css?family=Lato);*/
-
 @font-face {
     font-family: AvenirLTCom-Book;
     src: url('fonts/AvenirLTCom-Book.ttf') format('truetype'),url('fonts/AvenirLTCom-Book.eot');

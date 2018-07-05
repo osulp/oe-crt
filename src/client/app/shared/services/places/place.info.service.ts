@@ -4,7 +4,7 @@ import {Jsonp, URLSearchParams} from '@angular/http';
 export class PlaceInfoService {
     constructor(private jsonp: Jsonp) { }
     getInfo(place: string) {
-        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/places';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api/places';
         var params = new URLSearchParams();
         params.set('place', place); // the user's search value
         params.set('f', 'json');

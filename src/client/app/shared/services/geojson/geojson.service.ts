@@ -35,7 +35,7 @@ export class GetGeoJSONService {
 
     load(placeType: any[], mostRecent: boolean) {
         let observables: any[] = [];
-        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/geojson';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api/geojson';
         for (var p = 0; p < placeType.length; p++) {
             var params = new URLSearchParams();
             params.set('f', 'json');

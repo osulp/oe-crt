@@ -10,6 +10,7 @@
 
 .graph-chart-wrapper{
     margin-left:-15px;
+    position:relative;
 }
 #data-tile-wrapper.advanced{
     height:680px;
@@ -87,6 +88,11 @@
 }
 #data-tile-wrapper.advanced .graph.custom{
      height: 580px;
+}
+
+#data-tile-wrapper.advanced .graph.drilldown{
+     height: 600px;
+     margin-top:-35px;
 }
 
 #data-tile-wrapper.mapChart .graph{
@@ -169,7 +175,7 @@
     position:absolute;
     /*top:-10px;
     right:-5px;*/
-     top:7px;
+     top:1px;
     right:-15px;
     z-index:100;
 }
@@ -210,13 +216,84 @@
     float:right;
 }
 
+.dd-cat-wrapper{
+    position:absolute;
+    z-index:10;
+    width: 105%;
+    padding-left:15px;
+    text-align:right;
+
+    /*margin-bottom:-15px;
+    margin-left:10px;*/
+}
+
 .drillDownMsg{
     font-size:.9em;
-    padding-left:25px;
+    padding-left:21px;
     font-style:italic;
     position:relative;
     top:2px;
-    text-align:center;
+    text-align:right;
+}
+
+.dd-cat-select-wrapper{
+    text-align:left;
+    padding-left:0px;
+    z-index:2000;
+}
+
+label.dropdown select {
+	padding: 2px 16px 2px 2px;
+	background: #F6F6F5;
+	color: #C34500;
+	border: 1px dotted #aaa;
+	border-radius: 0;
+	display: inline-block;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	cursor: pointer;
+	outline: none;
+    max-width:160px;
+}
+
+    label.dropdown select:hover {
+        text-decoration:underline;
+    }
+label.dropdown select:-moz-focusring {
+	color: transparent;
+	text-shadow: 0 0 0 #C34500;
+}
+label.dropdown select::-ms-expand {
+	display: none;
+}
+label.dropdown:before {
+	content: '';
+	right: 5px;
+	top: -7px;
+	width: 16px;
+	height: 20px;
+	position: absolute;
+	pointer-events: none;
+	display: block;
+}
+label.dropdown { position: relative; }
+label.dropdown:after {
+	content: '<>';
+	font: 16px Consolas, monospace;
+	color: #C34500;
+	-webkit-transform: rotate(90deg);
+	-moz-transform: rotate(90deg);
+	-ms-transform: rotate(90deg);
+	transform: rotate(90deg);
+	right: 2px;
+	top: -6px;
+	/*border-bottom: 1px solid #aaa;*/
+	position: absolute;
+	pointer-events: none;
+	width: 16px;
+	padding: 0 0 2px 0;
+	text-indent: 7px;
 }
 
 @media only screen and (max-width : 720px) {
@@ -251,6 +328,10 @@
      #data-tile-wrapper.advanced .graph-chart.custom {
          height:350px;
      }
+     #data-tile-wrapper.advanced .graph-chart.drilldown {
+         height:300px;
+     }
+
 
     #data-tile-wrapper.advanced .customPlaceSelectWrapper {
         margin-left:15px;

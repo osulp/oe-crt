@@ -6,7 +6,7 @@ import {Jsonp, URLSearchParams} from '@angular/http';
 export class FeaturedIndicatorsService {
     constructor(public jsonp: Jsonp) { }
     getFeaturedIndicators() {
-        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/indicators';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api/indicators';
         var params = new URLSearchParams();
         params.set('f', 'json');
         params.set('featured', '');

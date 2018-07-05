@@ -15,7 +15,7 @@ var SearchTopicsPlacesService = (function () {
     }
     SearchTopicsPlacesService.prototype.search = function (term, filter) {
         console.log('search service: ', term, filter);
-        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/search';
+        var serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api/search';
         var params = new http_1.URLSearchParams();
         params.set('term', term);
         if (filter) {

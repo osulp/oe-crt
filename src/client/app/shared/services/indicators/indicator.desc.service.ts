@@ -8,7 +8,7 @@ export class IndicatorDescService {
     constructor(public jsonp: Jsonp) { }
     getIndicator(inputIndicator: string) {
         console.log('indicator service, indicator', inputIndicator);
-        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/indicators';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api/indicators';
         var params = new URLSearchParams();
         params.set('indicator', inputIndicator); // the user's search value
         params.set('f', 'json');

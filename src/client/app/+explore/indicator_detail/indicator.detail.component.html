@@ -48,35 +48,36 @@
             <div class="row">
                 <div id="indicator-title-wrapper" class="col-lg-10 col-md-10 col-xs-10">
                     <div *ngIf="hasDrilldowns">
-                        <h2>                            {{indicatorDesc.ddRemoveText}}
+                        <h2>
+                            {{indicatorDesc.ddBaseIndicator}}
                             <label class="dropdown">
                                 <select #sel id="ddSelect" (change)="onDDIndicatorChange(sel.value)">
-                                    <option *ngFor="let ddIndicator of drillDowns | drilldownCategoryFilterPipe:selectedDDCategory " [ngValue]="ddIndicator" [value]="ddIndicator.variable" [selected]="ddIndicator.selected" (click) ="onDDIndicatorChange(sel.value)">
+                                    <option *ngFor="let ddIndicator of drillDowns" [ngValue]="ddIndicator" [value]="ddIndicator.variable" [selected]="ddIndicator.selected" (click)="onDDIndicatorChange(sel.value)">
                                         {{ddIndicator.ddDisplay}}
                                     </option>
                                 </select>
                             </label>
                         </h2>
-                        <div class="col-xs-12" *ngIf="!hasDrilldowns">
-                            <h2 [innerHTML]="indicatorTitle"></h2>
-                        </div>
-                        <div class="subtitle col-xs-12">
-                            &nbsp;
-                            <span>{{subTitle !== '' ? '('+subTitle+')' : '&nbsp;'}}</span>
-                            <span *ngIf="isStatewide || isCountyLevel" class="data-flag">
-                                <span class="glyphicon glyphicon-flag"></span>
-                                {{isStatewide ? isMobile ? 'Statewide data' : ' Data only available Statewide ' : isCountyLevel ? isMobile ? 'County level data' : ' Data only available at the County level ' : ''}}
-                            </span>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-2 col-md-2 col-xs-12 ddCategories"><h3>View by:</h3></div>
-                            <div class="col-lg-2 col-md-2 col-xs-6" *ngFor="let category of drillDownCategories">
-                                <label>
-                                    <input #{{category}} name="ddCategory" type="radio" [checked]="category === selectedDDCategory" value="{{category}}" (click)="ddCategoryClick($event);" /><span>{{category}}</span>
-                                </label>
-                            </div>
-                        </div>
                     </div>
+                    <div class="col-xs-12" *ngIf="!hasDrilldowns">
+                        <h2 [innerHTML]="indicatorTitle"></h2>
+                    </div>
+                    <div class="subtitle col-xs-12">
+                        &nbsp;
+                        <span>{{subTitle !== '' ? '('+subTitle+')' : '&nbsp;'}}</span>
+                        <span *ngIf="isStatewide || isCountyLevel" class="data-flag">
+                            <span class="glyphicon glyphicon-flag"></span>
+                            {{isStatewide ? isMobile ? 'Statewide data' : ' Data only available Statewide ' : isCountyLevel ? isMobile ? 'County level data' : ' Data only available at the County level ' : ''}}
+                        </span>
+                    </div>
+                    <!--<div class="row">
+                        <div class="col-lg-2 col-md-2 col-xs-12 ddCategories"><h3>View by:</h3></div>
+                        <div class="col-lg-2 col-md-2 col-xs-6" *ngFor="let category of drillDownCategories">
+                            <label>
+                                <input #{{category}} name="ddCategory" type="radio" [checked]="category === selectedDDCategory" value="{{category}}" (click)="ddCategoryClick($event);" /><span>{{category}}</span>
+                            </label>
+                        </div>
+                    </div>-->
                 </div>
                 <div class="col-lg-2 col-md-2 col-xs-2">
                     <share-link [renderTo]="'detail'" (onDownloadClick)="onDownloadClick($event)"></share-link>
@@ -92,7 +93,7 @@
                 <div *ngIf="!isTextData" [ngClass]="!showMap || isStatewide || isCustomChart ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
                     <div #graphView class="detail-tile" [hidden]="!showGraph">
                         <!--GRAPH VIEW-->
-                        <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="" [_selectedYear]="selectedYear" [collections]="collections" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'" [drillDowns]="drillDowns" [drillDownCategory]="selectedDDCategory"  ></data-tile>
+                        <data-tile [indicator]="inputIndicator" [tileType]="'graph'" class="" [_selectedYear]="selectedYear" [collections]="collections" (onChartDataUpdate)="chartData = onChartDataUpdate($event)" [viewType]="'advanced'" [drillDowns]="drillDowns" [drillDownCategories]="drillDownCategories"></data-tile>
                     </div>
                 </div>
                 <div class="col-xs-12">
@@ -191,3 +192,4 @@
         </div>
     </div>
 </div>
+

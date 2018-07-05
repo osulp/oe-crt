@@ -9,7 +9,7 @@ export class TopicsService {
     constructor(public jsonp: Jsonp) { }
 
     getCRTTopics() {
-        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api_dev/topics';
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api/topics';
         var params = new URLSearchParams();
         params.set('f', 'json');
         params.set('crt', 'true');
