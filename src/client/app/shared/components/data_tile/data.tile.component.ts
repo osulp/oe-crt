@@ -1401,7 +1401,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         let isCombined = evt.point.series.options.combined;
         console.log('getting drilldown data for ', evt.point.series.name, isCombined, evt, this.drillDownGeogs);
         this.ddOnlyForCounty = this.drillDownGeogs.indexOf('County') !== -1 && evt.point.series.options.geo_type !== 'State';
-        let ddOnlyForState = this.drillDownGeogs.indexOf('State') !== -1
+        //let ddOnlyForState = this.drillDownGeogs.indexOf('State') !== -1
         console.log('freebird', this.ddOnlyForCounty, this);
         // let searchGeoid = ddOnlyForCounty ? searchGeoidObj.GeoInfo[0].county_geoid : searchGeoidObj.ResID;
         let searchGeoidObj = this.places.filter((p: any) => {
@@ -2790,7 +2790,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
             let isBarChart = !drilldown
                 ? this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[pdCommunityName].data.length === 1
-                : this.dataStore.indicatorData[this.indicator].chart_dd_data.place_data_years_dd[pdDDCommunityName + ': ' + pd.Variable].data.length === 1
+                : this.dataStore.indicatorData[this.indicator].chart_dd_data.place_data_years_dd[pdDDCommunityName + ': ' + pd.Variable].data.length === 1;
             let color = isRural
                 ? '#996699'
                 : isUrban

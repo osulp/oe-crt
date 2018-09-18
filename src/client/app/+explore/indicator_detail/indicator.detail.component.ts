@@ -371,10 +371,16 @@ export class DetailComponent implements OnInit {
                                 'indicator': dd.Indicator,
                                 'variable': dd.Variable,
                                 'selected': dd.Indicator === this.indicatorTitle ? 'selected' : null,
-                                'category': data.DrilldownIndicators.filter((di:any) => di.Sub_Sub_Topic === dd.Sub_Sub_Topic).length > 1 || dd.Sub_Sub_Topic === 'Total' ? dd.Sub_Sub_Topic : dd.Sub_Sub_Topic
+                                'category': data.DrilldownIndicators.filter((di: any) => di.Sub_Sub_Topic === dd.Sub_Sub_Topic).length > 1 || dd.Sub_Sub_Topic === 'Total' ? dd.Sub_Sub_Topic : dd.Sub_Sub_Topic
                             };
                         })
-                            .sort((a: any, b: any) => { return a.ddDisplay.localeCompare(b.ddDisplay)});
+                            .sort((a: any, b: any) => {
+                                return a.category === 'Total'
+                                    ? -1000
+                                    : b.category === 'Total'
+                                        ? 1000
+                                        : a.ddDisplay.localeCompare(b.ddDisplay);
+                            });
                         //if only one type of drilldown type not including total, don't add 'All'
                         let uniqueCats = this.drillDowns
                             .map((dd: any) => dd.category)
