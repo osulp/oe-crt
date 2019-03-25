@@ -234,7 +234,7 @@ var DataTileComponent = (function () {
             credits: {
                 enabled: true,
                 text: this.isHandheld ? 'Oregon Explorer and OSU Rural Studies Program' : 'Maps and Charts provided by Oregon Explorer and OSU Rural Studies Program',
-                href: 'http://oregonexplorer.info/rural',
+                href: 'https://oregonexplorer.info/rural',
                 position: {
                     align: 'center'
                 }
@@ -2872,43 +2872,43 @@ var DataTileComponent = (function () {
         }
     };
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', Object)
     ], DataTileComponent.prototype, "indicator", void 0);
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', Object)
     ], DataTileComponent.prototype, "tileType", void 0);
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', Object)
     ], DataTileComponent.prototype, "viewType", void 0);
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', Object)
     ], DataTileComponent.prototype, "featured", void 0);
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', Boolean)
     ], DataTileComponent.prototype, "related", void 0);
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', Array)
     ], DataTileComponent.prototype, "collections", void 0);
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', Object)
     ], DataTileComponent.prototype, "_selectedYear", void 0);
     __decorate([
-        core_1.ViewChild(hmap_menu_component_1.HmapMenuComponent), 
+        core_1.ViewChild(hmap_menu_component_1.HmapMenuComponent),
         __metadata('design:type', hmap_menu_component_1.HmapMenuComponent)
     ], DataTileComponent.prototype, "hMapMenu", void 0);
     __decorate([
-        core_1.Output(), 
+        core_1.Output(),
         __metadata('design:type', Object)
     ], DataTileComponent.prototype, "onChartDataUpdate", void 0);
     __decorate([
-        core_1.Output(), 
+        core_1.Output(),
         __metadata('design:type', Object)
     ], DataTileComponent.prototype, "onSelectedYearChange", void 0);
     DataTileComponent = __decorate([
@@ -2921,7 +2921,7 @@ var DataTileComponent = (function () {
             providers: [http_1.JSONP_PROVIDERS, index_1.DataService, index_1.GeoJSONStoreService, index_1.GetGeoJSONService, index_1.SelectedDataService, index_1.PlaceTypeService, index_1.IndicatorDescService],
             pipes: [index_2.MapChartPlaceZoomPipe]
         }),
-        __param(0, core_1.Inject(core_1.ElementRef)), 
+        __param(0, core_1.Inject(core_1.ElementRef)),
         __metadata('design:paramtypes', [core_1.ElementRef, index_1.DataService, index_1.SelectedPlacesService, router_1.Router, index_1.GeoJSONStoreService, index_1.GetGeoJSONService, index_1.SelectedDataService, index_1.PlaceTypeService, index_1.IndicatorDescService])
     ], DataTileComponent);
     return DataTileComponent;

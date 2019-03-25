@@ -61,13 +61,13 @@ export class ShareLinkComponent {
                 break;
             case 'facebook':
                 //$('meta[name=title]').attr('content', 'Just checking');
-                window.open('http://www.facebook.com/sharer.php?u=' + encodeURI(window.location.href), '_blank');
+                window.open('https://www.facebook.com/sharer.php?u=' + encodeURI(window.location.href), '_blank');
                 break;
             case 'google':
                 window.open('https://plus.google.com/share?url=' + url, '_blank');
                 break;
             case 'linkedin':
-                window.open('http://www.linkedin.com/shareArticle?mini=true&amp;url=' + url, '_blank');
+                window.open('https://www.linkedin.com/shareArticle?mini=true&amp;url=' + url, '_blank');
                 break;
             case 'twitter':
                 window.open('https://twitter.com/share?url=' + url + ';text=Communities%20Reporter%20Tool&amp;hashtags=communitiesreportertool', '_blank');
@@ -76,7 +76,7 @@ export class ShareLinkComponent {
                 var e = document.createElement('script');
                 e.setAttribute('type', 'text/javascript');
                 e.setAttribute('charset', 'UTF-8');
-                e.setAttribute('src', 'http://assets.pinterest.com/js/pinmarklet.js?r=' + Math.random() * 99999999);
+                e.setAttribute('src', 'https://assets.pinterest.com/js/pinmarklet.js?r=' + Math.random() * 99999999);
                 document.body.appendChild(e);
                 break;
             default:
@@ -291,7 +291,7 @@ export class ShareLinkComponent {
         let filename = (batch ? 'CRTDownload' : indicator.replace(/\ /g, '')) + placeNames + '.csv';
 
         var blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-        if (window.navigator.msSaveOrOpenBlob) { // IE hack; see http://msdn.microsoft.com/en-us/library/ie/hh779016.aspx
+        if (window.navigator.msSaveOrOpenBlob) { // IE hack; see https://msdn.microsoft.com/en-us/library/ie/hh779016.aspx
             window.navigator.msSaveBlob(blob, filename);
         } else {
             var a = window.document.createElement('a');

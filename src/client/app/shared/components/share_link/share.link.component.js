@@ -53,13 +53,13 @@ var ShareLinkComponent = (function () {
                 window.location.href = 'mailto:?Subject=Communities Reporter Tool!&body=' + body;
                 break;
             case 'facebook':
-                window.open('http://www.facebook.com/sharer.php?u=' + encodeURI(window.location.href), '_blank');
+                window.open('https://www.facebook.com/sharer.php?u=' + encodeURI(window.location.href), '_blank');
                 break;
             case 'google':
                 window.open('https://plus.google.com/share?url=' + url, '_blank');
                 break;
             case 'linkedin':
-                window.open('http://www.linkedin.com/shareArticle?mini=true&amp;url=' + url, '_blank');
+                window.open('https://www.linkedin.com/shareArticle?mini=true&amp;url=' + url, '_blank');
                 break;
             case 'twitter':
                 window.open('https://twitter.com/share?url=' + url + ';text=Communities%20Reporter%20Tool&amp;hashtags=communitiesreportertool', '_blank');
@@ -68,7 +68,7 @@ var ShareLinkComponent = (function () {
                 var e = document.createElement('script');
                 e.setAttribute('type', 'text/javascript');
                 e.setAttribute('charset', 'UTF-8');
-                e.setAttribute('src', 'http://assets.pinterest.com/js/pinmarklet.js?r=' + Math.random() * 99999999);
+                e.setAttribute('src', 'https://assets.pinterest.com/js/pinmarklet.js?r=' + Math.random() * 99999999);
                 document.body.appendChild(e);
                 break;
             default:
@@ -240,11 +240,11 @@ var ShareLinkComponent = (function () {
         }
     };
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', Object)
     ], ShareLinkComponent.prototype, "renderTo", void 0);
     __decorate([
-        core_1.Output(), 
+        core_1.Output(),
         __metadata('design:type', Object)
     ], ShareLinkComponent.prototype, "onDownloadClick", void 0);
     ShareLinkComponent = __decorate([
@@ -253,7 +253,7 @@ var ShareLinkComponent = (function () {
             selector: 'share-link',
             templateUrl: 'share.link.component.html',
             styleUrls: ['share.link.component.css']
-        }), 
+        }),
         __metadata('design:paramtypes', [])
     ], ShareLinkComponent);
     return ShareLinkComponent;

@@ -375,7 +375,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             credits: {
                 enabled: true,
                 text: this.isHandheld ? 'Oregon Explorer and OSU Rural Studies Program' : 'Maps and Charts provided by Oregon Explorer and OSU Rural Studies Program',
-                href: 'http://oregonexplorer.info/rural',
+                href: 'https://oregonexplorer.info/rural',
                 position: {
                     align: 'center'
                 }
@@ -1742,12 +1742,12 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             if (this.selectedYear.Year.split('-').length > 1) {
                 selectedYearGeoJSONIndex = (parseInt(year.Year) <= parseInt('20' + this.selectedYear.Year.split('-')[1])) ? y : selectedYearGeoJSONIndex;
             } else {
-                selectedYearGeoJSONIndex = parseInt(year.Year) <= parseInt(this.selectedYear.Year) ? y : selectedYearGeoJSONIndex;
+                selectedYearGeoJSONIndex = parseInt(year.Year) <= parseInt(this.selectedYear.Year)
+                ? y
+                : selectedYearGeoJSONIndex;
             }
         }
         console.log('que pasa', selectedGeoJSONType);
-        //console.log(selectedGeoJSONType);
-        //console.log(selectedGeoJSONType[0].features[selectedYearGeoJSONIndex]);
         return selectedGeoJSONType[0].features[selectedYearGeoJSONIndex];
     }
 
@@ -1792,7 +1792,16 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         sliderScope.mapChart.series[seriesIndex].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
                         sliderScope.mapChart.series[seriesIndex].mapData = mapData;
                         sliderScope.mapChart.series[seriesIndex].joinBy = sliderScope.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (sliderScope.selectedPlaceType === 'SchoolDistricts' ? ['ODE_ID', 'geoid'] : ['NAME', 'name']);
-                        sliderScope.mapChart.series[seriesIndex].setData(data);
+                        console.log('czech 1', data);
+                        try{
+                            sliderScope.mapChart.series[seriesIndex].setData(data);
+                        } catch(ex){
+                            //data failed may need to change color axis to not logrithmic.
+                            sliderScope.mapChart.colorAxis[0].update({type: null});
+                            sliderScope.mapChart.series[seriesIndex].setData(data);
+                        }
+
+                        console.log('czech 2', sliderScope.mapChart, data);
                         sliderScope.selectedMapPoints = sliderScope.mapChart.getSelectedPoints();
                         sliderScope.mapChart.redraw();
                         sliderScope.onSelectedYearChange.emit({ year: sliderScope.selectedYear, index: sliderScope.selectedYearIndex, indicator: sliderScope.indicator });
@@ -1804,6 +1813,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         } else {
                             window.setTimeout(sliderScope.selectAndOrderMapPaths(), 500);
                         }
+                        console.log('czech ', data);
 
                         //detailChart.xAxis[0].removePlotLine('plot-line-1');
                         //detailChart.xAxis[0].addPlotLine({
@@ -1926,7 +1936,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             }
         };
         var colorAxis = this.mapChart.colorAxis[0];
-        //console.log('logarithmic?', this.getMinData(true, true), this.getMinData(true, true) > 0 ? 'logarithmic' : null, this.indicator_info);
+        console.log('logarithmic?', this.getMinData(true, true), this.getMinData(true, true) > 0 ? 'logarithmic' : null, this.indicator_info);
         if (this.indicator_info.Represented_ID === 10) {
             isTextData = true;
             let dataClasses = this.getDataClasses();
@@ -1953,6 +1963,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             });
             this.mapChart.legend.update(this.setLegendOptions(true));
         } else {
+            //console.log('dobry', this.getMinData(true, true) > 0 ? 'logarithmic' : null)
             colorAxis.update({
                 type: this.getMinData(true, true) > 0 ? 'logarithmic' : null,// 'logarithmic',
                 //min: 0,//null,//0,
@@ -1968,8 +1979,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 }
             });
         }
-        //console.log('colorAxis min', this.getMinData(true));
-        //console.log('colorAxis max', this.getMaxData(true));
+        console.log('colorAxis min', this.getMinData(true));
+        console.log('colorAxis max', this.getMaxData(true));
 
         //clear out and add again for sync purposes
         //while (this.mapChart.series.length > 1) {
@@ -3462,6 +3473,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         let place_data_years_moe_dd: any = {};
 
         if (this.isCustomChart) {
+            console.log('custom chart pData', this.indicator.ScriptName);
             place_data_years = this.processCustomChartData(this.indicator.ScriptName);
             let chart_data: any = {
                 place_data_years: place_data_years
@@ -3478,11 +3490,11 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
                  //this.dataStore[this.pluralize(this.selectedPlaceType)].indicatorData[this.indicator].crt_db;
             ptdToProcess.Data.forEach((pData: any) => {
-                console.log('pData in the house', pData);
+                //console.log('pData in the house', pData);
                 if (!drilldown) {
                     //FOR MAP VIEW
                     let statewideFilter: any[] = ['Oregon', 'Statewide', 'Rural Oregon', 'Urban Oregon', 'California', 'Rural California', 'Urban California'];
-                    if (statewideFilter.indexOf(this.isSchool ? pData.Name : pData.community) === -1) {
+                    if (statewideFilter.indexOf(this.isSchool ? pData.Name : pData.community) === -1 && (pData[this.selectedYear.Year] === -1 ? 0 : pData[this.selectedYear.Year] !== null) ) {
                         place_data.push({
                             name: this.isSchool ? pData.Name : pData.community, //this.getCommunityName(pData),// pData.community,
                             geoid: pData.geoid,

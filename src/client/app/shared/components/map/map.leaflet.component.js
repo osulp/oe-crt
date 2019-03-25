@@ -16,7 +16,7 @@ var MapLeafletComponent = (function () {
         this.currentCoords = [44, -121.5];
         this.currentZoom = 5.5;
         this.detailViewOffset = -300;
-        this.crt_layers_url = 'http://lib-arcgis5.library.oregonstate.edu/arcgis/rest/services/people_communities/oe_crt/MapServer';
+        this.crt_layers_url = 'https://lib-gis2.library.oregonstate.edu/arcgis/rest/services/demographics/oe_crt/MapServer';
         this.crt_layer_cities_id = 1;
         this.crt_layer_tracts_id = 2;
         this.crt_layer_counties_id = 3;
@@ -56,11 +56,11 @@ var MapLeafletComponent = (function () {
             this.map.createPane('labels');
             this.map.getPane('labels').style.zIndex = 650;
             this.map.getPane('labels').style.pointerEvents = 'none';
-            L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
             }).addTo(this.map);
-            var baseMapLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+            var baseMapLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> &copy; <a href="https://cartodb.com/attributions">CartoDB</a>',
                 pane: 'labels',
                 minZoom: 1,
                 maxZoom: this.viewType === 'indicatorDetail' && !this.isMobile ? 7 : 8
@@ -575,23 +575,23 @@ var MapLeafletComponent = (function () {
         }
     };
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', String)
     ], MapLeafletComponent.prototype, "viewType", void 0);
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', Boolean)
     ], MapLeafletComponent.prototype, "isVisible", void 0);
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', Object)
     ], MapLeafletComponent.prototype, "selectedPlaces", void 0);
     __decorate([
-        core_1.Input(), 
+        core_1.Input(),
         __metadata('design:type', Boolean)
     ], MapLeafletComponent.prototype, "refresh", void 0);
     __decorate([
-        core_1.Output(), 
+        core_1.Output(),
         __metadata('design:type', Object)
     ], MapLeafletComponent.prototype, "onPlaceSelected", void 0);
     MapLeafletComponent = __decorate([
@@ -600,7 +600,7 @@ var MapLeafletComponent = (function () {
             selector: 'leaflet-map',
             templateUrl: 'map.leaflet.component.html',
             styleUrls: ['map.leaflet.component.css']
-        }), 
+        }),
         __metadata('design:paramtypes', [router_1.Router])
     ], MapLeafletComponent);
     return MapLeafletComponent;
