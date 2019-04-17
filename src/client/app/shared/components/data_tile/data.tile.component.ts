@@ -1793,9 +1793,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         sliderScope.mapChart.series[seriesIndex].mapData = mapData;
                         sliderScope.mapChart.series[seriesIndex].joinBy = sliderScope.selectedPlaceType === 'Tracts' ? ['GEOID', 'geoid'] : (sliderScope.selectedPlaceType === 'SchoolDistricts' ? ['ODE_ID', 'geoid'] : ['NAME', 'name']);
                         console.log('czech 1', data);
-                        try{
+                        try {
                             sliderScope.mapChart.series[seriesIndex].setData(data);
-                        } catch(ex){
+                        } catch(ex) {
                             //data failed may need to change color axis to not logrithmic.
                             sliderScope.mapChart.colorAxis[0].update({type: null});
                             sliderScope.mapChart.series[seriesIndex].setData(data);
