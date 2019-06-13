@@ -23,7 +23,7 @@ export class MapLeafletComponent implements OnInit, OnChanges {
     currentCoords: any[] = [44, -121.5];
     currentZoom: number = 5.5;
     detailViewOffset: number = -300;
-    crt_layers_url: string = 'http://lib-arcgis5.library.oregonstate.edu/arcgis/rest/services/people_communities/oe_crt/MapServer';
+    crt_layers_url: string = 'https://lib-gis2.library.oregonstate.edu/arcgis/rest/services/demographics/oe_crt/MapServer';
     crt_layer_cities_id: number = 1;
     crt_layer_tracts_id: number = 2;
     crt_layer_counties_id: number = 3;
@@ -71,12 +71,12 @@ export class MapLeafletComponent implements OnInit, OnChanges {
             this.map.getPane('labels').style.pointerEvents = 'none';
 
 
-            L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> &copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
             }).addTo(this.map);
 
-            let baseMapLabels = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+            let baseMapLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> &copy; <a href="https://cartodb.com/attributions">CartoDB</a>',
                 pane: 'labels',
                 minZoom: 1,
                 maxZoom: this.viewType === 'indicatorDetail' && !this.isMobile ? 7 : 8
@@ -643,6 +643,7 @@ export class MapLeafletComponent implements OnInit, OnChanges {
                 }
             } else {
                 console.log('still waiting for query finish');
+                clearInterval(runInterval);
             }
         }
     }

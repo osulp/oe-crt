@@ -18,10 +18,11 @@ export class HmapMenuComponent implements OnInit, OnChanges {
 
 
     mapViewClick(evt: any) {
-        console.log(evt.target.value);
-        if (evt.target.value !== this._translatedMapView) {
-            this.selMapView.emit(evt.target.value);
-        }
+        //console.log(evt.target.value, this._translatedMapView);
+        // if (evt.target.value !== this._translatedMapView) {
+
+        // }
+        this.selMapView.emit(evt.target.value);
     }
 
     ngOnInit() {

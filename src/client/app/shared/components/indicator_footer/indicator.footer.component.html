@@ -1,0 +1,53 @@
+<div class="row">
+  <div id="indicator-info" [ngClass]="indInfo"
+    class="col-lg-5 col-md-6 col-xs-12 arrow_box">
+    <div class="row">
+      <span class="col-xs-4" [ngClass]="{'selected':indInfo === 'desc'}"
+        (click)="indInfo = 'desc';">Description</span>
+      <span class="col-xs-4" [ngClass]="{'selected':indInfo === 'src'}"
+        (click)="indInfo = 'src';">Source</span>
+      <span class="col-xs-4" *ngIf="showCitation" [ngClass]="{'selected':indInfo === 'other'}"
+        (click)="indInfo = 'other';">How to cite</span>
+    </div>
+  </div>
+  <div class="col-xs-12" id="indicator-info-content">
+    <div *ngIf="indInfo === 'desc'">
+      <div *ngFor="let id of indicatorDesc">
+        <div *ngIf="id.Description_v4 !== null">
+          <span>Description:</span>
+          <span [innerHTML]="id.Description_v4"></span>
+        </div>
+        <div *ngIf="id.Description_v4 === null">
+          <span>No description information currently available.</span>
+        </div>
+        <div *ngIf="id.Formula !== null">
+          <span>Formula:</span>
+          <span [innerHTML]="id.Formula"></span>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="indInfo === 'src'">
+      <div *ngFor="let id of indicatorDesc">
+        <span *ngIf="id.Source !== null" [innerHTML]="id.Source">
+        </span>
+        <span *ngIf="id.Source === null">Not available</span>
+      </div>
+    </div>
+    <div *ngIf="indInfo === 'other'">
+      <p>Accessed from the Communities Reporter Tool on {{dateAccessed}}</p>
+      <p>Url: {{pageUrl}}</p>
+      <div *ngFor="let id of indicatorDesc">
+        <span>Data source: </span>
+        <span *ngIf="id.Source !== null" [innerHTML]="id.Source">
+        </span>
+        <span *ngIf="id.Source === null">Not available</span>
+      </div>
+      <br />
+      <p><i>The Communities Reporter Tool is a collaboration of Oregon State
+          University (Rural Studies Program and the Oregon Explorer), the Ford
+          Family Foundation (which serves rural Oregon and Siskiyou County, CA),
+          and the Oregon Community Foundation. Partners include the Oregon
+          Department of Administrative Services. </i></p>
+    </div>
+  </div>
+</div>

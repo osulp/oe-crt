@@ -1,0 +1,84 @@
+<div class="embed">
+    <div id="admin-wrapper" *ngIf="showAdmin">
+        <fieldset>
+            <legend>
+                <div>
+                    <div>Embed Settings</div>
+                    <div id="close-admin" (click)="closeAdmin()"><span
+                            class="close-span"><img alt="remove selected place"
+                                src="./assets/img/closeX2.png"></span><span>Close
+                            Embed Settings</span></div>
+                            <div id="clear-all-wrapper">
+                                <button (click)="clearAll()" class="button">Clear All Settings</button>
+                            </div>
+                </div>
+            </legend>
+            <div class="row">
+                <embeds-admin
+                    (selectedIndicatorFromCmp)="onSelectedIndicatorFromCmp($event)"
+                    (selectedCollectionFromCmp)="onSelectedCollectionFromCmp($event)"
+                    (embedShowChangeEvt)="onEmbedShowChange($event)"
+                    (embedDimensionsChangedEvt)="onEmbedDimensionChange($event)"
+                    (embedGeoOptsChangedEvt)="onEmbedGeoOptsChange($event)"
+                    [selectedIndicator]="selectedIndicator"
+                    [selectedCollection]="selectedCollection"
+                    [collections]="collections"
+                    [embedWidth]="width"
+                    [embedHeight]="height" [embedCode]="embedCode"
+                    [embedShowMap]="showMap" [embedShowChart]="showChart"
+                    [embedShowTitle]="showTitle" [embedShowDesc]="showDesc"
+                    [embedIncludeResponsive]="includeResponsiveCode"
+                    [embedGeoOpts]="geoOptions"
+                    [defaultGeo]="defaultGeo">
+                </embeds-admin>
+            </div>
+        </fieldset>
+    </div>
+    <!-- <div *ngIf="isAuthorized && hasSelectedIndicator" (window:resize)="onResize($event)" #embedContent class="row" [style.width.px]="width" [style.height.px]="height"> -->
+    <div *ngIf="isAuthorized && hasSelectedIndicator" id="embedContent"
+        #embedContent class="row">
+        <div id="title-wrapper" *ngIf="showTitle">
+            <indicator-title [indicatorData]="indicatorData"
+             [isStatewide]="isStatewide"
+                [isMobile]="isMobile"
+                [isCountyLevel]="isCountyLevel"
+                [showShare]="false"
+                (drillDownOutput)="onDrilldownOutput($event)"
+                (indicatorChange)="onIndicatorChange($event)"
+                ></indicator-title>
+            <!-- <div id="indicator-title">{{indicatorTitle}}</div>
+            <div id="subtitle">{{subTitle}}</div> -->
+        </div>
+
+        <div *ngIf="showMap && !isStatewide && !isCustomChart"
+            [ngClass]="!showChart && !isStatewide && !isCustomChart ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
+            <div #mapView class="detail-tile map-chart">
+                <!--MAP VIEW-->
+                <data-tile [indicator]="selectedIndicator"
+                    (onSelectedYearChange)="onSelectedYearChange($event)"
+                    (onChartDataUpdate)="chartData = onChartDataUpdate($event)"
+                    [tileType]="'map'" [viewType]="'advanced'" [selectedPlaceTypeInput]="defaultGeo" [geoAoi]="geo_aoi"
+                     ></data-tile>
+            </div>
+        </div>
+        <div *ngIf="showChart"
+            [ngClass]="!showMap || isStatewide || isCustomChart ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
+            <div #graphView class="detail-tile">
+                <!--GRAPH VIEW-->
+                <data-tile [isEmbed]="true" [indicator]="selectedIndicator" [tileType]="'graph'"
+                    class="" [_selectedYear]="selectedYear"
+                    [collections]="collections"
+                    (onChartDataUpdate)="chartData = onChartDataUpdate($event)"
+                    [viewType]="'advanced'" [drillDowns]="drillDowns"
+                    [drillDownCategories]="drillDownCategories"></data-tile>
+            </div>
+        </div>
+        <indicator-footer *ngIf="showDesc" [indicatorDesc]="indicatorDesc" [showCitation]="false"></indicator-footer>
+    </div>
+
+</div>
+<div id="not-authorized" *ngIf="!isAuthorized">
+    <div id="message">
+        Sorry, this resource is only available from authorized sources.
+    </div>
+</div>

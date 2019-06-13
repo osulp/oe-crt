@@ -1,0 +1,119 @@
+<div class="embed-container">
+  <div class="embed-container-child embed-params-wrapper">
+    <div>
+      <h4>Collection:</h4>
+      <select #ddEmbedCollection id="ddEmbedCollection"
+        (change)="onDDCollectionChange(ddEmbedCollection.value)">
+        <option *ngFor="let ddCollection of collections" [ngValue]="ddCollection"
+          [value]="ddCollection.collection_name"
+          [selected]="ddCollection.selected">
+          {{ddCollection.collection_name}}
+        </option>
+      </select>
+    </div>
+    <div>
+      <h4>Select Indicator:</h4>
+      <select #ddEmbedIndicator id="ddEmbedIndicator"
+        (change)="onDDIndicatorChange(ddEmbedIndicator.value)">
+        <option *ngFor="let ddIndicator of indicators | indicatorCollectionFilterPipe:selectedCollection " [ngValue]="ddIndicator"
+          [value]="ddIndicator.indicator" [selected]="ddIndicator.selected">
+          {{ddIndicator.indicator}}
+        </option>
+      </select>
+    </div>
+    <!-- <div class="embed-container dimensions">
+      <h4>Dimensions</h4>
+      <div class="embed-container-child">
+        <b>Width</b>
+        <input type="text" #embedWidthElem
+          (keyup.enter)="updateDimension('width',embedWidthElem.value)"
+          (blur)="updateDimension('width',embedWidthElem.value)"
+          [placeholder]="embedWidth">
+      </div>
+      <div class="embed-container-child">
+        <b>Height (fixed)</b>
+        <input type="text" readonly #embedHeightElem
+          (keyup.enter)="updateDimension('height',embedHeightElem.value)"
+          (blur)="updateDimension('height',embedHeightElem.value)"
+          [placeholder]="embedHeight">
+      </div>
+    </div> -->
+    <div class="embed-container dimensions">
+      <h4>Show:</h4>
+      <div class="embed-container-child">
+        <input name="showMap" type="checkbox" [checked]="embedShowMap"
+          (change)="embedShowMap = !embedShowMap; onShowChange('map',embedShowMap)">
+        <label for="showMap">Map</label>
+      </div>
+      <div class="embed-container-child">
+        <input type="checkbox" name="showChart" [checked]="embedShowChart"
+          (change)="embedShowChart = !embedShowChart;onShowChange('chart',embedShowChart)">
+        <label for="showChart">Chart</label>
+      </div>
+      <div class="embed-container-child">
+        <input type="checkbox" name="showTitle" [checked]="embedShowTitle"
+          (change)="embedShowTitle = !embedShowTitle;onShowChange('title',embedShowTitle)">
+        <label for="showTitle">Title</label>
+      </div>
+      <div class="embed-container-child">
+        <input type="checkbox" name="showDesc" [checked]="embedShowDesc"
+          (change)="embedShowDesc = !embedShowDesc;onShowChange('desc',embedShowDesc)">
+        <label for="showDesc">Description</label>
+      </div>
+    </div>
+    <div class="embed-container dimensions">
+      <h4>Default Geography:</h4>
+      <!-- <div *ngFor="let geo of embedGeoOpts" class="embed-container-child">
+        <input [name]="geo.geo" type="checkbox" [checked]="geo.selected"
+          (change)="geo.selected = !geo.selected; onGeoOptionChange(this)">
+        <label for="geo">{{geo.geo}}</label>
+      </div> -->
+      <div class="radioBtns" *ngFor="let geo of embedGeoOpts">
+        <div [ngSwitch]="defaultGeo">
+          <div *ngSwitchWhen="geo">
+            <label>
+              <input #{{geo}} name="mapView" type="radio" checked="checked"
+                value="{{geo}}"
+                (click)="onGeoOptionChange(geo);" /><span>{{geo}}</span>
+            </label>
+          </div>
+          <div *ngSwitchDefault>
+            <label>
+              <input #{{geo}} name="mapView" type="radio" value="{{geo}}"
+                (click)="onGeoOptionChange(geo);" /><span>{{geo}}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="embed-container-child embed-code-wrapper">
+    <div>
+      <h4>Embed Code</h4>
+      <div class="embed-container dimensions">
+        <div class="embed-container-child">
+          <input name="includeResponsiveCode" type="checkbox"
+            [checked]="embedIncludeResponsive"
+            (change)="embedIncludeResponsive = !embedIncludeResponsive;onShowChange('responsive',embedIncludeResponsive)">
+          <label for="includeScript">Include Responsive Code?</label>
+          <div class="note">
+            (NOTE: Only include one embed with responsive code per page. The code
+              will dynamically size all embeds on the page where the embeds are
+              added.)
+          </div>
+        </div>
+      </div>
+      <textarea id="embedCodeElem" #embedCodeElem>{{embedCode}}</textarea>
+      <center>
+        <button class="Copy" (click)="onCopyEmbedClick(this)">Copy</button>
+        <!-- <button class="Demo" (click)="onDemoEmbedClick(this)">Demo</button> -->
+      </center>
+    </div>
+  </div>
+</div>
+<div *ngIf="showEmbedDemo">
+  <h4>Demo Embed</h4>
+  <div (click)="hideDemoEmbed()">Hide</div>
+  <div [innerHTML]="embedCode"></div>
+</div>

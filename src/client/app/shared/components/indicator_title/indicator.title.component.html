@@ -1,0 +1,34 @@
+<div class="row">
+  <div id="indicator-title-wrapper" [ngClass]="showShare ? 'col-lg-10 col-md-10 col-xs-10' : 'col-xs-12'">
+    <div *ngIf="hasDrilldowns">
+      <h2>
+        {{ddBaseIndicator}}
+        <label class="dropdown">
+          <select #sel id="ddSelect" (change)="onDDIndicatorChange(sel.value)">
+            <option *ngFor="let ddIndicator of drillDowns"
+              [ngValue]="ddIndicator" [value]="ddIndicator.variable"
+              [selected]="ddIndicator.selected"
+              (click)="onDDIndicatorChange(sel.value)">
+              {{ddIndicator.ddDisplay}}
+            </option>
+          </select>
+        </label>
+      </h2>
+    </div>
+    <div class="col-xs-12" *ngIf="!hasDrilldowns">
+      <h2 [innerHTML]="indicatorTitle"></h2>
+    </div>
+    <div class="subtitle col-xs-12">
+      &nbsp;
+      <span>{{subTitle !== '' ? '('+subTitle+')' : '&nbsp;'}}</span>
+      <span *ngIf="isStatewide || isCountyLevel" class="data-flag">
+        <span class="glyphicon glyphicon-flag"></span>
+        {{isStatewide ? isMobile ? 'Statewide data' : ' Data only available Statewide ' : isCountyLevel ? isMobile ? 'County level data' : ' Data only available at the County level ' : ''}}
+      </span>
+    </div>
+  </div>
+  <div *ngIf="showShare" class="col-lg-2 col-md-2 col-xs-2">
+    <share-link [renderTo]="'detail'"
+      (onDownloadClick)="onShareDownloadClick($event)"></share-link>
+  </div>
+</div>

@@ -7,6 +7,8 @@ export * from './map/index';
 export * from './places/index';
 export * from './search/index';
 export * from './share_link/index';
+export * from './indicator_title/index';
+export * from './indicator_footer/index';
 
 
 

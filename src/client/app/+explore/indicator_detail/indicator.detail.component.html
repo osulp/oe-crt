@@ -46,42 +46,11 @@
     <div id="detail-data-view-wrapper" class="row">
         <div class="col-xs-12">
             <div class="row">
-                <div id="indicator-title-wrapper" class="col-lg-10 col-md-10 col-xs-10">
-                    <div *ngIf="hasDrilldowns">
-                        <h2>
-                            {{indicatorDesc.ddBaseIndicator}}
-                            <label class="dropdown">
-                                <select #sel id="ddSelect" (change)="onDDIndicatorChange(sel.value)">
-                                    <option *ngFor="let ddIndicator of drillDowns" [ngValue]="ddIndicator" [value]="ddIndicator.variable" [selected]="ddIndicator.selected" (click)="onDDIndicatorChange(sel.value)">
-                                        {{ddIndicator.ddDisplay}}
-                                    </option>
-                                </select>
-                            </label>
-                        </h2>
-                    </div>
-                    <div class="col-xs-12" *ngIf="!hasDrilldowns">
-                        <h2 [innerHTML]="indicatorTitle"></h2>
-                    </div>
-                    <div class="subtitle col-xs-12">
-                        &nbsp;
-                        <span>{{subTitle !== '' ? '('+subTitle+')' : '&nbsp;'}}</span>
-                        <span *ngIf="isStatewide || isCountyLevel" class="data-flag">
-                            <span class="glyphicon glyphicon-flag"></span>
-                            {{isStatewide ? isMobile ? 'Statewide data' : ' Data only available Statewide ' : isCountyLevel ? isMobile ? 'County level data' : ' Data only available at the County level ' : ''}}
-                        </span>
-                    </div>
-                    <!--<div class="row">
-                        <div class="col-lg-2 col-md-2 col-xs-12 ddCategories"><h3>View by:</h3></div>
-                        <div class="col-lg-2 col-md-2 col-xs-6" *ngFor="let category of drillDownCategories">
-                            <label>
-                                <input #{{category}} name="ddCategory" type="radio" [checked]="category === selectedDDCategory" value="{{category}}" (click)="ddCategoryClick($event);" /><span>{{category}}</span>
-                            </label>
-                        </div>
-                    </div>-->
-                </div>
-                <div class="col-lg-2 col-md-2 col-xs-2">
-                    <share-link [renderTo]="'detail'" (onDownloadClick)="onDownloadClick($event)"></share-link>
-                </div>
+                <indicator-title [indicatorData]="indicatorData" [isStatewide]="isStatewide"
+                    [isMobile]="isMobile" [isCountyLevel]="isCountyLevel" [showShare]="true"
+                    (drillDownOutput)="onDrilldownOutput($event)"
+                    (indicatorChange)="onDDIndicatorChange($event)"
+                    (onDownloadClick)="onDownloadClick($event)"></indicator-title>
             </div>
             <div class="row">
                 <div *ngIf="!isStatewide && !isCustomChart" [ngClass]="!showGraph || isTextData ? 'col-xs-12': 'col-lg-6 col-md-6 col-xs-12'">
@@ -119,76 +88,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div id="indicator-info" [ngClass]="indInfo" class="col-lg-5 col-md-6 col-xs-12 arrow_box">
-                    <div class="row">
-                        <span class="col-xs-4" [ngClass]="{'selected':indInfo === 'desc'}" (click)="indInfo = 'desc';">Description</span>
-                        <span class="col-xs-4" [ngClass]="{'selected':indInfo === 'src'}" (click)="indInfo = 'src';">Source</span>
-                        <span class="col-xs-4" [ngClass]="{'selected':indInfo === 'other'}" (click)="indInfo = 'other';">How to cite</span>
-                    </div>
-                </div>
-                <div class="col-xs-12" id="indicator-info-content">
-                    <div *ngIf="indInfo === 'desc'">
-                        <div *ngFor="let id of indicatorDesc">
-                            <div *ngIf="id.Description_v4 !== null">
-                                <span>Description:</span>
-                                <span [innerHTML]="id.Description_v4"></span>
-                            </div>
-                            <div *ngIf="id.Description_v4 === null">
-                                <span>No description information currently available.</span>
-                            </div>
-                            <div *ngIf="id.Formula !== null">
-                                <span>Formula:</span>
-                                <span [innerHTML]="id.Formula"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div *ngIf="indInfo === 'src'">
-                        <div *ngFor="let id of indicatorDesc">
-                            <span *ngIf="id.Source !== null" [innerHTML]="id.Source">
-                            </span>
-                            <span *ngIf="id.Source === null">Not available</span>
-                        </div>
-                    </div>
-                    <!--<div *ngIf="indInfo === 'other'">
-                        <div *ngFor="let id of indicatorDesc">
-                            <span *ngIf="id.Other !== null" [innerHTML]="id.Other">
-                            </span>
-                            <span *ngIf="id.Other === null">n/a</span>
-                        </div>
-                    </div>-->
-                    <div *ngIf="indInfo === 'other'">
-                        <p>Accessed from the Communities Reporter Tool on {{dateAccessed}}</p>
-                        <p>Url: {{pageUrl}}</p>
-                        <div *ngFor="let id of indicatorDesc">
-                            <span>Data source: </span>
-                            <span *ngIf="id.Source !== null" [innerHTML]="id.Source">
-                            </span>
-                            <span *ngIf="id.Source === null">Not available</span>
-                        </div>
-                        <br />
-                        <p><i>The Communities Reporter Tool is a collaboration of Oregon State University (Rural Studies Program and the Oregon Explorer), the Ford Family Foundation (which serves rural Oregon and Siskiyou County, CA), and the Oregon Community Foundation. Partners include the Oregon Department of Administrative Services. </i></p>
-                    </div>
-                </div>
-                <!--<div *ngIf="relatedIndicators.length > 0">
-                        <div id="related-indicators-wrapper" class="row">
-                        </div>
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <h2>Related Indicators</h2>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-4 col-md-6 col-xs-12 data-tile-grid" *ngFor="let indicator of relatedIndicators">
-                                <data-tile #dataTile [indicator]="indicator.related_indicators" [tileType]="'graph'" [viewType]="'basic'" [related]="true"></data-tile>
-                            </div>
-                        </div>
-                    </div>
-                    <div *ngIf="relatedIndicators.length === 0" id="no-rel-ind-buffer" class="col-xs-12">
-                        &nbsp;
-                    </div>
-                </div>-->
-            </div>
+           <indicator-footer [indicatorDesc]="indicatorDesc"></indicator-footer>
         </div>
     </div>
 </div>

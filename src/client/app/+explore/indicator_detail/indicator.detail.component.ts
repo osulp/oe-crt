@@ -2,9 +2,9 @@ import {Component, Input, ViewChild, ViewChildren, QueryList, OnInit} from '@ang
 import {Location} from '@angular/common';
 import {JSONP_PROVIDERS}  from '@angular/http';
 import {Router} from '@angular/router';
-import {DataTileComponent,PlacesMapSelectComponent, ShareLinkComponent} from '../../shared/components/index';
+import {DataTileComponent,PlacesMapSelectComponent, IndicatorTitleComponent, IndicatorFooterComponent} from '../../shared/components/index';
 import {IndicatorDescService, SelectedDataService} from '../../shared/services/index';
-import {DrilldownCategoryFilterPipe} from '../../shared/pipes/index';
+//import {DrilldownCategoryFilterPipe} from '../../shared/pipes/index';
 import {SearchResult} from '../../shared/data_models/index';
 import {SearchComponent} from '../../shared/components/index';
 import {TableViewComponent} from './table_view/table.view.component';
@@ -19,8 +19,7 @@ declare var window: any;
     templateUrl: 'indicator.detail.component.html',
     styleUrls: ['indicator.detail.component.css'],
     providers: [JSONP_PROVIDERS, IndicatorDescService, SelectedDataService],
-    directives: [PlacesMapSelectComponent, DataTileComponent, SearchComponent, TableViewComponent, ShareLinkComponent],
-    pipes: [DrilldownCategoryFilterPipe]
+    directives: [PlacesMapSelectComponent, DataTileComponent, SearchComponent, TableViewComponent, IndicatorTitleComponent, IndicatorFooterComponent],
 })
 
 export class DetailComponent implements OnInit {
@@ -30,8 +29,9 @@ export class DetailComponent implements OnInit {
     @Input() selectedDDCategory: any = '';
     @ViewChild(PlacesMapSelectComponent) placeMap: PlacesMapSelectComponent;
     @ViewChildren(DataTileComponent) dataTiles: QueryList<DataTileComponent>;
-    @ViewChild(ShareLinkComponent) shareLinkComp: ShareLinkComponent;
+    @ViewChild(IndicatorTitleComponent) titleComp: IndicatorTitleComponent;
     indicatorDesc: any = [];
+    indicatorData: any;
     _chartData: any = [];
     chartData: any = [];
     showMap: boolean;
@@ -240,7 +240,7 @@ export class DetailComponent implements OnInit {
             }
         });
         console.log('datatile check!', data,this.indicatorTitle,this.inputIndicator);
-        this.shareLinkComp.download(data[this.inputIndicator].crt_db, years,places,this.inputIndicator);
+        this.titleComp.shareComp.download(data[this.inputIndicator].crt_db, years,places,this.inputIndicator);
     }
 
     onBlurExplorePage(evt: any) {
@@ -254,7 +254,7 @@ export class DetailComponent implements OnInit {
             });
         }
         if (!$(evt.target).closest('.detail').length) {
-            this.shareLinkComp.showShare = false;
+            this.titleComp.shareComp.showShare = false;
         }
     }
 
@@ -313,6 +313,13 @@ export class DetailComponent implements OnInit {
         this.goToNewExplorePage(ddIndicator);
     }
 
+    onDrilldownOutput(drillDownObj: any) {
+        console.log('matej, drilldown', drillDownObj);
+        this.drillDownCategories = drillDownObj.drillDownCategories;
+        this.drillDowns = drillDownObj.drillDowns;
+    }
+
+
     ngOnInit() {
         this.detailUrlChanges = 0;
         //console.log('detailurlchanges', this.detailUrlChanges, history);
@@ -338,6 +345,7 @@ export class DetailComponent implements OnInit {
         this._indicatorDescService.getIndicator(this.inputIndicator).subscribe(
             (data: any) => {
                 console.log('indicator detail repsonse from indicator description service:!', data);
+                this.indicatorData = data;
                 let indicator_info = data.Desc[0];
                 if (indicator_info) {
                     this.indicatorDesc = data.Desc;// IndicatorDescSer
@@ -347,78 +355,72 @@ export class DetailComponent implements OnInit {
                         ? indicator_info.Dashboard_Chart_Title
                         : indicator_info.Variable;
 
-                    if (data.DrilldownIndicators) {
-                        this.hasDrilldowns = true;
-                        let ddTypeArr = data.DrilldownIndicators.filter((dd: any) => dd.Sub_Sub_Topic !== 'Total');
-                        this.drillDownType = ddTypeArr[0].Sub_Sub_Topic ? ddTypeArr[0].Sub_Sub_Topic : '';
-                        this.indicatorDesc.ddRemoveText = this.getDDRemoveText(data.DrilldownIndicators);
-                        this.indicatorDesc.ddBaseIndicator = this.indicatorTitle.split(':')[0] + ':';
+                    // if (data.DrilldownIndicators) {
+                    //     this.hasDrilldowns = true;
+                    //     let ddTypeArr = data.DrilldownIndicators.filter((dd: any) => dd.Sub_Sub_Topic !== 'Total');
+                    //     this.drillDownType = ddTypeArr[0].Sub_Sub_Topic ? ddTypeArr[0].Sub_Sub_Topic : '';
+                    //     this.indicatorDesc.ddRemoveText = this.getDDRemoveText(data.DrilldownIndicators);
+                    //     this.indicatorDesc.ddBaseIndicator = this.indicatorTitle.split(':')[0] + ':';
 
-                        this.drillDowns = data.DrilldownIndicators.map((dd: any) => {
-                            console.log('corpus loop', dd, this.inputIndicator, this.indicatorTitle);
-                            let returnVal = dd.Indicator;
-                            //let colonSeparator = this.indicatorDesc.ddRemoveText.indexOf(':') !== -1;
-                            if (dd.Indicator.split(':').length > 1) {
-                                returnVal = dd.Indicator.split(':')[1];
-                            } else {
-                                this.indicatorDesc.ddRemoveText.split(' ').forEach((removeText: string) => {
-                                    returnVal = returnVal.replace(removeText, '');
-                                });
-                            }
+                    //     this.drillDowns = data.DrilldownIndicators.map((dd: any) => {
+                    //         console.log('corpus loop', dd, this.inputIndicator, this.indicatorTitle);
+                    //         let returnVal = dd.Indicator;
+                    //         //let colonSeparator = this.indicatorDesc.ddRemoveText.indexOf(':') !== -1;
+                    //         if (dd.Indicator.split(':').length > 1) {
+                    //             returnVal = dd.Indicator.split(':')[1];
+                    //         } else {
+                    //             this.indicatorDesc.ddRemoveText.split(' ').forEach((removeText: string) => {
+                    //                 returnVal = returnVal.replace(removeText, '');
+                    //             });
+                    //         }
 
-                            return {
-                                'ddDisplay': returnVal,
-                                'indicator': dd.Indicator,
-                                'variable': dd.Variable,
-                                'selected': dd.Indicator === this.indicatorTitle ? 'selected' : null,
-                                'category': data.DrilldownIndicators.filter((di: any) => di.Sub_Sub_Topic === dd.Sub_Sub_Topic).length > 1 || dd.Sub_Sub_Topic === 'Total' ? dd.Sub_Sub_Topic : dd.Sub_Sub_Topic
-                            };
-                        })
-                            .sort((a: any, b: any) => {
-                                return a.category === 'Total'
-                                    ? -1000
-                                    : b.category === 'Total'
-                                        ? 1000
-                                        : a.ddDisplay.localeCompare(b.ddDisplay);
-                            });
-                        //if only one type of drilldown type not including total, don't add 'All'
-                        let uniqueCats = this.drillDowns
-                            .map((dd: any) => dd.category)
-                            .filter((val: any, idx: number, self: any) => self.indexOf(val) === idx && val !== 'Total');
-                        if (uniqueCats.length > 1) {
-                            this.drillDownCategories.push({
-                                'category': 'All',
-                                'selected': true
-                            });
-                        }
-                        uniqueCats.forEach((ddCat: any) => {
-                            this.drillDownCategories.push({
-                                'category': ddCat,
-                                'selected': uniqueCats.length === 1 ? true : false
-                            });
-                        });
-                        //this.drillDownCategories.sort();
-                        this.drillDownCategories.sort((a: any, b: any) => {
-                            return a.category.localeCompare(b.category);
-                            //if (a.category === 'Other') {
-                            //    return 1000;
-                            //} else if (b.category === 'Other') {
-                            //    return -1000;
-                            //} else {
-                            //    return b.category - a.category;
-                            //}
-                        });
-                        //console.log('corpus', this.drillDowns, $('label.dropdown:after').css('right', '200px'));
+                    //         return {
+                    //             'ddDisplay': returnVal,
+                    //             'indicator': dd.Indicator,
+                    //             'variable': dd.Variable,
+                    //             'selected': dd.Indicator === this.indicatorTitle ? 'selected' : null,
+                    //             'category': data.DrilldownIndicators.filter((di: any) => di.Sub_Sub_Topic === dd.Sub_Sub_Topic).length > 1 || dd.Sub_Sub_Topic === 'Total' ? dd.Sub_Sub_Topic : dd.Sub_Sub_Topic
+                    //         };
+                    //     })
+                    //         .sort((a: any, b: any) => {
+                    //             return a.category === 'Total'
+                    //                 ? -1000
+                    //                 : b.category === 'Total'
+                    //                     ? 1000
+                    //                     : a.ddDisplay.localeCompare(b.ddDisplay);
+                    //         });
+                    //     //if only one type of drilldown type not including total, don't add 'All'
+                    //     let uniqueCats = this.drillDowns
+                    //         .map((dd: any) => dd.category)
+                    //         .filter((val: any, idx: number, self: any) => self.indexOf(val) === idx && val !== 'Total');
+                    //     if (uniqueCats.length > 1) {
+                    //         this.drillDownCategories.push({
+                    //             'category': 'All',
+                    //             'selected': true
+                    //         });
+                    //     }
+                    //     uniqueCats.forEach((ddCat: any) => {
+                    //         this.drillDownCategories.push({
+                    //             'category': ddCat,
+                    //             'selected': uniqueCats.length === 1 ? true : false
+                    //         });
+                    //     });
+                    //     //this.drillDownCategories.sort();
+                    //     this.drillDownCategories.sort((a: any, b: any) => {
+                    //         return a.category.localeCompare(b.category);
+                    //         //if (a.category === 'Other') {
+                    //         //    return 1000;
+                    //         //} else if (b.category === 'Other') {
+                    //         //    return -1000;
+                    //         //} else {
+                    //         //    return b.category - a.category;
+                    //         //}
+                    //     });
+                    //     //console.log('corpus', this.drillDowns, $('label.dropdown:after').css('right', '200px'));
 
-                    }
-                    //console.log('indicatorDesc service', data);
-                    //this.indicatorTitle = indicator_info.Sub_Topic_ID !== null
-                    //    ? indicator_info.Sub_Topic_Name + ' ('+ indicator_info.Variable + ')'
-                    //    : indicator_info.Dashboard_Chart_Title
-                    //        ? indicator_info.Dashboard_Chart_Title
-                    //        : indicator_info.Variable;
+                    // }
 
-                    this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
+                    //this.subTitle = indicator_info.Dashboard_Chart_Y_Axis_Label ? indicator_info.Dashboard_Chart_Y_Axis_Label : '';
                     this.isStatewide = indicator_info.Geog_ID === 8 ? true : false;
                     this.isCountyLevel = indicator_info.CountyLevel;
                     this.isTOP = indicator_info.isTOP;

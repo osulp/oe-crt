@@ -1,31 +1,45 @@
 <div>
-    <div class="multiselect">
-        <div class="selectBox" (click)="chkBoxVisibile = !chkBoxVisibile;">
-            <div [ngClass]="chkBoxVisibile ? 'open' : ''" class="topic-header-indicator-filter">
-                <h2>{{selTopics[0].topic}}</h2>
-            </div>
-        </div>
-        <div class="row" [hidden]="!chkBoxVisibile">
-            <div id="indicator-list-header" [hidden]="!chkBoxVisibile" class="col-lg-5 col-md-6 col-xs-10" [ngClass]="selTopics[0].topic.length > 18 ? 'double' : ''">
-                <div class="row">
-                    <span class="hide-show col-md-3 col-xs-6" (click)="showHideAll('hide')">De-select all</span>
-                    <span class="hide-show col-md-2 col-xs-4" (click)="showHideAll('show')">Select all</span>
-                    <span class="hide-show col-md-1 col-xs-2 fa" [ngClass]="indicatorSortAlpha ? 'fa-sort-alpha-asc' :'fa-sort-alpha-desc'" (click)="indicatorSortAlpha = !indicatorSortAlpha"></span>
-                </div>
-            </div>
-            <div id="indicator-list" [ngClass]="selTopics[0].topic.length > 18 ? 'double' : ''" class="col-lg-5 col-md-6 col-xs-10">
-                <div *ngFor="let indicator of inputIndicators | indicatorTopicFilterPipe : selTopics[0]:selCollections:false:indicatorSortAlpha" class="row">
-                    <div class="col-xs-1 ind-checkbox" (click)="toggleIndicator(indicator,null,true)">
-                        <span class="glyphicon" [ngClass]="indicator.selected ? 'glyphicon-ok' : ''">&nbsp;</span>
-                        <!--<input type="checkbox" [checked]="indicator.selected" id="{{i+'ind'}}" />-->
-                    </div>
-                    <div class="col-xs-11 ind-label" (click)="toggleIndicator(indicator,null,true)">
-                        <label attr.for="{{i+'ind'}}">
-                            {{indicator.indicator_display}}
-                        </label>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="multiselect">
+    <div class="selectBox" (click)="chkBoxVisibile = !chkBoxVisibile;">
+      <div [ngClass]="chkBoxVisibile ? 'open' : ''"
+        class="topic-header-indicator-filter">
+        <h2>{{selTopics[0].topic}}</h2>
+      </div>
     </div>
+    <div class="row" [hidden]="!chkBoxVisibile">
+      <div id="indicator-list-header" [hidden]="!chkBoxVisibile"
+        class="col-lg-5 col-md-6 col-xs-10"
+        [ngClass]="selTopics[0].topic.length > 18 ? 'double' : ''">
+        <div class="row">
+          <span class="hide-show col-md-3 col-xs-6"
+            (click)="showHideAll('hide')">De-select all</span>
+          <span class="hide-show col-md-2 col-xs-4"
+            (click)="showHideAll('show')">Select all</span>
+          <span class="hide-show col-md-1 col-xs-2 fa"
+            [ngClass]="indicatorSortAlpha ? 'fa-sort-alpha-asc' :'fa-sort-alpha-desc'"
+            (click)="indicatorSortAlpha = !indicatorSortAlpha"></span>
+        </div>
+      </div>
+      <div id="indicator-list"
+        [ngClass]="selTopics[0].topic.length > 18 ? 'double' : ''"
+        class="col-lg-5 col-md-6 col-xs-10">
+        <div
+          *ngFor="let indicator of inputIndicators | indicatorTopicFilterPipe : selTopics[0]:selCollections:false:indicatorSortAlpha"
+          class="row">
+          <div class="col-xs-1 ind-checkbox"
+            (click)="toggleIndicator(indicator,null,true)">
+            <span class="glyphicon"
+              [ngClass]="indicator.selected ? 'glyphicon-ok' : ''">&nbsp;</span>
+            <!--<input type="checkbox" [checked]="indicator.selected" id="{{i+'ind'}}" />-->
+          </div>
+          <div class="col-xs-11 ind-label"
+            (click)="toggleIndicator(indicator,null,true)">
+            <label attr.for="{{i+'ind'}}">
+              {{indicator.indicator_display}}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

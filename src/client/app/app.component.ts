@@ -11,6 +11,7 @@ import { HomeComponent } from './+home/home.component';
 import { HowToComponent} from './+howto/index';
 import { ErrorComponent} from './+error/index';
 import { SelectedPlacesService } from './shared/services/index';
+import { EmbedsComponent} from './+embeds/index';
 //import { d } from './shared/index';
 
 declare var ga: Function;
@@ -55,6 +56,9 @@ declare var ga: Function;
     {
         path: '/TopIndicators',
         component: TopCollectionComponent
+    },{
+        path:'/Embeds',
+        component: EmbedsComponent
     }
 ])
 //@RouteConfig([

@@ -15,5 +15,16 @@ export class CollectionsService {
             .get(serviceUrl, { search: params })
             .map((request:any) => <string[]>request.json());
     }
+    getAll() {
+        let serviceUrl = 'https://oe.oregonexplorer.info/rural/crt_rest_api/collections';
+        var params = new URLSearchParams();
+        params.set('featured', '0');
+        params.set('f', 'json');
+        params.set('callback', 'JSONP_CALLBACK');
+        // TODO: Add error handling
+        return this.jsonp
+            .get(serviceUrl, { search: params })
+            .map((request: any) => <string[]>request.json());
+    }
 }
 

@@ -48,5 +48,42 @@
                 return placeType;
         }
     }
+
+    getDDRemoveText(drillDowns: any[]) {
+        //////////////////////
+        // Function to find similiar words to remove for drilldown series name display
+        // Compares the drill down categories against each other and keeps the words that are the same in the  same order
+        /////////////////////
+        var removeText = '';
+        var prevArray: any[] = [],
+            curArray: any[] = [];
+        drillDowns.forEach((dd: any) => {
+            curArray = dd['Indicator'].split(' ');
+
+            console.log('prague 2019', curArray);
+            let removeTextArray: any[] = removeText.split(' ');
+            if (prevArray.length !== 0) {
+                for (var x = 0; x < prevArray.length; x++) {
+                    console.log('removeCandidate', prevArray[x]);
+                    if (prevArray[x] === curArray[x]
+                        && removeTextArray[x] !== prevArray[x]
+                        && removeText.indexOf(prevArray[x]) === -1
+                    ) {
+                        removeText += prevArray[x] + ' ';
+                    } else {
+                        removeText = removeText;
+                    }
+                }
+            } else {
+                prevArray = curArray;
+            }
+        });
+
+        removeText = removeText.split(':')[0] + ':';
+        console.log('frumpy removetext', removeText);
+        return removeText;
+    }
+
+
 }
 

@@ -1,72 +1,69 @@
-import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
-import {JSONP_PROVIDERS}  from '@angular/http';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { JSONP_PROVIDERS } from '@angular/http';
 
-import {IndicatorTopicFilterPipe} from '../../../shared/pipes/index';
-import {Topic, Indicator} from '../../../shared/data_models/index';
-import {IndicatorsService} from '../../../shared/services/index';
+import { IndicatorTopicFilterPipe } from '../../../shared/pipes/index';
+import { Topic, Indicator } from '../../../shared/data_models/index';
+import { IndicatorsService } from '../../../shared/services/index';
 
 @Component({
-    moduleId: module.id,
-    selector: 'indicators-by-topic-list',
-    templateUrl: 'indicator.topic.list.component.html',
-    styleUrls: ['indicator.topic.list.component.css'],
-    pipes: [IndicatorTopicFilterPipe],
-    providers: [JSONP_PROVIDERS, IndicatorsService]
+  moduleId: module.id,
+  selector: 'indicators-by-topic-list',
+  templateUrl: 'indicator.topic.list.component.html',
+  styleUrls: ['indicator.topic.list.component.css'],
+  pipes: [IndicatorTopicFilterPipe],
+  providers: [JSONP_PROVIDERS, IndicatorsService]
 })
 
 
 export class IndicatorsTopicListComponent implements OnInit {
-    @Input() topic: Topic;
-    @Input() inputIndicators: Indicator[];
-    @Input() inputTopics: Topic[];
-    @Input() inputCollections: any = [];
-    @Input() allTopicsView: boolean;
-    @Output() filteredIndicatorsFromComp = new EventEmitter();
-    selTopics: Topic[] = [];
-    selCollections: any[] = [];
-    chkBoxVisibile: boolean = false;
-    indicatorSortAlpha: boolean = true;
-    //public Indicators: Indicator[] = [];
-    public _selectedIndicators: any;
+  @Input() topic: Topic;
+  @Input() inputIndicators: Indicator[];
+  @Input() inputTopics: Topic[];
+  @Input() inputCollections: any = [];
+  @Input() allTopicsView: boolean;
+  @Output() filteredIndicatorsFromComp = new EventEmitter();
+  selTopics: Topic[] = [];
+  selCollections: any[] = [];
+  chkBoxVisibile: boolean = false;
+  indicatorSortAlpha: boolean = true;
+  //public Indicators: Indicator[] = [];
+  public _selectedIndicators: any;
 
-    constructor(public _indicatorService: IndicatorsService) { }
+  constructor(public _indicatorService: IndicatorsService) { }
 
-    showHideAll(showType: any) {
-        this.inputIndicators.forEach((indicator: any) => {
-            this.toggleIndicator(indicator, showType === 'show' ? true : false, false);
-        });
-        this.filteredIndicatorsFromComp.emit(this.inputIndicators);
+  showHideAll(showType: any) {
+    this.inputIndicators.forEach((indicator: any) => {
+      this.toggleIndicator(indicator, showType === 'show' ? true : false, false);
+    });
+    this.filteredIndicatorsFromComp.emit(this.inputIndicators);
+  }
+
+  toggleIndicator(indicator: Indicator, value?: boolean, emit?: boolean) {
+    if (value !== null) {
+      indicator.selected = value;
+    } else {
+      indicator.toggleSelected();
     }
-
-    toggleIndicator(indicator: Indicator, value?: boolean, emit?: boolean) {
-        if (value !== null) {
-            indicator.selected = value;
-        } else {
-            indicator.toggleSelected();
-        }
-        const i = this.inputIndicators.indexOf(indicator);
-        this.inputIndicators = [
-            ...this.inputIndicators.slice(0, i),
-            indicator,
-            ...this.inputIndicators.slice(i + 1)
-        ];
-        this._selectedIndicators = [];
-        for (var x = 0; x < this.inputIndicators.length; x++) {
-            if (this.inputIndicators[x].selected) {
-                this._selectedIndicators.push(this.inputIndicators[x]);
-            }
-        }
-        if (emit) {
-            this.filteredIndicatorsFromComp.emit(this.inputIndicators);
-        }
+    const i = this.inputIndicators.indexOf(indicator);
+    this.inputIndicators = [
+      ...this.inputIndicators.slice(0, i),
+      indicator,
+      ...this.inputIndicators.slice(i + 1)
+    ];
+    this._selectedIndicators = [];
+    for (var x = 0; x < this.inputIndicators.length; x++) {
+      if (this.inputIndicators[x].selected) {
+        this._selectedIndicators.push(this.inputIndicators[x]);
+      }
     }
-
-    ngOnInit() {
-        console.log('this is the input topics for checkbox display', this.inputTopics);
-        this.selTopics = this.inputTopics;
-        this.selCollections = this.inputCollections;
+    if (emit) {
+      this.filteredIndicatorsFromComp.emit(this.inputIndicators);
     }
+  }
+
+  ngOnInit() {
+    console.log('this is the input topics for checkbox display', this.inputTopics);
+    this.selTopics = this.inputTopics;
+    this.selCollections = this.inputCollections;
+  }
 }
-
-
-

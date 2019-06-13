@@ -28,7 +28,7 @@
                     <span [innerHTML]="'Click on a line to see further breakdown by ' + drillDownType + '.'"></span>
                 </div>-->
 
-                <div class="collection-icon-wrapper">
+                <div *ngIf="!isEmbed" class="collection-icon-wrapper">
                     <span *ngFor="let collection of indicator_collections" class="collectionIcon">
                         <span *ngFor="let coll of collections">
                             <img *ngIf="coll.collection_name === collection || coll.collection === collection" [src]="coll.collection_icon_path ? coll.collection_icon_path : coll.icon_path" [title]="'This indicator is part of the '+collection+' collection.'" />
@@ -50,7 +50,7 @@
             </div>
             <div id="map-chart-wrapper" *ngIf="tileType === 'map'">
                 <div id="map-view-wrapper">
-                    <hmap-menu [(mapView)]="selectedPlaceType" [showMenuLeft]="showMenuLeft" (selMapView)="onSelectedMapViewChange($event)"></hmap-menu>
+                    <hmap-menu [(mapView)]="selectedPlaceTypeInput ? selectedPlaceTypeInput : selectedPlaceType" [showMenuLeft]="showMenuLeft" (selMapView)="onSelectedMapViewChange($event)"></hmap-menu>
                 </div>
                 <div id="map-controls">
                     <span (click)="mapChart.mapZoom(20);" class="glyphicon glyphicon-home full-zoom"></span><span (click)="mapChart.mapZoom(20);" class="full-zoom">Full Extent</span>

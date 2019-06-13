@@ -1,0 +1,93 @@
+.embed-container {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-flex-flow: row wrap;
+    flex-flow: row wrap;
+    justify-content: left;
+}
+
+.embed-container-child {
+    border:1px solid #a7a7a7;
+    border-radius:4px;
+    padding: 10px;
+    /* width: 100px;
+    min-width:100px; */
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: .90em;
+}
+
+.dimensions .embed-container-child{
+  margin: 0 20px;
+  border: none;
+}
+.embed-code-wrapper, .embed-params-wrapper{
+  width:100%;
+}
+#embedCodeElem{
+  min-width:500px;
+  max-width:100%;
+  min-height:50px;
+  height:100%;
+  /* width:100%; */
+}
+
+.note{
+  color:gray;
+  font-weight: normal;
+}
+
+/* HTML5 Boilerplate accessible hidden styles */
+[type="radio"] {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+[type="radio"] + span {
+    display: block;
+    font-weight:lighter;
+    color:#C34500;
+}
+
+    /* the basic, unchecked style */
+    [type="radio"] + span:before {
+        content: '';
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        vertical-align: -0.25em;
+        border-radius: 1em;
+        border: 0.125em solid #fff;
+        box-shadow: 0 0 0 0.15em #D1CDC7;
+        margin-right: 0.75em;
+        -moz-transition: 0.5s ease all;
+        -o-transition: 0.5s ease all;
+        -webkit-transition: 0.5s ease all;
+        transition: 0.5s ease all;
+    }
+
+/* the checked style using the :checked pseudo class */
+[type="radio"]:checked + span:before {
+    background: #C34500;
+    box-shadow: 0 0 0 0.25em #D1CDC7;
+}
+
+    [type="radio"]:checked + span {
+        color:#6F7C82;
+    }
+
+.radioBtns{
+  margin:10px;
+}
