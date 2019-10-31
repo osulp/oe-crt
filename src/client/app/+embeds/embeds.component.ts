@@ -274,6 +274,7 @@ export class EmbedsComponent implements OnInit, OnDestroy {
     }
 
     authorize(isAdminTool:boolean) {
+        isAdminTool = this.referrer === 'http://oe.oregonexplorer.info/rural/cr_data_admin/Embeds.aspx' ? true : isAdminTool;
         this.isAuthorized = this.restricted_domains.indexOf(this.referrer) !== -1 || !this.isRestricted || isAdminTool;
         console.log('is Authorized?: ', this.isAuthorized, this.referrer, this.restricted_domains, this.isRestricted);
     }
