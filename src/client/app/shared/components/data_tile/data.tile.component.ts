@@ -1808,9 +1808,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         console.log('czech 1', data);
                         try {
                             sliderScope.mapChart.series[seriesIndex].setData(data);
-                        } catch (ex) {
+                        } catch(ex) {
                             //data failed may need to change color axis to not logrithmic.
-                            sliderScope.mapChart.colorAxis[0].update({ type: null });
+                            sliderScope.mapChart.colorAxis[0].update({type: null});
                             sliderScope.mapChart.series[seriesIndex].setData(data);
                         }
 
@@ -2307,11 +2307,11 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     };
 
                     let indicatorYaxis = this.placeTypeData.Metadata[0]['Y-Axis'] !== null ? this.placeTypeData.Metadata[0]['Y-Axis'] : this.indicator;
-                    console.log('pissant', this.indicator);
+                    console.log('pissant', this.indicator, indicatorYaxis);
                     this.chart.yAxis[0].update({
                         title: {
                             text: this.viewType === 'advanced' ? indicatorYaxis : '',
-                            margin: this.viewType === 'advanced' ? indicatorYaxis.length > 30 ? 40 : null : null,
+                            margin: null,// this.viewType === 'advanced' ? indicatorYaxis.length > 35 ? 40 : null : null,
                             style: { 'line-height': '.8em' }
                         },
                         labels: {
@@ -3549,7 +3549,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 if (!drilldown) {
                     //FOR MAP VIEW
                     let statewideFilter: any[] = ['Oregon', 'Statewide', 'Rural Oregon', 'Urban Oregon', 'California', 'Rural California', 'Urban California'];
-                    if (statewideFilter.indexOf(this.isSchool ? pData.Name : pData.community) === -1 && (pData[this.selectedYear.Year] === -1 ? 0 : pData[this.selectedYear.Year] !== null)) {
+                    if (statewideFilter.indexOf(this.isSchool ? pData.Name : pData.community) === -1 && (pData[this.selectedYear.Year] === -1 ? 0 : pData[this.selectedYear.Year] !== null) ) {
                         place_data.push({
                             name: this.isSchool ? pData.Name : pData.community, //this.getCommunityName(pData),// pData.community,
                             geoid: pData.geoid,
@@ -3734,7 +3734,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 //overallCounter++;
             }
             if (y >= this.yearStartOffset && y <= this.placeTypeData.Years.length - (this.yearEndOffset + 1)) {
-                //console.log('adding year2', Year, 'y is:', y, 'and placedata is:', this.placeTypeData.Years.length - (this.yearEndOffset + 1));
+                console.log('adding year2', Year, 'y is:', y, 'and placedata is:', this.placeTypeData.Years.length - (this.yearEndOffset + 1));
                 this._tickLabels[counter] = Year;
                 this._tickArray.push(counter);
                 this._tickLabelsTime[counterTime] = labelEveryThirdYear ? (labelYearCounter === 3 || counter === 0 ? Year : ' ') : (labelEveryYear ? Year : (labelYear ? Year : ' '));
