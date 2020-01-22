@@ -1799,7 +1799,10 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         sliderScope.mapChart.setTitle(null, {
                             text: sliderScope.selectedPlaceType + ' (' + sliderScope.selectedYear.Year + ')'
                         });
-                        let seriesIndex = sliderScope.mapChart.series.length - (sliderScope.geoAoi.geoid ? 2 : 1);
+                        let seriesIndex = sliderScope.mapChart.series.length - (sliderScope.geoAoi
+                            ? sliderScope.geoAoi.geoid
+                                ? 2
+                                : 1 : 1);
                         let mapData = sliderScope.getSelectedMapData();
                         let data: any = sliderScope.dataStore[sliderScope.selectedPlaceType].indicatorData[sliderScope.indicator].chart_data.place_data;
                         sliderScope.mapChart.series[seriesIndex].name = sliderScope.pluralize(sliderScope.selectedPlaceType) + ' (' + sliderScope.selectedYear.Year + ')';
@@ -2285,22 +2288,28 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
 
                             //let drillDownMsg = this.hasDrillDowns && !this.drilldownShowing && (this.isStateDDOnly && this.point.series.name === "Oregon" || !this.isStateDDOnly) && !this.hasDrillDownCategories ? '<span style="font-size:10px"><em>(Click on line to see demographics)</em></span>' : "";
                             //check if supported for place type
+
+                            console.log('drilldown geogs', chartScope.drillDownGeogs, chartScope.drillDownGeogs.indexOf('State'), this.point.series.options.geo_type);
                             let ddOnlyForCounty = chartScope.drillDownGeogs.indexOf('County') !== -1;
                             let ddOnlyForState = chartScope.drillDownGeogs.indexOf('State') !== -1;
+                            let hasGeoTypePtSeries = this.point.series.options.geo_type ? true : false;
 
                             chartScope.ddOnlyForState = chartScope.drillDownGeogs.indexOf('State') !== -1
-                                ? this.point.series.options.geo_type === 'State'
-                                    ? true
+                                ? hasGeoTypePtSeries
+                                    ? this.point.series.options.geo_type === 'State'
                                     : false
-                                : true;
-                            console.log('state only?', chartScope.ddOnlyForState, this, chartScope.drillDownGeogs);
+                                : false;
+                            console.log('state only?', chartScope.ddOnlyForState, this, this.point.series.options.geo_type, chartScope.drillDownGeogs);
                             let ddCountyOnlyMsg = ddOnlyForCounty && ['County', 'State'].indexOf(this.series.options.geo_type) === -1 ? '<br/><span>Drilldown only available at the county level</span>' : '';
 
                             let drillDownMsg = chartScope.hasDrillDowns && !chartScope.isDrilldown
                                 ? '<span style="font-size:10px"><em>(Click on line to see demographics)</em></span>'
                                 : '';
-                            drillDownMsg = (ddOnlyForState && this.series.options.geo_type === 'State') || !ddOnlyForState ? drillDownMsg : '';
-                            //console.log('there be dragons?', chartScope.isDrilldown);
+                            drillDownMsg = ((ddOnlyForState && (this.point.series.options.geo_type ? this.point.series.options.geo_type  === 'State' : false) || !ddOnlyForState)
+                            ? drillDownMsg
+                            : '';
+                            //drillDownMsg = (ddOnlyForState && this.series.options.geo_type !== 'State') ? '' : drillDownMsg;
+
 
                             return '<span style="fill: ' + this.series.color + ';"> ● </span><span style="font-size:10px"> ' + this.point.series.name + ' (' + this.x + ')</span><br/><span><b>' + displayValue + '</span><br/>' + (chartScope.viewType === 'advanced' ? (drillDownMsg + ddCountyOnlyMsg) : '');
                         }
@@ -2923,8 +2932,13 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             symbol: 'circle'
                         }
                     }, true);
+
                     if (!drilldown && this.hasDrillDowns && this.viewType === 'advanced') {
-                        Highcharts.addEvent(this.chart.series[this.chart.series.length - 1], 'click', (evt: any) => {
+                        console.log('trdlnik?', drilldown, this.hasDrillDowns, this.viewType, this.chart.series[this.chart.series.length - 1], addedSeries);
+                        //Highcharts.addEvent(this.chart.series[this.chart.series.length - 1], 'click', (evt: any) => {
+                            Highcharts.addEvent(this.chart.series[this.chart.series.length - 1], 'click', (evt: any) => {
+                            //alert('test');
+                            //console.log('dd clicked! trdlnik', evt)
                             if (this.ddOnlyForState) {
                                 this.getDrillDownData(evt);
                             }
@@ -3627,14 +3641,16 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         name: pdyPlace,
                         geoid: pData.geoid,
                         data: year_data,
-                        drilldown: this.hasDrillDowns
+                        drilldown: this.hasDrillDowns,
+                        //geo_type: this.pluralize(this.selectedPlaceType)
                     };
                     place_data_years_moe[pdyPlace] = {
                         id: pdyPlace,
                         name: pdyPlace,
                         geoid: pData.geoid,
                         data: year_data_moe,
-                        drilldown: this.hasDrillDowns
+                        drilldown: this.hasDrillDowns,
+                        //geo_type: this.pluralize(this.selectedPlaceType)
                     };
                 } else {
                     console.log('vat is pdata', pData);
@@ -3642,15 +3658,15 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         id: pdyPlace + ': ' + pData.Variable,
                         name: pdyPlace + ': ' + pData.Variable,
                         geoid: pData.geoid,
-                        data: year_data_dd//,
-                        //drilldown: this.hasDrillDowns
+                        data: year_data_dd,
+                        //geo_type: this.pluralize(this.selectedPlaceType)
                     };
                     place_data_years_moe_dd[pdyPlace + ': ' + pData.Variable] = {
                         id: pdyPlace + ': ' + pData.Variable,
                         name: pdyPlace + ': ' + pData.Variable,
                         geoid: pData.geoid,
-                        data: year_data_moe_dd//,
-                        //drilldown: this.hasDrillDowns
+                        data: year_data_moe_dd,
+                        //geo_type: this.pluralize(this.selectedPlaceType)
                     };
                 }
 

@@ -132,7 +132,8 @@ export class EmbedsComponent implements OnInit, OnDestroy {
                     collection_name: collection.collection_name,
                     selected: this.selectedCollection === collection.collection_name,
                     geoid: collection.geoid,
-                    geo_type: collection.geo_type
+                    geo_type: collection.geo_type,
+                    geo_name: collection.geo_name
                 };
             })
                 .sort((a: any, b: any) => {
@@ -150,8 +151,15 @@ export class EmbedsComponent implements OnInit, OnDestroy {
             if (coll.collection_name === this.selectedCollection && coll.geoid !== null) {
                 this.geo_aoi = {
                     geoid: coll.geoid,
-                    geo_type: coll.geo_type
+                    geo_type: coll.geo_type,
+                    geo_name: coll.geo_name
                 };
+                let collectionGeoPlace = {
+                        Name: this.geo_aoi.geo_name,
+                        ResID: this.geo_aoi.geoid,
+                        TypeCategory: this.geo_aoi.geo_type
+                };
+                this._selectedPlacesService.add(collectionGeoPlace);
             }
         });
     }
@@ -239,8 +247,8 @@ export class EmbedsComponent implements OnInit, OnDestroy {
 
     onSelectedCollectionFromCmp(collection: any) {
         this.selectedCollection = collection;
-        this.updateEmbedCode();
         this.updateGeoAoi();
+        this.updateEmbedCode();
     }
 
     clearAll(event:any) {
@@ -343,7 +351,7 @@ export class EmbedsComponent implements OnInit, OnDestroy {
     }
 
     onPlacesChanged(selectedPlaces: SearchResult[]) {
-        console.log('place added via explore comp', selectedPlaces);
+        console.log('place added via explore comp', selectedPlaces, this.geo_aoi);
         this.selectedPlacesUrl = '';
         for (var x = 0; x < selectedPlaces.length; x++) {
             //console.log('PROCESSING PLACE CHANGE: EXPLORE.TS');
@@ -400,6 +408,7 @@ export class EmbedsComponent implements OnInit, OnDestroy {
     }
 
     goToEmbded() {
+        console.log("GOTO EMBED?", this.selectedPlaces)
         this._router.navigate(['Embeds', {
             indicator: encodeURI(this.selectedIndicator
                 .replace(/\(/g, '%28')
