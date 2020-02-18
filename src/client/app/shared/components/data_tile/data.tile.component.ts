@@ -1910,6 +1910,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             max: mapScope.mapChartZoomSettings.yMax ? parseInt(mapScope.mapChartZoomSettings.yMax) : null,
             events: {
                 afterSetExtremes: function (y: any) {
+                    console.log('after set y extreme',y);
                     mapScope.mapChartZoomSettings.yMax = y.max;
                     mapScope.mapChartZoomSettings.yMin = y.min;
                 }
@@ -1924,6 +1925,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
         //set tooltip display
         this.mapChart.tooltip.options.formatter = function () {
             var displayValue = mapScope.formatValue(this.point.value, false) + '</b>';
+            //console.log('maptip display?', displayValue);
             //console.log('keep select', this.point.color);
             //if (this.point.selected) {
             //    this.point.setState('select');
@@ -1936,6 +1938,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                     if (this.point.year.match('-')) {
                         let chart_data = mapScope.dataStore[mapScope.selectedPlaceType].indicatorData[mapScope.indicator].chart_data;
                         displayValue += '<span style="font-size:8px">  (+/- ';
+                        console.log('formatVal?', chart_data.place_data_years_moe[this.point.id]);
                         displayValue += mapScope.formatValue(((parseFloat(chart_data.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][1]) - parseFloat(chart_data.place_data_years_moe[this.point.id].data[mapScope.selectedYearIndexArray[this.point.year]][0])) / 2), false);
                         displayValue += ' )</span>';
                     }
@@ -2189,6 +2192,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                 this.selectedYearIndex = this._tickArray.length - 1;// - this.yearEndOffset;
                 //console.log('countycheck-1', this.placeTypeData);
                 this.Data = this.placeTypeData.Data;
+                console.log('crash into me',this.Data);
                 //this.onChartDataUpdate.emit(data);
                 //check if metadata, if not custom chart, need to do other stuff
                 //TODO catch custom chart scenarios
@@ -2305,9 +2309,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             let drillDownMsg = chartScope.hasDrillDowns && !chartScope.isDrilldown
                                 ? '<span style="font-size:10px"><em>(Click on line to see demographics)</em></span>'
                                 : '';
-                            drillDownMsg = ((ddOnlyForState && (this.point.series.options.geo_type ? this.point.series.options.geo_type  === 'State' : false) || !ddOnlyForState)
-                            ? drillDownMsg
-                            : '';
+                            drillDownMsg = ((ddOnlyForState && (this.point.series.options.geo_type ? this.point.series.options.geo_type === 'State' : false) || !ddOnlyForState)
+                                ? drillDownMsg
+                                : '');
                             //drillDownMsg = (ddOnlyForState && this.series.options.geo_type !== 'State') ? '' : drillDownMsg;
 
 
@@ -2337,6 +2341,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         min: this.indicator.indexOf('Net Job Loss') === -1 ? 0 : null,
                         max: this.placeTypeData.Metadata[0]['Y-Axis_Max']
                     });
+
+
                     //let title = this.placeTypeData.Metadata[0]['Sub_Sub_Topic_ID'] !== null ? this.placeTypeData.Metadata[0]['Variable'] : this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator;
                     let title = this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] !== null ? this.placeTypeData.Metadata[0]['Dashboard_Chart_Title'] : this.indicator;
                     this.chart.setTitle(
@@ -2938,8 +2944,8 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         //Highcharts.addEvent(this.chart.series[this.chart.series.length - 1], 'click', (evt: any) => {
                             Highcharts.addEvent(this.chart.series[this.chart.series.length - 1], 'click', (evt: any) => {
                             //alert('test');
-                            //console.log('dd clicked! trdlnik', evt)
-                            if (this.ddOnlyForState) {
+                            console.log('dd clicked! trdlnik', evt, this.ddOnlyForState);
+                            if (!this.ddOnlyForState) {
                                 this.getDrillDownData(evt);
                             }
                         });
@@ -2954,7 +2960,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             .filter((m: any[]) => {
                                 return m ? m.filter(moe => $.isNumeric(moe)).length > 0 : false;
                             });
-                        console.log('moe check?', moe_data_check);
+                        console.log('moe check?', moe_data_check, moe_data);
                         if (moe_data_check.length > 0) {
                             this.chart.addSeries({
                                 name: seriesID + ' Margin of Error', // pd.community + ' Margin of Error',
@@ -2963,6 +2969,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 stemColor: isState ? 'gray' : Highcharts.getOptions().colors[idx],
                                 stemDashStyle: 'Dash',
                                 type: 'errorbar',
+                                connectNulls: true,
                                 data: moe_data,
                                 linkedTo: seriesID,  // this.getCommunityName(pd), // pd.community + pd.geoid,
                                 visible: this.showMOES
@@ -3053,6 +3060,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
             if (series.options.type === 'errorbar' && this.showMOES) {
                 console.log('should show errorbars');
                 series.show();
+                //series.reflowChart();
             }
             if (series.options.type === 'errorbar' && !this.showMOES) {
                 console.log('should hide errorbars');
@@ -3618,7 +3626,13 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         }
                         if (_year.match('-')) {
                             if (!drilldown) {
-                                year_data_moe.push([parseFloat(pData[_year]) - parseFloat(pData[_year + '_MOE']), parseFloat(pData[_year]) + parseFloat(pData[_year + '_MOE'])]);
+                                let moe_min = $.isNumeric(parseFloat(pData[_year]) - parseFloat(pData[_year + '_MOE']))
+                                    ? (parseFloat(pData[_year]) - parseFloat(pData[_year + '_MOE']))
+                                    : null;
+                                let moe_max = $.isNumeric(parseFloat(pData[_year]) + parseFloat(pData[_year + '_MOE']))
+                                    ? (parseFloat(pData[_year]) + parseFloat(pData[_year + '_MOE']))
+                                    : null;
+                                year_data_moe.push([moe_min, moe_max]);
                             } else {
                                 year_data_moe_dd.push([parseFloat(pData[_year]) - parseFloat(pData[_year + '_MOE']), parseFloat(pData[_year]) + parseFloat(pData[_year + '_MOE'])]);
                             }
@@ -3949,6 +3963,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     formatValue(val: any, isLegend: boolean) {
+        //console.log('suppress?', val, !$.isNumeric(val), this.placeTypeData.Metadata[0]  )
         if (val === '//' || (!$.isNumeric(val) && this.placeTypeData.Metadata[0].Variable_Represent.trim() !== 'Text')) {
             return '// Data suppressed';
         } else {
@@ -3996,6 +4011,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         break;
                 }
             }
+            //console.log('break my fall', returnVal);
             return returnVal;
         }
     }

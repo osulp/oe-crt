@@ -583,14 +583,23 @@ export class MapLeafletComponent implements OnInit, OnChanges {
             });
             //remove last comma
             geoids = geoids.substring(0, geoids.length - 1);
-            this.crt_layers.query()
-                .layer(this.crt_layer_counties_id)
-                .where('GEOID10 in (' + geoids + ')')
-                .simplify(this.map, 0)
-                .run(function (err: any, featureCollection: any, response: any) {
-                    mapScope.selectedLayer.addData(featureCollection.features);
-                    mapScope.processedCounty = true;
-                });
+            console.log('havlicovych', this.crt_layers, geoids);
+            try{
+                this.crt_layers.query()
+                    .layer(this.crt_layer_counties_id)
+                    .where('GEOID10 in (' + geoids + ')')
+                    .simplify(this.map, 0)
+                    .run(function (err: any, featureCollection: any, response: any) {
+                        console.log('havlicovych', err, featureCollection, response);
+                        if (featureCollection){
+                            mapScope.selectedLayer.addData(featureCollection.features);
+                            mapScope.processedCounty = true;
+                        }
+                    });
+            } catch(ex){
+                console.log("problem adding county features to leaflet map", ex);
+            }
+
         } else {
             this.processedCounty = true;
         }
