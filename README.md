@@ -3,6 +3,8 @@
 This code repo is build using Angular2.  At the point of release, RC1 was the stable version used.  Newer versions of Angular2 have substantial breaking changes, especially with component declarations and routing.
 
 USE node.js v 5.5
+nvm list
+nvm use 5.5.0
 
 To run this application with live reload, type:
 npm start
