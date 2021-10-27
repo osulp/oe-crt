@@ -40,6 +40,7 @@ export class ProjectConfig extends SeedConfig {
             //{ src: `${this.ASSETS_SRC}/scripts/esri-leaflet-2.0.0-beta.8.js`, vendor: false, inject: true },
             { src: `${this.CSS_SRC}/toast.${this.getInjectableStyleExtension()}`, inject: true, vendor: false },
             { src: `${this.ASSETS_SRC}/scripts/oe.js`, vendor: false, inject: true },
+            { src: `${this.ASSETS_SRC}/scripts/surveyPopup.js`, vendor: false, inject: true },
             { src: `${this.ASSETS_SRC}/scripts/toast.js`, vendor: false, inject: true }
         ];
         const appAssets = this.APP_ASSETS;

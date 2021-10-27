@@ -2572,7 +2572,9 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                             name: isHousing ? 'Owners' : 'Males',
                             data: isHousing ? this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.owners[this.selectedCustomChartYear].data
                                 .filter((data: any, idx: number) => {
-                                    return this.indicator_info.ScriptName.indexOf('Estimate') !== -1 ? true : this.selectedCustomChartYear !== '1990' ? [6].indexOf(idx) === -1 : [7, 8].indexOf(idx) === -1;
+                                    return this.indicator_info.ScriptName.indexOf('Estimate') !== -1 ? true : this.selectedCustomChartYear !== '1990'
+                                    ? [6].indexOf(idx) === -1
+                                    : [7, 8].indexOf(idx) === -1;
                                 })
                                 : this.dataStore.indicatorData[this.indicator].chart_data.place_data_years[this.selectedPlaceCustomChart.Name].data.males[this.selectedCustomChartYear].data
                         }, {
@@ -2585,6 +2587,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                         }
                         ]
                     };
+                    console.log('Renter data: ', this.dataStore.indicatorData[this.indicator])
                     this.chart.destroy();
                     this.chart = new Highcharts.Chart(pyramidOptions);
                     break;
@@ -3415,7 +3418,7 @@ export class DataTileComponent implements OnInit, OnDestroy, OnChanges {
                                 if (this.indicator_info.ScriptName.indexOf('Pyramid') !== -1) {
                                     returnVal = data;
                                 } else {
-                                    returnVal = (data / yearData1Sum) * 100;
+                                    returnVal = (data / yearData2Sum) * 100;
                                 }
                                 maxValue = Math.abs(returnVal) > maxValue ? Math.abs(returnVal) : maxValue;
                                 return returnVal;
